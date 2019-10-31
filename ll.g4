@@ -1,4 +1,4 @@
-grammar LParser;
+grammar ll;
 
 
 compileUnit: expression EOF;

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from LParser.g4 by ANTLR 4.7.2
+// Generated from ll.g4 by ANTLR 4.7.2
 
 // Unreachable code detected
 #pragma warning disable 0162
@@ -26,16 +26,16 @@ using IToken = Antlr4.Runtime.IToken;
 using ParserRuleContext = Antlr4.Runtime.ParserRuleContext;
 
 /// <summary>
-/// This class provides an empty implementation of <see cref="ILParserVisitor{Result}"/>,
+/// This class provides an empty implementation of <see cref="IllVisitor{Result}"/>,
 /// which can be extended to create a visitor which only needs to handle a subset
 /// of the available methods.
 /// </summary>
 /// <typeparam name="Result">The return type of the visit operation.</typeparam>
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "4.7.2")]
 [System.CLSCompliant(false)]
-public partial class LParserBaseVisitor<Result> : AbstractParseTreeVisitor<Result>, ILParserVisitor<Result> {
+public partial class llBaseVisitor<Result> : AbstractParseTreeVisitor<Result>, IllVisitor<Result> {
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="LParserParser.compileUnit"/>.
+	/// Visit a parse tree produced by <see cref="llParser.compileUnit"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -43,10 +43,10 @@ public partial class LParserBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitCompileUnit([NotNull] LParserParser.CompileUnitContext context) { return VisitChildren(context); }
+	public virtual Result VisitCompileUnit([NotNull] llParser.CompileUnitContext context) { return VisitChildren(context); }
 	/// <summary>
 	/// Visit a parse tree produced by the <c>infixExpression</c>
-	/// labeled alternative in <see cref="LParserParser.expression"/>.
+	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -54,10 +54,10 @@ public partial class LParserBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitInfixExpression([NotNull] LParserParser.InfixExpressionContext context) { return VisitChildren(context); }
+	public virtual Result VisitInfixExpression([NotNull] llParser.InfixExpressionContext context) { return VisitChildren(context); }
 	/// <summary>
 	/// Visit a parse tree produced by the <c>numericAtomExpression</c>
-	/// labeled alternative in <see cref="LParserParser.expression"/>.
+	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -65,10 +65,10 @@ public partial class LParserBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitNumericAtomExpression([NotNull] LParserParser.NumericAtomExpressionContext context) { return VisitChildren(context); }
+	public virtual Result VisitNumericAtomExpression([NotNull] llParser.NumericAtomExpressionContext context) { return VisitChildren(context); }
 	/// <summary>
 	/// Visit a parse tree produced by the <c>assignExpression</c>
-	/// labeled alternative in <see cref="LParserParser.expression"/>.
+	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -76,10 +76,10 @@ public partial class LParserBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitAssignExpression([NotNull] LParserParser.AssignExpressionContext context) { return VisitChildren(context); }
+	public virtual Result VisitAssignExpression([NotNull] llParser.AssignExpressionContext context) { return VisitChildren(context); }
 	/// <summary>
 	/// Visit a parse tree produced by the <c>parenthes</c>
-	/// labeled alternative in <see cref="LParserParser.expression"/>.
+	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -87,10 +87,10 @@ public partial class LParserBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitParenthes([NotNull] LParserParser.ParenthesContext context) { return VisitChildren(context); }
+	public virtual Result VisitParenthes([NotNull] llParser.ParenthesContext context) { return VisitChildren(context); }
 	/// <summary>
 	/// Visit a parse tree produced by the <c>variableExpression</c>
-	/// labeled alternative in <see cref="LParserParser.expression"/>.
+	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -98,10 +98,10 @@ public partial class LParserBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitVariableExpression([NotNull] LParserParser.VariableExpressionContext context) { return VisitChildren(context); }
+	public virtual Result VisitVariableExpression([NotNull] llParser.VariableExpressionContext context) { return VisitChildren(context); }
 	/// <summary>
 	/// Visit a parse tree produced by the <c>doubleAtomExpression</c>
-	/// labeled alternative in <see cref="LParserParser.numericExpression"/>.
+	/// labeled alternative in <see cref="llParser.numericExpression"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -109,10 +109,10 @@ public partial class LParserBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitDoubleAtomExpression([NotNull] LParserParser.DoubleAtomExpressionContext context) { return VisitChildren(context); }
+	public virtual Result VisitDoubleAtomExpression([NotNull] llParser.DoubleAtomExpressionContext context) { return VisitChildren(context); }
 	/// <summary>
 	/// Visit a parse tree produced by the <c>integerAtomExpression</c>
-	/// labeled alternative in <see cref="LParserParser.numericExpression"/>.
+	/// labeled alternative in <see cref="llParser.numericExpression"/>.
 	/// <para>
 	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
 	/// on <paramref name="context"/>.
@@ -120,6 +120,6 @@ public partial class LParserBaseVisitor<Result> : AbstractParseTreeVisitor<Resul
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	public virtual Result VisitIntegerAtomExpression([NotNull] LParserParser.IntegerAtomExpressionContext context) { return VisitChildren(context); }
+	public virtual Result VisitIntegerAtomExpression([NotNull] llParser.IntegerAtomExpressionContext context) { return VisitChildren(context); }
 }
-} // namespace vorlesung
+} // namespace ll

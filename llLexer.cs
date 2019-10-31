@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from LParser.g4 by ANTLR 4.7.2
+// Generated from ll.g4 by ANTLR 4.7.2
 
 // Unreachable code detected
 #pragma warning disable 0162
@@ -30,7 +30,7 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "4.7.2")]
 [System.CLSCompliant(false)]
-public partial class LParserLexer : Lexer {
+public partial class llLexer : Lexer {
 	protected static DFA[] decisionToDFA;
 	protected static PredictionContextCache sharedContextCache = new PredictionContextCache();
 	public const int
@@ -50,10 +50,10 @@ public partial class LParserLexer : Lexer {
 	};
 
 
-	public LParserLexer(ICharStream input)
+	public llLexer(ICharStream input)
 	: this(input, Console.Out, Console.Error) { }
 
-	public LParserLexer(ICharStream input, TextWriter output, TextWriter errorOutput)
+	public llLexer(ICharStream input, TextWriter output, TextWriter errorOutput)
 	: base(input, output, errorOutput)
 	{
 		Interpreter = new LexerATNSimulator(this, _ATN, decisionToDFA, sharedContextCache);
@@ -78,7 +78,7 @@ public partial class LParserLexer : Lexer {
 		}
 	}
 
-	public override string GrammarFileName { get { return "LParser.g4"; } }
+	public override string GrammarFileName { get { return "ll.g4"; } }
 
 	public override string[] RuleNames { get { return ruleNames; } }
 
@@ -88,7 +88,7 @@ public partial class LParserLexer : Lexer {
 
 	public override string SerializedAtn { get { return new string(_serializedATN); } }
 
-	static LParserLexer() {
+	static llLexer() {
 		decisionToDFA = new DFA[_ATN.NumberOfDecisions];
 		for (int i = 0; i < _ATN.NumberOfDecisions; i++) {
 			decisionToDFA[i] = new DFA(_ATN.GetDecisionState(i), i);
@@ -161,4 +161,4 @@ public partial class LParserLexer : Lexer {
 
 
 }
-} // namespace vorlesung
+} // namespace ll

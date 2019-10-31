@@ -3,24 +3,24 @@ using System.Globalization;
 
 namespace ll
 {
-    class BuildAstVisitor : LParserBaseVisitor<IAST>
+    class BuildAstVisitor : llBaseVisitor<IAST>
     {
-        public override IAST VisitCompileUnit(LParserParser.CompileUnitContext context)
+        public override IAST VisitCompileUnit(llParser.CompileUnitContext context)
         {
             return Visit(context.expression());
         }
 
-        public override IAST VisitParenthes(LParserParser.ParenthesContext context)
+        public override IAST VisitParenthes(llParser.ParenthesContext context)
         {
             return Visit(context.expression());
         }
 
-        public override IAST VisitNumericAtomExpression(LParserParser.NumericAtomExpressionContext context)
+        public override IAST VisitNumericAtomExpression(llParser.NumericAtomExpressionContext context)
         {
             return Visit(context.numericExpression());
         }
 
-        public override IAST VisitIntegerAtomExpression(LParserParser.IntegerAtomExpressionContext context)
+        public override IAST VisitIntegerAtomExpression(llParser.IntegerAtomExpressionContext context)
         {
             string sign = "+";
             if (context.sign != null)
@@ -28,7 +28,7 @@ namespace ll
             return new IntLit(Int32.Parse(sign + context.INTEGER_LITERAL().GetText()));
         }
 
-        public override IAST VisitDoubleAtomExpression(LParserParser.DoubleAtomExpressionContext context)
+        public override IAST VisitDoubleAtomExpression(llParser.DoubleAtomExpressionContext context)
         {
             string sign = "+";
             if (context.sign != null)
@@ -37,7 +37,7 @@ namespace ll
         }
 
         // TODO rewrite that it gets added to environment on evaluation
-        public override IAST VisitVariableExpression(LParserParser.VariableExpressionContext context)
+        public override IAST VisitVariableExpression(llParser.VariableExpressionContext context)
         {
             IAST.environment.TryAdd(context.WORD().GetText(), 0);
 
@@ -45,12 +45,12 @@ namespace ll
 
         }
 
-        public override IAST VisitAssignExpression(LParserParser.AssignExpressionContext context)
+        public override IAST VisitAssignExpression(llParser.AssignExpressionContext context)
         {
             return new AssignExpr(new VarExpr(context.left.Text), Visit(context.right));
         }
 
-        public override IAST VisitInfixExpression(LParserParser.InfixExpressionContext context)
+        public override IAST VisitInfixExpression(llParser.InfixExpressionContext context)
         {
             switch (context.op.Text)
             {

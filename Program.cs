@@ -18,9 +18,9 @@ namespace ll
                     break;
                 
                 var inputStream = new AntlrInputStream(new StringReader(text));
-                var lexer = new LParserLexer(inputStream);
+                var lexer = new llLexer(inputStream);
                 var tokenStream = new CommonTokenStream(lexer);
-                var parser = new LParserParser(tokenStream);
+                var parser = new llParser(tokenStream);
 
                 try
                 {

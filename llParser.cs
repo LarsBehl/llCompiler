@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from LParser.g4 by ANTLR 4.7.2
+// Generated from ll.g4 by ANTLR 4.7.2
 
 // Unreachable code detected
 #pragma warning disable 0162
@@ -33,7 +33,7 @@ using DFA = Antlr4.Runtime.Dfa.DFA;
 
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "4.7.2")]
 [System.CLSCompliant(false)]
-public partial class LParserParser : Parser {
+public partial class llParser : Parser {
 	protected static DFA[] decisionToDFA;
 	protected static PredictionContextCache sharedContextCache = new PredictionContextCache();
 	public const int
@@ -64,22 +64,22 @@ public partial class LParserParser : Parser {
 		}
 	}
 
-	public override string GrammarFileName { get { return "LParser.g4"; } }
+	public override string GrammarFileName { get { return "ll.g4"; } }
 
 	public override string[] RuleNames { get { return ruleNames; } }
 
 	public override string SerializedAtn { get { return new string(_serializedATN); } }
 
-	static LParserParser() {
+	static llParser() {
 		decisionToDFA = new DFA[_ATN.NumberOfDecisions];
 		for (int i = 0; i < _ATN.NumberOfDecisions; i++) {
 			decisionToDFA[i] = new DFA(_ATN.GetDecisionState(i), i);
 		}
 	}
 
-		public LParserParser(ITokenStream input) : this(input, Console.Out, Console.Error) { }
+		public llParser(ITokenStream input) : this(input, Console.Out, Console.Error) { }
 
-		public LParserParser(ITokenStream input, TextWriter output, TextWriter errorOutput)
+		public llParser(ITokenStream input, TextWriter output, TextWriter errorOutput)
 		: base(input, output, errorOutput)
 	{
 		Interpreter = new ParserATNSimulator(this, _ATN, decisionToDFA, sharedContextCache);
@@ -89,14 +89,14 @@ public partial class LParserParser : Parser {
 		public ExpressionContext expression() {
 			return GetRuleContext<ExpressionContext>(0);
 		}
-		public ITerminalNode Eof() { return GetToken(LParserParser.Eof, 0); }
+		public ITerminalNode Eof() { return GetToken(llParser.Eof, 0); }
 		public CompileUnitContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
 		}
 		public override int RuleIndex { get { return RULE_compileUnit; } }
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			ILParserVisitor<TResult> typedVisitor = visitor as ILParserVisitor<TResult>;
+			IllVisitor<TResult> typedVisitor = visitor as IllVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitCompileUnit(this);
 			else return visitor.VisitChildren(this);
 		}
@@ -146,13 +146,13 @@ public partial class LParserParser : Parser {
 		public ExpressionContext expression(int i) {
 			return GetRuleContext<ExpressionContext>(i);
 		}
-		public ITerminalNode MULT() { return GetToken(LParserParser.MULT, 0); }
-		public ITerminalNode DIV() { return GetToken(LParserParser.DIV, 0); }
-		public ITerminalNode ADD() { return GetToken(LParserParser.ADD, 0); }
-		public ITerminalNode MINUS() { return GetToken(LParserParser.MINUS, 0); }
+		public ITerminalNode MULT() { return GetToken(llParser.MULT, 0); }
+		public ITerminalNode DIV() { return GetToken(llParser.DIV, 0); }
+		public ITerminalNode ADD() { return GetToken(llParser.ADD, 0); }
+		public ITerminalNode MINUS() { return GetToken(llParser.MINUS, 0); }
 		public InfixExpressionContext(ExpressionContext context) { CopyFrom(context); }
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			ILParserVisitor<TResult> typedVisitor = visitor as ILParserVisitor<TResult>;
+			IllVisitor<TResult> typedVisitor = visitor as IllVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitInfixExpression(this);
 			else return visitor.VisitChildren(this);
 		}
@@ -163,7 +163,7 @@ public partial class LParserParser : Parser {
 		}
 		public NumericAtomExpressionContext(ExpressionContext context) { CopyFrom(context); }
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			ILParserVisitor<TResult> typedVisitor = visitor as ILParserVisitor<TResult>;
+			IllVisitor<TResult> typedVisitor = visitor as IllVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitNumericAtomExpression(this);
 			else return visitor.VisitChildren(this);
 		}
@@ -171,13 +171,13 @@ public partial class LParserParser : Parser {
 	public partial class AssignExpressionContext : ExpressionContext {
 		public IToken left;
 		public ExpressionContext right;
-		public ITerminalNode WORD() { return GetToken(LParserParser.WORD, 0); }
+		public ITerminalNode WORD() { return GetToken(llParser.WORD, 0); }
 		public ExpressionContext expression() {
 			return GetRuleContext<ExpressionContext>(0);
 		}
 		public AssignExpressionContext(ExpressionContext context) { CopyFrom(context); }
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			ILParserVisitor<TResult> typedVisitor = visitor as ILParserVisitor<TResult>;
+			IllVisitor<TResult> typedVisitor = visitor as IllVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitAssignExpression(this);
 			else return visitor.VisitChildren(this);
 		}
@@ -188,16 +188,16 @@ public partial class LParserParser : Parser {
 		}
 		public ParenthesContext(ExpressionContext context) { CopyFrom(context); }
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			ILParserVisitor<TResult> typedVisitor = visitor as ILParserVisitor<TResult>;
+			IllVisitor<TResult> typedVisitor = visitor as IllVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitParenthes(this);
 			else return visitor.VisitChildren(this);
 		}
 	}
 	public partial class VariableExpressionContext : ExpressionContext {
-		public ITerminalNode WORD() { return GetToken(LParserParser.WORD, 0); }
+		public ITerminalNode WORD() { return GetToken(llParser.WORD, 0); }
 		public VariableExpressionContext(ExpressionContext context) { CopyFrom(context); }
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			ILParserVisitor<TResult> typedVisitor = visitor as ILParserVisitor<TResult>;
+			IllVisitor<TResult> typedVisitor = visitor as IllVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitVariableExpression(this);
 			else return visitor.VisitChildren(this);
 		}
@@ -348,22 +348,22 @@ public partial class LParserParser : Parser {
 	}
 	public partial class IntegerAtomExpressionContext : NumericExpressionContext {
 		public IToken sign;
-		public ITerminalNode INTEGER_LITERAL() { return GetToken(LParserParser.INTEGER_LITERAL, 0); }
-		public ITerminalNode MINUS() { return GetToken(LParserParser.MINUS, 0); }
+		public ITerminalNode INTEGER_LITERAL() { return GetToken(llParser.INTEGER_LITERAL, 0); }
+		public ITerminalNode MINUS() { return GetToken(llParser.MINUS, 0); }
 		public IntegerAtomExpressionContext(NumericExpressionContext context) { CopyFrom(context); }
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			ILParserVisitor<TResult> typedVisitor = visitor as ILParserVisitor<TResult>;
+			IllVisitor<TResult> typedVisitor = visitor as IllVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitIntegerAtomExpression(this);
 			else return visitor.VisitChildren(this);
 		}
 	}
 	public partial class DoubleAtomExpressionContext : NumericExpressionContext {
 		public IToken sign;
-		public ITerminalNode DOUBLE_LITERAL() { return GetToken(LParserParser.DOUBLE_LITERAL, 0); }
-		public ITerminalNode MINUS() { return GetToken(LParserParser.MINUS, 0); }
+		public ITerminalNode DOUBLE_LITERAL() { return GetToken(llParser.DOUBLE_LITERAL, 0); }
+		public ITerminalNode MINUS() { return GetToken(llParser.MINUS, 0); }
 		public DoubleAtomExpressionContext(NumericExpressionContext context) { CopyFrom(context); }
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
-			ILParserVisitor<TResult> typedVisitor = visitor as ILParserVisitor<TResult>;
+			IllVisitor<TResult> typedVisitor = visitor as IllVisitor<TResult>;
 			if (typedVisitor != null) return typedVisitor.VisitDoubleAtomExpression(this);
 			else return visitor.VisitChildren(this);
 		}
@@ -485,4 +485,4 @@ public partial class LParserParser : Parser {
 
 
 }
-} // namespace vorlesung
+} // namespace ll

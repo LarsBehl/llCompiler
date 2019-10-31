@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-// Generated from LParser.g4 by ANTLR 4.7.2
+// Generated from ll.g4 by ANTLR 4.7.2
 
 // Unreachable code detected
 #pragma warning disable 0162
@@ -26,66 +26,66 @@ using IToken = Antlr4.Runtime.IToken;
 
 /// <summary>
 /// This interface defines a complete generic visitor for a parse tree produced
-/// by <see cref="LParserParser"/>.
+/// by <see cref="llParser"/>.
 /// </summary>
 /// <typeparam name="Result">The return type of the visit operation.</typeparam>
 [System.CodeDom.Compiler.GeneratedCode("ANTLR", "4.7.2")]
 [System.CLSCompliant(false)]
-public interface ILParserVisitor<Result> : IParseTreeVisitor<Result> {
+public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="LParserParser.compileUnit"/>.
+	/// Visit a parse tree produced by <see cref="llParser.compileUnit"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitCompileUnit([NotNull] LParserParser.CompileUnitContext context);
+	Result VisitCompileUnit([NotNull] llParser.CompileUnitContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>infixExpression</c>
-	/// labeled alternative in <see cref="LParserParser.expression"/>.
+	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitInfixExpression([NotNull] LParserParser.InfixExpressionContext context);
+	Result VisitInfixExpression([NotNull] llParser.InfixExpressionContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>numericAtomExpression</c>
-	/// labeled alternative in <see cref="LParserParser.expression"/>.
+	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitNumericAtomExpression([NotNull] LParserParser.NumericAtomExpressionContext context);
+	Result VisitNumericAtomExpression([NotNull] llParser.NumericAtomExpressionContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>assignExpression</c>
-	/// labeled alternative in <see cref="LParserParser.expression"/>.
+	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitAssignExpression([NotNull] LParserParser.AssignExpressionContext context);
+	Result VisitAssignExpression([NotNull] llParser.AssignExpressionContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>parenthes</c>
-	/// labeled alternative in <see cref="LParserParser.expression"/>.
+	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitParenthes([NotNull] LParserParser.ParenthesContext context);
+	Result VisitParenthes([NotNull] llParser.ParenthesContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>variableExpression</c>
-	/// labeled alternative in <see cref="LParserParser.expression"/>.
+	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitVariableExpression([NotNull] LParserParser.VariableExpressionContext context);
+	Result VisitVariableExpression([NotNull] llParser.VariableExpressionContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>doubleAtomExpression</c>
-	/// labeled alternative in <see cref="LParserParser.numericExpression"/>.
+	/// labeled alternative in <see cref="llParser.numericExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitDoubleAtomExpression([NotNull] LParserParser.DoubleAtomExpressionContext context);
+	Result VisitDoubleAtomExpression([NotNull] llParser.DoubleAtomExpressionContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>integerAtomExpression</c>
-	/// labeled alternative in <see cref="LParserParser.numericExpression"/>.
+	/// labeled alternative in <see cref="llParser.numericExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitIntegerAtomExpression([NotNull] LParserParser.IntegerAtomExpressionContext context);
+	Result VisitIntegerAtomExpression([NotNull] llParser.IntegerAtomExpressionContext context);
 }
-} // namespace vorlesung
+} // namespace ll
