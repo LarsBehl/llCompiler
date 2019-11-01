@@ -39,12 +39,33 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitCompileUnit([NotNull] llParser.CompileUnitContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>varExpr</c>
+	/// labeled alternative in <see cref="llParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitVarExpr([NotNull] llParser.VarExprContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>exprSequ</c>
+	/// labeled alternative in <see cref="llParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitExprSequ([NotNull] llParser.ExprSequContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>infixExpression</c>
 	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitInfixExpression([NotNull] llParser.InfixExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>functionDefinition</c>
+	/// labeled alternative in <see cref="llParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitFunctionDefinition([NotNull] llParser.FunctionDefinitionContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>numericAtomExpression</c>
 	/// labeled alternative in <see cref="llParser.expression"/>.
@@ -67,8 +88,13 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitParenthes([NotNull] llParser.ParenthesContext context);
 	/// <summary>
-	/// Visit a parse tree produced by the <c>variableExpression</c>
-	/// labeled alternative in <see cref="llParser.expression"/>.
+	/// Visit a parse tree produced by <see cref="llParser.expressionSequenz"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitExpressionSequenz([NotNull] llParser.ExpressionSequenzContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.variableExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>

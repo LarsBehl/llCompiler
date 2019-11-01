@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Collections.Generic;
 
 namespace ll
 {
@@ -36,6 +37,11 @@ namespace ll
             return new DoubleLit(Double.Parse(sign + context.DOUBLE_LITERAL().GetText(), new CultureInfo("en-US").NumberFormat));
         }
 
+        public override IAST VisitVarExpr(llParser.VarExprContext context)
+        {
+            return Visit(context.variableExpression());
+        }
+
         // TODO rewrite that it gets added to environment on evaluation
         public override IAST VisitVariableExpression(llParser.VariableExpressionContext context)
         {
@@ -62,6 +68,23 @@ namespace ll
                     Console.WriteLine("Unknown op {0}", context.op.Text);
                     return null;
             }
+        }
+
+        public override IAST VisitExprSequ(llParser.ExprSequContext context)
+        {
+            return Visit(context.expressionSequenz());
+        }
+
+        public override IAST VisitExpressionSequenz(llParser.ExpressionSequenzContext context)
+        {
+            List<IAST> body = new List<IAST>();
+            var tmp = context.expression();
+            for(int i = 0; i < tmp.Length; i++)
+            {
+                body.Add(Visit(tmp[i]));
+            }
+
+            return new Sequenz(body);
         }
     }
 }

@@ -29,128 +29,19 @@ namespace ll
                     return sub.left.Eval() - sub.right.Eval();
                 case DivExpr div:
                     return ((double)div.left.Eval()) / div.right.Eval();
+                case Sequenz sequenz:
+                    int j;
+                    for(j = 0; j < sequenz.body.Count-1; j++)
+                    {
+                        sequenz.body[j].Eval();
+                    }
+                    if(!(sequenz.body[j] is VarExpr))
+                        throw new ArgumentException("Last expression in sequenz must be a variable (return value)");
+                    return sequenz.body[j].Eval();
                 default:
                     Console.WriteLine("Unknown Ast Object");
                     return 0;
             }
         }
-    }
-
-    public class IntLit : IAST
-    {
-        public int n { get; set; }
-
-        public IntLit(int n)
-        {
-            this.n = n;
-        }
-    }
-
-    public class DoubleLit : IAST
-    {
-        public double n { get; set; }
-
-        public DoubleLit(double n)
-        {
-            this.n = n;
-        }
-    }
-
-    public class BinOp
-    {
-        public IAST left { get; set; }
-        public IAST right { get; set; }
-        public string op { get; set; }
-
-        public BinOp(IAST left, IAST right, string op)
-        {
-            this.left = left;
-            this.right = right;
-            this.op = op;
-        }
-    }
-
-    public class MultExpr : BinOp, IAST
-    {
-        public MultExpr(IAST left, IAST right) : base(left, right, "*")
-        {
-
-        }
-    }
-
-    public class AddExpr : BinOp, IAST
-    {
-        public AddExpr(IAST left, IAST right) : base(left, right, "+")
-        {
-
-        }
-    }
-
-    public class DivExpr : BinOp, IAST
-    {
-        public DivExpr(IAST left, IAST right) : base(left, right, "/")
-        {
-
-        }
-    }
-
-    public class SubExpr : BinOp, IAST
-    {
-        public SubExpr(IAST left, IAST right) : base(left, right, "-")
-        {
-
-        }
-    }
-
-    public class VarExpr : IAST
-    {
-        public string name { get; set; }
-
-        public VarExpr(string name)
-        {
-            this.name = name;
-        }
-    }
-
-    public class AssignExpr : IAST
-    {
-        public VarExpr v { get; set; }
-        public IAST val { get; set; }
-
-        public AssignExpr(VarExpr var, IAST val)
-        {
-            this.v = var;
-            this.val = val;
-        }
-    }
-
-    public class Sequenz : IAST
-    {
-        public List<IAST> body { get; set; }
-
-        public Sequenz(List<IAST> body)
-        {
-            this.body = body;
-        }
-    }
-
-    public class Function : IAST
-    {
-        public string name { get; set; }
-        public List<string> args { get; set; }
-        public IAST body { get; private set; }
-
-        public Function(string name, List<string> args, IAST body)
-        {
-            this.name = name;
-            this.args = args;
-            this.body = body;
-        }
-    }
-
-    public class FunctionCall : IAST
-    {
-        public string name { get; set; }
-        public List<IAST> args { get; set; }
     }
 }

@@ -4,11 +4,19 @@ grammar ll;
 compileUnit: expression EOF;
 expression
     : '(' expression ')' #parenthes
-    | left=WORD '=' right=expression #assignExpression
-    | WORD #variableExpression
+    | funcName=WORD '(' (WORD ',')* ')' body=expressionSequenz #functionDefinition
+    | left=WORD '=' right=expression ';' #assignExpression
     | left=expression op=('*'|'/') right=expression #infixExpression
     | left=expression op=('+'|'-') right=expression #infixExpression
-    | numericExpression #numericAtomExpression;
+    | numericExpression #numericAtomExpression
+    | variableExpression #varExpr
+    | expressionSequenz #exprSequ;
+
+expressionSequenz
+    : '{' expression* '}';
+
+variableExpression
+    : WORD ';';
 
 numericExpression
     : sign='-'? DOUBLE_LITERAL #doubleAtomExpression
@@ -22,5 +30,10 @@ ADD: '+';
 MINUS: '-';
 DIV: '/';
 DOT: '.';
+BRAC_L: '(';
+BRAC_R: ')';
+CURL_L: '{';
+CURL_R: '}';
+SECOL: ';';
 
 WHITESPACE  : [ \t\n\r] -> skip;
