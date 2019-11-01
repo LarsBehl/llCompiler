@@ -42,11 +42,8 @@ namespace ll
             return Visit(context.variableExpression());
         }
 
-        // TODO rewrite that it gets added to environment on evaluation
         public override IAST VisitVariableExpression(llParser.VariableExpressionContext context)
         {
-            IAST.environment.TryAdd(context.WORD().GetText(), 0);
-
             return new VarExpr(context.WORD().GetText());
 
         }

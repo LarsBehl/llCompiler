@@ -5,21 +5,35 @@ namespace ll
 {
     public interface IAST
     {
-        // TODO change from one environment to function based environments and one global
-        static Dictionary<string, double> environment = new Dictionary<string, double>();
         double Eval()
+        {
+            return this.Eval(new List<Function>());
+        }
+
+        double Eval(List<Function> functions)
+        {
+            Dictionary<string, Function> fs = new Dictionary<string, Function>();
+            foreach(Function f in functions)
+            {
+                fs.TryAdd(f.name, f);
+            }
+
+            return this.Eval(fs, new Dictionary<string, double>());
+        }
+
+        double Eval(Dictionary<string, Function> functions, Dictionary<string, double> env)
         {
             switch (this)
             {
                 case IntLit i: return i.n;
                 case DoubleLit d: return d.n;
-                case VarExpr v: return environment[v.name];
+                case VarExpr v: return env[v.name];
                 case AssignExpr assignExpr:
                     double tmp = assignExpr.val.Eval();
-                    if (!environment.ContainsKey(assignExpr.v.name))
-                        environment.Add(assignExpr.v.name, tmp);
+                    if (!env.ContainsKey(assignExpr.v.name))
+                        env.Add(assignExpr.v.name, tmp);
                     else
-                        environment[assignExpr.v.name] = tmp;
+                        env[assignExpr.v.name] = tmp;
                     return tmp;
                 case MultExpr me:
                     return me.left.Eval() * me.right.Eval();
