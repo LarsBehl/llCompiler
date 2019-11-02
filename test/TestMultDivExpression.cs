@@ -5,7 +5,7 @@ using ll;
 namespace test
 {
     [TestFixture]
-    public class TestAddSubExpression
+    public class TestMultDivExpression
     {
         BuildAstVisitor visitor = new BuildAstVisitor();
 
@@ -17,11 +17,15 @@ namespace test
             return new llParser(stream);
         }
 
-        [TestCase("1+1", 2)]
-        [TestCase("-1+1", 0)]
-        [TestCase("1+1+1", 3)]
-        [TestCase("-1+-1", -2)]
-        public void TestAddExpresion_1(string input, int expected)
+        [TestCase("1*1", 1)]
+        [TestCase("3*5", 15)]
+        [TestCase("-2*5", -10)]
+        [TestCase("-2*-5", 10)]
+        [TestCase("2*2*2", 8)]
+        [TestCase("2*0", 0)]
+        [TestCase("2*3+2", 8)]
+        [TestCase("2+3*2", 8)]
+        public void TestMultExpression_1(string input, int expected)
         {
             llParser parser = Setup(input);
 
@@ -30,43 +34,10 @@ namespace test
             Assert.AreEqual(expected, result.Eval());
         }
 
-        [TestCase("1.0+1.0", 2.0)]
-        [TestCase("-1.0+1.0", 0.0)]
-        [TestCase("1.0+1+1", 3.0)]
-        [TestCase("-1.0+-1.0", -2.0)]
-        public void TestAddExpresion_2(string input, double expected)
-        {
-            llParser parser = Setup(input);
-
-            var result = visitor.Visit(parser.expression());
-
-            Assert.AreEqual(expected, result.Eval());
-        }
-
-        [Test]
-        public void TestAddExpresion_3()
-        {
-            llParser parser = Setup("1+1");
-
-            var result = visitor.Visit(parser.expression());
-
-            Assert.AreEqual("ll.AddExpr", result.GetType().ToString());
-        }
-
-        [TestCase("1-1", 0)]
-        [TestCase("-2-2", -4)]
-        [TestCase("-2--2", 0)]
-        public void TestSubExpression_1(string input, int expected)
-        {
-            llParser parser = Setup(input);
-
-            var result = visitor.Visit(parser.expression());
-
-            Assert.AreEqual(expected, result.Eval());
-        }
-
-        [TestCase("1.0-1.0", 0.0)]
-        public void TestSubExpression_2(string input, double expected)
+        [TestCase("2.5*2", 5.0)]
+        [TestCase("0.5*0.5", 0.25)]
+        [TestCase("-0.5*2", -1.0)]
+        public void TestMultExpression_2(string input, double expected)
         {
             llParser parser = Setup(input);
 
@@ -76,13 +47,38 @@ namespace test
         }
 
         [Test]
-        public void TestSubExpression_3()
+        public void TestMultExpression_3()
         {
-            llParser parser = Setup("1-1");
+            llParser parser = Setup("2*2");
 
             var result = visitor.Visit(parser.expression());
 
-            Assert.AreEqual("ll.SubExpr", result.GetType().ToString());
+            Assert.AreEqual("ll.MultExpr", result.GetType().ToString());
+        }
+
+        [TestCase("6/3", 2)]
+        [TestCase("1/2", 0.5)]
+        [TestCase("1.5/2", 0.75)]
+        [TestCase("-2/2", -1)]
+        [TestCase("2/2", 1)]
+        [TestCase("-1/-10", 0.1)]
+        public void TestDivExpression_1(string input, double expected)
+        {
+            llParser parser = Setup(input);
+
+            var result = visitor.Visit(parser.expression());
+
+            Assert.AreEqual(expected, result.Eval());
+        }
+
+        [Test]
+        public void TestDivExpression_2()
+        {
+            llParser parser = Setup("2/2");
+
+            var result = visitor.Visit(parser.expression());
+
+            Assert.AreEqual("ll.DivExpr", result.GetType().ToString());
         }
     }
 }
