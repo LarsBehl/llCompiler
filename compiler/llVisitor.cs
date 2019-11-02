@@ -107,5 +107,11 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitExpressionSequenz([NotNull] llParser.ExpressionSequenzContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.returnExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitReturnExpression([NotNull] llParser.ReturnExpressionContext context);
 }
 } // namespace ll

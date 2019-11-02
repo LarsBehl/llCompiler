@@ -83,7 +83,14 @@ namespace ll
                 body.Add(Visit(tmp[i]));
             }
 
+            body.Add(Visit(context.returnExpression()));
+
             return new ExpressionSequenz(body);
+        }
+
+        public override IAST VisitReturnExpression(llParser.ReturnExpressionContext context)
+        {
+            return new ReturnExpr(Visit(context.expression()));
         }
     }
 }

@@ -33,7 +33,12 @@ namespace ll
                         sequenz.body[j].Eval();
                     }
 
+                    if(j >= 0 && !(sequenz.body[j] is ReturnExpr))
+                        throw new ArgumentException("last expression in expressionSequenz has to be an return Expression"); 
+
                     return sequenz.body[j].Eval();
+                case ReturnExpr returnExpr:
+                    return returnExpr.returnValue.Eval();
                 default:
                     Console.WriteLine("Unknown Ast Object");
                     return 0;

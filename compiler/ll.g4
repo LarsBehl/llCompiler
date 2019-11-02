@@ -16,10 +16,14 @@ numericExpression
     | sign=('-'|'+')? INTEGER_LITERAL #integerAtomExpression;
 
 expressionSequenz
-    : '{' expression* '}';
+    : '{' expression* returnExpression '}';
+
+returnExpression
+    : RETURN expression ';';
 
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;
+RETURN: 'r' 'e' 't' 'u' 'r' 'n';
 WORD: [a-zA-Z]+;
 MULT: '*';
 ADD: '+';
@@ -31,5 +35,6 @@ BRAC_R: ')';
 ASSIGN: '=';
 CURL_L: '{';
 CURL_R: '}';
+SEMCOL: ';';
 
 WHITESPACE  : [ \t\n\r] -> skip;
