@@ -58,5 +58,15 @@ namespace ll
                     throw new ArgumentException("unknown operator {0}", context.op.Text);
             }
         }
+
+        public override IAST VisitVariableExpression(llParser.VariableExpressionContext context)
+        {
+            return new VarExpr(context.WORD().GetText());
+        }
+
+        public override IAST VisitAssignExpression(llParser.AssignExpressionContext context)
+        {
+            return new AssignExpr(new VarExpr(context.left.Text), Visit(context.right));
+        }
     }
 }

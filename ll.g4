@@ -6,10 +6,9 @@ expression
     : '(' expression ')' #parenthes
     | left=expression op=('*'|'/') right=expression #binOpMultDiv
     | left=expression op=('+'|'-') right=expression #binOpAddSub
-    | numericExpression #numericAtomExpression;
-
-expressionSequenz
-    : '{' expression* '}';
+    | left=WORD '=' right=expression #assignExpression
+    | numericExpression #numericAtomExpression
+    | WORD #variableExpression;
 
 numericExpression
     : sign='-'? DOUBLE_LITERAL #doubleAtomExpression
@@ -25,6 +24,7 @@ DIV: '/';
 DOT: '.';
 BRAC_L: '(';
 BRAC_R: ')';
+ASSIGN: '=';
 CURL_L: '{';
 CURL_R: '}';
 SECOL: ';';
