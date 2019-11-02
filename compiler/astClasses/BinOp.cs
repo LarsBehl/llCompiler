@@ -10,6 +10,8 @@ namespace ll
 
         public BinOp(IAST left, IAST right, string op)
         {
+            if(left is AssignExpr || right is AssignExpr)
+                throw new ArgumentException("no assignExpression allowed in a binary operation");
             this.left = left;
             this.right = right;
             this.op = op;
