@@ -8,11 +8,15 @@ expression
     | left=expression op=('+'|'-') right=expression #binOpAddSub
     | left=WORD '=' right=expression #assignExpression
     | numericExpression #numericAtomExpression
-    | WORD #variableExpression;
+    | WORD #variableExpression
+    | expressionSequenz #exprSequ;
 
 numericExpression
     : sign='-'? DOUBLE_LITERAL #doubleAtomExpression
     | sign='-'? INTEGER_LITERAL #integerAtomExpression;
+
+expressionSequenz
+    : '{' expression* '}';
 
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;
@@ -27,6 +31,5 @@ BRAC_R: ')';
 ASSIGN: '=';
 CURL_L: '{';
 CURL_R: '}';
-SECOL: ';';
 
 WHITESPACE  : [ \t\n\r] -> skip;

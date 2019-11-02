@@ -68,5 +68,22 @@ namespace ll
         {
             return new AssignExpr(new VarExpr(context.left.Text), Visit(context.right));
         }
+
+        public override IAST VisitExprSequ(llParser.ExprSequContext context)
+        {
+            return Visit(context.expressionSequenz());
+        }
+
+        public override IAST VisitExpressionSequenz(llParser.ExpressionSequenzContext context)
+        {
+            List<IAST> body = new List<IAST>();
+            var tmp = context.expression();
+            for(int i = 0; i < tmp.Length; i++)
+            {
+                body.Add(Visit(tmp[i]));
+            }
+
+            return new ExpressionSequenz(body);
+        }
     }
 }
