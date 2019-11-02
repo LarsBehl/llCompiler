@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace ll
 {
-    class BuildAstVisitor : llBaseVisitor<IAST>
+    public class BuildAstVisitor : llBaseVisitor<IAST>
     {
         public override IAST VisitCompileUnit(llParser.CompileUnitContext context)
         {
