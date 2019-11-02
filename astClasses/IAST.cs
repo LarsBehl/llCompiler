@@ -19,6 +19,8 @@ namespace ll
                     return sub.left.Eval() - sub.right.Eval();
                 case DivExpr div:
                     return ((double)div.left.Eval()) / div.right.Eval();
+                case VarExpr varExpr:
+                    throw new NotImplementedException();
                 default:
                     Console.WriteLine("Unknown Ast Object");
                     return 0;

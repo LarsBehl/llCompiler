@@ -62,7 +62,7 @@ namespace ll
         public override IAST VisitVariableExpression(llParser.VariableExpressionContext context)
         {
             Console.WriteLine(context.WORD().GetText());
-            throw new NotImplementedException();
+            return new VarExpr(context.WORD().GetText());
         }
     }
 }
