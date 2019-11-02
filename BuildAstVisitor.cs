@@ -61,8 +61,12 @@ namespace ll
 
         public override IAST VisitVariableExpression(llParser.VariableExpressionContext context)
         {
-            Console.WriteLine(context.WORD().GetText());
             return new VarExpr(context.WORD().GetText());
+        }
+
+        public override IAST VisitAssignExpression(llParser.AssignExpressionContext context)
+        {
+            return new AssignExpr(new VarExpr(context.left.Text), Visit(context.right));
         }
     }
 }

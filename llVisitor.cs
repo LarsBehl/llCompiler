@@ -60,6 +60,13 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitNumericAtomExpression([NotNull] llParser.NumericAtomExpressionContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>assignExpression</c>
+	/// labeled alternative in <see cref="llParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAssignExpression([NotNull] llParser.AssignExpressionContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>parenthes</c>
 	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// </summary>
