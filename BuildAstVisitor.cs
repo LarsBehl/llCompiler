@@ -42,7 +42,7 @@ namespace ll
             switch(context.op.Text)
             {
                 case "+": return new AddExpr(Visit(context.left), Visit(context.right));
-                case "_": return new SubExpr(Visit(context.left), Visit(context.right));
+                case "-": return new SubExpr(Visit(context.left), Visit(context.right));
                 default:
                     throw new ArgumentException("unknown operator {0}", context.op.Text);
             }
