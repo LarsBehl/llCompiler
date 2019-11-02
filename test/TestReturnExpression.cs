@@ -20,7 +20,6 @@ namespace test
         [TestCase("return 2;", 2)]
         [TestCase("return 2+2;", 4)]
         [TestCase("return 1/2;", 0.5)]
-        [TestCase("return x=10;", 10)]
         [TestCase("return 2*2;", 4)]
         [TestCase("return (2*2);", 4)]
         public void TestReturnExpression_1(string input, double expected)

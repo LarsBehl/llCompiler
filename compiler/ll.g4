@@ -6,7 +6,7 @@ expression
     : '(' expression ')' #parenthes
     | left=expression op=('*'|'/') right=expression #binOpMultDiv
     | left=expression op=('+'|'-') right=expression #binOpAddSub
-    | left=WORD '=' right=expression #assignExpression
+    | left=WORD '=' right=expression ';' #assignExpression
     | numericExpression #numericAtomExpression
     | WORD #variableExpression
     | expressionSequenz #exprSequ;

@@ -17,7 +17,7 @@ namespace test
             return new llParser(stream);
         }
 
-        [TestCase("{x=10 y=x+2 return y;}", 12)]
+        [TestCase("{x=10; y=x+2; return y;}", 12)]
         [TestCase("{return 10;}", 10)]
         [TestCase("{return 10+2;}", 12)]
         public void TestExpressionSequenz_1(string input, double expected)
