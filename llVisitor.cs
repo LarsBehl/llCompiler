@@ -53,6 +53,13 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitBinOpMultDiv([NotNull] llParser.BinOpMultDivContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>exprSequ</c>
+	/// labeled alternative in <see cref="llParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitExprSequ([NotNull] llParser.ExprSequContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>numericAtomExpression</c>
 	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// </summary>
@@ -94,5 +101,11 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitIntegerAtomExpression([NotNull] llParser.IntegerAtomExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.expressionSequenz"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitExpressionSequenz([NotNull] llParser.ExpressionSequenzContext context);
 }
 } // namespace ll
