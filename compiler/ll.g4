@@ -12,8 +12,8 @@ expression
     | expressionSequenz #exprSequ;
 
 numericExpression
-    : sign='-'? DOUBLE_LITERAL #doubleAtomExpression
-    | sign='-'? INTEGER_LITERAL #integerAtomExpression;
+    : sign=('-'|'+')? DOUBLE_LITERAL #doubleAtomExpression
+    | sign=('-'|'+')? INTEGER_LITERAL #integerAtomExpression;
 
 expressionSequenz
     : '{' expression* '}';

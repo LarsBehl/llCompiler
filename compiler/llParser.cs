@@ -390,6 +390,7 @@ public partial class llParser : Parser {
 		public IToken sign;
 		public ITerminalNode INTEGER_LITERAL() { return GetToken(llParser.INTEGER_LITERAL, 0); }
 		public ITerminalNode MINUS() { return GetToken(llParser.MINUS, 0); }
+		public ITerminalNode ADD() { return GetToken(llParser.ADD, 0); }
 		public IntegerAtomExpressionContext(NumericExpressionContext context) { CopyFrom(context); }
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IllVisitor<TResult> typedVisitor = visitor as IllVisitor<TResult>;
@@ -401,6 +402,7 @@ public partial class llParser : Parser {
 		public IToken sign;
 		public ITerminalNode DOUBLE_LITERAL() { return GetToken(llParser.DOUBLE_LITERAL, 0); }
 		public ITerminalNode MINUS() { return GetToken(llParser.MINUS, 0); }
+		public ITerminalNode ADD() { return GetToken(llParser.ADD, 0); }
 		public DoubleAtomExpressionContext(NumericExpressionContext context) { CopyFrom(context); }
 		public override TResult Accept<TResult>(IParseTreeVisitor<TResult> visitor) {
 			IllVisitor<TResult> typedVisitor = visitor as IllVisitor<TResult>;
@@ -425,9 +427,18 @@ public partial class llParser : Parser {
 				State = 36;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
-				if (_la==MINUS) {
+				if (_la==ADD || _la==MINUS) {
 					{
-					State = 35; ((DoubleAtomExpressionContext)_localctx).sign = Match(MINUS);
+					State = 35;
+					((DoubleAtomExpressionContext)_localctx).sign = TokenStream.LT(1);
+					_la = TokenStream.LA(1);
+					if ( !(_la==ADD || _la==MINUS) ) {
+						((DoubleAtomExpressionContext)_localctx).sign = ErrorHandler.RecoverInline(this);
+					}
+					else {
+						ErrorHandler.ReportMatch(this);
+					    Consume();
+					}
 					}
 				}
 
@@ -441,9 +452,18 @@ public partial class llParser : Parser {
 				State = 40;
 				ErrorHandler.Sync(this);
 				_la = TokenStream.LA(1);
-				if (_la==MINUS) {
+				if (_la==ADD || _la==MINUS) {
 					{
-					State = 39; ((IntegerAtomExpressionContext)_localctx).sign = Match(MINUS);
+					State = 39;
+					((IntegerAtomExpressionContext)_localctx).sign = TokenStream.LT(1);
+					_la = TokenStream.LA(1);
+					if ( !(_la==ADD || _la==MINUS) ) {
+						((IntegerAtomExpressionContext)_localctx).sign = ErrorHandler.RecoverInline(this);
+					}
+					else {
+						ErrorHandler.ReportMatch(this);
+					    Consume();
+					}
 					}
 				}
 
@@ -496,7 +516,7 @@ public partial class llParser : Parser {
 			State = 49;
 			ErrorHandler.Sync(this);
 			_la = TokenStream.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << DOUBLE_LITERAL) | (1L << INTEGER_LITERAL) | (1L << WORD) | (1L << MINUS) | (1L << BRAC_L) | (1L << CURL_L))) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << DOUBLE_LITERAL) | (1L << INTEGER_LITERAL) | (1L << WORD) | (1L << ADD) | (1L << MINUS) | (1L << BRAC_L) | (1L << CURL_L))) != 0)) {
 				{
 				{
 				State = 46; expression(0);
@@ -571,10 +591,10 @@ public partial class llParser : Parser {
 		'\x2', '!', '$', '\x3', '\x2', '\x2', '\x2', '\"', ' ', '\x3', '\x2', 
 		'\x2', '\x2', '\"', '#', '\x3', '\x2', '\x2', '\x2', '#', '\x5', '\x3', 
 		'\x2', '\x2', '\x2', '$', '\"', '\x3', '\x2', '\x2', '\x2', '%', '\'', 
-		'\a', '\b', '\x2', '\x2', '&', '%', '\x3', '\x2', '\x2', '\x2', '&', '\'', 
-		'\x3', '\x2', '\x2', '\x2', '\'', '(', '\x3', '\x2', '\x2', '\x2', '(', 
-		'.', '\a', '\x3', '\x2', '\x2', ')', '+', '\a', '\b', '\x2', '\x2', '*', 
-		')', '\x3', '\x2', '\x2', '\x2', '*', '+', '\x3', '\x2', '\x2', '\x2', 
+		'\t', '\x3', '\x2', '\x2', '&', '%', '\x3', '\x2', '\x2', '\x2', '&', 
+		'\'', '\x3', '\x2', '\x2', '\x2', '\'', '(', '\x3', '\x2', '\x2', '\x2', 
+		'(', '.', '\a', '\x3', '\x2', '\x2', ')', '+', '\t', '\x3', '\x2', '\x2', 
+		'*', ')', '\x3', '\x2', '\x2', '\x2', '*', '+', '\x3', '\x2', '\x2', '\x2', 
 		'+', ',', '\x3', '\x2', '\x2', '\x2', ',', '.', '\a', '\x4', '\x2', '\x2', 
 		'-', '&', '\x3', '\x2', '\x2', '\x2', '-', '*', '\x3', '\x2', '\x2', '\x2', 
 		'.', '\a', '\x3', '\x2', '\x2', '\x2', '/', '\x33', '\a', '\xE', '\x2', 
