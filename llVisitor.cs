@@ -67,11 +67,12 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitParenthes([NotNull] llParser.ParenthesContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="llParser.expressionSequenz"/>.
+	/// Visit a parse tree produced by the <c>variableExpression</c>
+	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitExpressionSequenz([NotNull] llParser.ExpressionSequenzContext context);
+	Result VisitVariableExpression([NotNull] llParser.VariableExpressionContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>doubleAtomExpression</c>
 	/// labeled alternative in <see cref="llParser.numericExpression"/>.
