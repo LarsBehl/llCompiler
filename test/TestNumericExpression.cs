@@ -9,6 +9,8 @@ namespace test
     [TestFixture]
     public class TestNumericExpression
     {
+        BuildAstVisitor visitor = new BuildAstVisitor();
+
         public llParser Setup(string text)
         {
             AntlrInputStream inputStream = new AntlrInputStream(text);
@@ -24,7 +26,6 @@ namespace test
         public void TestIntLit_1(string input)
         {
             llParser parser = Setup(input);
-            BuildAstVisitor visitor = new BuildAstVisitor();
 
             var result = visitor.Visit(parser.numericExpression());
 
@@ -35,7 +36,6 @@ namespace test
         public void TestIntLit_2()
         {
             llParser parser = Setup("10");
-            BuildAstVisitor visitor = new BuildAstVisitor();
 
             var result = visitor.Visit(parser.numericExpression());
 
@@ -49,7 +49,6 @@ namespace test
         public void TestDoubleLit_1(string input)
         {
             llParser parser = Setup(input);
-            BuildAstVisitor visitor = new BuildAstVisitor();
 
             var result = visitor.Visit(parser.numericExpression());
 
@@ -60,7 +59,6 @@ namespace test
         public void TestDoubleLit_2()
         {
             llParser parser = Setup("10.0");
-            BuildAstVisitor visitor = new BuildAstVisitor();
 
             var result = visitor.Visit(parser.numericExpression());
 
@@ -73,7 +71,6 @@ namespace test
         public void TestNumericExpression_1(string input)
         {
             llParser parser = Setup(input);
-            BuildAstVisitor visitor = new BuildAstVisitor();
 
             var result = visitor.Visit(parser.numericExpression());
 
