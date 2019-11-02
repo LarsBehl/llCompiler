@@ -39,33 +39,19 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitCompileUnit([NotNull] llParser.CompileUnitContext context);
 	/// <summary>
-	/// Visit a parse tree produced by the <c>varExpr</c>
+	/// Visit a parse tree produced by the <c>binOpAddSub</c>
 	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitVarExpr([NotNull] llParser.VarExprContext context);
+	Result VisitBinOpAddSub([NotNull] llParser.BinOpAddSubContext context);
 	/// <summary>
-	/// Visit a parse tree produced by the <c>exprSequ</c>
+	/// Visit a parse tree produced by the <c>binOpMultDiv</c>
 	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitExprSequ([NotNull] llParser.ExprSequContext context);
-	/// <summary>
-	/// Visit a parse tree produced by the <c>infixExpression</c>
-	/// labeled alternative in <see cref="llParser.expression"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitInfixExpression([NotNull] llParser.InfixExpressionContext context);
-	/// <summary>
-	/// Visit a parse tree produced by the <c>functionDefinition</c>
-	/// labeled alternative in <see cref="llParser.expression"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitFunctionDefinition([NotNull] llParser.FunctionDefinitionContext context);
+	Result VisitBinOpMultDiv([NotNull] llParser.BinOpMultDivContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>numericAtomExpression</c>
 	/// labeled alternative in <see cref="llParser.expression"/>.
@@ -73,13 +59,6 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitNumericAtomExpression([NotNull] llParser.NumericAtomExpressionContext context);
-	/// <summary>
-	/// Visit a parse tree produced by the <c>assignExpression</c>
-	/// labeled alternative in <see cref="llParser.expression"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitAssignExpression([NotNull] llParser.AssignExpressionContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>parenthes</c>
 	/// labeled alternative in <see cref="llParser.expression"/>.
@@ -93,12 +72,6 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitExpressionSequenz([NotNull] llParser.ExpressionSequenzContext context);
-	/// <summary>
-	/// Visit a parse tree produced by <see cref="llParser.variableExpression"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitVariableExpression([NotNull] llParser.VariableExpressionContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>doubleAtomExpression</c>
 	/// labeled alternative in <see cref="llParser.numericExpression"/>.

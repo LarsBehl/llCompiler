@@ -4,19 +4,12 @@ grammar ll;
 compileUnit: expression EOF;
 expression
     : '(' expression ')' #parenthes
-    | funcName=WORD '(' (WORD ',')* ')' body=expressionSequenz #functionDefinition
-    | left=WORD '=' right=expression ';' #assignExpression
-    | left=expression op=('*'|'/') right=expression #infixExpression
-    | left=expression op=('+'|'-') right=expression #infixExpression
-    | numericExpression #numericAtomExpression
-    | variableExpression #varExpr
-    | expressionSequenz #exprSequ;
+    | left=expression op=('*'|'/') right=expression #binOpMultDiv
+    | left=expression op=('+'|'-') right=expression #binOpAddSub
+    | numericExpression #numericAtomExpression;
 
 expressionSequenz
     : '{' expression* '}';
-
-variableExpression
-    : WORD ';';
 
 numericExpression
     : sign='-'? DOUBLE_LITERAL #doubleAtomExpression

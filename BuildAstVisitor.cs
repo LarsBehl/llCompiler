@@ -37,51 +37,26 @@ namespace ll
             return new DoubleLit(Double.Parse(sign + context.DOUBLE_LITERAL().GetText(), new CultureInfo("en-US").NumberFormat));
         }
 
-        public override IAST VisitVarExpr(llParser.VarExprContext context)
+        public override IAST VisitBinOpAddSub(llParser.BinOpAddSubContext context)
         {
-            return Visit(context.variableExpression());
+            switch(context.op.Text)
+            {
+                case "+": return new AddExpr(Visit(context.left), Visit(context.right));
+                case "_": return new SubExpr(Visit(context.left), Visit(context.right));
+                default:
+                    throw new ArgumentException("unknown operator {0}", context.op.Text);
+            }
         }
 
-        public override IAST VisitVariableExpression(llParser.VariableExpressionContext context)
-        {
-            return new VarExpr(context.WORD().GetText());
-
-        }
-
-        public override IAST VisitAssignExpression(llParser.AssignExpressionContext context)
-        {
-            return new AssignExpr(new VarExpr(context.left.Text), Visit(context.right));
-        }
-
-        public override IAST VisitInfixExpression(llParser.InfixExpressionContext context)
+        public override IAST VisitBinOpMultDiv(llParser.BinOpMultDivContext context)
         {
             switch (context.op.Text)
             {
-                case "+": return new AddExpr(Visit(context.left), Visit(context.right));
-                case "-": return new SubExpr(Visit(context.left), Visit(context.right));
                 case "*": return new MultExpr(Visit(context.left), Visit(context.right));
                 case "/": return new DivExpr(Visit(context.left), Visit(context.right));
                 default:
-                    Console.WriteLine("Unknown op {0}", context.op.Text);
-                    return null;
+                    throw new ArgumentException("unknown operator {0}", context.op.Text);
             }
-        }
-
-        public override IAST VisitExprSequ(llParser.ExprSequContext context)
-        {
-            return Visit(context.expressionSequenz());
-        }
-
-        public override IAST VisitExpressionSequenz(llParser.ExpressionSequenzContext context)
-        {
-            List<IAST> body = new List<IAST>();
-            var tmp = context.expression();
-            for(int i = 0; i < tmp.Length; i++)
-            {
-                body.Add(Visit(tmp[i]));
-            }
-
-            return new Sequenz(body);
         }
     }
 }
