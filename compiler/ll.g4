@@ -7,6 +7,8 @@ expression
     | left=expression op=('*'|'/') right=expression #binOpMultDiv
     | left=expression op=('+'|'-') right=expression #binOpAddSub
     | left=expression op=EQUAL right=expression #equalityOpertor
+    | left=expression op=LESS right=expression #lessOperator
+    | left=expression op=GREATER right=expression #greaterOperator
     | left=WORD '=' right=expression ';' #assignExpression
     | numericExpression #numericAtomExpression
     | WORD #variableExpression
@@ -38,5 +40,7 @@ CURL_L: '{';
 CURL_R: '}';
 SEMCOL: ';';
 EQUAL: '=' '=';
+LESS: '<';
+GREATER: '>';
 
 WHITESPACE  : [ \t\n\r] -> skip;

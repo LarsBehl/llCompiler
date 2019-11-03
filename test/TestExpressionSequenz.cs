@@ -21,6 +21,8 @@ namespace test
         [TestCase("{return 10;}", 10)]
         [TestCase("{return 10+2;}", 12)]
         [TestCase("{x=10; return x==10;}", 1)]
+        [TestCase("{x=10; return x<11;}", 1)]
+        [TestCase("{x=10; return x>9;}", 1)]
         public void TestExpressionSequenz_1(string input, double expected)
         {
             llParser parser = Setup(input);

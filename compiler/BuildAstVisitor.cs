@@ -97,5 +97,15 @@ namespace ll
         {
             return new EqualityExpr(Visit(context.left), Visit(context.right));
         }
+
+        public override IAST VisitLessOperator(llParser.LessOperatorContext context)
+        {
+            return new LessExpr(Visit(context.left), Visit(context.right));
+        }
+
+        public override IAST VisitGreaterOperator(llParser.GreaterOperatorContext context)
+        {
+            return new GreaterExpr(Visit(context.left), Visit(context.right));
+        }
     }
 }

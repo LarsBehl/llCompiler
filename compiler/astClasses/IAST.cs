@@ -44,6 +44,16 @@ namespace ll
                         return 1;
                     else
                         return 0;
+                case LessExpr lessExpr:
+                    if(lessExpr.left.Eval() < lessExpr.right.Eval())
+                        return 1;
+                    else
+                        return 0;
+                case GreaterExpr greaterExpr:
+                    if(greaterExpr.left.Eval() > greaterExpr.right.Eval())
+                        return 1;
+                    else
+                        return 0;
                 default:
                     Console.WriteLine("Unknown Ast Object");
                     return 0;

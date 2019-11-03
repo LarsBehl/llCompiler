@@ -39,6 +39,13 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitCompileUnit([NotNull] llParser.CompileUnitContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>lessOperator</c>
+	/// labeled alternative in <see cref="llParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitLessOperator([NotNull] llParser.LessOperatorContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>binOpAddSub</c>
 	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// </summary>
@@ -80,6 +87,13 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitParenthes([NotNull] llParser.ParenthesContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>greaterOperator</c>
+	/// labeled alternative in <see cref="llParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitGreaterOperator([NotNull] llParser.GreaterOperatorContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>equalityOpertor</c>
 	/// labeled alternative in <see cref="llParser.expression"/>.
