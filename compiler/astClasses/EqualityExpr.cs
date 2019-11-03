@@ -1,4 +1,4 @@
-namespace ll
+namespace ll.AST
 {
     public class EqualityExpr : BinOp, IAST
     {

@@ -2,7 +2,7 @@ using NUnit.Framework;
 using Antlr4.Runtime;
 using ll;
 
-namespace test
+namespace ll.test
 {
     [TestFixture]
     public class TestReturnExpression
@@ -38,7 +38,7 @@ namespace test
 
             var result = visitor.Visit(parser.returnExpression());
 
-            Assert.AreEqual("ll.ReturnExpr", result.GetType().ToString());
+            Assert.AreEqual("ll.AST.ReturnExpr", result.GetType().ToString());
         }
     }
 }

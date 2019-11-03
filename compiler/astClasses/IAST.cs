@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ll
+namespace ll.AST
 {
     public interface IAST
     {

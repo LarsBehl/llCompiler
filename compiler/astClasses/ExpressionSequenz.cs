@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace ll
+namespace ll.AST
 {
     public class ExpressionSequenz : IAST
     {

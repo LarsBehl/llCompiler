@@ -2,7 +2,7 @@ using NUnit.Framework;
 using Antlr4.Runtime;
 using ll;
 
-namespace test
+namespace ll.test
 {
     [TestFixture]
     public class TestAssignExpression
@@ -38,7 +38,7 @@ namespace test
 
             var result = visitor.Visit(parser.expression());
 
-            Assert.AreEqual("ll.AssignExpr", result.GetType().ToString());
+            Assert.AreEqual("ll.AST.AssignExpr", result.GetType().ToString());
         }
     }
 }

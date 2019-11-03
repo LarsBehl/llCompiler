@@ -2,7 +2,7 @@ using NUnit.Framework;
 using Antlr4.Runtime;
 using ll;
 
-namespace test
+namespace ll.test
 {
     [TestFixture]
     public class TestGreaterExpression
@@ -39,7 +39,7 @@ namespace test
 
             var result = visitor.Visit(parser.expression());
 
-            Assert.AreEqual("ll.GreaterExpr", result.GetType().ToString());
+            Assert.AreEqual("ll.AST.GreaterExpr", result.GetType().ToString());
         }
     }
 }

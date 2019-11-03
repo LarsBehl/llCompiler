@@ -1,6 +1,6 @@
 using System;
 
-namespace ll
+namespace ll.AST
 {
     public class DoubleLit : IAST
     {

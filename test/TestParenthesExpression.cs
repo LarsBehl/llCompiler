@@ -2,7 +2,7 @@ using NUnit.Framework;
 using Antlr4.Runtime;
 using ll;
 
-namespace test
+namespace ll.test
 {
     [TestFixture]
     public class TestParenthesExpression

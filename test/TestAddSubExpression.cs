@@ -50,7 +50,7 @@ namespace test
 
             var result = visitor.Visit(parser.expression());
 
-            Assert.AreEqual("ll.AddExpr", result.GetType().ToString());
+            Assert.AreEqual("ll.AST.AddExpr", result.GetType().ToString());
         }
 
         [TestCase("1-1", 0)]
@@ -82,7 +82,7 @@ namespace test
 
             var result = visitor.Visit(parser.expression());
 
-            Assert.AreEqual("ll.SubExpr", result.GetType().ToString());
+            Assert.AreEqual("ll.AST.SubExpr", result.GetType().ToString());
         }
     }
 }
