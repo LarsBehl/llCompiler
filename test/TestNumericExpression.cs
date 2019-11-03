@@ -39,7 +39,7 @@ namespace ll.test
 
             var result = visitor.Visit(parser.numericExpression());
 
-            Assert.AreEqual("ll.IntLit", result.GetType().ToString());
+            Assert.AreEqual("ll.AST.IntLit", result.GetType().ToString());
         }
 
         [TestCase("0.5")]
