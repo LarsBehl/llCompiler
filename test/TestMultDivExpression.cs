@@ -2,7 +2,7 @@ using NUnit.Framework;
 using Antlr4.Runtime;
 using ll;
 
-namespace test
+namespace ll.test
 {
     [TestFixture]
     public class TestMultDivExpression
@@ -53,7 +53,7 @@ namespace test
 
             var result = visitor.Visit(parser.expression());
 
-            Assert.AreEqual("ll.MultExpr", result.GetType().ToString());
+            Assert.AreEqual("ll.AST.MultExpr", result.GetType().ToString());
         }
 
         [TestCase("6/3", 2)]
@@ -78,7 +78,7 @@ namespace test
 
             var result = visitor.Visit(parser.expression());
 
-            Assert.AreEqual("ll.DivExpr", result.GetType().ToString());
+            Assert.AreEqual("ll.AST.DivExpr", result.GetType().ToString());
         }
     }
 }

@@ -2,7 +2,7 @@ using NUnit.Framework;
 using Antlr4.Runtime;
 using ll;
 
-namespace test
+namespace ll.test
 {
     [TestFixture]
     public class TestExpressionSequenz
@@ -39,7 +39,7 @@ namespace test
 
             var result = visitor.Visit(parser.expressionSequenz());
 
-            Assert.AreEqual("ll.ExpressionSequenz", result.GetType().ToString());
+            Assert.AreEqual("ll.AST.ExpressionSequenz", result.GetType().ToString());
         }
     }
 }

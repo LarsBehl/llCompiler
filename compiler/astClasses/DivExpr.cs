@@ -1,4 +1,4 @@
-namespace ll
+namespace ll.AST
 {
     public class DivExpr : BinOp, IAST
     {

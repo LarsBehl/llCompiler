@@ -4,7 +4,7 @@ using ll;
 using System;
 using System.Globalization;
 
-namespace test
+namespace ll.test
 {
     [TestFixture]
     public class TestNumericExpression
@@ -62,7 +62,7 @@ namespace test
 
             var result = visitor.Visit(parser.numericExpression());
 
-            Assert.AreEqual("ll.DoubleLit", result.GetType().ToString());
+            Assert.AreEqual("ll.AST.DoubleLit", result.GetType().ToString());
         }
 
         [TestCase("x")]
