@@ -6,6 +6,7 @@ expression
     : '(' expression ')' #parenthes
     | left=expression op=('*'|'/') right=expression #binOpMultDiv
     | left=expression op=('+'|'-') right=expression #binOpAddSub
+    | left=expression op=EQUAL right=expression #equalityOpertor
     | left=WORD '=' right=expression ';' #assignExpression
     | numericExpression #numericAtomExpression
     | WORD #variableExpression
@@ -36,5 +37,6 @@ ASSIGN: '=';
 CURL_L: '{';
 CURL_R: '}';
 SEMCOL: ';';
+EQUAL: '=' '=';
 
 WHITESPACE  : [ \t\n\r] -> skip;

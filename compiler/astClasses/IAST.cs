@@ -39,6 +39,11 @@ namespace ll
                     return sequenz.body[j].Eval();
                 case ReturnExpr returnExpr:
                     return returnExpr.returnValue.Eval();
+                case EqualityExpr equalityExpr:
+                    if(equalityExpr.left.Eval() == equalityExpr.right.Eval())
+                        return 1;
+                    else
+                        return 0;
                 default:
                     Console.WriteLine("Unknown Ast Object");
                     return 0;

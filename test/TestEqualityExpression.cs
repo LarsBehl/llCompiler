@@ -5,7 +5,7 @@ using ll;
 namespace test
 {
     [TestFixture]
-    public class TestExpressionSequenz
+    public class TestEqualityExpression
     {
         BuildAstVisitor visitor = new BuildAstVisitor();
 
@@ -17,27 +17,27 @@ namespace test
             return new llParser(stream);
         }
 
-        [TestCase("{x=10; y=x+2; return y;}", 12)]
-        [TestCase("{return 10;}", 10)]
-        [TestCase("{return 10+2;}", 12)]
-        [TestCase("{x=10; return x==10;}", 1)]
-        public void TestExpressionSequenz_1(string input, double expected)
+        [TestCase("2==2", 1)]
+        [TestCase("3==2", 0)]
+        [TestCase("-2==2", 0)]
+        [TestCase("-2==-2", 1)]
+        public void TestEqualityExpression_1(string input, int expected)
         {
             llParser parser = Setup(input);
 
-            var result = visitor.Visit(parser.expressionSequenz());
+            var result = visitor.Visit(parser.expression());
 
             Assert.AreEqual(expected, result.Eval());
         }
 
         [Test]
-        public void TestExpressionSequenz_2()
+        public void TestEqualityExpression_2()
         {
-            llParser parser = Setup("{x=10 return x;}");
+            llParser parser = Setup("2==2");
 
-            var result = visitor.Visit(parser.expressionSequenz());
+            var result = visitor.Visit(parser.expression());
 
-            Assert.AreEqual("ll.ExpressionSequenz", result.GetType().ToString());
+            Assert.AreEqual("ll.EqualityExpr", result.GetType().ToString());
         }
     }
 }

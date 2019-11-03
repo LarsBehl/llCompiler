@@ -81,6 +81,13 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitParenthes([NotNull] llParser.ParenthesContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>equalityOpertor</c>
+	/// labeled alternative in <see cref="llParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitEqualityOpertor([NotNull] llParser.EqualityOpertorContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>variableExpression</c>
 	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// </summary>

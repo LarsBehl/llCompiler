@@ -92,5 +92,10 @@ namespace ll
         {
             return new ReturnExpr(Visit(context.expression()));
         }
+
+        public override IAST VisitEqualityOpertor(llParser.EqualityOpertorContext context)
+        {
+            return new EqualityExpr(Visit(context.left), Visit(context.right));
+        }
     }
 }
