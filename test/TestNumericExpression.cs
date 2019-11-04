@@ -31,7 +31,7 @@ namespace ll.test
 
             Assert.AreEqual(Int32.Parse(input), result.Eval());
         }
-// Kommentar
+
         [Test]
         public void TestIntLit_2()
         {
