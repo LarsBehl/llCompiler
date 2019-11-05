@@ -10,7 +10,7 @@ namespace ll.AST
 
         public BinOp(IAST left, IAST right, string op)
         {
-            if(left is AssignExpr || right is AssignExpr)
+            if(left is AssignStatement || right is AssignStatement)
                 throw new ArgumentException("no assignExpression allowed in a binary operation");
             this.left = left;
             this.right = right;

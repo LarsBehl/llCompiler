@@ -27,19 +27,21 @@ namespace ll.test
         {
             llParser parser = Setup(input);
 
-            var result = visitor.Visit(parser.expressionSequenz());
+            var result = visitor.Visit(parser.compileUnit());
 
             Assert.AreEqual(expected, result.Eval());
         }
 
+        
         [Test]
         public void TestExpressionSequenz_2()
         {
-            llParser parser = Setup("{x=10 return x;}");
+            llParser parser = Setup("{x=10; return x;}");
 
-            var result = visitor.Visit(parser.expressionSequenz());
+            var result = visitor.Visit(parser.compileUnit());
 
             Assert.AreEqual("ll.AST.ExpressionSequenz", result.GetType().ToString());
         }
+        
     }
 }

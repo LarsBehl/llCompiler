@@ -22,10 +22,10 @@ namespace ll.AST
                     return ((double)div.left.Eval()) / div.right.Eval();
                 case VarExpr varExpr:
                     return env[varExpr.name];
-                case AssignExpr assign:
+                case AssignStatement assign:
                     var tmp = assign.value.Eval();
                     env[assign.variable.name] = tmp;
-                    return tmp;
+                    return 0;
                 case ExpressionSequenz sequenz:
                     int j;
                     for(j = 0; j < sequenz.body.Count - 1; j++)

@@ -26,7 +26,7 @@ namespace ll.test
         {
             llParser parser = Setup(input);
 
-            var result = visitor.Visit(parser.expression());
+            var result = visitor.Visit(parser.compileUnit());
 
             Assert.AreEqual(expected, result.Eval());
         }

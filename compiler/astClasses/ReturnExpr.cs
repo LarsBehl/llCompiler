@@ -8,8 +8,6 @@ namespace ll.AST
 
         public ReturnExpr(IAST returnValue)
         {
-            if(returnValue is AssignExpr)
-                throw new ArgumentException("returning assignExpression is not allowed");
             this.returnValue = returnValue;
         }
     }

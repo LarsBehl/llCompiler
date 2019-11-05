@@ -9,7 +9,20 @@ namespace ll
     {
         public override IAST VisitCompileUnit(llParser.CompileUnitContext context)
         {
-            return Visit(context.expression());
+            return Visit(context.compositUnit());
+        }
+
+        public override IAST VisitCompositUnit(llParser.CompositUnitContext context)
+        {
+            if(context.statement() != null)
+                return Visit(context.statement());
+
+            if(context.expression() != null)
+                return Visit(context.expression());
+            
+            
+
+            throw new ArgumentException("Unknown node");
         }
 
         public override IAST VisitParenthes(llParser.ParenthesContext context)
@@ -65,9 +78,9 @@ namespace ll
             return new VarExpr(context.WORD().GetText());
         }
 
-        public override IAST VisitAssignExpression(llParser.AssignExpressionContext context)
+        public override IAST VisitAssignStatement(llParser.AssignStatementContext context)
         {
-            return new AssignExpr(new VarExpr(context.left.Text), Visit(context.right));
+            return new AssignStatement(new VarExpr(context.left.Text), Visit(context.right));
         }
 
         public override IAST VisitExprSequ(llParser.ExprSequContext context)
@@ -78,7 +91,7 @@ namespace ll
         public override IAST VisitExpressionSequenz(llParser.ExpressionSequenzContext context)
         {
             List<IAST> body = new List<IAST>();
-            var tmp = context.expression();
+            var tmp = context.compositUnit();
             for(int i = 0; i < tmp.Length; i++)
             {
                 body.Add(Visit(tmp[i]));

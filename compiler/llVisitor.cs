@@ -39,6 +39,12 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitCompileUnit([NotNull] llParser.CompileUnitContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.compositUnit"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitCompositUnit([NotNull] llParser.CompositUnitContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>lessOperator</c>
 	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// </summary>
@@ -74,13 +80,6 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitNumericAtomExpression([NotNull] llParser.NumericAtomExpressionContext context);
 	/// <summary>
-	/// Visit a parse tree produced by the <c>assignExpression</c>
-	/// labeled alternative in <see cref="llParser.expression"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitAssignExpression([NotNull] llParser.AssignExpressionContext context);
-	/// <summary>
 	/// Visit a parse tree produced by the <c>parenthes</c>
 	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// </summary>
@@ -108,6 +107,13 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitVariableExpression([NotNull] llParser.VariableExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>assignStatement</c>
+	/// labeled alternative in <see cref="llParser.statement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAssignStatement([NotNull] llParser.AssignStatementContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>doubleAtomExpression</c>
 	/// labeled alternative in <see cref="llParser.numericExpression"/>.
