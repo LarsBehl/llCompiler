@@ -27,7 +27,7 @@ namespace ll.test
         {
             llParser parser = Setup(input);
 
-            var result = visitor.Visit(parser.numericExpression());
+            var result = visitor.Visit(parser.compileUnit());
 
             Assert.AreEqual(Int32.Parse(input), result.Eval());
         }
@@ -37,7 +37,7 @@ namespace ll.test
         {
             llParser parser = Setup("10");
 
-            var result = visitor.Visit(parser.numericExpression());
+            var result = visitor.Visit(parser.compileUnit());
 
             Assert.AreEqual("ll.AST.IntLit", result.GetType().ToString());
         }
@@ -50,7 +50,7 @@ namespace ll.test
         {
             llParser parser = Setup(input);
 
-            var result = visitor.Visit(parser.numericExpression());
+            var result = visitor.Visit(parser.compileUnit());
 
             Assert.AreEqual(Double.Parse(input, new CultureInfo("en-US").NumberFormat), result.Eval());
         }
@@ -60,19 +60,18 @@ namespace ll.test
         {
             llParser parser = Setup("10.0");
 
-            var result = visitor.Visit(parser.numericExpression());
+            var result = visitor.Visit(parser.compileUnit());
 
             Assert.AreEqual("ll.AST.DoubleLit", result.GetType().ToString());
         }
 
-        [TestCase("x")]
         [TestCase("+")]
         [TestCase("-")]
         public void TestNumericExpression_1(string input)
         {
             llParser parser = Setup(input);
 
-            var result = visitor.Visit(parser.numericExpression());
+            var result = visitor.Visit(parser.compileUnit());
 
             Assert.IsNull(result);
         }

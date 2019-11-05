@@ -25,7 +25,7 @@ namespace ll.test
         {
             llParser parser = Setup(input);
 
-            var result = visitor.Visit(parser.expression());
+            var result = visitor.Visit(parser.compileUnit());
 
             Assert.AreEqual(expected, result.Eval());
         }
@@ -35,7 +35,7 @@ namespace ll.test
         {
             llParser parser = Setup("2==2");
 
-            var result = visitor.Visit(parser.expression());
+            var result = visitor.Visit(parser.compileUnit());
 
             Assert.AreEqual("ll.AST.EqualityExpr", result.GetType().ToString());
         }

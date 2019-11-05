@@ -1,7 +1,12 @@
 grammar ll;
 
 
-compileUnit: expression EOF;
+compileUnit: compositUnit EOF;
+
+compositUnit
+    : statement
+    | expression;
+
 expression
     : '(' expression ')' #parenthes
     | left=expression op=('*'|'/') right=expression #binOpMultDiv
@@ -9,17 +14,19 @@ expression
     | left=expression op=EQUAL right=expression #equalityOpertor
     | left=expression op=LESS right=expression #lessOperator
     | left=expression op=GREATER right=expression #greaterOperator
-    | left=WORD '=' right=expression ';' #assignExpression
     | numericExpression #numericAtomExpression
     | WORD #variableExpression
     | expressionSequenz #exprSequ;
+
+statement
+    : left=WORD ASSIGN right=expression ';' #assignStatement;
 
 numericExpression
     : sign=('-'|'+')? DOUBLE_LITERAL #doubleAtomExpression
     | sign=('-'|'+')? INTEGER_LITERAL #integerAtomExpression;
 
 expressionSequenz
-    : '{' expression* returnExpression '}';
+    : '{' compositUnit* returnExpression '}';
 
 returnExpression
     : RETURN expression ';';

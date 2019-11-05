@@ -27,7 +27,7 @@ namespace ll.test
         {
             llParser parser = Setup(input);
 
-            var reslt = visitor.Visit(parser.expression());
+            var reslt = visitor.Visit(parser.compileUnit());
 
             Assert.AreEqual(expected, reslt.Eval());
         }
@@ -37,7 +37,7 @@ namespace ll.test
         {
             llParser parser = Setup("3 > 0");
 
-            var result = visitor.Visit(parser.expression());
+            var result = visitor.Visit(parser.compileUnit());
 
             Assert.AreEqual("ll.AST.GreaterExpr", result.GetType().ToString());
         }

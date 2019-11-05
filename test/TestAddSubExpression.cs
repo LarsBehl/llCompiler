@@ -25,7 +25,7 @@ namespace test
         {
             llParser parser = Setup(input);
 
-            var result = visitor.Visit(parser.expression());
+            var result = visitor.Visit(parser.compileUnit());
 
             Assert.AreEqual(expected, result.Eval());
         }
@@ -38,7 +38,7 @@ namespace test
         {
             llParser parser = Setup(input);
 
-            var result = visitor.Visit(parser.expression());
+            var result = visitor.Visit(parser.compileUnit());
 
             Assert.AreEqual(expected, result.Eval());
         }
@@ -48,7 +48,7 @@ namespace test
         {
             llParser parser = Setup("1+1");
 
-            var result = visitor.Visit(parser.expression());
+            var result = visitor.Visit(parser.compileUnit());
 
             Assert.AreEqual("ll.AST.AddExpr", result.GetType().ToString());
         }
@@ -60,7 +60,7 @@ namespace test
         {
             llParser parser = Setup(input);
 
-            var result = visitor.Visit(parser.expression());
+            var result = visitor.Visit(parser.compileUnit());
 
             Assert.AreEqual(expected, result.Eval());
         }
@@ -70,7 +70,7 @@ namespace test
         {
             llParser parser = Setup(input);
 
-            var result = visitor.Visit(parser.expression());
+            var result = visitor.Visit(parser.compileUnit());
 
             Assert.AreEqual(expected, result.Eval());
         }
@@ -80,7 +80,7 @@ namespace test
         {
             llParser parser = Setup("1-1");
 
-            var result = visitor.Visit(parser.expression());
+            var result = visitor.Visit(parser.compileUnit());
 
             Assert.AreEqual("ll.AST.SubExpr", result.GetType().ToString());
         }
