@@ -6,7 +6,7 @@ namespace ll.AST
     {
         public IAST returnValue { get; set; }
 
-        public ReturnExpr(IAST returnValue)
+        public ReturnExpr(IAST returnValue) : base(returnValue.type)
         {
             this.returnValue = returnValue;
         }

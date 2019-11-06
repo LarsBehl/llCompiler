@@ -1,4 +1,4 @@
-using System;
+using ll.type;
 
 namespace ll.AST
 {
@@ -6,7 +6,7 @@ namespace ll.AST
     {
         public double n { get; set; }
 
-        public DoubleLit(double n)
+        public DoubleLit(double n) : base(new DoubleType())
         {
             this.n = n;
         }

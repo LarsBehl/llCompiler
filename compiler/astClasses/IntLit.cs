@@ -1,4 +1,4 @@
-using System;
+using ll.type;
 
 namespace ll.AST
 {
@@ -6,7 +6,7 @@ namespace ll.AST
     {
         public int n { get; set; }
 
-        public IntLit(int n)
+        public IntLit(int n) : base(new IntType())
         {
             this.n = n;
         }

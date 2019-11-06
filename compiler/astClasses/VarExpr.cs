@@ -4,7 +4,7 @@ namespace ll.AST
     {
         public string name { get; set; }
 
-        public VarExpr(string name)
+        public VarExpr(string name) : base(null)
         {
             this.name = name;
         }

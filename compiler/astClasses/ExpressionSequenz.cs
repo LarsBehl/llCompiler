@@ -1,3 +1,4 @@
+using ll.type;
 using System.Collections.Generic;
 
 namespace ll.AST
@@ -6,7 +7,7 @@ namespace ll.AST
     {
         public List<IAST> body { get; set; }
 
-        public ExpressionSequenz(List<IAST> body)
+        public ExpressionSequenz(List<IAST> body) : base(new ExpressionSequenzType())
         {
             this.body = body;
         }
