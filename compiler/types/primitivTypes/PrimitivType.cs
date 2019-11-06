@@ -1,6 +1,6 @@
 namespace ll.type
 {
-    public class PrimitivType : ll.type.Type
+    public abstract class PrimitivType : ll.type.Type
     {
         public PrimitivType(string typeName) : base(typeName)
         {

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 namespace ll.AST
 {
-    public interface IAST
+    public abstract class IAST
     {
         static Dictionary<string, double> env = new Dictionary<string, double>();
-        double Eval()
+        public double Eval()
         {
             switch (this)
             {

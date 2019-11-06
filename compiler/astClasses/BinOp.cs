@@ -2,7 +2,7 @@ using System;
 
 namespace ll.AST
 {
-    public class BinOp
+    public abstract class BinOp : IAST
     {
         public IAST left { get; set; }
         public IAST right { get; set; }
