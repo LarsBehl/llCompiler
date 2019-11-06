@@ -1,4 +1,5 @@
 using System;
+using ll.type;
 
 namespace ll.AST
 {
@@ -8,7 +9,7 @@ namespace ll.AST
         public IAST right { get; set; }
         public string op { get; set; }
 
-        public BinOp(IAST left, IAST right, string op)
+        public BinOp(IAST left, IAST right, string op, ll.type.Type type) : base(type)
         {
             if(left is AssignStatement || right is AssignStatement)
                 throw new ArgumentException("no assignExpression allowed in a binary operation");
@@ -16,5 +17,6 @@ namespace ll.AST
             this.right = right;
             this.op = op;
         }
+
     }
 }

@@ -1,11 +1,19 @@
 using System;
 using System.Collections.Generic;
+using ll.type;
 
 namespace ll.AST
 {
     public abstract class IAST
     {
         static Dictionary<string, double> env = new Dictionary<string, double>();
+        public ll.type.Type type { get; set; }
+        
+        public IAST(ll.type.Type type)
+        {
+            this.type = type;
+        }
+
         public double Eval()
         {
             switch (this)
