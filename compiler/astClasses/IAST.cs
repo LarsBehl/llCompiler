@@ -7,11 +7,17 @@ namespace ll.AST
     public abstract class IAST
     {
         static Dictionary<string, double> env = new Dictionary<string, double>();
+        static Dictionary<string, ll.type.Type> typeDefs = new Dictionary<string, ll.type.Type>();
         public ll.type.Type type { get; set; }
         
         public IAST(ll.type.Type type)
         {
             this.type = type;
+        }
+
+        public static ll.type.Type GetType(string varName)
+        {
+            return typeDefs[varName];
         }
 
         public double Eval()
