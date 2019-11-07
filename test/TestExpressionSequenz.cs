@@ -17,12 +17,12 @@ namespace ll.test
             return new llParser(stream);
         }
 
-        //[TestCase("{x=10; y=x+2; return y;}", 12)]
+        [TestCase("{x:int=10; y:int=x+2; return y;}", 12)]
         [TestCase("{return 10;}", 10)]
         [TestCase("{return 10+2;}", 12)]
-        //[TestCase("{x=10; return x==10;}", 1)]
-        //[TestCase("{x=10; return x<11;}", 1)]
-        //[TestCase("{x=10; return x>9;}", 1)]
+        [TestCase("{x:int=10; return x==10;}", 1)]
+        [TestCase("{x:int=10; return x<11;}", 1)]
+        [TestCase("{x:int=10; return x>9;}", 1)]
         public void TestExpressionSequenz_1(string input, double expected)
         {
             llParser parser = Setup(input);

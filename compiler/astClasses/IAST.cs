@@ -20,6 +20,11 @@ namespace ll.AST
             return typeDefs[varName];
         }
 
+        public static void SetType(string varName, ll.type.Type type)
+        {
+            typeDefs[varName] = type;
+        }
+
         public double Eval()
         {
             switch (this)
