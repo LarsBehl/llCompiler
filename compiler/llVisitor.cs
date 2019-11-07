@@ -142,6 +142,12 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitExpressionSequenz([NotNull] llParser.ExpressionSequenzContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.typeDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitTypeDefinition([NotNull] llParser.TypeDefinitionContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="llParser.returnExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

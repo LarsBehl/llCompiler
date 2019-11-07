@@ -125,23 +125,7 @@ namespace ll
 
         public override IAST VisitInitializationStatement(llParser.InitializationStatementContext context)
         {
-            ll.type.Type type = null;
-            
-            switch(context.type.Text)
-            {
-                case "int":
-                    type = new IntType();
-                    break;
-                case "double":
-                    type = new DoubleType();
-                    break;
-                case "bool":
-                    type = new BooleanType();
-                    break;
-                default:
-                    throw new ArgumentException($"Unknown type \"{context.type.Text}\"");
-
-            }
+            ll.type.Type type = Visit(context.type).type;
 
             IAST val = Visit(context.right);
             if(type.typeName != val.type.typeName)
@@ -152,5 +136,13 @@ namespace ll
             return new AssignStatement(new VarExpr(context.left.Text), val);
         }
 
+        public override IAST VisitTypeDefinition(llParser.TypeDefinitionContext context)
+        {
+            if(context.INT_TYPE() != null)
+                return new IntLit(0);
+            if(context.DOUBLE_TYPE() != null)
+                return new DoubleLit(0.0);
+            throw new ArgumentException("Unsupported type");
+        }
     }
 }
