@@ -2,6 +2,7 @@ using System;
 using System.Globalization;
 using System.Collections.Generic;
 using ll.AST;
+using ll.type;
 
 namespace ll
 {
@@ -121,5 +122,35 @@ namespace ll
         {
             return new GreaterExpr(Visit(context.left), Visit(context.right));
         }
+
+        public override IAST VisitInitializationStatement(llParser.InitializationStatementContext context)
+        {
+            ll.type.Type type = null;
+            
+            switch(context.type.Text)
+            {
+                case "int":
+                    type = new IntType();
+                    break;
+                case "double":
+                    type = new DoubleType();
+                    break;
+                case "bool":
+                    type = new BooleanType();
+                    break;
+                default:
+                    throw new ArgumentException($"Unknown type \"{context.type.Text}\"");
+
+            }
+
+            IAST val = Visit(context.right);
+            if(type.typeName != val.type.typeName)
+                throw new ArgumentException($"Type {val.type.typeName} does not match {type.typeName}");
+            
+            IAST.SetType(context.left.Text, type);
+
+            return new AssignStatement(new VarExpr(context.left.Text), val);
+        }
+
     }
 }

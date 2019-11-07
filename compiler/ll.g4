@@ -19,7 +19,8 @@ expression
     | expressionSequenz #exprSequ;
 
 statement
-    : left=WORD ASSIGN right=expression ';' #assignStatement;
+    : left=WORD ASSIGN right=expression ';' #assignStatement
+    | left=WORD COLON type=(INT_TYPE|DOUBLE_TYPE|BOOL_TYPE) ASSIGN right=expression ';' #initializationStatement;
 
 numericExpression
     : sign=('-'|'+')? DOUBLE_LITERAL #doubleAtomExpression
@@ -34,6 +35,9 @@ returnExpression
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;
 RETURN: 'r' 'e' 't' 'u' 'r' 'n';
+INT_TYPE: 'i' 'n' 't';
+DOUBLE_TYPE: 'd' 'o' 'u' 'b' 'l' 'e';
+BOOL_TYPE: 'b' 'o' 'o' 'l';
 WORD: [a-zA-Z]+;
 MULT: '*';
 ADD: '+';
@@ -49,5 +53,6 @@ SEMCOL: ';';
 EQUAL: '=' '=';
 LESS: '<';
 GREATER: '>';
+COLON: ':';
 
 WHITESPACE  : [ \t\n\r] -> skip;
