@@ -125,8 +125,8 @@ namespace ll
 
         public override IAST VisitInitializationStatement(llParser.InitializationStatementContext context)
         {
-            ll.type.Type type;
-
+            ll.type.Type type = null;
+            
             switch(context.type.Text)
             {
                 case "int":
@@ -139,14 +139,18 @@ namespace ll
                     type = new BooleanType();
                     break;
                 default:
-                    throw new ArgumentException($"Unknown type {context.type.Text}");
+                    throw new ArgumentException($"Unknown type \"{context.type.Text}\"");
+
             }
 
             IAST val = Visit(context.right);
             if(type.typeName != val.type.typeName)
                 throw new ArgumentException($"Type {val.type.typeName} does not match {type.typeName}");
+            
+            IAST.SetType(context.left.Text, type);
 
             return new AssignStatement(new VarExpr(context.left.Text), val);
         }
+
     }
 }

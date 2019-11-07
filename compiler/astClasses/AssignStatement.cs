@@ -10,7 +10,7 @@ namespace ll.AST
 
         public AssignStatement(VarExpr variable, IAST value) : base(new AssignStatementType())
         {
-            if(variable.type != value.type)
+            if(variable.type.typeName != value.type.typeName)
                 throw new ArgumentException($"Variable type {value.type} does not match {variable.type}");
             this.variable = variable;
             this.value = value;
