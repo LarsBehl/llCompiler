@@ -20,7 +20,7 @@ expression
 
 statement
     : left=WORD ASSIGN right=expression ';' #assignStatement
-    | left=WORD COLON type=(INT_TYPE|DOUBLE_TYPE|BOOL_TYPE) ASSIGN right=expression ';' #initializationStatement;
+    | left=WORD COLON type=typeExpression ASSIGN right=expression ';' #initializationStatement;
 
 numericExpression
     : sign=('-'|'+')? DOUBLE_LITERAL #doubleAtomExpression
@@ -31,6 +31,11 @@ expressionSequenz
 
 returnExpression
     : RETURN expression ';';
+
+typeExpression
+    : INT_TYPE
+    | DOUBLE_TYPE
+    | BOOL_TYPE;
 
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;
