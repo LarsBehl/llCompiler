@@ -1,6 +1,6 @@
 using NUnit.Framework;
 using Antlr4.Runtime;
-using ll;
+using ll.AST;
 using System;
 using System.Globalization;
 
@@ -29,7 +29,7 @@ namespace ll.test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(Int32.Parse(input), result.Eval());
+            Assert.AreEqual(Int32.Parse(input), (result.Eval() as IntLit).n);
         }
 
         [Test]
@@ -52,7 +52,7 @@ namespace ll.test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(Double.Parse(input, new CultureInfo("en-US").NumberFormat), result.Eval());
+            Assert.AreEqual(Double.Parse(input, new CultureInfo("en-US").NumberFormat), (result.Eval() as DoubleLit).n);
         }
 
         [Test]

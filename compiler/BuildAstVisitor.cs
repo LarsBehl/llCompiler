@@ -142,7 +142,24 @@ namespace ll
                 return new IntLit(0);
             if(context.DOUBLE_TYPE() != null)
                 return new DoubleLit(0.0);
+            if(context.BOOL_TYPE() != null)
+                return new BoolLit(false);
             throw new ArgumentException("Unsupported type");
+        }
+
+        public override IAST VisitBoolAtomExpression(llParser.BoolAtomExpressionContext context)
+        {
+            return Visit(context.boolExpression());
+        }
+
+        public override IAST VisitBoolExpression(llParser.BoolExpressionContext context)
+        {
+            if(context.BOOL_FALSE() != null)
+                return new BoolLit(false);
+            if(context.BOOL_TRUE() != null)
+                return new BoolLit(true);
+
+            throw new ArgumentException("Unsupportet value for bool");
         }
     }
 }

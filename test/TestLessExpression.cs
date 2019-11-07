@@ -1,6 +1,6 @@
 using NUnit.Framework;
 using Antlr4.Runtime;
-using ll;
+using ll.AST;
 
 namespace ll.test
 {
@@ -17,19 +17,19 @@ namespace ll.test
             return new llParser(stream);
         }
 
-        [TestCase("2 < 3", 1)]
-        [TestCase("-2 < 3", 1)]
-        [TestCase("3 < 2", 0)]
-        [TestCase("2+3<4", 0)]
-        [TestCase("2 < 4*2", 1)]
-        [TestCase("2/3 < 1/2", 0)]
-        public void TestLessExpression_1(string input, double expected)
+        [TestCase("2 < 3", true)]
+        [TestCase("-2 < 3", true)]
+        [TestCase("3 < 2", false)]
+        [TestCase("2+3<4", false)]
+        [TestCase("2 < 4*2", true)]
+        [TestCase("2/3 < 1/2", false)]
+        public void TestLessExpression_1(string input, bool expected)
         {
             llParser parser = Setup(input);
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(expected, result.Eval());
+            Assert.AreEqual(expected, (result.Eval() as BoolLit).value);
         }
 
         public void TestLessExpression_2()

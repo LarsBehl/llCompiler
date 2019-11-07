@@ -1,6 +1,6 @@
 using NUnit.Framework;
 using Antlr4.Runtime;
-using ll;
+using ll.AST;
 
 namespace ll.test
 {
@@ -17,17 +17,17 @@ namespace ll.test
             return new llParser(stream);
         }
 
-        [TestCase("2==2", 1)]
-        [TestCase("3==2", 0)]
-        [TestCase("-2==2", 0)]
-        [TestCase("-2==-2", 1)]
-        public void TestEqualityExpression_1(string input, int expected)
+        [TestCase("2==2", true)]
+        [TestCase("3==2", false)]
+        [TestCase("-2==2", false)]
+        [TestCase("-2==-2", true)]
+        public void TestEqualityExpression_1(string input, bool expected)
         {
             llParser parser = Setup(input);
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(expected, result.Eval());
+            Assert.AreEqual(expected, (result.Eval() as BoolLit).value);
         }
 
         [Test]

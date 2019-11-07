@@ -1,6 +1,6 @@
 using NUnit.Framework;
 using Antlr4.Runtime;
-using ll;
+using ll.AST;
 
 namespace ll.test
 {
@@ -20,22 +20,29 @@ namespace ll.test
         
         [TestCase("return 2;", 2)]
         [TestCase("return 2+2;", 4)]
-        [TestCase("return 1/2;", 0.5)]
         [TestCase("return 2*2;", 4)]
         [TestCase("return (2*2);", 4)]
-        public void TestReturnExpression_1(string input, double expected)
+        public void TestReturnExpression_1(string input, int expected)
         {
             llParser parser = Setup(input);
 
             var result = visitor.Visit(parser.returnExpression());
 
-            Assert.AreEqual(expected, result.Eval());
+            Assert.AreEqual(expected, (result.Eval() as IntLit).n);
         }
 
-        
+        [TestCase("return 1/2.0;", 0.5)]
+        public void TestReturnExpression_2(string input, double expected)
+        {
+            llParser parser = Setup(input);
+
+            var result = visitor.Visit(parser.returnExpression());
+
+            Assert.AreEqual(expected, (result.Eval() as DoubleLit).n);
+        }
         
         [Test]
-        public void TestReturnExpression_2()
+        public void TestReturnExpression_3()
         {
             llParser parser = Setup("return 2;");
 
