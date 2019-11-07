@@ -45,6 +45,13 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitCompositUnit([NotNull] llParser.CompositUnitContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>boolAtomExpression</c>
+	/// labeled alternative in <see cref="llParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitBoolAtomExpression([NotNull] llParser.BoolAtomExpressionContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>lessOperator</c>
 	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// </summary>
@@ -135,6 +142,12 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitIntegerAtomExpression([NotNull] llParser.IntegerAtomExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.boolExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitBoolExpression([NotNull] llParser.BoolExpressionContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="llParser.expressionSequenz"/>.
 	/// </summary>

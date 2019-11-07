@@ -15,6 +15,7 @@ expression
     | left=expression op=LESS right=expression #lessOperator
     | left=expression op=GREATER right=expression #greaterOperator
     | numericExpression #numericAtomExpression
+    | boolExpression #boolAtomExpression
     | WORD #variableExpression
     | expressionSequenz #exprSequ;
 
@@ -25,6 +26,10 @@ statement
 numericExpression
     : sign=('-'|'+')? DOUBLE_LITERAL #doubleAtomExpression
     | sign=('-'|'+')? INTEGER_LITERAL #integerAtomExpression;
+
+boolExpression
+    : BOOL_TRUE
+    | BOOL_FALSE;
 
 expressionSequenz
     : '{' compositUnit* returnExpression '}';
@@ -43,6 +48,8 @@ RETURN: 'r' 'e' 't' 'u' 'r' 'n';
 INT_TYPE: 'i' 'n' 't';
 DOUBLE_TYPE: 'd' 'o' 'u' 'b' 'l' 'e';
 BOOL_TYPE: 'b' 'o' 'o' 'l';
+BOOL_TRUE: 't' 'r' 'u' 'e';
+BOOL_FALSE: 'f' 'a' 'l' 's' 'e';
 WORD: [a-zA-Z]+;
 MULT: '*';
 ADD: '+';

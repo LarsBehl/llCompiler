@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using Antlr4.Runtime;
 using ll;
+using ll.AST;
 
 namespace test
 {
@@ -27,7 +28,7 @@ namespace test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(expected, result.Eval());
+            Assert.AreEqual(expected, (result.Eval() as IntLit).n);
         }
 
         [TestCase("1.0+1.0", 2.0)]
@@ -40,7 +41,7 @@ namespace test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(expected, result.Eval());
+            Assert.AreEqual(expected, (result.Eval() as DoubleLit).n);
         }
 
         [Test]
@@ -62,7 +63,7 @@ namespace test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(expected, result.Eval());
+            Assert.AreEqual(expected, (result.Eval() as IntLit).n);
         }
 
         [TestCase("1.0-1.0", 0.0)]
@@ -72,7 +73,7 @@ namespace test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(expected, result.Eval());
+            Assert.AreEqual(expected, (result.Eval() as DoubleLit).n);
         }
 
         [Test]

@@ -1,6 +1,6 @@
 using NUnit.Framework;
 using Antlr4.Runtime;
-using ll;
+using ll.AST;
 
 namespace ll.test
 {
@@ -31,7 +31,7 @@ namespace ll.test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(expected, result.Eval());
+            Assert.AreEqual(expected, (result.Eval() as IntLit).n);
         }
 
         [TestCase("2.5*2", 5.0)]
@@ -43,7 +43,7 @@ namespace ll.test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(expected, result.Eval());
+            Assert.AreEqual(expected, (result.Eval() as DoubleLit).n);
         }
 
         [Test]
@@ -57,22 +57,32 @@ namespace ll.test
         }
 
         [TestCase("6/3", 2)]
-        [TestCase("1/2", 0.5)]
-        [TestCase("1.5/2", 0.75)]
         [TestCase("-2/2", -1)]
         [TestCase("2/2", 1)]
-        [TestCase("-1/-10", 0.1)]
-        public void TestDivExpression_1(string input, double expected)
+        [TestCase("3/2", 1)]
+        [TestCase("1/2", 0)]
+        public void TestDivExpression_1(string input, int expected)
         {
             llParser parser = Setup(input);
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(expected, result.Eval());
+            Assert.AreEqual(expected, (result.Eval() as IntLit).n);
+        }
+
+        [TestCase("1.5/2", 0.75)]
+        [TestCase("-1/-10.0", 0.1)]
+        public void TestDivExpression_2(string input, double expected)
+        {
+            llParser parser = Setup(input);
+
+            var result = visitor.Visit(parser.compileUnit());
+
+            Assert.AreEqual(expected, (result.Eval() as DoubleLit).n);
         }
 
         [Test]
-        public void TestDivExpression_2()
+        public void TestDivExpression_3()
         {
             llParser parser = Setup("2/2");
 
