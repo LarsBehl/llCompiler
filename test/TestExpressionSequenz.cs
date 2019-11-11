@@ -9,6 +9,13 @@ namespace ll.test
     {
         BuildAstVisitor visitor = new BuildAstVisitor();
 
+        [SetUp]
+        public void ClearEnvAndVarType()
+        {
+            IAST.env = new System.Collections.Generic.Dictionary<string, IAST>();
+            IAST.typeDefs = new System.Collections.Generic.Dictionary<string, type.Type>();
+        }
+
         public llParser Setup(string text)
         {
             AntlrInputStream inputStream = new AntlrInputStream(text);
@@ -32,6 +39,7 @@ namespace ll.test
         }
 
         [TestCase("{x:double=2.0; return x;}", 2.0)]
+        [TestCase("{x:double; x=10.0; return x;}", 10.0)]
         public void TestExpressionSequenz_2(string input, double expected)
         {
             llParser parser = Setup(input);

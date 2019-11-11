@@ -27,7 +27,8 @@ namespace ll
                     var ast = new BuildAstVisitor().VisitCompileUnit(cst);
                     var value = ast.Eval();
 
-                    Console.WriteLine("= {0}", value);
+                    if(value != null)
+                        Console.WriteLine("= {0}", value.ToString());
                 }
                 catch(Exception e)
                 {

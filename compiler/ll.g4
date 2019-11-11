@@ -19,6 +19,7 @@ expression
 
 statement
     : left=WORD ASSIGN right=expression SEMCOL #assignStatement
+    | left=WORD COLON type=typeDefinition SEMCOL #instantiationStatement
     | left=WORD COLON type=typeDefinition ASSIGN right=expression SEMCOL #initializationStatement;
 
 unaryExpression
@@ -72,5 +73,6 @@ EQUAL: '=' '=';
 LESS: '<';
 GREATER: '>';
 COLON: ':';
+COMMA: ',';
 
 WHITESPACE  : [ \t\n\r] -> skip;

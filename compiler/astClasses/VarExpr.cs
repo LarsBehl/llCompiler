@@ -10,5 +10,10 @@ namespace ll.AST
         {
             this.name = name;
         }
+
+        public override string ToString()
+        {
+            return this.name;
+        }
     }
 }

@@ -6,8 +6,8 @@ namespace ll.AST
 {
     public abstract class IAST
     {
-        static Dictionary<string, IAST> env = new Dictionary<string, IAST>();
-        static Dictionary<string, ll.type.Type> typeDefs = new Dictionary<string, ll.type.Type>();
+        public static Dictionary<string, IAST> env = new Dictionary<string, IAST>();
+        public static Dictionary<string, ll.type.Type> typeDefs = new Dictionary<string, ll.type.Type>();
         public ll.type.Type type { get; set; }
 
         public IAST(ll.type.Type type)
@@ -22,6 +22,8 @@ namespace ll.AST
 
         public static void SetType(string varName, ll.type.Type type)
         {
+            if(typeDefs.ContainsKey(varName) && typeDefs[varName] != type)
+                throw new ArgumentException($"There is already a variable \"{varName}\" with type \"{typeDefs[varName].typeName}\"");
             typeDefs[varName] = type;
         }
 
@@ -65,6 +67,8 @@ namespace ll.AST
                     return EvalLessExpression(lessExpr);
                 case GreaterExpr greaterExpr:
                     return EvalGreaterExpression(greaterExpr);
+                case InstantiationStatement instantiation:
+                    return null;
                 default:
                     Console.WriteLine("Unknown Ast Object");
                     return null;

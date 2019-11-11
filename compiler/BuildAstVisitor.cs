@@ -163,5 +163,13 @@ namespace ll
 
             throw new ArgumentException("Unknown unary type");
         }
+
+        public override IAST VisitInstantiationStatement(llParser.InstantiationStatementContext context)
+        {
+            ll.type.Type tmp = Visit(context.type).type;
+            IAST.SetType(context.WORD().GetText(), tmp);
+
+            return new InstantiationStatement(context.WORD().GetText(), tmp);
+        }
     }
 }
