@@ -53,11 +53,11 @@ namespace ll.AST
                         sequenz.body[j].Eval();
                     }
 
-                    if (j >= 0 && !(sequenz.body[j] is ReturnExpr))
+                    if (j >= 0 && !(sequenz.body[j] is ReturnStatement))
                         throw new ArgumentException("last expression in expressionSequenz has to be an return Expression");
 
                     return sequenz.body[j].Eval();
-                case ReturnExpr returnExpr:
+                case ReturnStatement returnExpr:
                     return returnExpr.returnValue.Eval();
                 case EqualityExpr equalityExpr:
                     return EvalEqualityExpression(equalityExpr);

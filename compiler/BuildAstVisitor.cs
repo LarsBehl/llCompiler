@@ -31,11 +31,6 @@ namespace ll
             return Visit(context.expression());
         }
 
-        public override IAST VisitNumericAtomExpression(llParser.NumericAtomExpressionContext context)
-        {
-            return Visit(context.numericExpression());
-        }
-
         public override IAST VisitIntegerAtomExpression(llParser.IntegerAtomExpressionContext context)
         {
             string sign = "+";
@@ -98,14 +93,14 @@ namespace ll
                 body.Add(Visit(tmp[i]));
             }
 
-            body.Add(Visit(context.returnExpression()));
+            body.Add(Visit(context.returnStatement()));
 
             return new ExpressionSequenz(body);
         }
 
-        public override IAST VisitReturnExpression(llParser.ReturnExpressionContext context)
+        public override IAST VisitReturnStatement(llParser.ReturnStatementContext context)
         {
-            return new ReturnExpr(Visit(context.expression()));
+            return new ReturnStatement(Visit(context.expression()));
         }
 
         public override IAST VisitEqualityOpertor(llParser.EqualityOpertorContext context)
@@ -147,11 +142,6 @@ namespace ll
             throw new ArgumentException("Unsupported type");
         }
 
-        public override IAST VisitBoolAtomExpression(llParser.BoolAtomExpressionContext context)
-        {
-            return Visit(context.boolExpression());
-        }
-
         public override IAST VisitBoolExpression(llParser.BoolExpressionContext context)
         {
             if(context.BOOL_FALSE() != null)
@@ -160,6 +150,18 @@ namespace ll
                 return new BoolLit(true);
 
             throw new ArgumentException("Unsupportet value for bool");
+        }
+
+        public override IAST VisitUnaryExpression(llParser.UnaryExpressionContext context)
+        {
+            if(context.boolExpression() != null)
+                return Visit(context.boolExpression());
+            if(context.numericExpression() != null)
+                return Visit(context.numericExpression());
+            if(context.variableExpression() != null)
+                return Visit(context.variableExpression());
+
+            throw new ArgumentException("Unknown unary type");
         }
     }
 }
