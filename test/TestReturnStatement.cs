@@ -5,7 +5,7 @@ using ll.AST;
 namespace ll.test
 {
     [TestFixture]
-    public class TestReturnExpression
+    public class TestReturnStatement
     {
         BuildAstVisitor visitor = new BuildAstVisitor();
 
@@ -26,7 +26,7 @@ namespace ll.test
         {
             llParser parser = Setup(input);
 
-            var result = visitor.Visit(parser.returnExpression());
+            var result = visitor.Visit(parser.returnStatement());
 
             Assert.AreEqual(expected, (result.Eval() as IntLit).n);
         }
@@ -36,7 +36,7 @@ namespace ll.test
         {
             llParser parser = Setup(input);
 
-            var result = visitor.Visit(parser.returnExpression());
+            var result = visitor.Visit(parser.returnStatement());
 
             Assert.AreEqual(expected, (result.Eval() as DoubleLit).n);
         }
@@ -46,9 +46,9 @@ namespace ll.test
         {
             llParser parser = Setup("return 2;");
 
-            var result = visitor.Visit(parser.returnExpression());
+            var result = visitor.Visit(parser.returnStatement());
 
-            Assert.AreEqual("ll.AST.ReturnExpr", result.GetType().ToString());
+            Assert.AreEqual("ll.AST.ReturnStatement", result.GetType().ToString());
         }
         
     }
