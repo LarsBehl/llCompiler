@@ -171,5 +171,23 @@ namespace ll
 
             return new InstantiationStatement(context.WORD().GetText(), tmp);
         }
+
+        public override IAST VisitFunctionDefinition(llParser.FunctionDefinitionContext context)
+        {
+            var tmp = context.WORD();
+            var tmp2 = context.typeDefinition();
+            List<string> args = new List<string>();
+
+            for(int i = 0; i < tmp2.Length - 1; i++)
+            {
+                args.Add(tmp[i + 1].GetText());
+                IAST.SetType(tmp[i + 1].GetText(), Visit(tmp2[i]).type);
+            }
+
+            FunctionDefinition func = new FunctionDefinition(tmp[0].GetText(), args, Visit(context.expressionSequenz()), Visit(tmp2[tmp2.Length - 1]).type);
+            IAST.funs[tmp[0].GetText()] = func;
+
+            return func;
+        }
     }
 }

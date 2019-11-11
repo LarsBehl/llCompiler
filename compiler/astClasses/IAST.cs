@@ -8,6 +8,7 @@ namespace ll.AST
     {
         public static Dictionary<string, IAST> env = new Dictionary<string, IAST>();
         public static Dictionary<string, ll.type.Type> typeDefs = new Dictionary<string, ll.type.Type>();
+        public static Dictionary<string, FunctionDefinition> funs = new Dictionary<string, FunctionDefinition>();
         public ll.type.Type type { get; set; }
 
         public IAST(ll.type.Type type)
@@ -68,6 +69,8 @@ namespace ll.AST
                 case GreaterExpr greaterExpr:
                     return EvalGreaterExpression(greaterExpr);
                 case InstantiationStatement instantiation:
+                    return null;
+                case FunctionDefinition funDef:
                     return null;
                 default:
                     Console.WriteLine("Unknown Ast Object");

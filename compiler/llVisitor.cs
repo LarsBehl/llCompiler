@@ -122,6 +122,13 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitInitializationStatement([NotNull] llParser.InitializationStatementContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>functionDefinition</c>
+	/// labeled alternative in <see cref="llParser.statement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitFunctionDefinition([NotNull] llParser.FunctionDefinitionContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="llParser.unaryExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
@@ -133,6 +140,12 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitVariableExpression([NotNull] llParser.VariableExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.nameTypeTuple"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitNameTypeTuple([NotNull] llParser.NameTypeTupleContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>doubleAtomExpression</c>
 	/// labeled alternative in <see cref="llParser.numericExpression"/>.
