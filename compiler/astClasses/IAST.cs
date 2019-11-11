@@ -186,15 +186,39 @@ namespace ll.AST
             {
                 case IntType i:
                     if (le.right.type is IntType)
-                        return new BoolLit((le.left.Eval() as IntLit).n < (le.right.Eval() as IntLit).n);
+                    {
+                        IAST result = le.equal
+                            ? new BoolLit((le.left.Eval() as IntLit).n <= (le.right.Eval() as IntLit).n)
+                            : new BoolLit((le.left.Eval() as IntLit).n < (le.right.Eval() as IntLit).n);
+                        return result;
+                    }
+
                     if (le.right.type is DoubleType)
-                        return new BoolLit((le.left.Eval() as IntLit).n < (le.right.Eval() as DoubleLit).n);
+                    {
+                        IAST result = le.equal
+                            ? new BoolLit((le.left.Eval() as IntLit).n <= (le.right.Eval() as DoubleLit).n)
+                            : new BoolLit((le.left.Eval() as IntLit).n < (le.right.Eval() as DoubleLit).n);
+                        return result;
+                    }
+
                     throw new ArgumentException($"Type \"{le.left.type.typeName}\" is incompatible with \"{le.right.type.typeName}\"");
                 case DoubleType d:
                     if (le.right.type is IntType)
-                        return new BoolLit((le.left.Eval() as DoubleLit).n < (le.right.Eval() as IntLit).n);
+                    {
+                        IAST result = le.equal
+                            ? new BoolLit((le.left.Eval() as DoubleLit).n <= (le.right.Eval() as IntLit).n)
+                            : new BoolLit((le.left.Eval() as DoubleLit).n < (le.right.Eval() as IntLit).n);
+                        return result;
+                    }
+
                     if (le.right.type is DoubleType)
-                        return new BoolLit((le.left.Eval() as DoubleLit).n < (le.right.Eval() as DoubleLit).n);
+                    {
+                        IAST result = le.equal
+                            ? new BoolLit((le.left.Eval() as DoubleLit).n <= (le.right.Eval() as DoubleLit).n)
+                            : new BoolLit((le.left.Eval() as DoubleLit).n < (le.right.Eval() as DoubleLit).n);
+                        return result;
+                    }
+
                     throw new ArgumentException($"Type \"{le.left.type.typeName}\" is incompatible with \"{le.right.type.typeName}\"");
                 default:
                     throw new ArgumentException($"Unknown type \"{le.left.type.typeName}\"");
@@ -207,15 +231,39 @@ namespace ll.AST
             {
                 case IntType i:
                     if (ge.right.type is IntType)
-                        return new BoolLit((ge.left.Eval() as IntLit).n > (ge.right.Eval() as IntLit).n);
+                    {
+                        IAST result = ge.equal
+                            ? new BoolLit((ge.left.Eval() as IntLit).n >= (ge.right.Eval() as IntLit).n)
+                            : new BoolLit((ge.left.Eval() as IntLit).n > (ge.right.Eval() as IntLit).n);
+                        return result;
+                    }
+
                     if (ge.right.type is DoubleType)
-                        return new BoolLit((ge.left.Eval() as IntLit).n > (ge.right.Eval() as DoubleLit).n);
+                    {
+                        IAST result = ge.equal
+                            ? new BoolLit((ge.left.Eval() as IntLit).n >= (ge.right.Eval() as DoubleLit).n)
+                            : new BoolLit((ge.left.Eval() as IntLit).n > (ge.right.Eval() as DoubleLit).n);
+                        return result;
+                    }
+
                     throw new ArgumentException($"Type \"{ge.left.type.typeName}\" is incompatible with \"{ge.right.type.typeName}\"");
                 case DoubleType d:
                     if (ge.right.type is IntType)
-                        return new BoolLit((ge.left.Eval() as DoubleLit).n > (ge.right.Eval() as IntLit).n);
+                    {
+                        IAST result = ge.equal
+                            ? new BoolLit((ge.left.Eval() as IntLit).n >= (ge.right.Eval() as IntLit).n)
+                            : new BoolLit((ge.left.Eval() as IntLit).n > (ge.right.Eval() as IntLit).n);
+                        return result;
+                    }
+
                     if (ge.right.type is DoubleType)
-                        return new BoolLit((ge.left.Eval() as DoubleLit).n > (ge.right.Eval() as DoubleLit).n);
+                    {
+                        IAST result = ge.equal
+                            ? new BoolLit((ge.left.Eval() as IntLit).n >= (ge.right.Eval() as DoubleLit).n)
+                            : new BoolLit((ge.left.Eval() as IntLit).n > (ge.right.Eval() as DoubleLit).n);
+                        return result;
+                    }
+
                     throw new ArgumentException($"Type \"{ge.left.type.typeName}\" is incompatible with \"{ge.right.type.typeName}\"");
                 default:
                     throw new ArgumentException($"Unknown type \"{ge.left.type.typeName}\"");

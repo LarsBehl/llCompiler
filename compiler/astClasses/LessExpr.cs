@@ -5,9 +5,10 @@ namespace ll.AST
 {
     public class LessExpr : BinOp
     {
-        public LessExpr(IAST left, IAST right) : base(left, right, "<", GetType(left, right))
+        public bool equal { get; set; }
+        public LessExpr(IAST left, IAST right, bool equal) : base(left, right, "<", GetType(left, right))
         {
-            
+            this.equal = equal;
         }
 
         static ll.type.Type GetType(IAST left, IAST right)
