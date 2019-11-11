@@ -12,8 +12,8 @@ expression
     | left=expression op=(MULT|DIV) right=expression #binOpMultDiv
     | left=expression op=(ADD|MINUS) right=expression #binOpAddSub
     | left=expression op=EQUAL right=expression #equalityOpertor
-    | left=expression op=LESS right=expression #lessOperator
-    | left=expression op=GREATER right=expression #greaterOperator
+    | left=expression op=LESS ASSIGN? right=expression #lessOperator
+    | left=expression op=GREATER ASSIGN? right=expression #greaterOperator
     | unaryExpression #unaryExpr
     | expressionSequenz #exprSequ;
 

@@ -110,12 +110,12 @@ namespace ll
 
         public override IAST VisitLessOperator(llParser.LessOperatorContext context)
         {
-            return new LessExpr(Visit(context.left), Visit(context.right));
+            return new LessExpr(Visit(context.left), Visit(context.right), context.ASSIGN() != null);
         }
 
         public override IAST VisitGreaterOperator(llParser.GreaterOperatorContext context)
         {
-            return new GreaterExpr(Visit(context.left), Visit(context.right));
+            return new GreaterExpr(Visit(context.left), Visit(context.right), context.ASSIGN() != null);
         }
 
         public override IAST VisitInitializationStatement(llParser.InitializationStatementContext context)

@@ -23,6 +23,7 @@ namespace ll.test
         [TestCase("2+3 > 4", true)]
         [TestCase("2 > 4*2", false)]
         [TestCase("2/3 > 1/2", false)]
+        [TestCase("1/2 >= 1/2", true)]
         public void TestGreaterExpression_1(string input, bool expected)
         {
             llParser parser = Setup(input);
