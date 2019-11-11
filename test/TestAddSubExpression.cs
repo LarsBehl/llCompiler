@@ -2,6 +2,7 @@ using NUnit.Framework;
 using Antlr4.Runtime;
 using ll;
 using ll.AST;
+using System;
 
 namespace test
 {
@@ -54,6 +55,16 @@ namespace test
             Assert.AreEqual("ll.AST.AddExpr", result.GetType().ToString());
         }
 
+        [TestCase("(5==3)+2")]
+        [TestCase("(5>3)+2")]
+        [TestCase("(5<3)+2")]
+        public void TestAddExpression_4(string input)
+        {
+            llParser parser = Setup(input);
+
+            Assert.Throws<ArgumentException>(() => visitor.Visit(parser.compileUnit()));
+        }
+
         [TestCase("1-1", 0)]
         [TestCase("-2-2", -4)]
         [TestCase("-2--2", 0)]
@@ -84,6 +95,16 @@ namespace test
             var result = visitor.Visit(parser.compileUnit());
 
             Assert.AreEqual("ll.AST.SubExpr", result.GetType().ToString());
+        }
+
+        [TestCase("(5==3)-2")]
+        [TestCase("(5>3)-2")]
+        [TestCase("(5<3)-2")]
+        public void TestSubExpression_4(string input)
+        {
+            llParser parser = Setup(input);
+
+            Assert.Throws<ArgumentException>(() => visitor.Visit(parser.compileUnit()));
         }
     }
 }

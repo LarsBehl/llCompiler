@@ -45,6 +45,7 @@ namespace ll.test
         [TestCase("{x:int=10; return x<11;}", true)]
         [TestCase("{x:int=10; return x>9;}", true)]
         [TestCase("{x:bool=true; return x;}", true)]
+        [TestCase("{x:bool=5<3; return x;}", false)]
         public void TestExpressionSequenz_3(string input, bool expected)
         {
             llParser parser = Setup(input);

@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using Antlr4.Runtime;
 using ll.AST;
+using System;
 
 namespace ll.test
 {
@@ -21,6 +22,7 @@ namespace ll.test
         [TestCase("3==2", false)]
         [TestCase("-2==2", false)]
         [TestCase("-2==-2", true)]
+        [TestCase("(2>1)==true", true)]
         public void TestEqualityExpression_1(string input, bool expected)
         {
             llParser parser = Setup(input);
@@ -38,6 +40,15 @@ namespace ll.test
             var result = visitor.Visit(parser.compileUnit());
 
             Assert.AreEqual("ll.AST.EqualityExpr", result.GetType().ToString());
+        }
+
+        [TestCase("(2>1)==5")]
+        [TestCase("5>3==2")]
+        public void TestEqualityExpression_3(string input)
+        {
+            llParser parser = Setup(input);
+
+            Assert.Throws<ArgumentException>(() => visitor.Visit(parser.compileUnit()));
         }
     }
 }
