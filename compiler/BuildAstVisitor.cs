@@ -120,28 +120,13 @@ namespace ll
 
         public override IAST VisitInitializationStatement(llParser.InitializationStatementContext context)
         {
-            ll.type.Type type = Visit(context.type).type;
-            IAST variable = null;
-            switch (type)
-            {
-                case IntType it:
-                    variable = new IntLit(null);
-                    break;
-                case DoubleType dt:
-                    variable = new DoubleLit(null);
-                    break;
-                case BooleanType bt:
-                    variable = new BoolLit(null);
-                    break;
-                default:
-                    throw new ArgumentException($"Unknown type \"{type.typeName}\"");
-            }
+            IAST variable = Visit(context.type);
 
             IAST.env[context.left.Text] = variable;
 
             IAST val = Visit(context.right);
-            if (type.typeName != val.type.typeName)
-                throw new ArgumentException($"Type \"{val.type.typeName}\" does not match \"{type.typeName}\"");
+            if (variable.type.typeName != val.type.typeName)
+                throw new ArgumentException($"Type \"{val.type.typeName}\" does not match \"{variable.type.typeName}\"");
 
             return new AssignStatement(new VarExpr(context.left.Text), val);
         }
@@ -149,11 +134,11 @@ namespace ll
         public override IAST VisitTypeDefinition(llParser.TypeDefinitionContext context)
         {
             if (context.INT_TYPE() != null)
-                return new IntLit(0);
+                return new IntLit(null);
             if (context.DOUBLE_TYPE() != null)
-                return new DoubleLit(0.0);
+                return new DoubleLit(null);
             if (context.BOOL_TYPE() != null)
-                return new BoolLit(false);
+                return new BoolLit(null);
             throw new ArgumentException("Unsupported type");
         }
 
@@ -183,42 +168,33 @@ namespace ll
 
         public override IAST VisitInstantiationStatement(llParser.InstantiationStatementContext context)
         {
-            ll.type.Type type = Visit(context.type).type;
-            IAST variable = null;
-            switch (type)
-            {
-                case IntType it:
-                    variable = new IntLit(null);
-                    break;
-                case DoubleType dt:
-                    variable = new DoubleLit(null);
-                    break;
-                case BooleanType bt:
-                    variable = new BoolLit(null);
-                    break;
-                default:
-                    throw new ArgumentException($"Unknown type \"{type.typeName}\"");
-            }
+            IAST variable = Visit(context.type);
 
             IAST.env[context.left.Text] = variable;
 
-            return new InstantiationStatement(context.WORD().GetText(), type);
+            return new InstantiationStatement(context.WORD().GetText(), variable.type);
         }
 
         public override IAST VisitFunctionDefinition(llParser.FunctionDefinitionContext context)
         {
-            var tmp = context.WORD();
-            var tmp2 = context.typeDefinition();
-            List<string> args = new List<string>();
+            var identifier = context.WORD();
+            var types = context.typeDefinition();
+            List<InstantiationStatement> args = new List<InstantiationStatement>();
+            var tmpEnv = new Dictionary<string, IAST>();
+            IAST.env = tmpEnv;
 
-            for (int i = 0; i < tmp2.Length - 1; i++)
+            // initialize the environment and arguments for this function definition
+            for (int i = 0; i < types.Length - 1; i++)
             {
-                args.Add(tmp[i + 1].GetText());
-                IAST.SetType(tmp[i + 1].GetText(), Visit(tmp2[i]).type);
+                var tmpType = Visit(types[i]);
+                tmpEnv[identifier[i + 1].GetText()] = tmpType;
+                args.Add(new InstantiationStatement(identifier[i + 1].GetText(), tmpType.type));
             }
-
-            FunctionDefinition func = new FunctionDefinition(tmp[0].GetText(), args, Visit(context.expressionSequenz()), Visit(tmp2[tmp2.Length - 1]).type);
-            IAST.funs[tmp[0].GetText()] = func;
+            
+            // create the resulting object
+            FunctionDefinition func = new FunctionDefinition(identifier[0].GetText(), args, Visit(context.expressionSequenz()), tmpEnv, Visit(types[types.Length - 1]).type);
+            // save the new function definition
+            IAST.funs[identifier[0].GetText()] = func;
 
             return func;
         }

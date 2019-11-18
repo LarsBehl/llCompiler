@@ -15,8 +15,8 @@ namespace ll.AST
             var tmp = IAST.funs[name].args;
             for(int i = 0; i < tmp.Count; i++)
             {
-                if(args[i].type.typeName != IAST.GetType(tmp[i]).typeName)
-                    throw new ArgumentException($"Type missmatch for \"{tmp[i]}\" \"{args[i].type.typeName}\" \"{IAST.GetType(tmp[i]).typeName}\"");
+                if(args[i].type.typeName != tmp[i].type.typeName)
+                    throw new ArgumentException($"Type missmatch for \"{tmp[i]}\" \"{args[i].type.typeName}\" \"{tmp[i].type.typeName}\"");
             }
             this.name = name;
             this.args = args;

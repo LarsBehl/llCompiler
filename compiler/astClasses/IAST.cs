@@ -6,26 +6,13 @@ namespace ll.AST
 {
     public abstract class IAST
     {
-        public static Dictionary<string, IAST> env = new Dictionary<string, IAST>();
-        public static Dictionary<string, ll.type.Type> typeDefs = new Dictionary<string, ll.type.Type>();
+        public static Dictionary<string, IAST> env;
         public static Dictionary<string, FunctionDefinition> funs = new Dictionary<string, FunctionDefinition>();
         public ll.type.Type type { get; set; }
 
         public IAST(ll.type.Type type)
         {
             this.type = type;
-        }
-
-        public static ll.type.Type GetType(string varName)
-        {
-            return typeDefs[varName];
-        }
-
-        public static void SetType(string varName, ll.type.Type type)
-        {
-            if (typeDefs.ContainsKey(varName) && typeDefs[varName] != type)
-                throw new ArgumentException($"There is already a variable \"{varName}\" with type \"{typeDefs[varName].typeName}\"");
-            typeDefs[varName] = type;
         }
 
         public IAST Eval()
@@ -94,12 +81,18 @@ namespace ll.AST
                     return null;
                 case FunctionCall funCall:
                     FunctionDefinition fDef = funs[funCall.name];
+                    var oldEnv = env;
+                    env = new Dictionary<string, IAST>(fDef.functionEnv);
+                    
                     for (int k = 0; k < funCall.args.Count; k++)
                     {
-                        env[fDef.args[k]] = funCall.args[k].Eval();
+                        env[fDef.args[k].name] = funCall.args[k].Eval();
                     }
+                    
+                    var result = fDef.body.Eval();
+                    env = oldEnv;
 
-                    return fDef.body.Eval();
+                    return result;
                 default:
                     Console.WriteLine("Unknown Ast Object");
                     return null;
