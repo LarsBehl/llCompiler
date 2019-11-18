@@ -160,6 +160,8 @@ namespace ll
                 return Visit(context.numericExpression());
             if(context.variableExpression() != null)
                 return Visit(context.variableExpression());
+            if(context.functionCall() != null)
+                return Visit(context.functionCall());
 
             throw new ArgumentException("Unknown unary type");
         }
@@ -188,6 +190,19 @@ namespace ll
             IAST.funs[tmp[0].GetText()] = func;
 
             return func;
+        }
+
+        public override IAST VisitFunctionCall(llParser.FunctionCallContext context)
+        {
+            var tmp = context.expression();
+            List<IAST> args = new List<IAST>();
+
+            foreach(var arg in tmp)
+            {
+                args.Add(Visit(arg));
+            }
+
+            return new FunctionCall(context.name.Text, args);
         }
     }
 }

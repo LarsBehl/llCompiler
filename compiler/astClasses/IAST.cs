@@ -72,6 +72,14 @@ namespace ll.AST
                     return null;
                 case FunctionDefinition funDef:
                     return null;
+                case FunctionCall funCall:
+                    FunctionDefinition fDef = funs[funCall.name];
+                    for(int k = 0; k < funCall.args.Count; k++)
+                    {
+                        env[fDef.args[k]] = funCall.args[k].Eval();
+                    }
+
+                    return fDef.body.Eval();
                 default:
                     Console.WriteLine("Unknown Ast Object");
                     return null;

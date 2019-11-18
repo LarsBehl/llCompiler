@@ -26,7 +26,11 @@ statement
 unaryExpression
     : numericExpression
     | boolExpression
+    | functionCall
     | variableExpression;
+
+functionCall
+    : name=WORD PAR_L (expression (COMMA expression)*)? PAR_R;
 
 variableExpression
     : WORD;
