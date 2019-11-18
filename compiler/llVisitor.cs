@@ -122,11 +122,24 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitInitializationStatement([NotNull] llParser.InitializationStatementContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>functionDefinition</c>
+	/// labeled alternative in <see cref="llParser.statement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitFunctionDefinition([NotNull] llParser.FunctionDefinitionContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="llParser.unaryExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitUnaryExpression([NotNull] llParser.UnaryExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.functionCall"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitFunctionCall([NotNull] llParser.FunctionCallContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="llParser.variableExpression"/>.
 	/// </summary>

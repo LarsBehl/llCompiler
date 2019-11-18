@@ -10,10 +10,9 @@ namespace ll.test
         BuildAstVisitor visitor = new BuildAstVisitor();
 
         [SetUp]
-        public void ClearEnvAndVarType()
+        public void ClearEnv()
         {
             IAST.env = new System.Collections.Generic.Dictionary<string, IAST>();
-            IAST.typeDefs = new System.Collections.Generic.Dictionary<string, type.Type>();
         }
 
         public llParser Setup(string text)

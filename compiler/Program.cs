@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using Antlr4.Runtime;
+using ll.AST;
 
 namespace ll
 {
@@ -12,6 +13,13 @@ namespace ll
             {
                 Console.Write("> ");
                 string text = Console.ReadLine();
+
+                if(text == ":fs")
+                {
+                    foreach(FunctionDefinition funDef in IAST.funs.Values)
+                        Console.WriteLine(funDef.name);
+                    break;
+                }
 
                 if(string.IsNullOrEmpty(text))
                     break;
