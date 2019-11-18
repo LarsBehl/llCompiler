@@ -6,7 +6,7 @@ namespace ll.AST
     {
         public string name { get; set; }
 
-        public VarExpr(string name) : base(IAST.GetType(name))
+        public VarExpr(string name) : base(IAST.env[name].type)
         {
             this.name = name;
         }

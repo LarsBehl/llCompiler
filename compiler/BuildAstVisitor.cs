@@ -15,13 +15,13 @@ namespace ll
 
         public override IAST VisitCompositUnit(llParser.CompositUnitContext context)
         {
-            if(context.statement() != null)
+            if (context.statement() != null)
                 return Visit(context.statement());
 
-            if(context.expression() != null)
+            if (context.expression() != null)
                 return Visit(context.expression());
-            
-            
+
+
 
             throw new ArgumentException("Unknown node");
         }
@@ -49,7 +49,7 @@ namespace ll
 
         public override IAST VisitBinOpAddSub(llParser.BinOpAddSubContext context)
         {
-            switch(context.op.Text)
+            switch (context.op.Text)
             {
                 case "+": return new AddExpr(Visit(context.left), Visit(context.right));
                 case "-": return new SubExpr(Visit(context.left), Visit(context.right));
@@ -88,7 +88,7 @@ namespace ll
         {
             List<IAST> body = new List<IAST>();
             var tmp = context.compositUnit();
-            for(int i = 0; i < tmp.Length; i++)
+            for (int i = 0; i < tmp.Length; i++)
             {
                 body.Add(Visit(tmp[i]));
             }
@@ -121,32 +121,47 @@ namespace ll
         public override IAST VisitInitializationStatement(llParser.InitializationStatementContext context)
         {
             ll.type.Type type = Visit(context.type).type;
+            IAST variable = null;
+            switch (type)
+            {
+                case IntType it:
+                    variable = new IntLit(null);
+                    break;
+                case DoubleType dt:
+                    variable = new DoubleLit(null);
+                    break;
+                case BooleanType bt:
+                    variable = new BoolLit(null);
+                    break;
+                default:
+                    throw new ArgumentException($"Unknown type \"{type.typeName}\"");
+            }
+
+            IAST.env[context.left.Text] = variable;
 
             IAST val = Visit(context.right);
-            if(type.typeName != val.type.typeName)
-                throw new ArgumentException($"Type {val.type.typeName} does not match {type.typeName}");
-            
-            IAST.SetType(context.left.Text, type);
+            if (type.typeName != val.type.typeName)
+                throw new ArgumentException($"Type \"{val.type.typeName}\" does not match \"{type.typeName}\"");
 
             return new AssignStatement(new VarExpr(context.left.Text), val);
         }
 
         public override IAST VisitTypeDefinition(llParser.TypeDefinitionContext context)
         {
-            if(context.INT_TYPE() != null)
+            if (context.INT_TYPE() != null)
                 return new IntLit(0);
-            if(context.DOUBLE_TYPE() != null)
+            if (context.DOUBLE_TYPE() != null)
                 return new DoubleLit(0.0);
-            if(context.BOOL_TYPE() != null)
+            if (context.BOOL_TYPE() != null)
                 return new BoolLit(false);
             throw new ArgumentException("Unsupported type");
         }
 
         public override IAST VisitBoolExpression(llParser.BoolExpressionContext context)
         {
-            if(context.BOOL_FALSE() != null)
+            if (context.BOOL_FALSE() != null)
                 return new BoolLit(false);
-            if(context.BOOL_TRUE() != null)
+            if (context.BOOL_TRUE() != null)
                 return new BoolLit(true);
 
             throw new ArgumentException("Unsupportet value for bool");
@@ -154,13 +169,13 @@ namespace ll
 
         public override IAST VisitUnaryExpression(llParser.UnaryExpressionContext context)
         {
-            if(context.boolExpression() != null)
+            if (context.boolExpression() != null)
                 return Visit(context.boolExpression());
-            if(context.numericExpression() != null)
+            if (context.numericExpression() != null)
                 return Visit(context.numericExpression());
-            if(context.variableExpression() != null)
+            if (context.variableExpression() != null)
                 return Visit(context.variableExpression());
-            if(context.functionCall() != null)
+            if (context.functionCall() != null)
                 return Visit(context.functionCall());
 
             throw new ArgumentException("Unknown unary type");
@@ -168,10 +183,26 @@ namespace ll
 
         public override IAST VisitInstantiationStatement(llParser.InstantiationStatementContext context)
         {
-            ll.type.Type tmp = Visit(context.type).type;
-            IAST.SetType(context.WORD().GetText(), tmp);
+            ll.type.Type type = Visit(context.type).type;
+            IAST variable = null;
+            switch (type)
+            {
+                case IntType it:
+                    variable = new IntLit(null);
+                    break;
+                case DoubleType dt:
+                    variable = new DoubleLit(null);
+                    break;
+                case BooleanType bt:
+                    variable = new BoolLit(null);
+                    break;
+                default:
+                    throw new ArgumentException($"Unknown type \"{type.typeName}\"");
+            }
 
-            return new InstantiationStatement(context.WORD().GetText(), tmp);
+            IAST.env[context.left.Text] = variable;
+
+            return new InstantiationStatement(context.WORD().GetText(), type);
         }
 
         public override IAST VisitFunctionDefinition(llParser.FunctionDefinitionContext context)
@@ -180,7 +211,7 @@ namespace ll
             var tmp2 = context.typeDefinition();
             List<string> args = new List<string>();
 
-            for(int i = 0; i < tmp2.Length - 1; i++)
+            for (int i = 0; i < tmp2.Length - 1; i++)
             {
                 args.Add(tmp[i + 1].GetText());
                 IAST.SetType(tmp[i + 1].GetText(), Visit(tmp2[i]).type);
@@ -197,7 +228,7 @@ namespace ll
             var tmp = context.expression();
             List<IAST> args = new List<IAST>();
 
-            foreach(var arg in tmp)
+            foreach (var arg in tmp)
             {
                 args.Add(Visit(arg));
             }

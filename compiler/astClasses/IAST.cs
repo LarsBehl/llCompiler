@@ -23,7 +23,7 @@ namespace ll.AST
 
         public static void SetType(string varName, ll.type.Type type)
         {
-            if(typeDefs.ContainsKey(varName) && typeDefs[varName] != type)
+            if (typeDefs.ContainsKey(varName) && typeDefs[varName] != type)
                 throw new ArgumentException($"There is already a variable \"{varName}\" with type \"{typeDefs[varName].typeName}\"");
             typeDefs[varName] = type;
         }
@@ -44,7 +44,27 @@ namespace ll.AST
                 case DivExpr div:
                     return EvalDivExpression(div);
                 case VarExpr varExpr:
-                    return env[varExpr.name];
+                    var envVar = env[varExpr.name];
+
+                    switch (envVar)
+                    {
+                        case DoubleLit dl:
+                            if (dl.n == null)
+                                throw new ArgumentException($"Variable \"{varExpr.name}\" is not initialized");
+                            break;
+                        case IntLit il:
+                            if (il.n == null)
+                                throw new ArgumentException($"Variable \"{varExpr.name}\" is not initialized");
+                            break;
+                        case BoolLit bl:
+                            if (bl.value == null)
+                                throw new ArgumentException($"Variable \"{varExpr.name}\" is not initialized");
+                            break;
+                        default:
+                            break;
+                    }
+
+                    return envVar.Eval();
                 case AssignStatement assign:
                     var tmp = assign.value.Eval();
                     env[assign.variable.name] = tmp;
@@ -74,7 +94,7 @@ namespace ll.AST
                     return null;
                 case FunctionCall funCall:
                     FunctionDefinition fDef = funs[funCall.name];
-                    for(int k = 0; k < funCall.args.Count; k++)
+                    for (int k = 0; k < funCall.args.Count; k++)
                     {
                         env[fDef.args[k]] = funCall.args[k].Eval();
                     }

@@ -4,9 +4,9 @@ namespace ll.AST
 {
     public class IntLit : IAST
     {
-        public int n { get; set; }
+        public int? n { get; set; }
 
-        public IntLit(int n) : base(new IntType())
+        public IntLit(int? n) : base(new IntType())
         {
             this.n = n;
         }

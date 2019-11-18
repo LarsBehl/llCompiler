@@ -4,9 +4,9 @@ namespace ll.AST
 {
     public class DoubleLit : IAST
     {
-        public double n { get; set; }
+        public double? n { get; set; }
 
-        public DoubleLit(double n) : base(new DoubleType())
+        public DoubleLit(double? n) : base(new DoubleType())
         {
             this.n = n;
         }
