@@ -1,7 +1,11 @@
 grammar ll;
 
 
-compileUnit: compositUnit EOF;
+compileUnit: program EOF;
+
+program
+    : functionDefinition+
+    | compositUnit;
 
 compositUnit
     : statement
@@ -21,7 +25,7 @@ statement
     : left=WORD ASSIGN right=expression SEMCOL #assignStatement
     | left=WORD COLON type=typeDefinition SEMCOL #instantiationStatement
     | left=WORD COLON type=typeDefinition ASSIGN right=expression SEMCOL #initializationStatement
-    | name=WORD PAR_L (WORD COLON typeDefinition (COMMA WORD COLON typeDefinition)*)? PAR_R COLON typeDefinition body=expressionSequenz #functionDefinition;
+    | functionDefinition #funcDefinitionStatement;
 
 unaryExpression
     : numericExpression
@@ -31,6 +35,9 @@ unaryExpression
 
 functionCall
     : name=WORD PAR_L (expression (COMMA expression)*)? PAR_R;
+
+functionDefinition
+    : name=WORD PAR_L (WORD COLON typeDefinition (COMMA WORD COLON typeDefinition)*)? PAR_R COLON typeDefinition body=expressionSequenz;
 
 variableExpression
     : WORD;

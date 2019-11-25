@@ -10,7 +10,7 @@ namespace ll
     {
         public override IAST VisitCompileUnit(llParser.CompileUnitContext context)
         {
-            return Visit(context.compositUnit());
+            return Visit(context.program());
         }
 
         public override IAST VisitCompositUnit(llParser.CompositUnitContext context)
@@ -76,6 +76,8 @@ namespace ll
 
         public override IAST VisitAssignStatement(llParser.AssignStatementContext context)
         {
+            if(!IAST.env.ContainsKey(context.left.Text))
+                throw new ArgumentException($"Unknown variable \"{context.left.Text}\"");
             return new AssignStatement(new VarExpr(context.left.Text), Visit(context.right));
         }
 
@@ -178,25 +180,15 @@ namespace ll
         public override IAST VisitFunctionDefinition(llParser.FunctionDefinitionContext context)
         {
             var identifier = context.WORD();
-            var types = context.typeDefinition();
-            List<InstantiationStatement> args = new List<InstantiationStatement>();
-            var tmpEnv = new Dictionary<string, IAST>();
-            IAST.env = tmpEnv;
-
-            // initialize the environment and arguments for this function definition
-            for (int i = 0; i < types.Length - 1; i++)
-            {
-                var tmpType = Visit(types[i]);
-                tmpEnv[identifier[i + 1].GetText()] = tmpType;
-                args.Add(new InstantiationStatement(identifier[i + 1].GetText(), tmpType.type));
-            }
-            
-            // create the resulting object
-            FunctionDefinition func = new FunctionDefinition(identifier[0].GetText(), args, Visit(context.expressionSequenz()), tmpEnv, Visit(types[types.Length - 1]).type);
+            FunctionDefinition funDef = IAST.funs[identifier[0].GetText()];
+            IAST.env = funDef.functionEnv;
             // save the new function definition
-            IAST.funs[identifier[0].GetText()] = func;
+            if(funDef.body != null)
+                throw new ArgumentException($"Trying to override the body of function \"{identifier[0].GetText()}\"");
+            funDef.body = Visit(context.body);
+            IAST.funs[funDef.name] = funDef;
 
-            return func;
+            return funDef;
         }
 
         public override IAST VisitFunctionCall(llParser.FunctionCallContext context)
@@ -210,6 +202,24 @@ namespace ll
             }
 
             return new FunctionCall(context.name.Text, args);
+        }
+
+        public override IAST VisitProgram(llParser.ProgramContext context)
+        {
+            if(context.functionDefinition()?.Length > 0)
+            {
+                foreach (var funDef in context.functionDefinition())
+                {
+                    Visit(funDef);
+                }
+
+                return new ProgramNode();
+            }
+
+            if(context.compositUnit() != null)
+                return Visit(context.compositUnit());
+
+            throw new ArgumentException("Unknown node in Program");
         }
     }
 }
