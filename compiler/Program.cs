@@ -9,36 +9,40 @@ namespace ll
     {
         static void Main(string[] args)
         {
-            while(true)
+            while (true)
             {
                 Console.Write("> ");
                 string text = Console.ReadLine();
 
-                if(text == ":fs")
+                if (text == ":fs")
                 {
-                    foreach(FunctionDefinition funDef in IAST.funs.Values)
+                    foreach (FunctionDefinition funDef in IAST.funs.Values)
                         Console.WriteLine(funDef.name);
                     break;
                 }
 
-                if(string.IsNullOrEmpty(text))
+                if (string.IsNullOrEmpty(text))
                     break;
-                
-                var inputStream = new AntlrInputStream(new StringReader(text));
-                var lexer = new llLexer(inputStream);
-                var tokenStream = new CommonTokenStream(lexer);
-                var parser = new llParser(tokenStream);
 
                 try
                 {
-                    var cst = parser.compileUnit();
-                    var ast = new BuildAstVisitor().VisitCompileUnit(cst);
+                    var inputStream = new AntlrInputStream(text);
+                    var lexer = new llLexer(inputStream);
+                    var tokenStream = new CommonTokenStream(lexer);
+                    var parser = new llParser(tokenStream);
+                    var tmp = new FunctionDefinitionVisitor().VisitCompileUnit(parser.compileUnit());
+
+                    inputStream = new AntlrInputStream(text);
+                    lexer = new llLexer(inputStream);
+                    tokenStream = new CommonTokenStream(lexer);
+                    parser = new llParser(tokenStream);
+                    var ast = new BuildAstVisitor().VisitCompileUnit(parser.compileUnit());
                     var value = ast.Eval();
 
-                    if(value != null)
+                    if (value != null)
                         Console.WriteLine("= {0}", value.ToString());
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
                 }
