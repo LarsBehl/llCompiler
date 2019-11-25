@@ -4,7 +4,7 @@ grammar ll;
 compileUnit: program EOF;
 
 program
-    : functionDefinition+ functionCall
+    : functionDefinition+
     | compositUnit;
 
 compositUnit

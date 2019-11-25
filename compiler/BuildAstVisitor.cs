@@ -76,6 +76,8 @@ namespace ll
 
         public override IAST VisitAssignStatement(llParser.AssignStatementContext context)
         {
+            if(!IAST.env.ContainsKey(context.left.Text))
+                throw new ArgumentException($"Unknown variable \"{context.left.Text}\"");
             return new AssignStatement(new VarExpr(context.left.Text), Visit(context.right));
         }
 
@@ -204,14 +206,14 @@ namespace ll
 
         public override IAST VisitProgram(llParser.ProgramContext context)
         {
-            if(context.functionCall() != null)
+            if(context.functionDefinition()?.Length > 0)
             {
                 foreach (var funDef in context.functionDefinition())
                 {
                     Visit(funDef);
                 }
 
-                return Visit(context.functionCall());
+                return new ProgramNode();
             }
 
             if(context.compositUnit() != null)

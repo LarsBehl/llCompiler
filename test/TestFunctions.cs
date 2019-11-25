@@ -11,6 +11,7 @@ namespace ll.test
     {
         BuildAstVisitor visitor = new BuildAstVisitor();
         FunctionDefinitionVisitor funDefVisitor = new FunctionDefinitionVisitor();
+        bool once = false;
 
         public llParser Setup(string text)
         {
@@ -21,25 +22,37 @@ namespace ll.test
             return new llParser(stream);
         }
 
-        [Test]
-        public void TestFunctions_1()
+        [TestCase("aCallsB(3)", 5)]
+        [TestCase("id(5)", 5)]
+        [TestCase("square(5)", 25)]
+        [TestCase("fourtyTwo()", 42)]
+        [TestCase("plusSeventeen(square(5))", 42)]
+        public void TestFunctions_1(string funCall, int expected)
         {
-            StreamReader reader = new StreamReader("C:/Users/larsb/source/hsrm/compilerBau/llCompiler/test/TestFile1.ll");
-            try
+            llParser parser;
+            if (!once)
             {
-                string input = reader.ReadToEnd();
-                
-                llParser parser = Setup(input);
-                funDefVisitor.Visit(parser.compileUnit());
+                this.once = true;
+                StreamReader reader = new StreamReader("C:/Users/larsb/source/hsrm/compilerBau/llCompiler/test/programs/TestFile1.ll");
+                try
+                {
+                    string input = reader.ReadToEnd();
 
-                parser = Setup(input);
+                    parser = Setup(input);
+                    funDefVisitor.Visit(parser.compileUnit());
 
-                //Assert.AreEqual(5, (visitor.Visit(parser.compileUnit()) as IntLit).n);
+                    parser = Setup(input);
+                    visitor.Visit(parser.compileUnit());
+                }
+                catch (IOException e)
+                {
+                    Console.WriteLine(e);
+                }
             }
-            catch(Exception e)
-            {
-                Console.WriteLine(e);
-            }
+
+            parser = Setup(funCall);
+            var tmp = visitor.Visit(parser.compileUnit()).Eval();
+            Assert.AreEqual(expected, (tmp as IntLit).n);
         }
     }
 }
