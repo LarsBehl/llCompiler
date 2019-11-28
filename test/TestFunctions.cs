@@ -22,6 +22,7 @@ namespace ll.test
             return new llParser(stream);
         }
 
+        /*
         [TestCase("aCallsB(3)", 5)]
         [TestCase("id(5)", 5)]
         [TestCase("square(5)", 25)]
@@ -39,10 +40,10 @@ namespace ll.test
                     string input = reader.ReadToEnd();
 
                     parser = Setup(input);
-                    funDefVisitor.Visit(parser.compileUnit());
+                    funDefVisitor.Visit(parser.program());
 
                     parser = Setup(input);
-                    visitor.Visit(parser.compileUnit());
+                    visitor.Visit(parser.program());
                 }
                 catch (IOException e)
                 {
@@ -51,8 +52,31 @@ namespace ll.test
             }
 
             parser = Setup(funCall);
-            var tmp = visitor.Visit(parser.compileUnit()).Eval();
+            var tmp = visitor.Visit(parser.program()).Eval();
             Assert.AreEqual(expected, (tmp as IntLit).n);
         }
+
+        [Test]
+        public void TestFunctions_2()
+        {
+            llParser parser;
+
+            StreamReader reader = new StreamReader("C:/Users/larsb/source/hsrm/compilerBau/llCompiler/test/programs/TestFile2.ll");
+            try
+            {
+                string input = reader.ReadToEnd();
+
+                parser = Setup(input);
+                funDefVisitor.Visit(parser.program());
+
+                parser = Setup(input);
+                Assert.Throws<ArgumentException>(() => visitor.Visit(parser.program()));
+            }
+            catch(IOException e)
+            {
+                Console.WriteLine(e);
+            }
+        }
+        */
     }
 }

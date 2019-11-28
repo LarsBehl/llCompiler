@@ -51,6 +51,13 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitCompositUnit([NotNull] llParser.CompositUnitContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>blockSta</c>
+	/// labeled alternative in <see cref="llParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitBlockSta([NotNull] llParser.BlockStaContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>lessOperator</c>
 	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// </summary>
@@ -78,13 +85,6 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitBinOpMultDiv([NotNull] llParser.BinOpMultDivContext context);
-	/// <summary>
-	/// Visit a parse tree produced by the <c>exprSequ</c>
-	/// labeled alternative in <see cref="llParser.expression"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitExprSequ([NotNull] llParser.ExprSequContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>parenthes</c>
 	/// labeled alternative in <see cref="llParser.expression"/>.
@@ -127,6 +127,13 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitInitializationStatement([NotNull] llParser.InitializationStatementContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>returnStatement</c>
+	/// labeled alternative in <see cref="llParser.statement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitReturnStatement([NotNull] llParser.ReturnStatementContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>funcDefinitionStatement</c>
 	/// labeled alternative in <see cref="llParser.statement"/>.
@@ -179,22 +186,16 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitBoolExpression([NotNull] llParser.BoolExpressionContext context);
 	/// <summary>
-	/// Visit a parse tree produced by <see cref="llParser.expressionSequenz"/>.
+	/// Visit a parse tree produced by <see cref="llParser.blockStatement"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
-	Result VisitExpressionSequenz([NotNull] llParser.ExpressionSequenzContext context);
+	Result VisitBlockStatement([NotNull] llParser.BlockStatementContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="llParser.typeDefinition"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitTypeDefinition([NotNull] llParser.TypeDefinitionContext context);
-	/// <summary>
-	/// Visit a parse tree produced by <see cref="llParser.returnStatement"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitReturnStatement([NotNull] llParser.ReturnStatementContext context);
 }
 } // namespace ll

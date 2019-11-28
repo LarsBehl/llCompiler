@@ -21,8 +21,6 @@ namespace ll
             if (context.expression() != null)
                 return Visit(context.expression());
 
-
-
             throw new ArgumentException("Unknown node");
         }
 
@@ -81,23 +79,26 @@ namespace ll
             return new AssignStatement(new VarExpr(context.left.Text), Visit(context.right));
         }
 
-        public override IAST VisitExprSequ(llParser.ExprSequContext context)
+        public override IAST VisitBlockSta(llParser.BlockStaContext context)
         {
-            return Visit(context.expressionSequenz());
+            return Visit(context.blockStatement());
         }
 
-        public override IAST VisitExpressionSequenz(llParser.ExpressionSequenzContext context)
+        public override IAST VisitBlockStatement(llParser.BlockStatementContext context)
         {
             List<IAST> body = new List<IAST>();
             var tmp = context.compositUnit();
-            for (int i = 0; i < tmp.Length; i++)
+
+            foreach (var comp in tmp)
             {
-                body.Add(Visit(tmp[i]));
+                var compVisited = Visit(comp);
+                Console.WriteLine(compVisited.type.typeName);
+                body.Add(compVisited);
+                if (compVisited is ReturnStatement)
+                    break;
             }
 
-            body.Add(Visit(context.returnStatement()));
-
-            return new ExpressionSequenz(body);
+            return new BlockStatement(body);
         }
 
         public override IAST VisitReturnStatement(llParser.ReturnStatementContext context)
@@ -185,7 +186,12 @@ namespace ll
             // save the new function definition
             if(funDef.body != null)
                 throw new ArgumentException($"Trying to override the body of function \"{identifier[0].GetText()}\"");
-            funDef.body = Visit(context.body);
+            var body = Visit(context.body);
+
+            if(body.type.typeName != funDef.type.typeName)
+                throw new ArgumentException($"Return type \"{body.type.typeName}\" does not match \"{funDef.type.typeName}\"");
+
+            funDef.body = body;
             IAST.funs[funDef.name] = funDef;
 
             return funDef;

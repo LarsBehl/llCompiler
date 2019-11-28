@@ -56,17 +56,18 @@ namespace ll.AST
                     var tmp = assign.value.Eval();
                     env[assign.variable.name] = tmp;
                     return null;
-                case ExpressionSequenz sequenz:
-                    int j;
-                    for (j = 0; j < sequenz.body.Count - 1; j++)
+                case BlockStatement block:
+                    IAST resultBlock = null;
+
+                    foreach (var comp in block.body)
                     {
-                        sequenz.body[j].Eval();
+                        resultBlock = comp.Eval();
+
+                        if(comp is ReturnStatement)
+                            break;
                     }
 
-                    if (j >= 0 && !(sequenz.body[j] is ReturnStatement))
-                        throw new ArgumentException("last expression in expressionSequenz has to be an return Expression");
-
-                    return sequenz.body[j].Eval();
+                    return resultBlock;
                 case ReturnStatement returnExpr:
                     return returnExpr.returnValue.Eval();
                 case EqualityExpr equalityExpr:

@@ -11,7 +11,13 @@ namespace ll.AST
         public IAST body { get; set; }
         public Dictionary<string, IAST> functionEnv { get; set; }
 
-        public FunctionDefinition(string name, List<InstantiationStatement> args, IAST body, Dictionary<string, IAST> functionEnv, type.Type type) : base(type)
+        public FunctionDefinition(
+            string name,
+            List<InstantiationStatement> args, 
+            IAST body, 
+            Dictionary<string, IAST> functionEnv, 
+            type.Type type
+        ) : base(type)
         {
             this.name = name;
             this.args = args;

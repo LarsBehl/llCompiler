@@ -19,12 +19,13 @@ expression
     | left=expression op=LESS ASSIGN? right=expression #lessOperator
     | left=expression op=GREATER ASSIGN? right=expression #greaterOperator
     | unaryExpression #unaryExpr
-    | expressionSequenz #exprSequ;
+    | blockStatement #blockSta;
 
 statement
     : left=WORD ASSIGN right=expression SEMCOL #assignStatement
     | left=WORD COLON type=typeDefinition SEMCOL #instantiationStatement
     | left=WORD COLON type=typeDefinition ASSIGN right=expression SEMCOL #initializationStatement
+    | RETURN expression SEMCOL #returnStatement
     | functionDefinition #funcDefinitionStatement;
 
 unaryExpression
@@ -37,7 +38,7 @@ functionCall
     : name=WORD PAR_L (expression (COMMA expression)*)? PAR_R;
 
 functionDefinition
-    : name=WORD PAR_L (WORD COLON typeDefinition (COMMA WORD COLON typeDefinition)*)? PAR_R COLON typeDefinition body=expressionSequenz;
+    : name=WORD PAR_L (WORD COLON typeDefinition (COMMA WORD COLON typeDefinition)*)? PAR_R COLON typeDefinition body=blockStatement;
 
 variableExpression
     : WORD;
@@ -50,16 +51,13 @@ boolExpression
     : BOOL_TRUE
     | BOOL_FALSE;
 
-expressionSequenz
-    : CURL_L compositUnit* returnStatement CURL_R;
+blockStatement
+    : CURL_L compositUnit* CURL_R;
 
 typeDefinition
     : INT_TYPE
     | DOUBLE_TYPE
     | BOOL_TYPE;
-
-returnStatement
-    : RETURN expression SEMCOL;
 
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;
