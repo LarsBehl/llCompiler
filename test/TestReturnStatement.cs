@@ -26,7 +26,7 @@ namespace ll.test
         {
             llParser parser = Setup(input);
 
-            var result = visitor.Visit(parser.returnStatement());
+            var result = visitor.Visit(parser.statement());
 
             Assert.AreEqual(expected, (result.Eval() as IntLit).n);
         }
@@ -36,7 +36,7 @@ namespace ll.test
         {
             llParser parser = Setup(input);
 
-            var result = visitor.Visit(parser.returnStatement());
+            var result = visitor.Visit(parser.statement());
 
             Assert.AreEqual(expected, (result.Eval() as DoubleLit).n);
         }
@@ -46,7 +46,7 @@ namespace ll.test
         {
             llParser parser = Setup("return 2;");
 
-            var result = visitor.Visit(parser.returnStatement());
+            var result = visitor.Visit(parser.statement());
 
             Assert.AreEqual("ll.AST.ReturnStatement", result.GetType().ToString());
         }

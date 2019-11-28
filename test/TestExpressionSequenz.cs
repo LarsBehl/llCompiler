@@ -69,7 +69,7 @@ namespace ll.test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual("ll.AST.ExpressionSequenz", result.GetType().ToString());
+            Assert.AreEqual("ll.AST.BlockStatement", result.GetType().ToString());
         }
         
     }
