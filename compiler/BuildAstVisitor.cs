@@ -87,12 +87,12 @@ namespace ll
             List<IAST> body = new List<IAST>();
             var tmp = context.compositUnit();
 
-            foreach(var comp in tmp)
+            foreach (var comp in tmp)
             {
                 var compVisited = Visit(comp);
                 Console.WriteLine(compVisited.type.typeName);
                 body.Add(compVisited);
-                if(compVisited is ReturnStatement)
+                if (compVisited is ReturnStatement)
                     break;
             }
 
@@ -191,9 +191,15 @@ namespace ll
                 tmpEnv[identifier[i + 1].GetText()] = tmpType;
                 args.Add(new InstantiationStatement(identifier[i + 1].GetText(), tmpType.type));
             }
-            
+
             // create the resulting object
-            FunctionDefinition func = new FunctionDefinition(identifier[0].GetText(), args, Visit(context.blockStatement()), tmpEnv, Visit(types[types.Length - 1]).type);
+            FunctionDefinition func = new FunctionDefinition(
+                identifier[0].GetText(),
+                args,
+                Visit(context.blockStatement()),
+                tmpEnv,
+                Visit(types[types.Length - 1]).type
+            );
             // save the new function definition
             IAST.funs[identifier[0].GetText()] = func;
 
