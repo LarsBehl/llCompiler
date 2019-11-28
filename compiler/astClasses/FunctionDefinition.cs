@@ -19,9 +19,6 @@ namespace ll.AST
             type.Type type
         ) : base(type)
         {
-            if(body.type.typeName != type.typeName)
-                throw new ArgumentException($"Return type \"{body.type.typeName}\" does not match \"{type.typeName}\"");
-
             this.name = name;
             this.args = args;
             this.body = body;

@@ -82,21 +82,22 @@ namespace ll.AST
                     return null;
                 case FunctionCall funCall:
                     FunctionDefinition fDef = funs[funCall.name];
-                    var oldEnv = env;
-                    env = new Dictionary<string, IAST>(fDef.functionEnv);
+                    var newEnv = new Dictionary<string, IAST>(fDef.functionEnv);
                     
                     for (int k = 0; k < funCall.args.Count; k++)
                     {
-                        env[fDef.args[k].name] = funCall.args[k].Eval();
+                        newEnv[fDef.args[k].name] = funCall.args[k].Eval();
                     }
+
+                    var oldEnv = env;
+                    env = newEnv;
                     
                     var result = fDef.body.Eval();
                     env = oldEnv;
 
                     return result;
                 default:
-                    Console.WriteLine("Unknown Ast Object");
-                    return null;
+                    throw new ArgumentException("Unknown Ast Object");
             }
         }
 
