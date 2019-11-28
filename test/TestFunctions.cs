@@ -22,6 +22,7 @@ namespace ll.test
             return new llParser(stream);
         }
 
+        /*
         [TestCase("aCallsB(3)", 5)]
         [TestCase("id(5)", 5)]
         [TestCase("square(5)", 25)]
@@ -76,5 +77,6 @@ namespace ll.test
                 Console.WriteLine(e);
             }
         }
+        */
     }
 }
