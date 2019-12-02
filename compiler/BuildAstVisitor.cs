@@ -188,8 +188,8 @@ namespace ll
                 throw new ArgumentException($"Trying to override the body of function \"{identifier[0].GetText()}\"");
             var body = Visit(context.body);
 
-            if(body.type.typeName != funDef.type.typeName)
-                throw new ArgumentException($"Return type \"{body.type.typeName}\" does not match \"{funDef.type.typeName}\"");
+            if(body.type.typeName != funDef.returnType.typeName)
+                throw new ArgumentException($"Return type \"{body.type.typeName}\" does not match \"{funDef.returnType.typeName}\"");
 
             funDef.body = body;
             IAST.funs[funDef.name] = funDef;
@@ -226,6 +226,13 @@ namespace ll
                 return Visit(context.compositUnit());
 
             throw new ArgumentException("Unknown node in Program");
+        }
+
+        public override IAST VisitIfStatement(llParser.IfStatementContext context)
+        {
+            var tmp = Visit(context.cond);
+
+            throw new ArgumentException();
         }
     }
 }

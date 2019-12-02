@@ -26,7 +26,8 @@ statement
     | left=WORD COLON type=typeDefinition SEMCOL #instantiationStatement
     | left=WORD COLON type=typeDefinition ASSIGN right=expression SEMCOL #initializationStatement
     | RETURN expression SEMCOL #returnStatement
-    | functionDefinition #funcDefinitionStatement;
+    | functionDefinition #funcDefinitionStatement
+    | IF PAR_L cond=compositUnit PAR_R blockStatement (ELSE blockStatement)? #ifStatement;
 
 unaryExpression
     : numericExpression
@@ -67,6 +68,8 @@ DOUBLE_TYPE: 'd' 'o' 'u' 'b' 'l' 'e';
 BOOL_TYPE: 'b' 'o' 'o' 'l';
 BOOL_TRUE: 't' 'r' 'u' 'e';
 BOOL_FALSE: 'f' 'a' 'l' 's' 'e';
+IF: 'i' 'f';
+ELSE: 'e' 'l' 's' 'e';
 WORD: [a-zA-Z]+;
 MULT: '*';
 ADD: '+';
