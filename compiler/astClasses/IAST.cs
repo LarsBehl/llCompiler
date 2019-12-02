@@ -61,10 +61,13 @@ namespace ll.AST
 
                     foreach (var comp in block.body)
                     {
-                        resultBlock = comp.Eval();
-
                         if(comp is ReturnStatement)
+                        {
+                            resultBlock = comp.Eval(); 
                             break;
+                        }
+
+                        comp.Eval();
                     }
 
                     return resultBlock;
@@ -96,6 +99,10 @@ namespace ll.AST
                     env = oldEnv;
 
                     return result;
+                case IfStatement ifStatement:
+                    if((ifStatement.cond.Eval() as BoolLit).value ?? false)
+                        return ifStatement.ifBody.Eval();
+                    return ifStatement.elseBody?.Eval() ?? null;
                 default:
                     throw new ArgumentException("Unknown Ast Object");
             }

@@ -189,7 +189,11 @@ namespace ll
             var body = Visit(context.body);
 
             if(body.type.typeName != funDef.returnType.typeName)
+            {
+                if(body.type is BlockStatementType)
+                    throw new ArgumentException($"Missing return statement in \"{funDef.name}\"");
                 throw new ArgumentException($"Return type \"{body.type.typeName}\" does not match \"{funDef.returnType.typeName}\"");
+            }
 
             funDef.body = body;
             IAST.funs[funDef.name] = funDef;
@@ -230,9 +234,15 @@ namespace ll
 
         public override IAST VisitIfStatement(llParser.IfStatementContext context)
         {
-            var tmp = Visit(context.cond);
-
-            throw new ArgumentException();
+            var tmp = context.blockStatement();
+            var cond = Visit(context.cond);
+            var ifBody = Visit(tmp[0]);
+            IAST elseBody = null;
+            
+            if(tmp.Length > 1)
+                elseBody = Visit(tmp[1]);
+            
+            return new IfStatement(cond, ifBody, elseBody);
         }
     }
 }
