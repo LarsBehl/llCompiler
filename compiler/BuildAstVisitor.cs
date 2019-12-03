@@ -92,7 +92,6 @@ namespace ll
             foreach (var comp in tmp)
             {
                 var compVisited = Visit(comp);
-                Console.WriteLine(compVisited.type.typeName);
                 body.Add(compVisited);
                 if (compVisited is ReturnStatement)
                     break;

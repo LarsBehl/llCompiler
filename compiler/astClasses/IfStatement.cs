@@ -20,14 +20,11 @@ namespace ll.AST
 
         private static type.Type GetType(IAST ifBody, IAST elseBody)
         {
-            if(!(ifBody.type is BlockStatementType) && !(elseBody?.type is BlockStatementType))
-            {
-                if(ifBody.type.typeName != elseBody.type.typeName)
-                    throw new ArgumentException(
-                        $"The body of the if-statement returns another type than the body of else; \"{ifBody.type.typeName}\" \"{elseBody.type.typeName}\""
-                    );
+            if(!(ifBody.type is BlockStatementType))
                 return ifBody.type;
-            }
+
+            if(!(elseBody?.type is BlockStatementType))
+                return elseBody.type;
 
             return new IfStatementType();
         }

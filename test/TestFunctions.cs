@@ -22,12 +22,13 @@ namespace ll.test
             return new llParser(stream);
         }
 
-        
+        /*
         [TestCase("aCallsB(3)", 5)]
         [TestCase("id(5)", 5)]
         [TestCase("square(5)", 25)]
         [TestCase("fourtyTwo()", 42)]
         [TestCase("plusSeventeen(square(5))", 42)]
+        [TestCase("fac(5)", 120)]
         public void TestFunctions_1(string funCall, int expected)
         {
             llParser parser;
@@ -57,7 +58,7 @@ namespace ll.test
         }
 
         [Test]
-        public void TestFunctions_2()
+        public void TestFunctions_3()
         {
             llParser parser;
 
@@ -77,6 +78,6 @@ namespace ll.test
                 Console.WriteLine(e);
             }
         }
-        
+        */
     }
 }
