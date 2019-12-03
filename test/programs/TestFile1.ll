@@ -48,7 +48,12 @@ test(x: int): int
 {
     if(x > 2)
     {
-        return x * plusSeventeen(x);
+        if(x==3)
+        {
+            return x * plusSeventeen(x);
+        }
+
+        return 1337;
     }
     else
     {
