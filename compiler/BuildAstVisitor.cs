@@ -92,7 +92,6 @@ namespace ll
             foreach (var comp in tmp)
             {
                 var compVisited = Visit(comp);
-                Console.WriteLine(compVisited.type.typeName);
                 body.Add(compVisited);
                 if (compVisited is ReturnStatement)
                     break;
@@ -188,8 +187,12 @@ namespace ll
                 throw new ArgumentException($"Trying to override the body of function \"{identifier[0].GetText()}\"");
             var body = Visit(context.body);
 
-            if(body.type.typeName != funDef.type.typeName)
-                throw new ArgumentException($"Return type \"{body.type.typeName}\" does not match \"{funDef.type.typeName}\"");
+            if(body.type.typeName != funDef.returnType.typeName)
+            {
+                if(body.type is BlockStatementType)
+                    throw new ArgumentException($"Missing return statement in \"{funDef.name}\"");
+                throw new ArgumentException($"Return type \"{body.type.typeName}\" does not match \"{funDef.returnType.typeName}\"");
+            }
 
             funDef.body = body;
             IAST.funs[funDef.name] = funDef;
@@ -226,6 +229,19 @@ namespace ll
                 return Visit(context.compositUnit());
 
             throw new ArgumentException("Unknown node in Program");
+        }
+
+        public override IAST VisitIfStatement(llParser.IfStatementContext context)
+        {
+            var tmp = context.blockStatement();
+            var cond = Visit(context.cond);
+            var ifBody = Visit(tmp[0]);
+            IAST elseBody = null;
+            
+            if(tmp.Length > 1)
+                elseBody = Visit(tmp[1]);
+            
+            return new IfStatement(cond, ifBody, elseBody);
         }
     }
 }

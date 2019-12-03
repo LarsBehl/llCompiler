@@ -33,3 +33,30 @@ plusSeventeen(x: int): int
 {
     return x + 17;
 }
+
+fac(x: int): int
+{
+    if(x > 1)
+    {
+        return x * fac(x-1);
+    }
+
+    return x;
+}
+
+test(x: int): int
+{
+    if(x > 2)
+    {
+        if(x==3)
+        {
+            return x * plusSeventeen(x);
+        }
+
+        return 1337;
+    }
+    else
+    {
+        return 42;
+    }
+}

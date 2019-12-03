@@ -24,6 +24,12 @@ namespace ll.AST
                     result = comp.type;
                     break;
                 }
+
+                if(comp is IfStatement && !(comp.type is IfStatementType))
+                {
+                    result = comp.type;
+                    break;
+                }
             }
 
             return result;
