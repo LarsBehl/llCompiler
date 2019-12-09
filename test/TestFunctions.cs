@@ -29,6 +29,7 @@ namespace ll.test
         [TestCase("fourtyTwo()", 42)]
         [TestCase("plusSeventeen(square(5))", 42)]
         [TestCase("fac(5)", 120)]
+        [TestCase("facIter(5)", 120)]
         public void TestFunctions_1(string funCall, int expected)
         {
             llParser parser;

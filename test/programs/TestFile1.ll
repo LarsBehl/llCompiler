@@ -50,8 +50,7 @@ facIter(x: int): int
 
     while(x > 1)
     {
-        result = result * (x-1);
-        x = x-1;
+        result = result * --x;
     }
 
     return result;
@@ -85,7 +84,7 @@ testNeu(): int
             return i;
         }
 
-        i = 42;
+        i++;
     }
 
     return 1337;
