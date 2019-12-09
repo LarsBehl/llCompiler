@@ -29,6 +29,10 @@ namespace ll.test
         [TestCase("{x:int=10; return x;}", 10)]
         [TestCase("{x:int=10; x=x+2; return x;}", 12)]
         [TestCase("{_x2_:int=10; return ++_x2_;}", 11)]
+        [TestCase("{x:int=10; x+=32; return x;}", 42)]
+        [TestCase("{x:int=45; x-=3; return x;}", 42)]
+        [TestCase("{x:int=21; x*=2; return x;}", 42)]
+        [TestCase("{x:int=84; x/=2; return x;}", 42)]
         public void TestExpressionSequenz_1(string input, int expected)
         {
             llParser parser = Setup(input);
@@ -40,6 +44,10 @@ namespace ll.test
 
         [TestCase("{x:double=2.0; return x;}", 2.0)]
         [TestCase("{x:double; x=10.0; return x;}", 10.0)]
+        [TestCase("{x:double=10.0; x+=32.0; return x;}", 42.0)]
+        [TestCase("{x:double=45.0; x-=3.0; return x;}", 42.0)]
+        [TestCase("{x:double=21.0; x*=2.0; return x;}", 42.0)]
+        [TestCase("{x:double=84.0; x/=2.0; return x;}", 42.0)]
         public void TestExpressionSequenz_2(string input, double expected)
         {
             llParser parser = Setup(input);

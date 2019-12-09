@@ -27,6 +27,10 @@ expression
 
 statement
     : left=WORD ASSIGN right=expression SEMCOL #assignStatement
+    | left=WORD ADD_ASSIGN right=expression SEMCOL #addAssignStatement
+    | left=WORD SUB_ASSIGN right=expression SEMCOL #subAssignStatement
+    | left=WORD MULT_ASSIGN right=expression SEMCOL #multAssignStatement
+    | left=WORD DIV_ASSIGN right=expression SEMCOL #divAssignStatement
     | left=WORD COLON type=typeDefinition SEMCOL #instantiationStatement
     | left=WORD COLON type=typeDefinition ASSIGN right=expression SEMCOL #initializationStatement
     | RETURN expression SEMCOL #returnStatement
@@ -105,6 +109,10 @@ CURL_L: '{';
 CURL_R: '}';
 SEMCOL: ';';
 EQUAL: '=' '=';
+ADD_ASSIGN: '+' '=';
+SUB_ASSIGN: '-' '=';
+MULT_ASSIGN: '*' '=';
+DIV_ASSIGN: '/' '=';
 LESS: '<';
 GREATER: '>';
 COLON: ':';
