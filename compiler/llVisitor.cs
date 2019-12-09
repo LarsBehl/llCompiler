@@ -120,6 +120,34 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitAssignStatement([NotNull] llParser.AssignStatementContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>addAssignStatement</c>
+	/// labeled alternative in <see cref="llParser.statement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAddAssignStatement([NotNull] llParser.AddAssignStatementContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>subAssignStatement</c>
+	/// labeled alternative in <see cref="llParser.statement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitSubAssignStatement([NotNull] llParser.SubAssignStatementContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>multAssignStatement</c>
+	/// labeled alternative in <see cref="llParser.statement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitMultAssignStatement([NotNull] llParser.MultAssignStatementContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>divAssignStatement</c>
+	/// labeled alternative in <see cref="llParser.statement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDivAssignStatement([NotNull] llParser.DivAssignStatementContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>instantiationStatement</c>
 	/// labeled alternative in <see cref="llParser.statement"/>.
 	/// </summary>

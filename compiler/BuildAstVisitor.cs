@@ -297,5 +297,37 @@ namespace ll
 
             return new DecrementExpr(variable, false);
         }
+
+        public override IAST VisitAddAssignStatement(llParser.AddAssignStatementContext context)
+        {
+            if(!IAST.env.ContainsKey(context.left.Text))
+                throw new ArgumentException($"Unknown variable \"{context.left.Text}\"");
+            
+            return new AddAssignStatement(new VarExpr(context.left.Text), Visit(context.right));
+        }
+
+        public override IAST VisitSubAssignStatement(llParser.SubAssignStatementContext context)
+        {
+            if(!IAST.env.ContainsKey(context.left.Text))
+                throw new ArgumentException($"Unknown variable \"{context.left.Text}\"");
+            
+            return new SubAssignStatement(new VarExpr(context.left.Text), Visit(context.right));
+        }
+
+        public override IAST VisitMultAssignStatement(llParser.MultAssignStatementContext context)
+        {
+            if(!IAST.env.ContainsKey(context.left.Text))
+                throw new ArgumentException($"Unknown variable {context.left.Text}");
+
+            return new MultAssignStatement(new VarExpr(context.left.Text), Visit(context.right));
+        }
+
+        public override IAST VisitDivAssignStatement(llParser.DivAssignStatementContext context)
+        {
+            if(!IAST.env.ContainsKey(context.left.Text))
+                throw new ArgumentException($"Unknown variable {context.left.Text}");
+            
+            return new DivAssignStatement(new VarExpr(context.left.Text), Visit(context.right));
+        }
     }
 }

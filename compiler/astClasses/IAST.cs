@@ -156,6 +156,18 @@ namespace ll.AST
                     }
 
                     return result_dec;
+                case AddAssignStatement addAssign:
+                    env[addAssign.left.name] = EvalAddAssign(addAssign);
+                    return null;
+                case SubAssignStatement subAssign:
+                    env[subAssign.left.name] = EvalSubAssign(subAssign);
+                    return null;
+                case MultAssignStatement multAssign:
+                    env[multAssign.left.name] = EvalMultAssign(multAssign);
+                    return null;
+                case DivAssignStatement divAssign:
+                    env[divAssign.left.name] = EvalDivAssign(divAssign);
+                    return null;
                 default:
                     throw new ArgumentException("Unknown Ast Object");
             }
@@ -391,6 +403,74 @@ namespace ll.AST
                     return new DoubleLit((variable as DoubleLit).n - 1);
                 default:
                     throw new ArgumentException($"Type \"{decrement.type.typeName}\" not allowed for Decrement");
+            }
+        }
+
+        static IAST EvalAddAssign(AddAssignStatement addAssign)
+        {
+            IAST variable;
+
+            switch(addAssign.left.type)
+            {
+                case IntType intType:
+                    variable = env[addAssign.left.name].Eval();
+                    return new IntLit((variable as IntLit).n + (addAssign.right.Eval() as IntLit).n);
+                case DoubleType doubleType:
+                    variable = env[addAssign.left.name].Eval();
+                    return new DoubleLit((variable as DoubleLit).n + (addAssign.right.Eval() as DoubleLit).n);
+                default:
+                    throw new ArgumentException($"Could not use type \"{addAssign.type.typeName}\" with AddAssignStatement");
+            }
+        }
+
+        static IAST EvalSubAssign(SubAssignStatement subAssign)
+        {
+            IAST variable;
+
+            switch(subAssign.left.type)
+            {
+                case IntType intType:
+                    variable = env[subAssign.left.name].Eval();
+                    return new IntLit((variable as IntLit).n - (subAssign.right.Eval() as IntLit).n);
+                case DoubleType doubleType:
+                    variable = env[subAssign.left.name].Eval();
+                    return new DoubleLit((variable as DoubleLit).n - (subAssign.right.Eval() as DoubleLit).n);
+                default:
+                    throw new ArgumentException($"Could not use type \"{subAssign.type.typeName}\" with SubAssignStatement");
+            }
+        }
+
+        static IAST EvalMultAssign(MultAssignStatement multAssign)
+        {
+            IAST variable;
+
+            switch(multAssign.left.type)
+            {
+                case IntType intType:
+                    variable = env[multAssign.left.name].Eval();
+                    return new IntLit((variable as IntLit).n * (multAssign.right.Eval() as IntLit).n);
+                case DoubleType doubleType:
+                    variable = env[multAssign.left.name].Eval();
+                    return new DoubleLit((variable as DoubleLit).n * (multAssign.right.Eval() as DoubleLit).n);
+                default:
+                    throw new ArgumentException($"Could not use type \"{multAssign.type.typeName}\" with MultAssignStatement");
+            }
+        }
+
+        static IAST EvalDivAssign(DivAssignStatement divAssign)
+        {
+            IAST variable;
+
+            switch(divAssign.left.type)
+            {
+                case IntType intType:
+                    variable = env[divAssign.left.name].Eval();
+                    return new IntLit((variable as IntLit).n / (divAssign.right.Eval() as IntLit).n);
+                case DoubleType doubleType:
+                    variable = env[divAssign.left.name].Eval();
+                    return new DoubleLit((variable as DoubleLit).n / (divAssign.right.Eval() as DoubleLit).n);
+                default:
+                    throw new ArgumentException($"Could not use type \"{divAssign.type.typeName}\" with DivAssignStatement");
             }
         }
     }
