@@ -11,10 +11,14 @@ compositUnit
     : statement
     | expression;
 
+line
+    : statement
+    | expression SEMCOL;
+
 expression
     : PAR_L expression PAR_R #parenthes
     | left=expression op=(MULT|DIV) right=expression #binOpMultDiv
-    | left=expression op=(ADD|MINUS) right=expression #binOpAddSub
+    | left=expression op=(PLUS|MINUS) right=expression #binOpAddSub
     | left=expression op=EQUAL right=expression #equalityOpertor
     | left=expression op=LESS ASSIGN? right=expression #lessOperator
     | left=expression op=GREATER ASSIGN? right=expression #greaterOperator
@@ -34,7 +38,11 @@ unaryExpression
     : numericExpression
     | boolExpression
     | functionCall
-    | variableExpression;
+    | variableExpression
+    | incrementPostExpression
+    | decrementPostExpression
+    | decrementPreExpression
+    | incrementPreExpression;
 
 functionCall
     : name=WORD PAR_L (expression (COMMA expression)*)? PAR_R;
@@ -46,20 +54,32 @@ variableExpression
     : WORD;
 
 numericExpression
-    : sign=(MINUS|ADD)? DOUBLE_LITERAL #doubleAtomExpression
-    | sign=(MINUS|ADD)? INTEGER_LITERAL #integerAtomExpression;
+    : sign=(MINUS|PLUS)? DOUBLE_LITERAL #doubleAtomExpression
+    | sign=(MINUS|PLUS)? INTEGER_LITERAL #integerAtomExpression;
 
 boolExpression
     : BOOL_TRUE
     | BOOL_FALSE;
 
 blockStatement
-    : CURL_L compositUnit* CURL_R;
+    : CURL_L line* CURL_R;
 
 typeDefinition
     : INT_TYPE
     | DOUBLE_TYPE
     | BOOL_TYPE;
+
+incrementPostExpression
+    : variableExpression PLUS PLUS;
+
+decrementPostExpression
+    : variableExpression MINUS MINUS;
+
+incrementPreExpression
+    : PLUS PLUS variableExpression;
+
+decrementPreExpression
+    : MINUS MINUS variableExpression;
 
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;
@@ -74,7 +94,7 @@ ELSE: 'e' 'l' 's' 'e';
 WHILE: 'w' 'h' 'i' 'l' 'e';
 WORD: [a-zA-Z]+;
 MULT: '*';
-ADD: '+';
+PLUS: '+';
 MINUS: '-';
 DIV: '/';
 DOT: '.';

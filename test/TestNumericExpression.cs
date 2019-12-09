@@ -64,16 +64,5 @@ namespace ll.test
 
             Assert.AreEqual("ll.AST.DoubleLit", result.GetType().ToString());
         }
-
-        [TestCase("+")]
-        [TestCase("-")]
-        public void TestNumericExpression_1(string input)
-        {
-            llParser parser = Setup(input);
-
-            var result = visitor.Visit(parser.compileUnit());
-
-            Assert.IsNull(result);
-        }
     }
 }

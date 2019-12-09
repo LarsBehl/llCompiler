@@ -13,6 +13,16 @@ namespace ll
             return Visit(context.program());
         }
 
+        public override IAST VisitLine(llParser.LineContext context)
+        {
+            if(context.expression() != null)
+                return Visit(context.expression());
+            if(context.statement() != null)
+                return Visit(context.statement());
+
+            throw new ArgumentException("Unknown AST Node");
+        }
+
         public override IAST VisitCompositUnit(llParser.CompositUnitContext context)
         {
             if (context.statement() != null)
@@ -87,7 +97,7 @@ namespace ll
         public override IAST VisitBlockStatement(llParser.BlockStatementContext context)
         {
             List<IAST> body = new List<IAST>();
-            var tmp = context.compositUnit();
+            var tmp = context.line();
 
             foreach (var comp in tmp)
             {
@@ -164,7 +174,15 @@ namespace ll
                 return Visit(context.variableExpression());
             if (context.functionCall() != null)
                 return Visit(context.functionCall());
-
+            if (context.incrementPostExpression() != null)
+                return Visit(context.incrementPostExpression());
+            if(context.decrementPostExpression() != null)
+                return Visit(context.decrementPostExpression());
+            if(context.decrementPreExpression() != null)
+                return Visit(context.decrementPreExpression());
+            if(context.incrementPreExpression() != null)
+                return Visit(context.incrementPreExpression());
+                
             throw new ArgumentException("Unknown unary type");
         }
 
@@ -250,6 +268,34 @@ namespace ll
             var body = Visit(context.blockStatement());
 
             return new WhileStatement(cond, body);
+        }
+
+        public override IAST VisitIncrementPostExpression(llParser.IncrementPostExpressionContext context)
+        {
+            var variable = Visit(context.variableExpression()) as VarExpr;
+
+            return new IncrementExpr(variable, true);
+        }
+
+        public override IAST VisitDecrementPostExpression(llParser.DecrementPostExpressionContext context)
+        {
+            var variable = Visit(context.variableExpression()) as VarExpr;
+
+            return new DecrementExpr(variable, true);
+        }
+
+        public override IAST VisitIncrementPreExpression(llParser.IncrementPreExpressionContext context)
+        {
+            var variable = Visit(context.variableExpression()) as VarExpr;
+
+            return new IncrementExpr(variable, false);
+        }
+
+        public override IAST VisitDecrementPreExpression(llParser.DecrementPreExpressionContext context)
+        {
+            var variable = Visit(context.variableExpression()) as VarExpr;
+
+            return new DecrementExpr(variable, false);
         }
     }
 }

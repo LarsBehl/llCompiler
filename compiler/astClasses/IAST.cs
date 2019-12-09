@@ -127,6 +127,35 @@ namespace ll.AST
                     }
 
                     return result_while;
+                case IncrementExpr increment:
+                    IAST result_inc;
+                    if(increment.post)
+                    {
+                        result_inc = env[increment.variable.name];
+                        env[increment.variable.name] = EvalIncrementExpr(increment);
+                    }
+                    else
+                    {
+                        result_inc = EvalIncrementExpr(increment);
+                        env[increment.variable.name] = result_inc;
+                    }
+
+                    return result_inc;
+
+                case DecrementExpr decrement:
+                    IAST result_dec;
+                    if(decrement.post)
+                    {
+                        result_dec = env[decrement.variable.name];
+                        env[decrement.variable.name] = EvalDecrementExpr(decrement);
+                    }
+                    else
+                    {
+                        result_dec = EvalDecrementExpr(decrement);
+                        env[decrement.variable.name] = result_dec;
+                    }
+
+                    return result_dec;
                 default:
                     throw new ArgumentException("Unknown Ast Object");
             }
@@ -328,6 +357,40 @@ namespace ll.AST
                     throw new ArgumentException($"Type \"{ge.left.type.typeName}\" is incompatible with \"{ge.right.type.typeName}\"");
                 default:
                     throw new ArgumentException($"Unknown type \"{ge.left.type.typeName}\"");
+            }
+        }
+
+        static IAST EvalIncrementExpr(IncrementExpr increment)
+        {
+            IAST variable;
+
+            switch(increment.type)
+            {
+                case IntType intType:
+                    variable = env[increment.variable.name].Eval();
+                    return new IntLit((variable as IntLit).n + 1);
+                case DoubleType doubleType:
+                    variable = env[increment.variable.name].Eval();
+                    return new DoubleLit((variable as DoubleLit).n +1);
+                default:
+                    throw new ArgumentException($"Type \"{increment.type.typeName}\" not allowed for Increment");
+            }
+        }
+
+        static IAST EvalDecrementExpr(DecrementExpr decrement)
+        {
+            IAST variable;
+
+            switch(decrement.type)
+            {
+                case IntType intType:
+                    variable = env[decrement.variable.name].Eval();
+                    return new IntLit((variable as IntLit).n - 1);
+                case DoubleType doubleType:
+                    variable = env[decrement.variable.name].Eval();
+                    return new DoubleLit((variable as DoubleLit).n - 1);
+                default:
+                    throw new ArgumentException($"Type \"{decrement.type.typeName}\" not allowed for Decrement");
             }
         }
     }

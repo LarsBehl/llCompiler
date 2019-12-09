@@ -36,7 +36,7 @@ public partial class llLexer : Lexer {
 	public const int
 		DOUBLE_LITERAL=1, INTEGER_LITERAL=2, RETURN=3, INT_TYPE=4, DOUBLE_TYPE=5, 
 		BOOL_TYPE=6, BOOL_TRUE=7, BOOL_FALSE=8, IF=9, ELSE=10, WHILE=11, WORD=12, 
-		MULT=13, ADD=14, MINUS=15, DIV=16, DOT=17, PAR_L=18, PAR_R=19, ASSIGN=20, 
+		MULT=13, PLUS=14, MINUS=15, DIV=16, DOT=17, PAR_L=18, PAR_R=19, ASSIGN=20, 
 		CURL_L=21, CURL_R=22, SEMCOL=23, EQUAL=24, LESS=25, GREATER=26, COLON=27, 
 		COMMA=28, WHITESPACE=29;
 	public static string[] channelNames = {
@@ -50,7 +50,7 @@ public partial class llLexer : Lexer {
 	public static readonly string[] ruleNames = {
 		"DOUBLE_LITERAL", "INTEGER_LITERAL", "RETURN", "INT_TYPE", "DOUBLE_TYPE", 
 		"BOOL_TYPE", "BOOL_TRUE", "BOOL_FALSE", "IF", "ELSE", "WHILE", "WORD", 
-		"MULT", "ADD", "MINUS", "DIV", "DOT", "PAR_L", "PAR_R", "ASSIGN", "CURL_L", 
+		"MULT", "PLUS", "MINUS", "DIV", "DOT", "PAR_L", "PAR_R", "ASSIGN", "CURL_L", 
 		"CURL_R", "SEMCOL", "EQUAL", "LESS", "GREATER", "COLON", "COMMA", "WHITESPACE"
 	};
 
@@ -72,7 +72,7 @@ public partial class llLexer : Lexer {
 	private static readonly string[] _SymbolicNames = {
 		null, "DOUBLE_LITERAL", "INTEGER_LITERAL", "RETURN", "INT_TYPE", "DOUBLE_TYPE", 
 		"BOOL_TYPE", "BOOL_TRUE", "BOOL_FALSE", "IF", "ELSE", "WHILE", "WORD", 
-		"MULT", "ADD", "MINUS", "DIV", "DOT", "PAR_L", "PAR_R", "ASSIGN", "CURL_L", 
+		"MULT", "PLUS", "MINUS", "DIV", "DOT", "PAR_L", "PAR_R", "ASSIGN", "CURL_L", 
 		"CURL_R", "SEMCOL", "EQUAL", "LESS", "GREATER", "COLON", "COMMA", "WHITESPACE"
 	};
 	public static readonly IVocabulary DefaultVocabulary = new Vocabulary(_LiteralNames, _SymbolicNames);

@@ -51,6 +51,12 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitCompositUnit([NotNull] llParser.CompositUnitContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.line"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitLine([NotNull] llParser.LineContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>blockSta</c>
 	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// </summary>
@@ -211,5 +217,29 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitTypeDefinition([NotNull] llParser.TypeDefinitionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.incrementPostExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitIncrementPostExpression([NotNull] llParser.IncrementPostExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.decrementPostExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDecrementPostExpression([NotNull] llParser.DecrementPostExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.incrementPreExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitIncrementPreExpression([NotNull] llParser.IncrementPreExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.decrementPreExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDecrementPreExpression([NotNull] llParser.DecrementPreExpressionContext context);
 }
 } // namespace ll
