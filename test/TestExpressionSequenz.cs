@@ -28,6 +28,7 @@ namespace ll.test
         [TestCase("{return 10+2;}", 12)]
         [TestCase("{x:int=10; return x;}", 10)]
         [TestCase("{x:int=10; x=x+2; return x;}", 12)]
+        [TestCase("{_x2_:int=10; return ++_x2_;}", 11)]
         public void TestExpressionSequenz_1(string input, int expected)
         {
             llParser parser = Setup(input);
