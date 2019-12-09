@@ -92,7 +92,7 @@ BOOL_FALSE: 'f' 'a' 'l' 's' 'e';
 IF: 'i' 'f';
 ELSE: 'e' 'l' 's' 'e';
 WHILE: 'w' 'h' 'i' 'l' 'e';
-WORD: [a-zA-Z]+;
+WORD: ([a-zA-Z] | '_') ([a-zA-Z0-9] | '_')*;
 MULT: '*';
 PLUS: '+';
 MINUS: '-';
