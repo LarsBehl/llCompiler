@@ -75,6 +75,12 @@ namespace ll.AST
                             break;
                         }
 
+                        if(comp is WhileStatement && !(comp.type is WhileStatementType))
+                        {
+                            resultBlock = comp.Eval();
+                            break;
+                        }
+
                         comp.Eval();
                     }
 
@@ -111,6 +117,16 @@ namespace ll.AST
                     if((ifStatement.cond.Eval() as BoolLit).value ?? false)
                         return ifStatement.ifBody.Eval();
                     return ifStatement.elseBody?.Eval() ?? null;
+                case WhileStatement whileStatement:
+                    IAST result_while = null;
+                    while((whileStatement.condition.Eval() as BoolLit).value ?? false)
+                    {
+                        result_while = whileStatement.body.Eval();
+                        if(result_while != null && !(result_while.type is BlockStatementType))
+                            break;
+                    }
+
+                    return result_while;
                 default:
                     throw new ArgumentException("Unknown Ast Object");
             }
