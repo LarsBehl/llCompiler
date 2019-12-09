@@ -243,5 +243,13 @@ namespace ll
             
             return new IfStatement(cond, ifBody, elseBody);
         }
+
+        public override IAST VisitWhileStatement(llParser.WhileStatementContext context)
+        {
+            var cond = Visit(context.cond);
+            var body = Visit(context.blockStatement());
+
+            return new WhileStatement(cond, body);
+        }
     }
 }

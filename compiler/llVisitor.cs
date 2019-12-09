@@ -149,6 +149,13 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitIfStatement([NotNull] llParser.IfStatementContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>whileStatement</c>
+	/// labeled alternative in <see cref="llParser.statement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitWhileStatement([NotNull] llParser.WhileStatementContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="llParser.unaryExpression"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>

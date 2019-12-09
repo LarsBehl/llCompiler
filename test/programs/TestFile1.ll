@@ -44,6 +44,19 @@ fac(x: int): int
     return x;
 }
 
+facIter(x: int): int
+{
+    result: int = x;
+
+    while(x > 1)
+    {
+        result = result * (x-1);
+        x = x-1;
+    }
+
+    return result;
+}
+
 test(x: int): int
 {
     if(x > 2)
@@ -58,5 +71,30 @@ test(x: int): int
     else
     {
         return 42;
+    }
+}
+
+testNeu(): int
+{
+    i: int = 0;
+
+    while(i < 100)
+    {
+        if(i == 42)
+        {
+            return i;
+        }
+
+        i = 42;
+    }
+
+    return 1337;
+}
+
+testNeuNeu(): int
+{
+    while(true)
+    {
+        return 1337;
     }
 }

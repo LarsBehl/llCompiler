@@ -30,6 +30,12 @@ namespace ll.AST
                     result = comp.type;
                     break;
                 }
+
+                if(comp is WhileStatement && !(comp.type is WhileStatementType))
+                {
+                    result = comp.type;
+                    break;
+                }
             }
 
             return result;
