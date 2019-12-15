@@ -112,7 +112,10 @@ namespace ll
 
         public override IAST VisitReturnStatement(llParser.ReturnStatementContext context)
         {
-            return new ReturnStatement(Visit(context.expression()));
+            if(context.expression() != null)
+                return new ReturnStatement(Visit(context.expression()));
+            
+            return new ReturnStatement();
         }
 
         public override IAST VisitEqualityOpertor(llParser.EqualityOpertorContext context)
@@ -134,6 +137,9 @@ namespace ll
         {
             IAST variable = Visit(context.type);
 
+            if(variable.type is VoidType)
+                throw new ArgumentException($"Type \"{variable.type.typeName}\" not allowed for variables");
+
             IAST.env[context.left.Text] = variable;
 
             IAST val = Visit(context.right);
@@ -151,6 +157,8 @@ namespace ll
                 return new DoubleLit(null);
             if (context.BOOL_TYPE() != null)
                 return new BoolLit(null);
+            if(context.VOID_TYPE() != null)
+                return new VoidLit();
             throw new ArgumentException("Unsupported type");
         }
 
@@ -189,6 +197,9 @@ namespace ll
         public override IAST VisitInstantiationStatement(llParser.InstantiationStatementContext context)
         {
             IAST variable = Visit(context.type);
+
+            if(variable.type is VoidType)
+                throw new ArgumentException($"Type \"{variable.type.typeName}\" is not allowed for variables");
 
             IAST.env[context.left.Text] = variable;
 

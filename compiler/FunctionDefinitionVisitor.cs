@@ -41,6 +41,8 @@ namespace ll
                 return new DoubleLit(null);
             if(context.BOOL_TYPE() != null)
                 return new BoolLit(null);
+            if(context.VOID_TYPE() != null)
+                return new VoidLit();
             
             throw new ArgumentException("Unsupported type");
         }

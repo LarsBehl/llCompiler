@@ -55,3 +55,10 @@ facIter(x: int): int
 
     return x2;
 }
+
+voidFunction(): void
+{
+    x: int = 1;
+
+    return;
+}

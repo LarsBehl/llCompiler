@@ -33,7 +33,7 @@ statement
     | left=WORD DIV_ASSIGN right=expression SEMCOL #divAssignStatement
     | left=WORD COLON type=typeDefinition SEMCOL #instantiationStatement
     | left=WORD COLON type=typeDefinition ASSIGN right=expression SEMCOL #initializationStatement
-    | RETURN expression SEMCOL #returnStatement
+    | RETURN expression? SEMCOL #returnStatement
     | functionDefinition #funcDefinitionStatement
     | IF PAR_L cond=compositUnit PAR_R blockStatement (ELSE blockStatement)? #ifStatement
     | WHILE PAR_L cond=compositUnit PAR_R blockStatement #whileStatement;
@@ -71,7 +71,8 @@ blockStatement
 typeDefinition
     : INT_TYPE
     | DOUBLE_TYPE
-    | BOOL_TYPE;
+    | BOOL_TYPE
+    | VOID_TYPE;
 
 incrementPostExpression
     : variableExpression PLUS PLUS;
@@ -91,6 +92,7 @@ RETURN: 'r' 'e' 't' 'u' 'r' 'n';
 INT_TYPE: 'i' 'n' 't';
 DOUBLE_TYPE: 'd' 'o' 'u' 'b' 'l' 'e';
 BOOL_TYPE: 'b' 'o' 'o' 'l';
+VOID_TYPE: 'v' 'o' 'i' 'd';
 BOOL_TRUE: 't' 'r' 'u' 'e';
 BOOL_FALSE: 'f' 'a' 'l' 's' 'e';
 IF: 'i' 'f';

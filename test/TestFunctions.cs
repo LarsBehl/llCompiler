@@ -22,7 +22,7 @@ namespace ll.test
             return new llParser(stream);
         }
 
-        /*
+        
         [TestCase("aCallsB(3)", 5)]
         [TestCase("id(5)", 5)]
         [TestCase("square(5)", 25)]
@@ -36,7 +36,7 @@ namespace ll.test
             if (!once)
             {
                 this.once = true;
-                StreamReader reader = new StreamReader("C:/Users/larsb/source/hsrm/compilerBau/llCompiler/test/programs/TestFile1.ll");
+                StreamReader reader = new StreamReader("../../../programs/TestFile1.ll");
                 try
                 {
                     string input = reader.ReadToEnd();
@@ -63,7 +63,7 @@ namespace ll.test
         {
             llParser parser;
 
-            StreamReader reader = new StreamReader("C:/Users/larsb/source/hsrm/compilerBau/llCompiler/test/programs/TestFile2.ll");
+            StreamReader reader = new StreamReader("../../../programs/TestFile2.ll");
             try
             {
                 string input = reader.ReadToEnd();
@@ -79,6 +79,6 @@ namespace ll.test
                 Console.WriteLine(e);
             }
         }
-        */
+        
     }
 }
