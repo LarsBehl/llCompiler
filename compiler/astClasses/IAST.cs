@@ -86,7 +86,7 @@ namespace ll.AST
 
                     return resultBlock;
                 case ReturnStatement returnExpr:
-                    return returnExpr.returnValue.Eval();
+                    return returnExpr.returnValue?.Eval() ?? null;
                 case EqualityExpr equalityExpr:
                     return EvalEqualityExpression(equalityExpr);
                 case LessExpr lessExpr:

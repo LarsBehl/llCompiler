@@ -1,4 +1,4 @@
-using System;
+using ll.type;
 
 namespace ll.AST
 {
@@ -6,6 +6,11 @@ namespace ll.AST
     {
         public IAST returnValue { get; set; }
 
+        public ReturnStatement(): base(new VoidType())
+        {
+
+        }
+        
         public ReturnStatement(IAST returnValue) : base(returnValue.type)
         {
             this.returnValue = returnValue;

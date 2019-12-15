@@ -9,13 +9,13 @@ namespace ll
     {
         static void Main(string[] args)
         {
-            var fileStream = new AntlrFileStream("C:/Users/larsb/source/hsrm/compilerBau/llCompiler/test/programs/TestFile1.ll");
+            var fileStream = new AntlrFileStream("../test/programs/TestFile1.ll");
             var fileLexer = new llLexer(fileStream);
             var fileTokenStream = new CommonTokenStream(fileLexer);
             var fileParser = new llParser(fileTokenStream);
             var tmp1 = new FunctionDefinitionVisitor().VisitProgram(fileParser.program());
 
-            fileStream = new AntlrFileStream("C:/Users/larsb/source/hsrm/compilerBau/llCompiler/test/programs/TestFile1.ll");
+            fileStream = new AntlrFileStream("../test/programs/TestFile1.ll");
             fileLexer = new llLexer(fileStream);
             fileTokenStream = new CommonTokenStream(fileLexer);
             fileParser = new llParser(fileTokenStream);
@@ -30,7 +30,7 @@ namespace ll
                 {
                     foreach (FunctionDefinition funDef in IAST.funs.Values)
                         Console.WriteLine(funDef.name);
-                    break;
+                    continue;
                 }
 
                 if (string.IsNullOrEmpty(text))
