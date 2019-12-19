@@ -169,13 +169,6 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitReturnStatement([NotNull] llParser.ReturnStatementContext context);
 	/// <summary>
-	/// Visit a parse tree produced by the <c>funcDefinitionStatement</c>
-	/// labeled alternative in <see cref="llParser.statement"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitFuncDefinitionStatement([NotNull] llParser.FuncDefinitionStatementContext context);
-	/// <summary>
 	/// Visit a parse tree produced by the <c>ifStatement</c>
 	/// labeled alternative in <see cref="llParser.statement"/>.
 	/// </summary>

@@ -34,7 +34,6 @@ statement
     | left=WORD COLON type=typeDefinition SEMCOL #instantiationStatement
     | left=WORD COLON type=typeDefinition ASSIGN right=expression SEMCOL #initializationStatement
     | RETURN expression? SEMCOL #returnStatement
-    | functionDefinition #funcDefinitionStatement
     | IF PAR_L cond=compositUnit PAR_R blockStatement (ELSE blockStatement)? #ifStatement
     | WHILE PAR_L cond=compositUnit PAR_R blockStatement #whileStatement;
 
