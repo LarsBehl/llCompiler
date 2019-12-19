@@ -299,9 +299,9 @@ namespace ll.assembler
 
             var indexOfSpace = op.IndexOf(' ');
             var first = op.Substring(0, indexOfSpace);
+            first = first.PadRight(8, ' ');
 
             this.sb.Append(first);
-            this.sb.Append(this.indent);
             this.sb.Append(op.Substring(indexOfSpace + 1));
 
             this.sb.Append("\n");
