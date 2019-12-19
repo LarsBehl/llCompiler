@@ -242,6 +242,7 @@ namespace ll
             return new FunctionCall(context.name.Text, args);
         }
 
+        // TODO add functionDefinitionsToProgram
         public override IAST VisitProgram(llParser.ProgramContext context)
         {
             if(context.functionDefinition()?.Length > 0)
