@@ -21,7 +21,7 @@ namespace ll.assembler
         public void PrintAssember()
         {
             Console.WriteLine(this.sb.ToString());
-            if(this.doubleNumbers.Length > 0)
+            if (this.doubleNumbers.Length > 0)
                 Console.WriteLine(this.doubleNumbers.ToString());
         }
 
@@ -36,6 +36,8 @@ namespace ll.assembler
                     this.DoubleLitAsm(doubleLit); break;
                 case IntLit intLit:
                     this.IntLitAsm(intLit); break;
+                case BoolLit boolLit:
+                    this.BoolLitAsm(boolLit); break;
                 case AddExpr addExpr:
                     this.AddExprAsm(addExpr); break;
                 case SubExpr subExpr:
@@ -44,6 +46,16 @@ namespace ll.assembler
                     this.MultExprAsm(multExpr); break;
                 case DivExpr divExpr:
                     this.DivExprAsm(divExpr); break;
+                case GreaterExpr greaterExpr:
+                    this.GreaterExprAsm(greaterExpr); break;
+                case LessExpr lessExpr:
+                    this.LessExprAsm(lessExpr); break;
+                case EqualityExpr equalityExpr:
+                    this.EqualityExprAsm(equalityExpr); break;
+                case BlockStatement blockStatement:
+                    this.BlockStatementAsm(blockStatement); break;
+                case ReturnStatement returnStatement:
+                    this.ReturnStatementAsm(returnStatement); break;
                 case FunctionDefinition funDef:
                     this.FunctionDefinitionAsm(funDef); break;
                 default:
@@ -81,6 +93,11 @@ namespace ll.assembler
         {
             this.WriteDoubleValue(doubleLit);
             this.WriteLine($"movq .LD{this.doubleMap[doubleLit.n ?? 0]}(%rip), %rax");
+        }
+
+        private void BoolLitAsm(BoolLit boolLit)
+        {
+            this.WriteLine($"movq ${((boolLit.value ?? false) ? 1 : 0)}, %rax");
         }
 
         private void AddExprAsm(AddExpr addExpr)
@@ -268,7 +285,81 @@ namespace ll.assembler
             this.depth -= 1;
         }
 
-        // TODO pop %rbp from stack
+        private void GreaterExprAsm(GreaterExpr greaterExpr)
+        {
+            this.depth += 1;
+
+            this.GetAssember(greaterExpr.right);
+            this.WriteLine("pushq %rax");
+            this.GetAssember(greaterExpr.left);
+            this.WriteLine("popq %rbx");
+            this.WriteLine("cmpq %rbx, %rax");
+
+            if (greaterExpr.equal)
+                this.WriteLine("setge %al");
+            else
+                this.WriteLine("setg %al");
+
+            this.WriteLine("movzbl %al, %rax");
+
+            this.depth -= 1;
+        }
+
+        private void LessExprAsm(LessExpr lessExpr)
+        {
+            this.depth += 1;
+
+            this.GetAssember(lessExpr.right);
+            this.WriteLine("pushq %rax");
+            this.GetAssember(lessExpr.left);
+            this.WriteLine("popq %rbx");
+            this.WriteLine("cmpq %rbx, %rax");
+
+            if (lessExpr.equal)
+                this.WriteLine("setle %al");
+            else
+                this.WriteLine("setl %al");
+
+            this.WriteLine("movzbl %al, %rax");
+
+            this.depth -= 1;
+        }
+
+        private void EqualityExprAsm(EqualityExpr equalityExpr)
+        {
+            this.depth += 1;
+
+            this.GetAssember(equalityExpr.right);
+            this.WriteLine("pushq %rax");
+            this.GetAssember(equalityExpr.left);
+            this.WriteLine("popq %rbx");
+            this.WriteLine("cmp %rax, %rbx");
+            this.WriteLine("sete %al");
+            this.WriteLine("movzbl %al, %rax");
+
+            this.depth -= 1;
+        }
+
+        private void BlockStatementAsm(BlockStatement blockStatement)
+        {
+            foreach (var comp in blockStatement.body)
+                this.GetAssember(comp);
+        }
+
+        private void ReturnStatementAsm(ReturnStatement returnStatement)
+        {
+            this.depth += 1;
+
+            this.WriteLine("movq %rbp, %rsp");
+            this.WriteLine("popq %rbp");
+            this.WriteLine("ret");
+
+            this.depth -= 1;
+        }
+
+        // TODO move arguments from registers onto stack; safe position in current env
+        // TODO allocate space on stack for local variables
+        // TODO add return if void function; rax, eax and xmm0 should be empty
         private void FunctionDefinitionAsm(FunctionDefinition funDef)
         {
             this.depth += 1;
@@ -286,6 +377,13 @@ namespace ll.assembler
             this.WriteLine("movq %rsp, %rbp");
         }
 
+        // TODO move arguments in registers and stack
+        // TODO add new environment, where position of additional arguments getting saved
+        private void FunctionCallAsm(FunctionCall functionCall)
+        {
+            throw new NotImplementedException();
+        }
+
         // TODO push arguments into the correct registers, depending on wether they are floating point numbers or not
         private void ArgumentsAsm(List<InstantiationStatement> args)
         {
@@ -299,10 +397,10 @@ namespace ll.assembler
 
             var indexOfSpace = op.IndexOf(' ');
             var first = op.Substring(0, indexOfSpace);
-            first = first.PadRight(8, ' ');
+            first = first.PadRight(7, ' ');
 
             this.sb.Append(first);
-            this.sb.Append(op.Substring(indexOfSpace + 1));
+            this.sb.Append(op.Substring(indexOfSpace));
 
             this.sb.Append("\n");
         }
