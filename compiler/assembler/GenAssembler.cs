@@ -17,6 +17,10 @@ namespace ll.assembler
         private string[] integerRegisters = { "%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9" };
         private string[] doubleRegisters = { "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7" };
         private Dictionary<double, int> doubleMap = new Dictionary<double, int>();
+        private Dictionary<string, int> variableMap;
+        private Dictionary<string, int> oldMap;
+        private int usedIntegerRegisters = 0;
+        private int usedDoubleRegisters = 0;
 
         public void PrintAssember()
         {
@@ -92,7 +96,7 @@ namespace ll.assembler
         private void DoubleLitAsm(DoubleLit doubleLit)
         {
             this.WriteDoubleValue(doubleLit);
-            this.WriteLine($"movq .LD{this.doubleMap[doubleLit.n ?? 0]}(%rip), %rax");
+            this.WriteLine($"movq .LD{this.doubleMap[doubleLit.n ?? 0]}(%rip), %xmm0");
         }
 
         private void BoolLitAsm(BoolLit boolLit)
@@ -102,35 +106,31 @@ namespace ll.assembler
 
         private void AddExprAsm(AddExpr addExpr)
         {
-            this.depth += 1;
-
-            switch (addExpr.right)
+            switch (addExpr.right.type)
             {
-                case DoubleLit doubleLit:
-                    this.GetAssember(doubleLit);
+                case DoubleType doubleType:
+                    this.GetAssember(addExpr.right);
+                    this.WriteLine("movq %xmm0, %rax");
                     this.WriteLine("pushq %rax");
                     this.GetAssember(addExpr.left);
 
-                    if (addExpr.left is IntLit)
+                    if (addExpr.left.type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
-                    else
-                        this.WriteLine("movq %rax, %xmm0");
 
                     this.WriteLine("popq %rax");
                     this.WriteLine("movq %rax, %xmm1");
                     this.WriteLine("addsd %xmm1, %xmm0");
 
                     break;
-                case IntLit intLit:
-                    this.GetAssember(intLit);
+                case IntType intType:
+                    this.GetAssember(addExpr.right);
                     this.WriteLine("pushq %rax");
                     this.GetAssember(addExpr.left);
 
-                    if (addExpr.left is DoubleLit)
+                    if (addExpr.left.type is DoubleType)
                     {
-                        this.WriteLine("movq %rax, %xmm1");
                         this.WriteLine("popq %rax");
-                        this.WriteLine("cvtsi2sdq %rax, %xmm0");
+                        this.WriteLine("cvtsi2sdq %rax, %xmm1");
                         this.WriteLine("addsd %xmm1, %xmm0");
                     }
                     else
@@ -142,41 +142,35 @@ namespace ll.assembler
                 default:
                     throw new InvalidOperationException($"Could not perform addition on type {addExpr.type.typeName}");
             }
-
-            this.depth -= 1;
         }
 
         private void SubExprAsm(SubExpr subExpr)
         {
-            this.depth += 1;
-
-            switch (subExpr.right)
+            switch (subExpr.right.type)
             {
-                case DoubleLit doubleLit:
-                    this.GetAssember(doubleLit);
+                case DoubleType doubleType:
+                    this.GetAssember(subExpr.right);
+                    this.WriteLine("movq %xmm0, %rax");
                     this.WriteLine("pushq %rax");
                     this.GetAssember(subExpr.left);
 
                     if (subExpr.left is IntLit)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
-                    else
-                        this.WriteLine("movq %rax, %xmm0");
 
                     this.WriteLine("popq %rax");
                     this.WriteLine("movq %rax, %xmm1");
                     this.WriteLine("subsd %xmm1, %xmm0");
 
                     break;
-                case IntLit intLit:
-                    this.GetAssember(intLit);
+                case IntType intType:
+                    this.GetAssember(subExpr.right);
                     this.WriteLine("pushq %rax");
                     this.GetAssember(subExpr.left);
 
                     if (subExpr.left is DoubleLit)
                     {
-                        this.WriteLine("movq %rax, %xmm1");
                         this.WriteLine("popq %rax");
-                        this.WriteLine("cvtsi2sdq %rax, %xmm0");
+                        this.WriteLine("cvtsi2sdq %rax, %xmm1");
                         this.WriteLine("subsd %xmm1, %xmm0");
                     }
                     else
@@ -188,41 +182,35 @@ namespace ll.assembler
                 default:
                     throw new InvalidOperationException($"Could not perform addition on type {subExpr.type.typeName}");
             }
-
-            this.depth -= 1;
         }
 
         private void MultExprAsm(MultExpr multExpr)
         {
-            this.depth += 1;
-
-            switch (multExpr.right)
+            switch (multExpr.right.type)
             {
-                case DoubleLit doubleLit:
-                    this.GetAssember(doubleLit);
+                case DoubleType doubleType:
+                    this.GetAssember(multExpr.right);
+                    this.WriteLine("movq %xmm0, %rax");
                     this.WriteLine("pushq %rax");
                     this.GetAssember(multExpr.left);
 
-                    if (multExpr.left is IntLit)
+                    if (multExpr.left.type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
-                    else
-                        this.WriteLine("movq %rax, %xmm0");
 
                     this.WriteLine("popq %rax");
                     this.WriteLine("movq %rax, %xmm1");
                     this.WriteLine("mulsd %xmm1, %xmm0");
 
                     break;
-                case IntLit intLit:
-                    this.GetAssember(intLit);
+                case IntType intType:
+                    this.GetAssember(multExpr.right);
                     this.WriteLine("pushq %rax");
                     this.GetAssember(multExpr.left);
 
                     if (multExpr.left is DoubleLit)
                     {
-                        this.WriteLine("movq %rax, %xmm1");
                         this.WriteLine("popq %rax");
-                        this.WriteLine("cvtsi2sdq %rax, %xmm0");
+                        this.WriteLine("cvtsi2sdq %rax, %xmm1");
                         this.WriteLine("mulsd %xmm1, %xmm0");
                     }
                     else
@@ -234,41 +222,35 @@ namespace ll.assembler
                 default:
                     throw new InvalidOperationException($"Could not perform addition on type {multExpr.type.typeName}");
             }
-
-            this.depth -= 1;
         }
 
         private void DivExprAsm(DivExpr divExpr)
         {
-            this.depth += 1;
-
-            switch (divExpr.right)
+            switch (divExpr.right.type)
             {
-                case DoubleLit doubleLit:
-                    this.GetAssember(doubleLit);
+                case DoubleType doubleType:
+                    this.GetAssember(divExpr.right);
+                    this.WriteLine("movq %xmm0, %rax");
                     this.WriteLine("pushq %rax");
                     this.GetAssember(divExpr.left);
 
                     if (divExpr.left is IntLit)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
-                    else
-                        this.WriteLine("movq %rax, %xmm0");
 
                     this.WriteLine("popq %rax");
                     this.WriteLine("movq %rax, %xmm1");
                     this.WriteLine("divsd %xmm1, %xmm0");
 
                     break;
-                case IntLit intLit:
-                    this.GetAssember(intLit);
+                case IntType intType:
+                    this.GetAssember(divExpr.right);
                     this.WriteLine("pushq %rax");
                     this.GetAssember(divExpr.left);
 
                     if (divExpr.left is DoubleLit)
                     {
-                        this.WriteLine("movq %rax, %xmm1");
                         this.WriteLine("popq %rax");
-                        this.WriteLine("cvtsi2sdq %rax, %xmm0");
+                        this.WriteLine("cvtsi2sdq %rax, %xmm1");
                         this.WriteLine("divsd %xmm1, %xmm0");
                     }
                     else
@@ -281,63 +263,168 @@ namespace ll.assembler
                 default:
                     throw new InvalidOperationException($"Could not perform addition on type {divExpr.type.typeName}");
             }
-
-            this.depth -= 1;
         }
 
         private void GreaterExprAsm(GreaterExpr greaterExpr)
         {
-            this.depth += 1;
+            switch (greaterExpr.right.type)
+            {
+                case DoubleType doubleType:
+                    this.GetAssember(greaterExpr.right);
+                    this.WriteLine("movq %xmm0, %rax");
+                    this.WriteLine("pushq %rax");
 
-            this.GetAssember(greaterExpr.right);
-            this.WriteLine("pushq %rax");
-            this.GetAssember(greaterExpr.left);
-            this.WriteLine("popq %rbx");
-            this.WriteLine("cmpq %rbx, %rax");
+                    this.GetAssember(greaterExpr.left);
 
-            if (greaterExpr.equal)
-                this.WriteLine("setge %al");
-            else
-                this.WriteLine("setg %al");
+                    if (greaterExpr.left.type is IntType)
+                        this.WriteLine("cvtsi2sdq %rax, %xmm0");
+
+                    this.WriteLine("popq %rax");
+                    this.WriteLine("movq %rax, %xmm1");
+                    this.WriteLine("ucomisd %xmm1, %xmm0");
+
+                    if (greaterExpr.equal)
+                        this.WriteLine("setae %al");
+                    else
+                        this.WriteLine("seta %al");
+
+                    break;
+                case IntType intType:
+                    this.GetAssember(greaterExpr.right);
+                    this.WriteLine("pushq %rax");
+
+                    this.GetAssember(greaterExpr.left);
+
+                    if (greaterExpr.left.type is DoubleType)
+                    {
+                        this.WriteLine("popq %rax");
+                        this.WriteLine("cvtsi2sdq %rax, %xmm1");
+                        this.WriteLine("ucomisd %xmm1, %xmm0");
+
+                        if (greaterExpr.equal)
+                            this.WriteLine("setae %al");
+                        else
+                            this.WriteLine("seta %al");
+                    }
+                    else
+                    {
+                        this.WriteLine("popq %rbx");
+                        this.WriteLine("cmpq %rbx, %rax");
+
+                        if (greaterExpr.equal)
+                            this.WriteLine("setge %al");
+                        else
+                            this.WriteLine("setg %al");
+                    }
+
+                    break;
+                default:
+                    throw new InvalidOperationException($"Can not use \"greater\" operator with {greaterExpr.right.type}");
+            }
 
             this.WriteLine("movzbl %al, %rax");
-
-            this.depth -= 1;
         }
 
         private void LessExprAsm(LessExpr lessExpr)
         {
-            this.depth += 1;
+            switch (lessExpr.right.type)
+            {
+                case DoubleType doubleType:
+                    this.GetAssember(lessExpr.right);
+                    this.WriteLine("movq %xmm0, %rax");
+                    this.WriteLine("pushq %rax");
 
-            this.GetAssember(lessExpr.right);
-            this.WriteLine("pushq %rax");
-            this.GetAssember(lessExpr.left);
-            this.WriteLine("popq %rbx");
-            this.WriteLine("cmpq %rbx, %rax");
+                    this.GetAssember(lessExpr.left);
 
-            if (lessExpr.equal)
-                this.WriteLine("setle %al");
-            else
-                this.WriteLine("setl %al");
+                    if (lessExpr.left.type is IntType)
+                        this.WriteLine("cvtsi2sdq %rax, %xmm0");
+
+                    this.WriteLine("popq %rax");
+                    this.WriteLine("movq %rax, %xmm1");
+                    this.WriteLine("ucomisd %xmm1, %xmm0");
+
+                    if (lessExpr.equal)
+                        this.WriteLine("setbe %al");
+                    else
+                        this.WriteLine("setb %al");
+
+                    break;
+                case IntType intType:
+                    this.GetAssember(lessExpr.right);
+                    this.WriteLine("pushq %rax");
+
+                    this.GetAssember(lessExpr.left);
+
+                    if (lessExpr.left.type is DoubleType)
+                    {
+                        this.WriteLine("popq %rax");
+                        this.WriteLine("cvtsi2sdq %rax, %xmm1");
+                        this.WriteLine("ucomisd %xmm1, %xmm0");
+
+                        if (lessExpr.equal)
+                            this.WriteLine("setbe %al");
+                        else
+                            this.WriteLine("setb %al");
+                    }
+                    else
+                    {
+                        this.WriteLine("popq %rbx");
+                        this.WriteLine("cmpq %rbx, %rax");
+
+                        if (lessExpr.equal)
+                            this.WriteLine("setle %al");
+                        else
+                            this.WriteLine("setl %al");
+                    }
+
+                    break;
+                default:
+                    throw new InvalidOperationException($"Can not use \"less\" operator with {lessExpr.right.type}");
+            }
 
             this.WriteLine("movzbl %al, %rax");
-
-            this.depth -= 1;
         }
 
         private void EqualityExprAsm(EqualityExpr equalityExpr)
         {
-            this.depth += 1;
+            switch (equalityExpr.right.type)
+            {
+                case DoubleType doubleType:
+                    this.GetAssember(equalityExpr.right);
+                    this.WriteLine("movq %xmm0, %rax");
+                    this.WriteLine("pushq %rax");
 
-            this.GetAssember(equalityExpr.right);
-            this.WriteLine("pushq %rax");
-            this.GetAssember(equalityExpr.left);
+                    this.GetAssember(equalityExpr.left);
+
+                    if (equalityExpr.left.type is DoubleType)
+                        this.WriteLine("movq %xmm0, %rax");
+
+                    break;
+                case IntType intType:
+                    this.GetAssember(equalityExpr.right);
+                    this.WriteLine("pushq %rax");
+
+                    this.GetAssember(equalityExpr.left);
+
+                    if (equalityExpr.left.type is DoubleType)
+                    {
+                        this.WriteLine("popq %rax");
+                        this.WriteLine("cvtsi2sdq %rax, %xmm1");
+                        this.WriteLine("movq %xmm1, %rax");
+                        this.WriteLine("pushq %rax");
+                        this.WriteLine("movq %xmm0, %rax");
+                    }
+
+                    break;
+                default:
+                    throw new InvalidOperationException($"Can not use \"greater\" operator with {equalityExpr.right.type}");
+            }
+
             this.WriteLine("popq %rbx");
-            this.WriteLine("cmp %rax, %rbx");
+            this.WriteLine("cmpq %rbx, %rax");
             this.WriteLine("sete %al");
-            this.WriteLine("movzbl %al, %rax");
 
-            this.depth -= 1;
+            this.WriteLine("movzbl %al, %rax");
         }
 
         private void BlockStatementAsm(BlockStatement blockStatement)
@@ -357,9 +444,6 @@ namespace ll.assembler
             this.depth -= 1;
         }
 
-        // TODO move arguments from registers onto stack; safe position in current env
-        // TODO allocate space on stack for local variables
-        // TODO add return if void function; rax, eax and xmm0 should be empty
         private void FunctionDefinitionAsm(FunctionDefinition funDef)
         {
             this.depth += 1;
@@ -375,19 +459,140 @@ namespace ll.assembler
 
             this.WriteLine("pushq %rbp");
             this.WriteLine("movq %rsp, %rbp");
+
+            int offSet = funDef.GetLocalVariables() * 8;
+
+            if(offSet > 0)
+                this.WriteLine($"subq ${offSet}, %rsp");
+            
+            // TODO move arguments from registers onto stack; save position in variableMap
+            offSet = -8;
+            for(int i = 0; i < this.usedIntegerRegisters; i++)
+            {
+
+            }
+
+            // TODO generate the code for each node in the body of the function
+
+            this.depth -= 1;
+
+            this.variableMap = this.oldMap;
         }
 
-        // TODO move arguments in registers and stack
-        // TODO add new environment, where position of additional arguments getting saved
         private void FunctionCallAsm(FunctionCall functionCall)
         {
-            throw new NotImplementedException();
-        }
+            Dictionary<string, int> newMap = new Dictionary<string, int>();
+            FunctionDefinition funDef = IAST.funs[functionCall.name];
+            this.usedDoubleRegisters = 0;
+            this.usedIntegerRegisters = 0;
 
-        // TODO push arguments into the correct registers, depending on wether they are floating point numbers or not
-        private void ArgumentsAsm(List<InstantiationStatement> args)
-        {
-            throw new NotImplementedException();
+            bool doesOverflow = this.DoesOverflowRegisters(
+                functionCall.args,
+                out int integerOverflowPosition,
+                out int doubleOverflowPosition
+            );
+
+            // if necessary reserve space for overflown arguments on the stack
+            if (doesOverflow)
+            {
+                int min = Math.Min(integerOverflowPosition, doubleOverflowPosition);
+                int rbpOffset = +16;
+
+                // calculate the position of the overflown arguments on the stack
+                for (int i = functionCall.args.Count - 1; i >= min; i--)
+                {
+                    switch (functionCall.args[i].type)
+                    {
+                        case IntType intType:
+                            if (i >= integerOverflowPosition)
+                            {
+                                newMap.Add(funDef.args[i].name, rbpOffset);
+                                rbpOffset += 8;
+                            }
+
+                            break;
+                        case DoubleType doubleType:
+                            if (i >= doubleOverflowPosition)
+                            {
+                                newMap.Add(funDef.args[i].name, rbpOffset);
+                                rbpOffset += 8;
+                            }
+
+                            break;
+                        case BooleanType booleanType:
+                            if (i >= integerOverflowPosition)
+                            {
+                                newMap.Add(funDef.args[i].name, rbpOffset);
+                                rbpOffset += 8;
+                            }
+
+                            break;
+                        default:
+                            throw new ArgumentException($"Unknown type {functionCall.args[i].type.typeName}");
+                    }
+                }
+
+                this.WriteLine($"subq ${rbpOffset - 16}, %rsp");
+            }
+
+            // move integer/boolean arguments into registers until they are full
+            for (int i = 0; i < integerOverflowPosition; i++)
+            {
+                if (functionCall.args[i].type is IntType || functionCall.args[i].type is BooleanType)
+                {
+                    this.GetAssember(functionCall.args[i]);
+
+                    this.WriteLine($"movq %rax, {this.integerRegisters[usedIntegerRegisters]}");
+                    usedIntegerRegisters++;
+                }
+            }
+
+            // move integer/boolean arguments that overflew on stack
+            for (int i = functionCall.args.Count - 1; i >= integerOverflowPosition; i++)
+            {
+                if (functionCall.args[i].type is IntType || functionCall.args[i].type is BooleanType)
+                {
+                    this.GetAssember(functionCall.args[i]);
+
+                    this.WriteLine($"movq %rax, {newMap[funDef.args[i].name] - 16}(%rsp)");
+                }
+            }
+
+            // move double arguments that overflew on the stack
+            for (int i = functionCall.args.Count - 1; i >= doubleOverflowPosition; i++)
+            {
+                if (functionCall.args[i].type is DoubleType)
+                {
+                    this.GetAssember(functionCall.args[i]);
+
+                    this.WriteLine($"movq %xmm0, {newMap[funDef.args[i].name] - 16}(%rsp)");
+                }
+            }
+
+            // calculate the rest of the double arguments and push them on the stack
+            for (int i = Math.Min(functionCall.args.Count - 1, doubleOverflowPosition); i >= 0; i++)
+            {
+                if (functionCall.args[i].type is DoubleType)
+                {
+                    this.GetAssember(functionCall.args[i]);
+
+                    this.WriteLine($"movq %xmm0, %rax");
+                    this.WriteLine($"pushq %rax");
+                    usedDoubleRegisters++;
+                }
+            }
+
+            // move the previously pushed double arguments into the double registers
+            for (int i = 0; i < usedDoubleRegisters; i++)
+            {
+                this.WriteLine("popq %rax");
+                this.WriteLine($"movq %rax, {doubleRegisters[i]}");
+            }
+
+            this.oldMap = this.variableMap;
+            this.variableMap = newMap;
+
+            this.WriteLine($"call {functionCall.name}");
         }
 
         private void WriteLine(string op)
@@ -436,6 +641,48 @@ namespace ll.assembler
             var tmp = Convert.ToString(BitConverter.DoubleToInt64Bits((doubleLit.n ?? 0)), 2).PadLeft(64, '0');
             leftPart = Convert.ToInt32(tmp.Substring(0, 32), 2).ToString();
             rightPart = Convert.ToInt32(tmp.Substring(32, 32), 2).ToString();
+        }
+
+        /**
+        * <summary> Calulates wether there are enought registers for the parameters, or not.
+        * If there are not enought registers of one of the two types (integer/boolean, double),
+        * the position in the parameter list where the overflow happend is returned in the
+        * coresponding integer argument </summary> 
+        */
+        private bool DoesOverflowRegisters(List<IAST> args, out int integerOverflowPosition, out int doubleOverflowPosition)
+        {
+            bool result = false;
+            integerOverflowPosition = Int32.MaxValue;
+            doubleOverflowPosition = Int32.MaxValue;
+            int usedInt = 0;
+            int usedDouble = 0;
+
+            for (int i = 0; i < args.Count; i++)
+            {
+                if (args[i].type is IntType || args[i].type is BooleanType)
+                {
+                    usedInt += 1;
+
+                    if (usedInt > this.integerRegisters.Length)
+                    {
+                        result = true;
+                        integerOverflowPosition = integerOverflowPosition == -1 ? i : integerOverflowPosition;
+                    }
+                }
+
+                if (args[i].type is DoubleType)
+                {
+                    usedDouble += 1;
+
+                    if (usedDouble > this.doubleRegisters.Length)
+                    {
+                        result = true;
+                        doubleOverflowPosition = doubleOverflowPosition == -1 ? i : doubleOverflowPosition;
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }
