@@ -16,11 +16,10 @@ namespace ll.assembler
         private int doubleNumbersLabelCount = 0;
         private string[] integerRegisters = { "%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9" };
         private string[] doubleRegisters = { "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7" };
+        private Dictionary<string, FunctionAsm> functionMap = new Dictionary<string, FunctionAsm>();
         private Dictionary<double, int> doubleMap = new Dictionary<double, int>();
         private Dictionary<string, int> variableMap;
-        private Dictionary<string, int> oldMap;
-        private int usedIntegerRegisters = 0;
-        private int usedDoubleRegisters = 0;
+        private int localVariablePointer = 0;
 
         public void PrintAssember()
         {
@@ -62,6 +61,14 @@ namespace ll.assembler
                     this.ReturnStatementAsm(returnStatement); break;
                 case FunctionDefinition funDef:
                     this.FunctionDefinitionAsm(funDef); break;
+                case FunctionCall funCall:
+                    this.FunctionCallAsm(funCall); break;
+                case ProgramNode programNode:
+                    foreach (var fun in programNode.funDefs)
+                        this.GetAssember(fun);
+                    break;
+                case VarExpr varExpr:
+                    this.VariableAsm(varExpr); break;
                 default:
                     throw new NotImplementedException($"Assembler generation not implemented for {astNode.type.typeName}");
             }
@@ -435,17 +442,27 @@ namespace ll.assembler
 
         private void ReturnStatementAsm(ReturnStatement returnStatement)
         {
-            this.depth += 1;
-
+            this.GetAssember(returnStatement.returnValue);
             this.WriteLine("movq %rbp, %rsp");
             this.WriteLine("popq %rbp");
             this.WriteLine("ret");
-
-            this.depth -= 1;
         }
 
         private void FunctionDefinitionAsm(FunctionDefinition funDef)
         {
+            FunctionAsm funAsm;
+
+            if (this.functionMap.ContainsKey(funDef.name))
+                funAsm = this.functionMap[funDef.name];
+            else
+            {
+                funAsm = new FunctionAsm(funDef.name);
+                this.functionMap.Add(funDef.name, funAsm);
+                this.FillVariableMap(funAsm, funDef);
+            }
+
+            this.variableMap = funAsm.variableMap;
+
             this.depth += 1;
 
             this.WriteLine($".global {funDef.name}");
@@ -462,29 +479,53 @@ namespace ll.assembler
 
             int offSet = funDef.GetLocalVariables() * 8;
 
-            if(offSet > 0)
+            if (offSet > 0)
                 this.WriteLine($"subq ${offSet}, %rsp");
-            
-            // TODO move arguments from registers onto stack; save position in variableMap
-            offSet = -8;
-            for(int i = 0; i < this.usedIntegerRegisters; i++)
-            {
 
+            // push all argument-registers onto the stack
+            this.ArgumentTypeCount(funDef.args, out int intArgCount, out int doubleArgCount);
+            int index = Math.Min(intArgCount, this.integerRegisters.Length);
+            int lastFound = -1;
+
+            for (int i = 0; i < index; i++)
+            {
+                this.WriteLine($"pushq {this.integerRegisters[i]}");
+                offSet -= 8;
+                lastFound = this.GetNextIntArg(funDef.args, lastFound);
+                this.variableMap[funDef.args[lastFound].name] = offSet;
             }
 
-            // TODO generate the code for each node in the body of the function
+            index = Math.Min(doubleArgCount, this.doubleRegisters.Length);
+            lastFound = -1;
+
+            for (int i = 0; i < index; i++)
+            {
+                this.WriteLine($"movq {this.doubleRegisters[i]}, %rax");
+                this.WriteLine($"pushq %rax");
+                offSet -= 8;
+                lastFound = this.GetNextDoubleArg(funDef.args, lastFound);
+                this.variableMap[funDef.args[lastFound].name] = offSet;
+            }
+
+            this.GetAssember(funDef.body);
 
             this.depth -= 1;
 
-            this.variableMap = this.oldMap;
         }
 
         private void FunctionCallAsm(FunctionCall functionCall)
         {
-            Dictionary<string, int> newMap = new Dictionary<string, int>();
             FunctionDefinition funDef = IAST.funs[functionCall.name];
-            this.usedDoubleRegisters = 0;
-            this.usedIntegerRegisters = 0;
+            FunctionAsm functionAsm;
+
+            if (this.functionMap.ContainsKey(functionCall.name))
+                functionAsm = this.functionMap[functionCall.name];
+            else
+            {
+                functionAsm = new FunctionAsm(functionCall.name);
+                this.functionMap.Add(functionCall.name, functionAsm);
+
+            }
 
             bool doesOverflow = this.DoesOverflowRegisters(
                 functionCall.args,
@@ -506,7 +547,7 @@ namespace ll.assembler
                         case IntType intType:
                             if (i >= integerOverflowPosition)
                             {
-                                newMap.Add(funDef.args[i].name, rbpOffset);
+                                functionAsm.variableMap[funDef.args[i].name] = rbpOffset;
                                 rbpOffset += 8;
                             }
 
@@ -514,7 +555,7 @@ namespace ll.assembler
                         case DoubleType doubleType:
                             if (i >= doubleOverflowPosition)
                             {
-                                newMap.Add(funDef.args[i].name, rbpOffset);
+                                functionAsm.variableMap[funDef.args[i].name] = rbpOffset;
                                 rbpOffset += 8;
                             }
 
@@ -522,7 +563,7 @@ namespace ll.assembler
                         case BooleanType booleanType:
                             if (i >= integerOverflowPosition)
                             {
-                                newMap.Add(funDef.args[i].name, rbpOffset);
+                                functionAsm.variableMap[funDef.args[i].name] = rbpOffset;
                                 rbpOffset += 8;
                             }
 
@@ -542,8 +583,8 @@ namespace ll.assembler
                 {
                     this.GetAssember(functionCall.args[i]);
 
-                    this.WriteLine($"movq %rax, {this.integerRegisters[usedIntegerRegisters]}");
-                    usedIntegerRegisters++;
+                    this.WriteLine($"movq %rax, {this.integerRegisters[functionAsm.usedIntegerRegisters]}");
+                    functionAsm.usedIntegerRegisters++;
                 }
             }
 
@@ -554,7 +595,7 @@ namespace ll.assembler
                 {
                     this.GetAssember(functionCall.args[i]);
 
-                    this.WriteLine($"movq %rax, {newMap[funDef.args[i].name] - 16}(%rsp)");
+                    this.WriteLine($"movq %rax, {functionAsm.variableMap[funDef.args[i].name] - 16}(%rsp)");
                 }
             }
 
@@ -565,7 +606,7 @@ namespace ll.assembler
                 {
                     this.GetAssember(functionCall.args[i]);
 
-                    this.WriteLine($"movq %xmm0, {newMap[funDef.args[i].name] - 16}(%rsp)");
+                    this.WriteLine($"movq %xmm0, {functionAsm.variableMap[funDef.args[i].name] - 16}(%rsp)");
                 }
             }
 
@@ -578,21 +619,29 @@ namespace ll.assembler
 
                     this.WriteLine($"movq %xmm0, %rax");
                     this.WriteLine($"pushq %rax");
-                    usedDoubleRegisters++;
+                    functionAsm.usedDoubleRegisters++;
                 }
             }
 
             // move the previously pushed double arguments into the double registers
-            for (int i = 0; i < usedDoubleRegisters; i++)
+            for (int i = 0; i < functionAsm.usedDoubleRegisters; i++)
             {
                 this.WriteLine("popq %rax");
                 this.WriteLine($"movq %rax, {doubleRegisters[i]}");
             }
 
-            this.oldMap = this.variableMap;
-            this.variableMap = newMap;
-
             this.WriteLine($"call {functionCall.name}");
+        }
+
+        private void VariableAsm(VarExpr varExpr)
+        {
+            if(varExpr.type is DoubleType)
+                this.WriteLine($"movq {this.variableMap[varExpr.name]}(%rbp), %xmm0");
+            
+            if(varExpr.type is BooleanType || varExpr.type is IntType)
+                this.WriteLine($"movq {this.variableMap[varExpr.name]}(%rbp), %rax");
+            else
+                throw new ArgumentException($"Varibale type {varExpr.type.typeName} is not supported");
         }
 
         private void WriteLine(string op)
@@ -601,11 +650,19 @@ namespace ll.assembler
                 this.sb.Append(this.indent);
 
             var indexOfSpace = op.IndexOf(' ');
-            var first = op.Substring(0, indexOfSpace);
-            first = first.PadRight(7, ' ');
+            
+            if (indexOfSpace >= 0)
+            {
+                var first = op.Substring(0, indexOfSpace);
+                first = first.PadRight(7, ' ');
 
-            this.sb.Append(first);
-            this.sb.Append(op.Substring(indexOfSpace));
+                this.sb.Append(first);
+                this.sb.Append(op.Substring(indexOfSpace));
+            }
+            else
+            {
+                this.sb.Append(op);
+            }
 
             this.sb.Append("\n");
         }
@@ -666,7 +723,7 @@ namespace ll.assembler
                     if (usedInt > this.integerRegisters.Length)
                     {
                         result = true;
-                        integerOverflowPosition = integerOverflowPosition == -1 ? i : integerOverflowPosition;
+                        integerOverflowPosition = integerOverflowPosition == Int32.MaxValue ? i : integerOverflowPosition;
                     }
                 }
 
@@ -677,12 +734,135 @@ namespace ll.assembler
                     if (usedDouble > this.doubleRegisters.Length)
                     {
                         result = true;
-                        doubleOverflowPosition = doubleOverflowPosition == -1 ? i : doubleOverflowPosition;
+                        doubleOverflowPosition = doubleOverflowPosition == Int32.MaxValue ? i : doubleOverflowPosition;
                     }
                 }
             }
 
             return result;
+        }
+
+        private bool DoesOverflowRegistersFunDef(List<InstantiationStatement> args, out int integerOverflowPosition, out int doubleOverflowPosition)
+        {
+            bool result = false;
+            integerOverflowPosition = Int32.MaxValue;
+            doubleOverflowPosition = Int32.MaxValue;
+            int usedInt = 0;
+            int usedDouble = 0;
+
+            for (int i = 0; i < args.Count; i++)
+            {
+                if (args[i].type is IntType || args[i].type is BooleanType)
+                {
+                    usedInt += 1;
+
+                    if (usedInt > this.integerRegisters.Length)
+                    {
+                        result = true;
+                        integerOverflowPosition = integerOverflowPosition == Int32.MaxValue ? i : doubleOverflowPosition;
+                    }
+                }
+
+                if (args[i].type is DoubleType)
+                {
+                    usedDouble += 1;
+
+                    if (usedDouble > this.doubleRegisters.Length)
+                    {
+                        result = true;
+                        doubleOverflowPosition = doubleOverflowPosition == Int32.MaxValue ? i : doubleOverflowPosition;
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        private void FillVariableMap(FunctionAsm functionAsm, FunctionDefinition functionDefinition)
+        {
+            bool doesOverflow = this.DoesOverflowRegistersFunDef(
+                functionDefinition.args,
+                out int integerOverflowPosition,
+                out int doubleOverflowPosition
+            );
+
+            // if necessary reserve space for overflown arguments on the stack
+            if (doesOverflow)
+            {
+                int min = Math.Min(integerOverflowPosition, doubleOverflowPosition);
+                int rbpOffset = +16;
+
+                // calculate the position of the overflown arguments on the stack
+                for (int i = functionDefinition.args.Count - 1; i >= min; i--)
+                {
+                    switch (functionDefinition.args[i].type)
+                    {
+                        case IntType intType:
+                            if (i >= integerOverflowPosition)
+                            {
+                                functionAsm.variableMap.Add(functionDefinition.args[i].name, rbpOffset);
+                                rbpOffset += 8;
+                            }
+
+                            break;
+                        case DoubleType doubleType:
+                            if (i >= doubleOverflowPosition)
+                            {
+                                functionAsm.variableMap.Add(functionDefinition.args[i].name, rbpOffset);
+                                rbpOffset += 8;
+                            }
+
+                            break;
+                        case BooleanType booleanType:
+                            if (i >= integerOverflowPosition)
+                            {
+                                functionAsm.variableMap.Add(functionDefinition.args[i].name, rbpOffset);
+                                rbpOffset += 8;
+                            }
+
+                            break;
+                        default:
+                            throw new ArgumentException($"Unknown type {functionDefinition.args[i].type.typeName}");
+                    }
+                }
+            }
+        }
+
+        private void ArgumentTypeCount(List<InstantiationStatement> args, out int intArgCount, out int doubleArgCount)
+        {
+            intArgCount = 0;
+            doubleArgCount = 0;
+
+            foreach (var arg in args)
+            {
+                if (arg.type is DoubleType)
+                    doubleArgCount++;
+
+                if (arg.type is BooleanType || arg.type is IntType)
+                    intArgCount++;
+            }
+        }
+
+        private int GetNextIntArg(List<InstantiationStatement> args, int startIndex)
+        {
+            for (int i = startIndex + 1; i < args.Count; i++)
+            {
+                if (args[i].type is IntType || args[i].type is BooleanType)
+                    return i;
+            }
+
+            throw new ArgumentOutOfRangeException("Expected to find more integer arguments");
+        }
+
+        private int GetNextDoubleArg(List<InstantiationStatement> args, int startIndex)
+        {
+            for (int i = startIndex + 1; i < args.Count; i++)
+            {
+                if (args[i].type is DoubleType)
+                    return i;
+            }
+
+            throw new ArgumentOutOfRangeException("Expected to find more double arguments");
         }
     }
 }

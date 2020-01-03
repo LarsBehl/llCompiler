@@ -77,27 +77,20 @@ namespace ll
                 if (string.IsNullOrEmpty(text))
                     break;
 
-                try
-                {
-                    var inputStream = new AntlrInputStream(text);
-                    var lexer = new llLexer(inputStream);
-                    var tokenStream = new CommonTokenStream(lexer);
-                    var parser = new llParser(tokenStream);
-                    var tmp = new FunctionDefinitionVisitor().VisitCompileUnit(parser.compileUnit());
+                var inputStream = new AntlrInputStream(text);
+                var lexer = new llLexer(inputStream);
+                var tokenStream = new CommonTokenStream(lexer);
+                var parser = new llParser(tokenStream);
+                var tmp = new FunctionDefinitionVisitor().VisitCompileUnit(parser.compileUnit());
 
-                    inputStream = new AntlrInputStream(text);
-                    lexer = new llLexer(inputStream);
-                    tokenStream = new CommonTokenStream(lexer);
-                    parser = new llParser(tokenStream);
-                    var ast = new BuildAstVisitor().VisitCompileUnit(parser.compileUnit());
-                    var assemblerGenerator = new GenAssembler();
-                    assemblerGenerator.GenerateAssembler(ast);
-                    assemblerGenerator.PrintAssember();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                }
+                inputStream = new AntlrInputStream(text);
+                lexer = new llLexer(inputStream);
+                tokenStream = new CommonTokenStream(lexer);
+                parser = new llParser(tokenStream);
+                var ast = new BuildAstVisitor().VisitCompileUnit(parser.compileUnit());
+                var assemblerGenerator = new GenAssembler();
+                assemblerGenerator.GenerateAssembler(ast);
+                assemblerGenerator.PrintAssember();
             }
         }
 
@@ -105,7 +98,7 @@ namespace ll
         {
             if (args.Length > 0)
             {
-                if(args[0] == "-i")
+                if (args[0] == "-i")
                     Program.InterpreterMode();
                 else
                     Console.WriteLine($"unknown flag {args[0]}");
