@@ -3,6 +3,8 @@ using System.Text;
 using System.Collections.Generic;
 using ll.AST;
 using ll.type;
+using System.Runtime.InteropServices;
+using System.IO;
 
 namespace ll.assembler
 {
@@ -74,25 +76,53 @@ namespace ll.assembler
             }
         }
 
-        private void InitializeFile()
+        public void GenerateAssember(IAST astNode)
+        {
+            this.GetAssember(astNode);
+            this.PrintAssember();
+        }
+
+        private void InitializeFile(string fileName)
         {
             this.depth += 1;
 
-            this.WriteLine(".file testFile");
+            this.WriteLine($".file \"{fileName}\"");
             this.WriteLine(".text");
 
             this.depth -= 1;
         }
 
-        public void GenerateAssembler(IAST astNode)
+        public void WriteToFile(string filePath, IAST astNode)
         {
-            //this.InitializeFile();
-            this.GetAssember(astNode);
-        }
+            int indexOfSlash;
+            string fileName;
+            
+            if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                indexOfSlash = filePath.IndexOf('\\');
+            else
+                indexOfSlash = filePath.IndexOf('/');
+            
+            if(indexOfSlash == -1)
+                fileName = filePath;
+            else
+                fileName = filePath.Substring(indexOfSlash + 1, filePath.Length - (indexOfSlash + 1));
+            this.InitializeFile(fileName);
 
-        public void WriteToFile(IAST astNode)
-        {
-            throw new NotImplementedException();
+            this.GetAssember(astNode);
+
+            string fileContent = this.sb.ToString();
+
+            if(this.doubleNumbers.Length > 0)
+                fileContent = fileContent + this.doubleNumbers.ToString();
+            
+            fileName = fileName.Substring(0, fileName.IndexOf(".ll")) + ".S";
+
+            using(StreamWriter sw = File.CreateText(fileName))
+            {
+                sw.Write(fileContent);
+            }
+
+            Console.WriteLine(fileContent);
         }
 
         private void IntLitAsm(IntLit intLit)
@@ -515,7 +545,7 @@ namespace ll.assembler
 
         private void FunctionCallAsm(FunctionCall functionCall)
         {
-            FunctionDefinition funDef = IAST.funs[functionCall.name];
+            FunctionDefinition funDef = IAST.funs.GetValueOrDefault(functionCall.name);
             FunctionAsm functionAsm;
 
             if (this.functionMap.ContainsKey(functionCall.name))
@@ -576,8 +606,9 @@ namespace ll.assembler
                 this.WriteLine($"subq ${rbpOffset - 16}, %rsp");
             }
 
+            int index = Math.Min(functionCall.args.Count, integerOverflowPosition);
             // move integer/boolean arguments into registers until they are full
-            for (int i = 0; i < integerOverflowPosition; i++)
+            for (int i = 0; i < index; i++)
             {
                 if (functionCall.args[i].type is IntType || functionCall.args[i].type is BooleanType)
                 {
@@ -611,7 +642,7 @@ namespace ll.assembler
             }
 
             // calculate the rest of the double arguments and push them on the stack
-            for (int i = Math.Min(functionCall.args.Count - 1, doubleOverflowPosition); i >= 0; i++)
+            for (int i = Math.Min(functionCall.args.Count - 1, doubleOverflowPosition); i >= 0; i--)
             {
                 if (functionCall.args[i].type is DoubleType)
                 {

@@ -66,9 +66,9 @@ namespace ll
             }
         }
 
-        static void CompilerMode()
+        static void InteractiveCompilerMode()
         {
-            Console.WriteLine("Running in Compilermode\n");
+            Console.WriteLine("Running in interactive Compilermode\n");
             while (true)
             {
                 Console.Write("> ");
@@ -89,9 +89,28 @@ namespace ll
                 parser = new llParser(tokenStream);
                 var ast = new BuildAstVisitor().VisitCompileUnit(parser.compileUnit());
                 var assemblerGenerator = new GenAssembler();
-                assemblerGenerator.GenerateAssembler(ast);
-                assemblerGenerator.PrintAssember();
+                assemblerGenerator.GenerateAssember(ast);
             }
+        }
+
+        static void CompilerMode(string inputFile)
+        {
+            Console.WriteLine($"Compiling {inputFile}...");
+
+            var inputStream = new AntlrFileStream(inputFile);
+            var lexer = new llLexer(inputStream);
+            var tokenStream = new CommonTokenStream(lexer);
+            var parser = new llParser(tokenStream);
+            var tmp = new FunctionDefinitionVisitor().Visit(parser.compileUnit());
+
+            inputStream = new AntlrFileStream(inputFile);
+            lexer = new llLexer(inputStream);
+            tokenStream = new CommonTokenStream(lexer);
+            parser = new llParser(tokenStream);
+            var ast = new BuildAstVisitor().Visit(parser.compileUnit());
+            var assemblerGenerator = new GenAssembler();
+
+            assemblerGenerator.WriteToFile(inputFile, ast);
         }
 
         static void Main(string[] args)
@@ -100,12 +119,14 @@ namespace ll
             {
                 if (args[0] == "-i")
                     Program.InterpreterMode();
+                if(args[0] == "-c" && args.Length > 1)
+                    Program.CompilerMode(args[1]);
                 else
                     Console.WriteLine($"unknown flag {args[0]}");
             }
             else
             {
-                Program.CompilerMode();
+                Program.InteractiveCompilerMode();
             }
         }
     }

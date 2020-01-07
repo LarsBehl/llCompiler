@@ -1,4 +1,4 @@
-f(x: int): bool
+f(x: int): int
 {
     return x;
 }
