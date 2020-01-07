@@ -22,6 +22,7 @@ namespace ll.assembler
         private Dictionary<double, int> doubleMap = new Dictionary<double, int>();
         private Dictionary<string, int> variableMap;
         private int localVariablePointer = 0;
+        private int localVariableCount = 0;
 
         public void PrintAssember()
         {
@@ -71,6 +72,10 @@ namespace ll.assembler
                     break;
                 case VarExpr varExpr:
                     this.VariableAsm(varExpr); break;
+                case AssignStatement assignStatement:
+                    this.AssignAsm(assignStatement); break;
+                case InstantiationStatement instantiationStatement:
+                    this.InstantiationStatementAsm(instantiationStatement); break;
                 default:
                     throw new NotImplementedException($"Assembler generation not implemented for {astNode.type.typeName}");
             }
@@ -96,13 +101,13 @@ namespace ll.assembler
         {
             int indexOfSlash;
             string fileName;
-            
-            if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 indexOfSlash = filePath.IndexOf('\\');
             else
                 indexOfSlash = filePath.IndexOf('/');
-            
-            if(indexOfSlash == -1)
+
+            if (indexOfSlash == -1)
                 fileName = filePath;
             else
                 fileName = filePath.Substring(indexOfSlash + 1, filePath.Length - (indexOfSlash + 1));
@@ -112,12 +117,12 @@ namespace ll.assembler
 
             string fileContent = this.sb.ToString();
 
-            if(this.doubleNumbers.Length > 0)
+            if (this.doubleNumbers.Length > 0)
                 fileContent = fileContent + this.doubleNumbers.ToString();
-            
+
             fileName = fileName.Substring(0, fileName.IndexOf(".ll")) + ".S";
 
-            using(StreamWriter sw = File.CreateText(fileName))
+            using (StreamWriter sw = File.CreateText(fileName))
             {
                 sw.Write(fileContent);
             }
@@ -492,6 +497,7 @@ namespace ll.assembler
             }
 
             this.variableMap = funAsm.variableMap;
+            this.localVariablePointer = 0;
 
             this.depth += 1;
 
@@ -507,10 +513,11 @@ namespace ll.assembler
             this.WriteLine("pushq %rbp");
             this.WriteLine("movq %rsp, %rbp");
 
-            int offSet = funDef.GetLocalVariables() * 8;
+            this.localVariableCount = funDef.GetLocalVariables();
+            int offSet = this.localVariableCount * -8;
 
-            if (offSet > 0)
-                this.WriteLine($"subq ${offSet}, %rsp");
+            if (offSet < 0)
+                this.WriteLine($"addq ${offSet}, %rsp");
 
             // push all argument-registers onto the stack
             this.ArgumentTypeCount(funDef.args, out int intArgCount, out int doubleArgCount);
@@ -666,13 +673,41 @@ namespace ll.assembler
 
         private void VariableAsm(VarExpr varExpr)
         {
-            if(varExpr.type is DoubleType)
+            if (varExpr.type is DoubleType)
                 this.WriteLine($"movq {this.variableMap[varExpr.name]}(%rbp), %xmm0");
-            
-            if(varExpr.type is BooleanType || varExpr.type is IntType)
+
+            if (varExpr.type is BooleanType || varExpr.type is IntType)
                 this.WriteLine($"movq {this.variableMap[varExpr.name]}(%rbp), %rax");
             else
                 throw new ArgumentException($"Varibale type {varExpr.type.typeName} is not supported");
+        }
+
+        private void AssignAsm(AssignStatement assignStatement)
+        {
+            if (!this.variableMap.ContainsKey(assignStatement.variable.name))
+            {
+                if (++this.localVariablePointer > this.localVariableCount)
+                    throw new IndexOutOfRangeException("Tried to create more local variables than the detected amount");
+                this.variableMap.Add(assignStatement.variable.name, this.localVariablePointer * (-8));
+            }
+
+            this.GetAssember(assignStatement.value);
+
+            string register = "";
+
+            if (assignStatement.value.type is DoubleType)
+                register = "%xmm0";
+            if (assignStatement.value.type is IntType || assignStatement.value.type is BooleanType)
+                register = "%rax";
+            else
+                throw new ArgumentException($"Unknown type {assignStatement.value.type.typeName}");
+
+            this.WriteLine($"movq {register}, {this.variableMap[assignStatement.variable.name]}(%rbp)");
+        }
+
+        private void InstantiationStatementAsm(InstantiationStatement instantiationStatement)
+        {
+            this.variableMap.Add(instantiationStatement.name, ++this.localVariablePointer * (-8));
         }
 
         private void WriteLine(string op)
@@ -681,7 +716,7 @@ namespace ll.assembler
                 this.sb.Append(this.indent);
 
             var indexOfSpace = op.IndexOf(' ');
-            
+
             if (indexOfSpace >= 0)
             {
                 var first = op.Substring(0, indexOfSpace);
