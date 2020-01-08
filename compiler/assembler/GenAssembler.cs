@@ -80,6 +80,14 @@ namespace ll.assembler
                     this.WhileStatementAsm(whileStatement); break;
                 case IfStatement ifStatement:
                     this.IfStatementAsm(ifStatement); break;
+                case AddAssignStatement addAssign:
+                    this.AddAsignAsm(addAssign); break;
+                case SubAssignStatement subAssign:
+                    this.SubAssignAsm(subAssign); break;
+                case MultAssignStatement multAssign:
+                    this.MultAssignAsm(multAssign); break;
+                case DivAssignStatement divAssign:
+                    this.DivAssignAsm(divAssign); break;
                 default:
                     throw new NotImplementedException($"Assembler generation not implemented for {astNode.type.typeName}");
             }
@@ -780,6 +788,89 @@ namespace ll.assembler
             this.depth -= 1;
             this.WriteLine($".L{this.labelCount++}:");
             this.depth += 1;
+        }
+
+        private void AddAsignAsm(AddAssignStatement addAssignStatement)
+        {
+            this.GetAssember(addAssignStatement.right);
+
+            switch (addAssignStatement.left.type)
+            {
+                case IntType intType:
+                    this.WriteLine($"addq %rax, {this.variableMap[addAssignStatement.left.name]}(%rbp)"); break;
+                case DoubleType doubleType:
+                    if (addAssignStatement.right.type is IntType)
+                        this.WriteLine("cvtsi2sdq %rax, %xmm0");
+
+                    this.WriteLine($"addsd %xmm0, {this.variableMap[addAssignStatement.left.name]}(%rbp)");
+                    break;
+                default:
+                    throw new ArgumentException($"AddAssign Statement not compatible with type \"{addAssignStatement.left.type.typeName}\"");
+            }
+        }
+
+        private void SubAssignAsm(SubAssignStatement subAssignStatement)
+        {
+            this.GetAssember(subAssignStatement.right);
+
+            switch (subAssignStatement.left.type)
+            {
+                case IntType intType:
+                    this.WriteLine($"subq %rax, {this.variableMap[subAssignStatement.left.name]}(%rbp)"); break;
+                case DoubleType doubleType:
+                    if (subAssignStatement.right.type is IntType)
+                        this.WriteLine("cvtsi2sdq %rax, %xmm0");
+
+                    this.WriteLine($"subsd %xmm0, {this.variableMap[subAssignStatement.left.name]}(%rbp)");
+                    break;
+                default:
+                    throw new ArgumentException($"SubAssign Statement not compatible with type \"{subAssignStatement.left.type.typeName}\"");
+            }
+        }
+
+        private void MultAssignAsm(MultAssignStatement multAssignStatement)
+        {
+            this.GetAssember(multAssignStatement.right);
+
+            switch (multAssignStatement.left.type)
+            {
+                case IntType intType:
+                    this.WriteLine($"imulq {this.variableMap[multAssignStatement.left.name]}(%rbp), %rax");
+                    this.WriteLine($"movq %rax, {this.variableMap[multAssignStatement.left.name]}(%rbp)");
+                    break;
+                case DoubleType doubleType:
+                    if (multAssignStatement.right.type is IntType)
+                        this.WriteLine("cvtsi2sdq %rax, %xmm0");
+
+                    this.WriteLine($"mulsd {this.variableMap[multAssignStatement.left.name]}(%rbp), %xmm0");
+                    this.WriteLine($"movq %xmm0, {this.variableMap[multAssignStatement.left.name]}(%rbp)");
+                    break;
+                default:
+                    throw new ArgumentException($"MultAssign Statment not compatible with type \"{multAssignStatement.left.type.typeName}\"");
+            }
+        }
+
+        private void DivAssignAsm(DivAssignStatement divAssignStatement)
+        {
+            this.GetAssember(divAssignStatement.right);
+
+            switch (divAssignStatement.left.type)
+            {
+                case IntType intType:
+                    this.WriteLine("movq %rax, %rbx");
+                    this.WriteLine("movq $0, %rdx");
+                    this.WriteLine($"movq {this.variableMap[divAssignStatement.left.name]}(%rbp), %rax");
+                    this.WriteLine($"idivq %rbx");
+                    this.WriteLine($"movq %rax, {this.variableMap[divAssignStatement.left.name]}(%rbp)");
+                    break;
+                case DoubleType doubleType:
+                    if (divAssignStatement.right.type is IntType)
+                        this.WriteLine("cvtsi2sdq %rax, %xmm0");
+
+                    this.WriteLine($"divsd %xmm0, {this.variableMap[divAssignStatement.left.name]}(%rbp)"); break;
+                default:
+                    throw new ArgumentException($"DivAssign Statement not compatible with type \"{divAssignStatement.left.type.typeName}\"");
+            }
         }
 
         private void WriteLine(string op)
