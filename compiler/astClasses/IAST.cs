@@ -67,7 +67,7 @@ namespace ll.AST
                             break;
                         }
 
-                        if(comp is IfStatement && !(comp.type is IfStatementType))
+                        if(comp is IfStatement)
                         {
                             resultBlock = comp.Eval();
                             if(resultBlock == null)
