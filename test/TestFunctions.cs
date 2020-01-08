@@ -80,5 +80,24 @@ namespace ll.test
             }
         }
         
+        [Test]
+        public void TestFunctions_2()
+        {
+            llParser parser;
+            StreamReader reader = new StreamReader("../../../programs/TestFile3.ll");
+            try{
+                string input = reader.ReadToEnd();
+
+                parser = Setup(input);
+                funDefVisitor.Visit(parser.program());
+
+                parser = Setup(input);
+                Assert.Throws<ArgumentException>(() => visitor.Visit(parser.program()));
+            }
+            catch(IOException e)
+            {
+                Console.WriteLine(e);
+            }
+        }
     }
 }
