@@ -76,6 +76,10 @@ namespace ll.assembler
                     this.AssignAsm(assignStatement); break;
                 case InstantiationStatement instantiationStatement:
                     this.InstantiationStatementAsm(instantiationStatement); break;
+                case WhileStatement whileStatement:
+                    this.WhileStatementAsm(whileStatement); break;
+                case IfStatement ifStatement:
+                    this.IfStatementAsm(ifStatement); break;
                 default:
                     throw new NotImplementedException($"Assembler generation not implemented for {astNode.type.typeName}");
             }
@@ -673,6 +677,7 @@ namespace ll.assembler
 
         private void VariableAsm(VarExpr varExpr)
         {
+            // move the variables value from the stack into the type specific registers
             if (varExpr.type is DoubleType)
                 this.WriteLine($"movq {this.variableMap[varExpr.name]}(%rbp), %xmm0");
 
@@ -684,13 +689,17 @@ namespace ll.assembler
 
         private void AssignAsm(AssignStatement assignStatement)
         {
+            // if it is the first time the variable is mentioned in this context
             if (!this.variableMap.ContainsKey(assignStatement.variable.name))
             {
+                // and there are still more local variables in this function
                 if (++this.localVariablePointer > this.localVariableCount)
                     throw new IndexOutOfRangeException("Tried to create more local variables than the detected amount");
+                // map the next empty spot of the reserved stack to the given variable
                 this.variableMap.Add(assignStatement.variable.name, this.localVariablePointer * (-8));
             }
 
+            // generate the code of the variables value
             this.GetAssember(assignStatement.value);
 
             string register = "";
@@ -702,12 +711,75 @@ namespace ll.assembler
             else
                 throw new ArgumentException($"Unknown type {assignStatement.value.type.typeName}");
 
+            // save the value of the variable on the stack
             this.WriteLine($"movq {register}, {this.variableMap[assignStatement.variable.name]}(%rbp)");
         }
 
         private void InstantiationStatementAsm(InstantiationStatement instantiationStatement)
         {
+            // map the next empty reserved spot on the stack for the given variable
             this.variableMap.Add(instantiationStatement.name, ++this.localVariablePointer * (-8));
+        }
+
+        private void WhileStatementAsm(WhileStatement whileStatement)
+        {
+            this.WriteLine($"jmp .L{this.labelCount + 1}");
+            // create a label for the body
+            this.depth -= 1;
+            this.WriteLine($".L{this.labelCount++}:");
+            this.depth += 1;
+
+            // generate the code for the body
+            this.GetAssember(whileStatement.body);
+
+            // create the label for the condition
+            this.depth -= 1;
+            this.WriteLine($".L{this.labelCount++}:");
+            this.depth += 1;
+
+            // generate the code for the condition
+            this.GetAssember(whileStatement.condition);
+
+            // if the value of the condition is true, jump to the body
+            this.WriteLine("cmpq $1, %rax");
+            this.WriteLine($"je .L{this.labelCount - 2}");
+        }
+
+        private void IfStatementAsm(IfStatement ifStatement)
+        {
+            // generate the code of the condition
+            this.GetAssember(ifStatement.cond);
+
+            // if the condition is true
+            this.WriteLine("cmpq $1, %rax");
+            // jump to the label of the if clause
+            this.WriteLine($"je .L{this.labelCount + 1}");
+
+            // create a label for the else case
+            this.depth -= 1;
+            this.WriteLine($".L{this.labelCount++}:");
+            this.depth += 1;
+
+            // if there is an else case
+            if (ifStatement.elseBody != null)
+                // generate the assembler for the else case
+                this.GetAssember(ifStatement.elseBody);
+
+            // jump to the end of the if statement
+            this.WriteLine($"jmp .L{this.labelCount + 1}");
+
+            // create a label for the if case
+            this.depth -= 1;
+            this.WriteLine($".L{this.labelCount++}:");
+            this.depth += 1;
+
+            // generate the assembler for the if case
+            this.GetAssember(ifStatement.ifBody);
+
+            // create a label for the end of the if statement
+            this.depth -= 1;
+            this.WriteLine($".L{this.labelCount++}:");
+            this.depth += 1;
         }
 
         private void WriteLine(string op)
