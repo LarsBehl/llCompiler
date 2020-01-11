@@ -208,7 +208,7 @@ namespace ll.assembler
                     this.WriteLine("pushq %rax");
                     this.GetAssember(subExpr.left);
 
-                    if (subExpr.left is IntLit)
+                    if (subExpr.left.type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
                     this.WriteLine("popq %rax");
@@ -221,7 +221,7 @@ namespace ll.assembler
                     this.WriteLine("pushq %rax");
                     this.GetAssember(subExpr.left);
 
-                    if (subExpr.left is DoubleLit)
+                    if (subExpr.left.type is DoubleType)
                     {
                         this.WriteLine("popq %rax");
                         this.WriteLine("cvtsi2sdq %rax, %xmm1");
@@ -261,7 +261,7 @@ namespace ll.assembler
                     this.WriteLine("pushq %rax");
                     this.GetAssember(multExpr.left);
 
-                    if (multExpr.left is DoubleLit)
+                    if (multExpr.left.type is DoubleType)
                     {
                         this.WriteLine("popq %rax");
                         this.WriteLine("cvtsi2sdq %rax, %xmm1");
@@ -288,7 +288,7 @@ namespace ll.assembler
                     this.WriteLine("pushq %rax");
                     this.GetAssember(divExpr.left);
 
-                    if (divExpr.left is IntLit)
+                    if (divExpr.left.type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
                     this.WriteLine("popq %rax");
@@ -301,7 +301,7 @@ namespace ll.assembler
                     this.WriteLine("pushq %rax");
                     this.GetAssember(divExpr.left);
 
-                    if (divExpr.left is DoubleLit)
+                    if (divExpr.left.type is DoubleType)
                     {
                         this.WriteLine("popq %rax");
                         this.WriteLine("cvtsi2sdq %rax, %xmm1");
@@ -395,7 +395,11 @@ namespace ll.assembler
 
                     this.WriteLine("popq %rax");
                     this.WriteLine("movq %rax, %xmm1");
-                    this.WriteLine("ucomisd %xmm1, %xmm0");
+
+                    if (lessExpr.left.type is IntType)
+                        this.WriteLine("ucomisd %xmm0, %xmm1");
+                    else
+                        this.WriteLine("ucomisd %xmm1, %xmm0");
 
                     if (lessExpr.equal)
                         this.WriteLine("setbe %al");
@@ -413,7 +417,7 @@ namespace ll.assembler
                     {
                         this.WriteLine("popq %rax");
                         this.WriteLine("cvtsi2sdq %rax, %xmm1");
-                        this.WriteLine("ucomisd %xmm1, %xmm0");
+                        this.WriteLine("ucomisd %xmm0, %xmm1");
 
                         if (lessExpr.equal)
                             this.WriteLine("setbe %al");
@@ -450,8 +454,13 @@ namespace ll.assembler
 
                     this.GetAssember(equalityExpr.left);
 
-                    if (equalityExpr.left.type is DoubleType)
-                        this.WriteLine("movq %xmm0, %rax");
+                    if (equalityExpr.left.type is IntType)
+                        this.WriteLine("cvtsi2sdq %rax, %xmm0");
+
+                    this.WriteLine("popq %rax");
+                    this.WriteLine("movq %rax, %xmm1");
+                    this.WriteLine("ucomisd %xmm0, %xmm1");
+                    this.WriteLine("setz %al");
 
                     break;
                 case IntType intType:
@@ -464,19 +473,20 @@ namespace ll.assembler
                     {
                         this.WriteLine("popq %rax");
                         this.WriteLine("cvtsi2sdq %rax, %xmm1");
-                        this.WriteLine("movq %xmm1, %rax");
-                        this.WriteLine("pushq %rax");
-                        this.WriteLine("movq %xmm0, %rax");
+                        this.WriteLine("ucomisd %xmm0, %xmm1");
+                        this.WriteLine("setz %al");
+                    }
+                    else
+                    {
+                        this.WriteLine("popq %rbx");
+                        this.WriteLine("cmpq %rbx, %rax");
+                        this.WriteLine("sete %al");
                     }
 
                     break;
                 default:
                     throw new InvalidOperationException($"Can not use \"greater\" operator with {equalityExpr.right.type}");
             }
-
-            this.WriteLine("popq %rbx");
-            this.WriteLine("cmpq %rbx, %rax");
-            this.WriteLine("sete %al");
 
             this.WriteLine("movzbl %al, %rax");
         }
@@ -691,8 +701,6 @@ namespace ll.assembler
 
             if (varExpr.type is BooleanType || varExpr.type is IntType)
                 this.WriteLine($"movq {this.variableMap[varExpr.name]}(%rbp), %rax");
-            else
-                throw new ArgumentException($"Varibale type {varExpr.type.typeName} is not supported");
         }
 
         private void AssignAsm(AssignStatement assignStatement)
@@ -712,12 +720,17 @@ namespace ll.assembler
 
             string register = "";
 
-            if (assignStatement.value.type is DoubleType)
-                register = "%xmm0";
-            if (assignStatement.value.type is IntType || assignStatement.value.type is BooleanType)
+            if (assignStatement.variable.type is IntType)
                 register = "%rax";
-            else
-                throw new ArgumentException($"Unknown type {assignStatement.value.type.typeName}");
+
+            if (assignStatement.variable.type is DoubleType)
+            {
+                if (assignStatement.value.type is IntType)
+                    this.WriteLine("cvtsi2sdq %rax, %xmm0");
+
+                register = "%xmm0";
+            }
+
 
             // save the value of the variable on the stack
             this.WriteLine($"movq {register}, {this.variableMap[assignStatement.variable.name]}(%rbp)");
@@ -802,7 +815,11 @@ namespace ll.assembler
                     if (addAssignStatement.right.type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
-                    this.WriteLine($"addsd %xmm0, {this.variableMap[addAssignStatement.left.name]}(%rbp)");
+                    this.WriteLine("movq %xmm0, %xmm1");
+                    this.WriteLine($"movq {this.variableMap[addAssignStatement.left.name]}(%rbp), %xmm0");
+
+                    this.WriteLine("addsd %xmm1, %xmm0");
+                    this.WriteLine($"movq %xmm0, {this.variableMap[addAssignStatement.left.name]}(%rbp)");
                     break;
                 default:
                     throw new ArgumentException($"AddAssign Statement not compatible with type \"{addAssignStatement.left.type.typeName}\"");
@@ -821,7 +838,11 @@ namespace ll.assembler
                     if (subAssignStatement.right.type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
-                    this.WriteLine($"subsd %xmm0, {this.variableMap[subAssignStatement.left.name]}(%rbp)");
+                    this.WriteLine("movq %xmm0, %xmm1");
+                    this.WriteLine($"movq {this.variableMap[subAssignStatement.left.name]}(%rbp), %xmm0");
+
+                    this.WriteLine("subsd %xmm1, %xmm0");
+                    this.WriteLine($"movq %xmm0, {this.variableMap[subAssignStatement.left.name]}(%rbp)");
                     break;
                 default:
                     throw new ArgumentException($"SubAssign Statement not compatible with type \"{subAssignStatement.left.type.typeName}\"");
@@ -842,6 +863,7 @@ namespace ll.assembler
                     if (multAssignStatement.right.type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
+                    this.WriteLine("movq %xmm0, %xmm1");
                     this.WriteLine($"mulsd {this.variableMap[multAssignStatement.left.name]}(%rbp), %xmm0");
                     this.WriteLine($"movq %xmm0, {this.variableMap[multAssignStatement.left.name]}(%rbp)");
                     break;
@@ -867,7 +889,12 @@ namespace ll.assembler
                     if (divAssignStatement.right.type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
-                    this.WriteLine($"divsd %xmm0, {this.variableMap[divAssignStatement.left.name]}(%rbp)"); break;
+                    this.WriteLine("movq %xmm0, %xmm1");
+                    this.WriteLine($"movq {this.variableMap[divAssignStatement.left.name]}(%rbp), %xmm0");
+
+                    this.WriteLine("divsd %xmm1, %xmm0");
+                    this.WriteLine($"movq %xmm0, {this.variableMap[divAssignStatement.left.name]}(%rbp)");
+                    break;
                 default:
                     throw new ArgumentException($"DivAssign Statement not compatible with type \"{divAssignStatement.left.type.typeName}\"");
             }
@@ -988,7 +1015,7 @@ namespace ll.assembler
                     if (usedInt > this.integerRegisters.Length)
                     {
                         result = true;
-                        integerOverflowPosition = integerOverflowPosition == Int32.MaxValue ? i : doubleOverflowPosition;
+                        integerOverflowPosition = integerOverflowPosition != Int32.MaxValue ? integerOverflowPosition : i;
                     }
                 }
 
@@ -999,7 +1026,7 @@ namespace ll.assembler
                     if (usedDouble > this.doubleRegisters.Length)
                     {
                         result = true;
-                        doubleOverflowPosition = doubleOverflowPosition == Int32.MaxValue ? i : doubleOverflowPosition;
+                        doubleOverflowPosition = doubleOverflowPosition != Int32.MaxValue ? doubleOverflowPosition : i;
                     }
                 }
             }
@@ -1007,6 +1034,7 @@ namespace ll.assembler
             return result;
         }
 
+        // TODO find a bug where variables could not be located in the variable map
         private void FillVariableMap(FunctionAsm functionAsm, FunctionDefinition functionDefinition)
         {
             bool doesOverflow = this.DoesOverflowRegistersFunDef(

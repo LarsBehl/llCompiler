@@ -3,3 +3,8 @@ obj/
 .vscode/
 .vs/
 TestFile2.ll
+testGeneratedCode/*.o
+testGeneratedCode/*.S
+testGeneratedCode/testCodeGen
+testGeneratedCode/Antlr4.Runtime.Standard.dll
+testGeneratedCode/llCompiler.*
