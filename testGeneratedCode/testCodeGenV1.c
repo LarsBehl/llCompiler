@@ -73,8 +73,19 @@ long divAssignIntInt(long x, long y);
 double divAssignIntDouble(long x, double y);
 double divAssignDoubleDouble(double x, double y);
 
-// register overflows
+// increment functions
+long incrementPostInt(long x);
+long incrementPreInt(long x);
+double incrementPostDouble(double x);
+double incrementPreDouble(double x);
 
+// decrement functions
+long decrementPostInt(long x);
+long decrementPreInt(long x);
+double decrementPostDouble(double x);
+double decrementPreDouble(double x);
+
+// register overflows
 long overFlowOnlyInt(long x, long y, long z, long a, long b, long c, long d, long e, long f);
 double overFlowOnlyDouble(double x, double y, double z, double a, double b, double c, double d, double e, double f);
 double overFlowIntMixed(long x, double y, long z, double a, long b, long c, long d, long e, long f, long g);
@@ -239,6 +250,24 @@ void startTests()
     printDouble(6.0, doubleResult, "divAssignIntDouble");
     doubleResult = divAssignDoubleDouble(0.5, 0.5);
     printDouble(1.0, doubleResult, "divAssignDoubleDouble");
+
+    intResult = incrementPostInt(4);
+    printInt(4, intResult, "incrementPostInt");
+    intResult = incrementPreInt(4);
+    printInt(5, intResult, "incrementPreInt");
+    doubleResult = incrementPostDouble(2.5);
+    printDouble(2.5, doubleResult, "incrementPostDouble");
+    doubleResult = incrementPreDouble(2.5);
+    printDouble(3.5, doubleResult, "incrementPreDouble");
+
+    intResult = decrementPostInt(4);
+    printInt(4, intResult, "decrementPostInt");
+    intResult = decrementPreInt(4);
+    printInt(3, intResult, "decrementPreInt");
+    doubleResult = decrementPostDouble(2.5);
+    printDouble(2.5, doubleResult, "decrementPostDouble");
+    doubleResult = decrementPreDouble(2.5);
+    printDouble(1.5, doubleResult, "decrementPreDouble");
 
     intResult = overFlowOnlyInt(1, 1, 1, 1, 1, 1, 1, 1, 1);
     printInt(9, intResult, "overFlowOnlyInt");

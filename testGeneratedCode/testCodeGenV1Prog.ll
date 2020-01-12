@@ -285,6 +285,46 @@ divAssignDoubleDouble(x:double, y:double): double
     return i;
 }
 
+incrementPostInt(x:int): int
+{
+    return x++;
+}
+
+incrementPreInt(x:int): int
+{
+    return ++x;
+}
+
+incrementPostDouble(x:double): double
+{
+    return x++;
+}
+
+incrementPreDouble(x:double): double
+{
+    return ++x;
+}
+
+decrementPostInt(x:int): int
+{
+    return x--;
+}
+
+decrementPreInt(x:int): int
+{
+    return --x;
+}
+
+decrementPostDouble(x:double): double
+{
+    return x--;
+}
+
+decrementPreDouble(x:double): double
+{
+    return --x;
+}
+
 factorial(x:int): int
 {
     if(x > 1)
