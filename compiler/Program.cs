@@ -90,6 +90,7 @@ namespace ll
                 var ast = new BuildAstVisitor().VisitCompileUnit(parser.compileUnit());
                 var assemblerGenerator = new GenAssembler();
                 assemblerGenerator.GenerateAssember(ast);
+                assemblerGenerator.PrintAssember();
             }
         }
 

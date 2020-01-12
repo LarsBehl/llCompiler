@@ -88,6 +88,10 @@ namespace ll.assembler
                     this.MultAssignAsm(multAssign); break;
                 case DivAssignStatement divAssign:
                     this.DivAssignAsm(divAssign); break;
+                case IncrementExpr increment:
+                    this.IncrementAsm(increment); break;
+                case DecrementExpr decrement:
+                    this.DecrementAsm(decrement); break;
                 default:
                     throw new NotImplementedException($"Assembler generation not implemented for {astNode.type.typeName}");
             }
@@ -96,7 +100,6 @@ namespace ll.assembler
         public void GenerateAssember(IAST astNode)
         {
             this.GetAssember(astNode);
-            this.PrintAssember();
         }
 
         private void InitializeFile(string fileName)
@@ -897,6 +900,76 @@ namespace ll.assembler
                     break;
                 default:
                     throw new ArgumentException($"DivAssign Statement not compatible with type \"{divAssignStatement.left.type.typeName}\"");
+            }
+        }
+
+        private void IncrementAsm(IncrementExpr increment)
+        {
+            if(increment.post)
+            {
+                if(increment.type is IntType)
+                {
+                    this.WriteLine($"movq {this.variableMap[increment.variable.name]}(%rbp), %rax");
+                    this.WriteLine($"incq {this.variableMap[increment.variable.name]}(%rbp)");
+                }
+                else
+                {
+                    this.WriteLine($"movq {this.variableMap[increment.variable.name]}(%rbp), %xmm0");
+                    this.WriteLine("movq $1, %rax");
+                    this.WriteLine("cvtsi2sdq %rax, %xmm1");
+                    this.WriteLine($"addsd {this.variableMap[increment.variable.name]}(%rbp), %xmm1");
+                    this.WriteLine($"movq %xmm1, {this.variableMap[increment.variable.name]}(%rbp)");
+                }
+            }
+            else
+            {
+                if(increment.type is IntType)
+                {
+                    this.WriteLine($"incq {this.variableMap[increment.variable.name]}(%rbp)");
+                    this.GetAssember(increment.variable);                    
+                }
+                else
+                {
+                    this.WriteLine("movq $1, %rax");
+                    this.WriteLine("cvtsi2sdq %rax, %xmm0");
+                    this.WriteLine($"addsd {this.variableMap[increment.variable.name]}(%rbp), %xmm0");
+                    this.WriteLine($"movq %xmm0, {this.variableMap[increment.variable.name]}(%rbp)");
+                }
+            }
+        }
+
+        private void DecrementAsm(DecrementExpr decrement)
+        {
+            if(decrement.post)
+            {
+                if(decrement.type is IntType)
+                {
+                    this.WriteLine($"movq {this.variableMap[decrement.variable.name]}(%rbp), %rax");
+                    this.WriteLine($"decq {this.variableMap[decrement.variable.name]}(%rbp)");
+                }
+                else
+                {
+                    this.WriteLine($"movq {this.variableMap[decrement.variable.name]}(%rbp), %xmm0");
+                    this.WriteLine("movq $-1, %rax");
+                    this.WriteLine("cvtsi2sdq %rax, %xmm1");
+                    this.WriteLine($"addsd {this.variableMap[decrement.variable.name]}(%rbp), %xmm1");
+                    this.WriteLine($"movq %xmm1, {this.variableMap[decrement.variable.name]}(%rbp)");
+                }
+            }
+            else
+            {
+                if(decrement.type is IntType)
+                {
+                    this.WriteLine($"decq {this.variableMap[decrement.variable.name]}(%rbp)");
+                    this.GetAssember(decrement.variable);
+                }
+                else
+                {
+                    this.WriteLine("movq $-1, %rax");
+                    this.WriteLine("cvtsi2sdq %rax, %xmm0");
+                    this.WriteLine($"addsd {this.variableMap[decrement.variable.name]}(%rbp), %xmm0");
+                    this.WriteLine($"movq %xmm0, {this.variableMap[decrement.variable.name]}(%rbp)");
+                }
             }
         }
 
