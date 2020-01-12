@@ -13,7 +13,7 @@ namespace ll.AST
             if(IAST.funs[name].args.Count != args.Count)
                 throw new ArgumentException($"Argument count of functioncall \"{name}\" {args.Count} not equal to function definition {IAST.funs[name].args.Count}");
             var tmp = IAST.funs[name].args;
-            for(int i = 1; i < tmp.Count; i++)
+            for(int i = 0; i < tmp.Count; i++)
             {
                 if(args[i].type.typeName != tmp[i].type.typeName)
                     throw new ArgumentException($"Type missmatch for \"{tmp[0]}\" \"{args[i].type.typeName}\" \"{tmp[i].type.typeName}\"");

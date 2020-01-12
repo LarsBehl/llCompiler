@@ -26,5 +26,10 @@ namespace ll.AST
             this.functionEnv = functionEnv;
             this.returnType = returnType;
         }
+
+        public int GetLocalVariables()
+        {
+            return functionEnv.Count - args.Count;
+        }
     }
 }

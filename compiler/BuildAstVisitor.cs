@@ -15,9 +15,9 @@ namespace ll
 
         public override IAST VisitLine(llParser.LineContext context)
         {
-            if(context.expression() != null)
+            if (context.expression() != null)
                 return Visit(context.expression());
-            if(context.statement() != null)
+            if (context.statement() != null)
                 return Visit(context.statement());
 
             throw new ArgumentException("Unknown AST Node");
@@ -84,7 +84,7 @@ namespace ll
 
         public override IAST VisitAssignStatement(llParser.AssignStatementContext context)
         {
-            if(!IAST.env.ContainsKey(context.left.Text))
+            if (!IAST.env.ContainsKey(context.left.Text))
                 throw new ArgumentException($"Unknown variable \"{context.left.Text}\"");
             return new AssignStatement(new VarExpr(context.left.Text), Visit(context.right));
         }
@@ -112,9 +112,9 @@ namespace ll
 
         public override IAST VisitReturnStatement(llParser.ReturnStatementContext context)
         {
-            if(context.expression() != null)
+            if (context.expression() != null)
                 return new ReturnStatement(Visit(context.expression()));
-            
+
             return new ReturnStatement();
         }
 
@@ -137,14 +137,19 @@ namespace ll
         {
             IAST variable = Visit(context.type);
 
-            if(variable.type is VoidType)
+            if (variable.type is VoidType)
                 throw new ArgumentException($"Type \"{variable.type.typeName}\" not allowed for variables");
 
             IAST.env[context.left.Text] = variable;
 
             IAST val = Visit(context.right);
             if (variable.type.typeName != val.type.typeName)
-                throw new ArgumentException($"Type \"{val.type.typeName}\" does not match \"{variable.type.typeName}\"");
+            {
+                if (variable.type is DoubleType && val.type is IntType)
+                    return new AssignStatement(new VarExpr(context.left.Text), val);
+                else
+                    throw new ArgumentException($"Type \"{val.type.typeName}\" does not match \"{variable.type.typeName}\"");
+            }
 
             return new AssignStatement(new VarExpr(context.left.Text), val);
         }
@@ -157,7 +162,7 @@ namespace ll
                 return new DoubleLit(null);
             if (context.BOOL_TYPE() != null)
                 return new BoolLit(null);
-            if(context.VOID_TYPE() != null)
+            if (context.VOID_TYPE() != null)
                 return new VoidLit();
             throw new ArgumentException("Unsupported type");
         }
@@ -184,13 +189,13 @@ namespace ll
                 return Visit(context.functionCall());
             if (context.incrementPostExpression() != null)
                 return Visit(context.incrementPostExpression());
-            if(context.decrementPostExpression() != null)
+            if (context.decrementPostExpression() != null)
                 return Visit(context.decrementPostExpression());
-            if(context.decrementPreExpression() != null)
+            if (context.decrementPreExpression() != null)
                 return Visit(context.decrementPreExpression());
-            if(context.incrementPreExpression() != null)
+            if (context.incrementPreExpression() != null)
                 return Visit(context.incrementPreExpression());
-                
+
             throw new ArgumentException("Unknown unary type");
         }
 
@@ -198,7 +203,7 @@ namespace ll
         {
             IAST variable = Visit(context.type);
 
-            if(variable.type is VoidType)
+            if (variable.type is VoidType)
                 throw new ArgumentException($"Type \"{variable.type.typeName}\" is not allowed for variables");
 
             IAST.env[context.left.Text] = variable;
@@ -212,13 +217,13 @@ namespace ll
             FunctionDefinition funDef = IAST.funs[identifier[0].GetText()];
             IAST.env = funDef.functionEnv;
             // save the new function definition
-            if(funDef.body != null)
+            if (funDef.body != null)
                 throw new ArgumentException($"Trying to override the body of function \"{identifier[0].GetText()}\"");
             var body = Visit(context.body);
 
-            if(body.type.typeName != funDef.returnType.typeName)
+            if (body.type.typeName != funDef.returnType.typeName)
             {
-                if(body.type is BlockStatementType)
+                if (body.type is BlockStatementType)
                     throw new ArgumentException($"Missing return statement in \"{funDef.name}\"");
                 throw new ArgumentException($"Return type \"{body.type.typeName}\" does not match \"{funDef.returnType.typeName}\"");
             }
@@ -244,17 +249,18 @@ namespace ll
 
         public override IAST VisitProgram(llParser.ProgramContext context)
         {
-            if(context.functionDefinition()?.Length > 0)
+            List<IAST> funDefs = new List<IAST>();
+            if (context.functionDefinition()?.Length > 0)
             {
                 foreach (var funDef in context.functionDefinition())
                 {
-                    Visit(funDef);
+                    funDefs.Add(Visit(funDef));
                 }
 
-                return new ProgramNode();
+                return new ProgramNode(funDefs);
             }
 
-            if(context.compositUnit() != null)
+            if (context.compositUnit() != null)
                 return Visit(context.compositUnit());
 
             throw new ArgumentException("Unknown node in Program");
@@ -266,10 +272,10 @@ namespace ll
             var cond = Visit(context.cond);
             var ifBody = Visit(tmp[0]);
             IAST elseBody = null;
-            
-            if(tmp.Length > 1)
+
+            if (tmp.Length > 1)
                 elseBody = Visit(tmp[1]);
-            
+
             return new IfStatement(cond, ifBody, elseBody);
         }
 
@@ -311,23 +317,23 @@ namespace ll
 
         public override IAST VisitAddAssignStatement(llParser.AddAssignStatementContext context)
         {
-            if(!IAST.env.ContainsKey(context.left.Text))
+            if (!IAST.env.ContainsKey(context.left.Text))
                 throw new ArgumentException($"Unknown variable \"{context.left.Text}\"");
-            
+
             return new AddAssignStatement(new VarExpr(context.left.Text), Visit(context.right));
         }
 
         public override IAST VisitSubAssignStatement(llParser.SubAssignStatementContext context)
         {
-            if(!IAST.env.ContainsKey(context.left.Text))
+            if (!IAST.env.ContainsKey(context.left.Text))
                 throw new ArgumentException($"Unknown variable \"{context.left.Text}\"");
-            
+
             return new SubAssignStatement(new VarExpr(context.left.Text), Visit(context.right));
         }
 
         public override IAST VisitMultAssignStatement(llParser.MultAssignStatementContext context)
         {
-            if(!IAST.env.ContainsKey(context.left.Text))
+            if (!IAST.env.ContainsKey(context.left.Text))
                 throw new ArgumentException($"Unknown variable {context.left.Text}");
 
             return new MultAssignStatement(new VarExpr(context.left.Text), Visit(context.right));
@@ -335,9 +341,9 @@ namespace ll
 
         public override IAST VisitDivAssignStatement(llParser.DivAssignStatementContext context)
         {
-            if(!IAST.env.ContainsKey(context.left.Text))
+            if (!IAST.env.ContainsKey(context.left.Text))
                 throw new ArgumentException($"Unknown variable {context.left.Text}");
-            
+
             return new DivAssignStatement(new VarExpr(context.left.Text), Visit(context.right));
         }
     }
