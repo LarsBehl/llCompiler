@@ -85,6 +85,9 @@ long decrementPreInt(long x);
 double decrementPostDouble(double x);
 double decrementPreDouble(double x);
 
+// not operator functions
+bool notOperator(bool x);
+
 // register overflows
 long overFlowOnlyInt(long x, long y, long z, long a, long b, long c, long d, long e, long f);
 double overFlowOnlyDouble(double x, double y, double z, double a, double b, double c, double d, double e, double f);
@@ -268,6 +271,11 @@ void startTests()
     printDouble(2.5, doubleResult, "decrementPostDouble");
     doubleResult = decrementPreDouble(2.5);
     printDouble(1.5, doubleResult, "decrementPreDouble");
+
+    boolResult = notOperator(true);
+    printBool(false, boolResult, "notOperator1");
+    boolResult = notOperator(false);
+    printBool(true, boolResult, "notOperator2");
 
     intResult = overFlowOnlyInt(1, 1, 1, 1, 1, 1, 1, 1, 1);
     printInt(9, intResult, "overFlowOnlyInt");

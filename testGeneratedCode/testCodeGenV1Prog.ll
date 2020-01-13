@@ -325,6 +325,11 @@ decrementPreDouble(x:double): double
     return --x;
 }
 
+notOperator(x:bool): bool
+{
+    return !x;
+}
+
 factorial(x:int): int
 {
     if(x > 1)

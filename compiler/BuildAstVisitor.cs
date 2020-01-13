@@ -190,6 +190,8 @@ namespace ll
                 return Visit(context.decrementPreExpression());
             if (context.incrementPreExpression() != null)
                 return Visit(context.incrementPreExpression());
+            if(context.notExpression() != null)
+                return Visit(context.notExpression());
 
             throw new ArgumentException("Unknown unary type");
         }
@@ -340,6 +342,11 @@ namespace ll
                 throw new ArgumentException($"Unknown variable {context.left.Text}");
 
             return new DivAssignStatement(new VarExpr(context.left.Text), Visit(context.right));
+        }
+
+        public override IAST VisitNotExpression(llParser.NotExpressionContext context)
+        {
+            return new NotExpr(Visit(context.expression()));
         }
     }
 }
