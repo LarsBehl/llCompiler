@@ -141,8 +141,6 @@ namespace ll.assembler
             {
                 sw.Write(fileContent);
             }
-
-            Console.WriteLine(fileContent);
         }
 
         private void IntLitAsm(IntLit intLit)
@@ -571,6 +569,16 @@ namespace ll.assembler
 
             this.GetAssember(funDef.body);
 
+            if (funDef.type is VoidType)
+            {
+                this.WriteLine("movq $0, %rax");
+                this.WriteLine("movl $0, %eax");
+                this.WriteLine("cvtsi2sd %rax, %xmm0");
+                this.WriteLine("movq %rbp, %rsp");
+                this.WriteLine("popq %rbp");
+                this.WriteLine("ret");
+            }
+
             this.depth -= 1;
 
         }
@@ -905,9 +913,9 @@ namespace ll.assembler
 
         private void IncrementAsm(IncrementExpr increment)
         {
-            if(increment.post)
+            if (increment.post)
             {
-                if(increment.type is IntType)
+                if (increment.type is IntType)
                 {
                     this.WriteLine($"movq {this.variableMap[increment.variable.name]}(%rbp), %rax");
                     this.WriteLine($"incq {this.variableMap[increment.variable.name]}(%rbp)");
@@ -923,10 +931,10 @@ namespace ll.assembler
             }
             else
             {
-                if(increment.type is IntType)
+                if (increment.type is IntType)
                 {
                     this.WriteLine($"incq {this.variableMap[increment.variable.name]}(%rbp)");
-                    this.GetAssember(increment.variable);                    
+                    this.GetAssember(increment.variable);
                 }
                 else
                 {
@@ -940,9 +948,9 @@ namespace ll.assembler
 
         private void DecrementAsm(DecrementExpr decrement)
         {
-            if(decrement.post)
+            if (decrement.post)
             {
-                if(decrement.type is IntType)
+                if (decrement.type is IntType)
                 {
                     this.WriteLine($"movq {this.variableMap[decrement.variable.name]}(%rbp), %rax");
                     this.WriteLine($"decq {this.variableMap[decrement.variable.name]}(%rbp)");
@@ -958,7 +966,7 @@ namespace ll.assembler
             }
             else
             {
-                if(decrement.type is IntType)
+                if (decrement.type is IntType)
                 {
                     this.WriteLine($"decq {this.variableMap[decrement.variable.name]}(%rbp)");
                     this.GetAssember(decrement.variable);
