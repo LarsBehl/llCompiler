@@ -1115,7 +1115,6 @@ namespace ll.assembler
             return result;
         }
 
-        // TODO find a bug where variables could not be located in the variable map
         private void FillVariableMap(FunctionAsm functionAsm, FunctionDefinition functionDefinition)
         {
             bool doesOverflow = this.DoesOverflowRegistersFunDef(

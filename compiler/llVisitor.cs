@@ -57,13 +57,6 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitLine([NotNull] llParser.LineContext context);
 	/// <summary>
-	/// Visit a parse tree produced by the <c>blockSta</c>
-	/// labeled alternative in <see cref="llParser.expression"/>.
-	/// </summary>
-	/// <param name="context">The parse tree.</param>
-	/// <return>The visitor result.</return>
-	Result VisitBlockSta([NotNull] llParser.BlockStaContext context);
-	/// <summary>
 	/// Visit a parse tree produced by the <c>lessOperator</c>
 	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// </summary>

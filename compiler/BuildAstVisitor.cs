@@ -89,11 +89,6 @@ namespace ll
             return new AssignStatement(new VarExpr(context.left.Text), Visit(context.right));
         }
 
-        public override IAST VisitBlockSta(llParser.BlockStaContext context)
-        {
-            return Visit(context.blockStatement());
-        }
-
         public override IAST VisitBlockStatement(llParser.BlockStatementContext context)
         {
             List<IAST> body = new List<IAST>();
