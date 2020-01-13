@@ -119,7 +119,10 @@ namespace ll
             if (args.Length > 0)
             {
                 if (args[0] == "-i")
+                {
                     Program.InterpreterMode();
+                    return;
+                }
                 if(args[0] == "-c" && args.Length > 1)
                     Program.CompilerMode(args[1]);
                 else

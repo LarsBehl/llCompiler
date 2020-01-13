@@ -255,5 +255,11 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitDecrementPreExpression([NotNull] llParser.DecrementPreExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.notExpression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitNotExpression([NotNull] llParser.NotExpressionContext context);
 }
 } // namespace ll

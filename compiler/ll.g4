@@ -44,7 +44,8 @@ unaryExpression
     | incrementPostExpression
     | decrementPostExpression
     | decrementPreExpression
-    | incrementPreExpression;
+    | incrementPreExpression
+    | notExpression;
 
 functionCall
     : name=WORD PAR_L (expression (COMMA expression)*)? PAR_R;
@@ -84,6 +85,9 @@ incrementPreExpression
 decrementPreExpression
     : MINUS MINUS variableExpression;
 
+notExpression
+    : NOT expression;
+
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;
 RETURN: 'r' 'e' 't' 'u' 'r' 'n';
@@ -117,5 +121,6 @@ LESS: '<';
 GREATER: '>';
 COLON: ':';
 COMMA: ',';
+NOT: '!';
 
 WHITESPACE  : [ \t\n\r] -> skip;

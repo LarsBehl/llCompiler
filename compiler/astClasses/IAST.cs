@@ -168,6 +168,8 @@ namespace ll.AST
                 case DivAssignStatement divAssign:
                     env[divAssign.left.name] = EvalDivAssign(divAssign);
                     return null;
+                case NotExpr notExpr:
+                    return new BoolLit(!(notExpr.value.Eval() as BoolLit).value);
                 default:
                     throw new ArgumentException("Unknown Ast Object");
             }

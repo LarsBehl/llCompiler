@@ -92,6 +92,8 @@ namespace ll.assembler
                     this.IncrementAsm(increment); break;
                 case DecrementExpr decrement:
                     this.DecrementAsm(decrement); break;
+                case NotExpr notExpr:
+                    this.NotExprAsm(notExpr); break;
                 default:
                     throw new NotImplementedException($"Assembler generation not implemented for {astNode.type.typeName}");
             }
@@ -979,6 +981,14 @@ namespace ll.assembler
                     this.WriteLine($"movq %xmm0, {this.variableMap[decrement.variable.name]}(%rbp)");
                 }
             }
+        }
+
+        private void NotExprAsm(NotExpr notExpr)
+        {
+            this.GetAssember(notExpr.value);
+            this.WriteLine("cmpq $0, %rax");
+            this.WriteLine("sete %al");
+            this.WriteLine("movzbl %al, %rax");
         }
 
         private void WriteLine(string op)
