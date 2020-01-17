@@ -42,4 +42,9 @@ steps:
     TargetFolder: './testGeneratedCode/'
     Contents: '**'
 
-- script: 'ls ./testGeneratedCode'
+- task: ShellScript@2
+  inputs:
+    scriptPath: 'make'
+    disableAutoCwd: true
+    cwd: './testGeneratedCode/'
+    
