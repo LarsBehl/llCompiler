@@ -20,6 +20,8 @@ steps:
     command: 'restore'
     projects: '**/*.csproj'
     feedsToUse: 'select'
+    majorVersion: 3
+    minorVersion: 1
 
 - task: DotNetCoreCLI@2
   inputs:
