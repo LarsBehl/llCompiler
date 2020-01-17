@@ -61,21 +61,21 @@ namespace ll.AST
 
                     foreach (var comp in block.body)
                     {
-                        if(comp is ReturnStatement)
+                        if (comp is ReturnStatement)
                         {
-                            resultBlock = comp.Eval(); 
+                            resultBlock = comp.Eval();
                             break;
                         }
 
-                        if(comp is IfStatement)
+                        if (comp is IfStatement)
                         {
                             resultBlock = comp.Eval();
-                            if(resultBlock == null)
+                            if (resultBlock == null)
                                 continue;
                             break;
                         }
 
-                        if(comp is WhileStatement && !(comp.type is WhileStatementType))
+                        if (comp is WhileStatement && !(comp.type is WhileStatementType))
                         {
                             resultBlock = comp.Eval();
                             break;
@@ -100,7 +100,7 @@ namespace ll.AST
                 case FunctionCall funCall:
                     FunctionDefinition fDef = funs[funCall.name];
                     var newEnv = new Dictionary<string, IAST>(fDef.functionEnv);
-                    
+
                     for (int k = 0; k < funCall.args.Count; k++)
                     {
                         newEnv[fDef.args[k].name] = funCall.args[k].Eval();
@@ -108,28 +108,28 @@ namespace ll.AST
 
                     var oldEnv = env;
                     env = newEnv;
-                    
+
                     var result = fDef.body.Eval();
                     env = oldEnv;
 
                     return result;
                 case IfStatement ifStatement:
-                    if((ifStatement.cond.Eval() as BoolLit).value ?? false)
+                    if ((ifStatement.cond.Eval() as BoolLit).value ?? false)
                         return ifStatement.ifBody.Eval();
                     return ifStatement.elseBody?.Eval() ?? null;
                 case WhileStatement whileStatement:
                     IAST result_while = null;
-                    while((whileStatement.condition.Eval() as BoolLit).value ?? false)
+                    while ((whileStatement.condition.Eval() as BoolLit).value ?? false)
                     {
                         result_while = whileStatement.body.Eval();
-                        if(result_while != null && !(result_while.type is BlockStatementType))
+                        if (result_while != null && !(result_while.type is BlockStatementType))
                             break;
                     }
 
                     return result_while;
                 case IncrementExpr increment:
                     IAST result_inc;
-                    if(increment.post)
+                    if (increment.post)
                     {
                         result_inc = env[increment.variable.name];
                         env[increment.variable.name] = EvalIncrementExpr(increment);
@@ -144,7 +144,7 @@ namespace ll.AST
 
                 case DecrementExpr decrement:
                     IAST result_dec;
-                    if(decrement.post)
+                    if (decrement.post)
                     {
                         result_dec = env[decrement.variable.name];
                         env[decrement.variable.name] = EvalDecrementExpr(decrement);
@@ -170,6 +170,10 @@ namespace ll.AST
                     return null;
                 case NotExpr notExpr:
                     return new BoolLit(!(notExpr.value.Eval() as BoolLit).value);
+                case AndExpr andExpr:
+                    return new BoolLit(
+                        ((andExpr.left.Eval() as BoolLit).value ?? false)
+                        && ((andExpr.right.Eval() as BoolLit).value ?? false));
                 default:
                     throw new ArgumentException("Unknown Ast Object");
             }
@@ -378,14 +382,14 @@ namespace ll.AST
         {
             IAST variable;
 
-            switch(increment.type)
+            switch (increment.type)
             {
                 case IntType intType:
                     variable = env[increment.variable.name].Eval();
                     return new IntLit((variable as IntLit).n + 1);
                 case DoubleType doubleType:
                     variable = env[increment.variable.name].Eval();
-                    return new DoubleLit((variable as DoubleLit).n +1);
+                    return new DoubleLit((variable as DoubleLit).n + 1);
                 default:
                     throw new ArgumentException($"Type \"{increment.type.typeName}\" not allowed for Increment");
             }
@@ -395,7 +399,7 @@ namespace ll.AST
         {
             IAST variable;
 
-            switch(decrement.type)
+            switch (decrement.type)
             {
                 case IntType intType:
                     variable = env[decrement.variable.name].Eval();
@@ -412,7 +416,7 @@ namespace ll.AST
         {
             IAST variable;
 
-            switch(addAssign.left.type)
+            switch (addAssign.left.type)
             {
                 case IntType intType:
                     variable = env[addAssign.left.name].Eval();
@@ -429,7 +433,7 @@ namespace ll.AST
         {
             IAST variable;
 
-            switch(subAssign.left.type)
+            switch (subAssign.left.type)
             {
                 case IntType intType:
                     variable = env[subAssign.left.name].Eval();
@@ -446,7 +450,7 @@ namespace ll.AST
         {
             IAST variable;
 
-            switch(multAssign.left.type)
+            switch (multAssign.left.type)
             {
                 case IntType intType:
                     variable = env[multAssign.left.name].Eval();
@@ -463,7 +467,7 @@ namespace ll.AST
         {
             IAST variable;
 
-            switch(divAssign.left.type)
+            switch (divAssign.left.type)
             {
                 case IntType intType:
                     variable = env[divAssign.left.name].Eval();

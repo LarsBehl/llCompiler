@@ -330,6 +330,11 @@ notOperator(x:bool): bool
     return !x;
 }
 
+andOperator(x:bool, y:bool): bool
+{
+    return x && y;
+}
+
 factorial(x:int): int
 {
     if(x > 1)

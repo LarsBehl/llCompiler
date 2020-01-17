@@ -348,5 +348,10 @@ namespace ll
         {
             return new NotExpr(Visit(context.expression()));
         }
+
+        public override IAST VisitAndOperator(llParser.AndOperatorContext context)
+        {
+            return new AndExpr(Visit(context.left), Visit(context.right));
+        }
     }
 }
