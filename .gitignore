@@ -8,3 +8,4 @@ testGeneratedCode/*.S
 testGeneratedCode/testCodeGen
 testGeneratedCode/Antlr4.Runtime.Standard.dll
 testGeneratedCode/llCompiler.*
+testGeneratedCode/llCompiler
