@@ -94,8 +94,10 @@ namespace ll.assembler
                     this.DecrementAsm(decrement); break;
                 case NotExpr notExpr:
                     this.NotExprAsm(notExpr); break;
+                case AndExpr andExpr:
+                    this.AndExprAsm(andExpr); break;
                 default:
-                    throw new NotImplementedException($"Assembler generation not implemented for {astNode.type.typeName}");
+                    throw new NotImplementedException($"Assembler generation not implemented for {astNode.ToString()}");
             }
         }
 
@@ -989,6 +991,30 @@ namespace ll.assembler
             this.WriteLine("cmpq $0, %rax");
             this.WriteLine("sete %al");
             this.WriteLine("movzbl %al, %rax");
+        }
+
+        private void AndExprAsm(AndExpr andExpr)
+        {
+            this.GetAssember(andExpr.left);
+            
+            this.WriteLine("cmpq $0, %rax");
+            this.WriteLine($"je .L{this.labelCount}");
+            
+            this.GetAssember(andExpr.right);
+
+            this.WriteLine("cmpq $0, %rax");
+            this.WriteLine($"je .L{this.labelCount}");
+            this.WriteLine("movq $1, %rax");
+            this.WriteLine($"jmp .L{this.labelCount+1}");
+
+
+            this.depth -= 1;
+            this.WriteLine($".L{this.labelCount++}:");
+            this.depth += 1;
+            this.WriteLine("movq $0, %rax");
+            this.depth -= 1;
+            this.WriteLine($".L{this.labelCount++}:");
+            this.depth += 1;
         }
 
         private void WriteLine(string op)
