@@ -351,7 +351,7 @@ namespace ll
 
         public override IAST VisitAndOperator(llParser.AndOperatorContext context)
         {
-            throw new NotImplementedException();
+            return new AndExpr(Visit(context.left), Visit(context.right));
         }
     }
 }
