@@ -1,11 +1,11 @@
-run: testCodeGen
+run: link
 	./testCodeGen
 
-link: runner.o testCodeGenV1.o testCodeGenV1Prog.o compile
+link: compile
 	gcc -o testCodeGen runner.o testCodeGenV1.o testCodeGenV1Prog.o
 
-compile: runner.c testCodeGenV1.c testCodeGenV1Prog.S genCode
+compile: genCode
 	gcc -c runner.c testCodeGenV1.c testCodeGenV1Prog.S
 
-genCode: testCodeGenV1Prog.ll llCompiler.dll
+genCode:
 	./llCompiler -c testCodeGenV1Prog.ll

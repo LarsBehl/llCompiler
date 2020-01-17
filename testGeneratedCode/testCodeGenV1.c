@@ -296,4 +296,7 @@ void startTests()
 
     int successCount = overallCount - failedCount;
     printf("\n\n%d tests of %d were successfull\n", successCount, overallCount);
+
+    if(failedCount > 0)
+        exit(EXIT_FAILURE);
 }
