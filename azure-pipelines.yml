@@ -35,6 +35,10 @@ steps:
     command: 'test'
     projects: '**/*.csproj'
 
-- script: '$(Build.WorkingDirectory)/compiler/bin/Release/netcoreapp3.1/* $(Build.WorkingDirectory)/testGeneratedCode/'
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: './compiler/bin/Release/netcoreapp3.1/'
+    TargetFolder: './testGeneratedCode/'
+    Contents: '**'
 
-- script: 'ls $(Build.WorkingDirectory)/testGeneratedCode'
+- script: 'ls ./testGeneratedCode'
