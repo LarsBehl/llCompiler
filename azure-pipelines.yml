@@ -10,7 +10,7 @@ pr:
 - master
 
 pool:
-  vmImage: 'windows-latest'
+  vmImage: 'ubuntu-latest'
 
 steps:
 - task: NuGetToolInstaller@1
@@ -30,3 +30,7 @@ steps:
   inputs:
     command: 'test'
     projects: '**/*.csproj'
+
+- script: '$(Build.WorkingDirectory)/compiler/bin/Release/netcoreapp3.1/* $(Build.WorkingDirectory)/testGeneratedCode/'
+
+- script: 'ls $(Build.WorkingDirectory)/testGeneratedCode'
