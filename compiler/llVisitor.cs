@@ -106,6 +106,13 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitEqualityOpertor([NotNull] llParser.EqualityOpertorContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>andOperator</c>
+	/// labeled alternative in <see cref="llParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAndOperator([NotNull] llParser.AndOperatorContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>assignStatement</c>
 	/// labeled alternative in <see cref="llParser.statement"/>.
 	/// </summary>
