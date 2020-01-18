@@ -353,5 +353,10 @@ namespace ll
         {
             return new AndExpr(Visit(context.left), Visit(context.right));
         }
+
+        public override IAST VisitOrOperator(llParser.OrOperatorContext context)
+        {
+            return new OrExpr(Visit(context.left), Visit(context.right));
+        }
     }
 }
