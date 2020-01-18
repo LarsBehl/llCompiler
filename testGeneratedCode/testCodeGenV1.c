@@ -11,36 +11,43 @@ bool boolId(bool x);
 // add functions
 long addIntInt(long x, long y);
 double addIntDouble(long x, double y);
+double addDoubleInt(double x, long y);
 double addDoubleDouble(double x, double y);
 
 // sub functions
 long subIntInt(long x, long y);
 double subIntDouble(long x, double y);
+double subDoubleInt(double x, long y);
 double subDoubleDouble(double x, double y);
 
 // mult functions
 long multIntInt(long x, long y);
 double multIntDouble(long x, double y);
+double multDoubleInt(double x, long y);
 double multDoubleDouble(double x, double y);
 
 // div functions
 long divIntInt(long x, long y);
 double divIntDouble(long x, double y);
+double divDoubleInt(double x, long y);
 double divDoubleDouble(double x, double y);
 
 // greater functions
 bool greaterIntInt(long x, long y);
 bool greaterIntDouble(long x, double y);
+bool greaterDoubleInt(double x, long y);
 bool greaterDoubleDouble(double x, double y);
 
 // less functions
 bool lessIntInt(long x, long y);
-bool lessIntDouble(long x, long y);
+bool lessIntDouble(long x, double y);
+bool lessDoubleInt(double x, long y);
 bool lessDoubleDouble(double x, double y);
 
 // equal functions
 bool equalIntInt(long x, long y);
 bool equalIntDouble(long x, double y);
+bool equalDoubleInt(double x, long y);
 bool equalDoubleDouble(double x, double y);
 
 // if functions
@@ -56,21 +63,25 @@ long notReturningWhile(long x);
 // addAssign functions
 long addAssignIntInt(long x, long y);
 double addAssignIntDouble(long x, double y);
+double addAssignDoubleInt(double x, long y);
 double addAssignDoubleDouble(double x, double y);
 
 // subAssign functions
 long subAssignIntInt(long x, long y);
 double subAssignIntDouble(long x, double y);
+double subAssignDoubleInt(double x, long y);
 double subAssignDoubleDouble(double x, double y);
 
 // multAssign functions
 long multAssignIntInt(long x, long y);
 double multAssignIntDouble(long x, double y);
+double multAssignDoubleInt(double x, long y);
 double multAssignDoubleDouble(double x, double y);
 
 // divAssign functions
 long divAssignIntInt(long x, long y);
 double divAssignIntDouble(long x, double y);
+double divAssignDoubleInt(double x, long y);
 double divAssignDoubleDouble(double x, double y);
 
 // increment functions
@@ -163,6 +174,8 @@ void startTests()
     printInt(42, intResult, "addIntInt");
     doubleResult = addIntDouble(17, 25.5);
     printDouble(42.5, doubleResult, "addIntDouble");
+    doubleResult = addDoubleInt(17.5, 17);
+    printDouble(34.5, doubleResult, "addDoubleInt");
     doubleResult = addDoubleDouble(13.2, 28.8);
     printDouble(42.0, doubleResult, "addDoubleDouble");
 
@@ -170,6 +183,8 @@ void startTests()
     printInt(12, intResult, "subIntInt");
     doubleResult = subIntDouble(17, 3.2);
     printDouble(13.8, doubleResult, "subIntDouble");
+    doubleResult = subDoubleInt(17.5, 2);
+    printDouble(15.5, doubleResult, "subDoubleInt");
     doubleResult = subDoubleDouble(7.7, 0.5);
     printDouble(7.2, doubleResult, "subDoubleDouble");
 
@@ -177,6 +192,8 @@ void startTests()
     printInt(45, intResult, "multIntInt");
     doubleResult = multIntDouble(2, 5.5);
     printDouble(11.0, doubleResult, "multIntDouble");
+    doubleResult = multDoubleInt(2.5, 2);
+    printDouble(5.0, doubleResult, "multDoubleInt");
     doubleResult = multDoubleDouble(0.5, 2.5);
     printDouble(1.25, doubleResult, "multDoubleDouble");
 
@@ -184,6 +201,8 @@ void startTests()
     printInt(1, intResult, "divIntInt");
     doubleResult = divIntDouble(2, 0.5);
     printDouble(4, doubleResult, "divIntDouble");
+    doubleResult = divDoubleInt(5.0, 2);
+    printDouble(2.5, doubleResult, "divDoubleInt");
     doubleResult = divDoubleDouble(0.5, 0.5);
     printDouble(1.0, doubleResult, "divDoubleDouble");
 
@@ -191,6 +210,8 @@ void startTests()
     printBool(true, boolResult, "greaterIntInt");
     boolResult = greaterIntDouble(5, 4.2);
     printBool(true, boolResult, "greaterIntDouble");
+    boolResult = greaterDoubleInt(5.0, 2);
+    printBool(true, boolResult, "greaterDoubleInt");
     boolResult = greaterDoubleDouble(7.2, 7.199999999);
     printBool(true, boolResult, "greaterDoubleDouble");
 
@@ -198,6 +219,8 @@ void startTests()
     printBool(true, boolResult, "lessIntInt");
     boolResult = lessIntDouble(2, 3.5);
     printBool(true, boolResult, "lessIntDouble");
+    boolResult = lessDoubleInt(2.0, 5);
+    printBool(true, boolResult, "lessDoubleInt");
     boolResult = lessDoubleDouble(2.1999999, 2.2);
     printBool(true, boolResult, "lessDoubleDouble");
 
@@ -205,6 +228,8 @@ void startTests()
     printBool(true, boolResult, "equalIntInt");
     boolResult = equalIntDouble(3, 3.0);
     printBool(true, boolResult, "equalIntDouble");
+    boolResult = equalDoubleInt(2.0, 2);
+    printBool(true, boolResult, "equalDoubleInt");
     boolResult = equalDoubleDouble(3.0, 3.0);
     printBool(true, boolResult, "equalDoubleDouble");
 
@@ -236,6 +261,8 @@ void startTests()
     printInt(42, intResult, "addAssignIntInt");
     doubleResult = addAssignIntDouble(17, 25.5);
     printDouble(42.5, doubleResult, "addAssignIntDouble");
+    doubleResult = addAssignDoubleInt(3.5, 7);
+    printDouble(10.5, doubleResult, "addAssignDoubleInt");
     doubleResult = addAssignDoubleDouble(16.5, 25.5);
     printDouble(42.0, doubleResult, "addAssignDoubleDouble");
 
@@ -243,6 +270,8 @@ void startTests()
     printInt(2, intResult, "subAssignIntInt");
     doubleResult = subAssignIntDouble(17, 15.5);
     printDouble(1.5, doubleResult, "subAssignIntDouble");
+    doubleResult = subAssignDoubleInt(2.5, 2);
+    printDouble(0.5, doubleResult, "subAssignDoubleInt");
     doubleResult = subAssignDoubleDouble(17.2, 0.2);
     printDouble(17.0, doubleResult, "subAssignDoubleDouble");
 
@@ -250,6 +279,8 @@ void startTests()
     printInt(15, intResult, "multAssignIntInt");
     doubleResult = multAssignIntDouble(3, 5.5);
     printDouble(16.5, doubleResult, "multAssignIntDouble");
+    doubleResult = multAssignDoubleInt(2.6, 2);
+    printDouble(5.2, doubleResult, "multAssignDoubleInt");
     doubleResult = multAssignDoubleDouble(0.5, 1.5);
     printDouble(0.75, doubleResult, "multAssignDoubleDouble");
 
@@ -257,6 +288,8 @@ void startTests()
     printInt(1, intResult, "divAssignIntInt");
     doubleResult = divAssignIntDouble(3, 0.5);
     printDouble(6.0, doubleResult, "divAssignIntDouble");
+    doubleResult = divAssignDoubleInt(6.2, 2);
+    printDouble(3.1, doubleResult, "divAssignDoubleInt");
     doubleResult = divAssignDoubleDouble(0.5, 0.5);
     printDouble(1.0, doubleResult, "divAssignDoubleDouble");
 
