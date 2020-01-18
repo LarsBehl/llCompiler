@@ -174,6 +174,10 @@ namespace ll.AST
                     return new BoolLit(
                         ((andExpr.left.Eval() as BoolLit).value ?? false)
                         && ((andExpr.right.Eval() as BoolLit).value ?? false));
+                case OrExpr orExpr:
+                    return new BoolLit(
+                        ((orExpr.left.Eval() as BoolLit).value ?? false)
+                        || ((orExpr.right.Eval() as BoolLit).value ?? false));
                 default:
                     throw new ArgumentException("Unknown Ast Object");
             }

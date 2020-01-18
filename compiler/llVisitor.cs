@@ -64,6 +64,13 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitLessOperator([NotNull] llParser.LessOperatorContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>orOperator</c>
+	/// labeled alternative in <see cref="llParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitOrOperator([NotNull] llParser.OrOperatorContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>binOpAddSub</c>
 	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// </summary>

@@ -91,6 +91,9 @@ bool notOperator(bool x);
 // and operator functions
 bool andOperator(bool x, bool y);
 
+// or operator functions
+bool orOperator(bool x, bool y);
+
 // register overflows
 long overFlowOnlyInt(long x, long y, long z, long a, long b, long c, long d, long e, long f);
 double overFlowOnlyDouble(double x, double y, double z, double a, double b, double c, double d, double e, double f);
@@ -288,6 +291,15 @@ void startTests()
     printBool(false, boolResult, "andOperatorTrueFalse");
     boolResult = andOperator(false, false);
     printBool(false, boolResult, "andOperatorFalseFalse");
+
+    boolResult = orOperator(true, true);
+    printBool(true, boolResult, "orOperatorTrueTrue");
+    boolResult = orOperator(true, false);
+    printBool(true, boolResult, "orOperatorTrueFalse");
+    boolResult = orOperator(false, true);
+    printBool(true, boolResult, "orOperatorFalseTrue");
+    boolResult = orOperator(false, false);
+    printBool(false, boolResult, "orOperatorFalseFalse");
 
     intResult = overFlowOnlyInt(1, 1, 1, 1, 1, 1, 1, 1, 1);
     printInt(9, intResult, "overFlowOnlyInt");

@@ -1,4 +1,5 @@
 using ll.type;
+using System;
 
 namespace ll.AST
 {
@@ -6,7 +7,8 @@ namespace ll.AST
     {
         public AndExpr(IAST left, IAST right): base(left, right, "&&", new BooleanType())
         {
-
+            if(!(left.type is BooleanType) || !(right.type is BooleanType))
+                throw new ArgumentException("And operator only accepts bool values as operands");
         }
     }
 }

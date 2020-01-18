@@ -23,6 +23,7 @@ expression
     | left=expression op=LESS ASSIGN? right=expression #lessOperator
     | left=expression op=GREATER ASSIGN? right=expression #greaterOperator
     | left=expression op=AND right=expression #andOperator
+    | left=expression op=OR right=expression #orOperator
     | unaryExpression #unaryExpr;
 
 statement
@@ -124,5 +125,6 @@ COLON: ':';
 COMMA: ',';
 NOT: '!';
 AND: '&' '&';
+OR: '|' '|';
 
 WHITESPACE  : [ \t\n\r] -> skip;
