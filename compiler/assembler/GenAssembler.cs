@@ -120,9 +120,9 @@ namespace ll.assembler
             string fileName;
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                indexOfSlash = filePath.IndexOf('\\');
+                indexOfSlash = filePath.LastIndexOf('\\');
             else
-                indexOfSlash = filePath.IndexOf('/');
+                indexOfSlash = filePath.LastIndexOf('/');
 
             if (indexOfSlash == -1)
                 fileName = filePath;
@@ -137,7 +137,7 @@ namespace ll.assembler
             if (this.doubleNumbers.Length > 0)
                 fileContent = fileContent + this.doubleNumbers.ToString();
 
-            fileName = fileName.Substring(0, fileName.IndexOf(".ll")) + ".S";
+            fileName = filePath.Substring(0, filePath.IndexOf(".ll")) + ".S";
 
             using (StreamWriter sw = File.CreateText(fileName))
             {
