@@ -335,6 +335,11 @@ andOperator(x:bool, y:bool): bool
     return x && y;
 }
 
+orOperator(x:bool, y:bool): bool
+{
+    return x || y;
+}
+
 factorial(x:int): int
 {
     if(x > 1)
