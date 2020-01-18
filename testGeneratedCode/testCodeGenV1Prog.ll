@@ -23,6 +23,11 @@ addIntDouble(x:int, y:double): double
     return x+y;
 }
 
+addDoubleInt(x:double, y:int): double
+{
+    return x+y;
+}
+
 addDoubleDouble(x:double, y:double): double
 {
     return x+y;
@@ -38,6 +43,11 @@ subIntDouble(x:int, y:double): double
     return x-y;
 }
 
+subDoubleInt(x:double, y:int): double
+{
+    return x - y;
+}
+
 subDoubleDouble(x:double, y:double): double
 {
     return x-y;
@@ -49,6 +59,11 @@ multIntInt(x:int, y:int): int
 }
 
 multIntDouble(x:int, y:double): double
+{
+    return x*y;
+}
+
+multDoubleInt(x:double, y:int): double
 {
     return x*y;
 }
@@ -68,6 +83,11 @@ divIntDouble(x:int, y:double): double
     return x/y;
 }
 
+divDoubleInt(x:double, y:int): double
+{
+    return x/y;
+}
+
 divDoubleDouble(x:double, y:double): double
 {
     return x/y;
@@ -79,6 +99,11 @@ greaterIntInt(x:int, y:int): bool
 }
 
 greaterIntDouble(x:int, y:double): bool
+{
+    return x > y;
+}
+
+greaterDoubleInt(x:double, y:int): bool
 {
     return x > y;
 }
@@ -98,6 +123,11 @@ lessIntDouble(x:int, y:double): bool
     return x < y;
 }
 
+lessDoubleInt(x:double, y:int): bool
+{
+    return x < y;
+}
+
 lessDoubleDouble(x:double, y:double): bool
 {
     return x < y;
@@ -109,6 +139,11 @@ equalIntInt(x:int, y:int): bool
 }
 
 equalIntDouble(x:int, y:double): bool
+{
+    return x == y;
+}
+
+equalDoubleInt(x:double, y:int): bool
 {
     return x == y;
 }
@@ -205,6 +240,14 @@ addAssignIntDouble(x:int, y:double): double
     return i;
 }
 
+addAssignDoubleInt(x:double, y:int): double
+{
+    i: double = x;
+    i += y;
+
+    return i;
+}
+
 addAssignDoubleDouble(x:double, y:double): double
 {
     i: double = x;
@@ -222,6 +265,14 @@ subAssignIntInt(x:int, y:int): int
 }
 
 subAssignIntDouble(x:int, y:double): double
+{
+    i: double = x;
+    i -= y;
+
+    return i;
+}
+
+subAssignDoubleInt(x:double, y:int): double
 {
     i: double = x;
     i -= y;
@@ -253,6 +304,14 @@ multAssignIntDouble(x:int, y:double): double
     return i;
 }
 
+multAssignDoubleInt(x:double, y:int): double
+{
+    i: double = x;
+    i *= y;
+
+    return i;
+}
+
 multAssignDoubleDouble(x:double, y:double): double
 {
     i: double = x;
@@ -274,6 +333,14 @@ divAssignIntDouble(x:int, y:double): double
     i: double = x;
     i /= y;
 
+    return i;
+}
+
+divAssignDoubleInt(x:double, y:int): double
+{
+    i: double = x;
+    i /= y;
+    
     return i;
 }
 

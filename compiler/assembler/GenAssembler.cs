@@ -175,6 +175,7 @@ namespace ll.assembler
                     this.WriteLine("pushq %rax");
                     this.GetAssember(addExpr.left);
 
+                    // convert int to double
                     if (addExpr.left.type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
@@ -191,6 +192,7 @@ namespace ll.assembler
                     if (addExpr.left.type is DoubleType)
                     {
                         this.WriteLine("popq %rax");
+                        // convert int to double
                         this.WriteLine("cvtsi2sdq %rax, %xmm1");
                         this.WriteLine("addsd %xmm1, %xmm0");
                     }
@@ -215,6 +217,7 @@ namespace ll.assembler
                     this.WriteLine("pushq %rax");
                     this.GetAssember(subExpr.left);
 
+                    // convert int to double
                     if (subExpr.left.type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
@@ -231,6 +234,7 @@ namespace ll.assembler
                     if (subExpr.left.type is DoubleType)
                     {
                         this.WriteLine("popq %rax");
+                        // convert int to double
                         this.WriteLine("cvtsi2sdq %rax, %xmm1");
                         this.WriteLine("subsd %xmm1, %xmm0");
                     }
@@ -255,6 +259,7 @@ namespace ll.assembler
                     this.WriteLine("pushq %rax");
                     this.GetAssember(multExpr.left);
 
+                    // convert int to double
                     if (multExpr.left.type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
@@ -271,6 +276,7 @@ namespace ll.assembler
                     if (multExpr.left.type is DoubleType)
                     {
                         this.WriteLine("popq %rax");
+                        // convert int to double
                         this.WriteLine("cvtsi2sdq %rax, %xmm1");
                         this.WriteLine("mulsd %xmm1, %xmm0");
                     }
@@ -295,6 +301,7 @@ namespace ll.assembler
                     this.WriteLine("pushq %rax");
                     this.GetAssember(divExpr.left);
 
+                    // convert int to double
                     if (divExpr.left.type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
@@ -311,6 +318,7 @@ namespace ll.assembler
                     if (divExpr.left.type is DoubleType)
                     {
                         this.WriteLine("popq %rax");
+                        // convert int to double
                         this.WriteLine("cvtsi2sdq %rax, %xmm1");
                         this.WriteLine("divsd %xmm1, %xmm0");
                     }
@@ -337,6 +345,7 @@ namespace ll.assembler
 
                     this.GetAssember(greaterExpr.left);
 
+                    // convert int to double
                     if (greaterExpr.left.type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
@@ -359,6 +368,7 @@ namespace ll.assembler
                     if (greaterExpr.left.type is DoubleType)
                     {
                         this.WriteLine("popq %rax");
+                        // convert int to double
                         this.WriteLine("cvtsi2sdq %rax, %xmm1");
                         this.WriteLine("ucomisd %xmm1, %xmm0");
 
@@ -397,16 +407,17 @@ namespace ll.assembler
 
                     this.GetAssember(lessExpr.left);
 
+                    // convert int to double
                     if (lessExpr.left.type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
                     this.WriteLine("popq %rax");
                     this.WriteLine("movq %rax, %xmm1");
 
-                    if (lessExpr.left.type is IntType)
-                        this.WriteLine("ucomisd %xmm0, %xmm1");
-                    else
-                        this.WriteLine("ucomisd %xmm1, %xmm0");
+                    // compare the two values
+                    // it is strange that, when one of the values was converted from int
+                    // the order has to change
+                    this.WriteLine("ucomisd %xmm1, %xmm0");
 
                     if (lessExpr.equal)
                         this.WriteLine("setbe %al");
@@ -423,8 +434,10 @@ namespace ll.assembler
                     if (lessExpr.left.type is DoubleType)
                     {
                         this.WriteLine("popq %rax");
+                        // convert int to double
                         this.WriteLine("cvtsi2sdq %rax, %xmm1");
-                        this.WriteLine("ucomisd %xmm0, %xmm1");
+                        // compare the two values
+                        this.WriteLine("ucomisd %xmm1, %xmm0");
 
                         if (lessExpr.equal)
                             this.WriteLine("setbe %al");
@@ -461,6 +474,7 @@ namespace ll.assembler
 
                     this.GetAssember(equalityExpr.left);
 
+                    // convert int to double
                     if (equalityExpr.left.type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
@@ -479,6 +493,7 @@ namespace ll.assembler
                     if (equalityExpr.left.type is DoubleType)
                     {
                         this.WriteLine("popq %rax");
+                        // convert int to double
                         this.WriteLine("cvtsi2sdq %rax, %xmm1");
                         this.WriteLine("ucomisd %xmm0, %xmm1");
                         this.WriteLine("setz %al");
@@ -539,7 +554,9 @@ namespace ll.assembler
 
             this.depth += 1;
 
+            // save previous basepointer
             this.WriteLine("pushq %rbp");
+            // set the new basepointer
             this.WriteLine("movq %rsp, %rbp");
 
             this.localVariableCount = funDef.GetLocalVariables();
@@ -575,6 +592,7 @@ namespace ll.assembler
 
             this.GetAssember(funDef.body);
 
+            // if the function is a void function, make sure the important registers are set to 0
             if (funDef.type is VoidType)
             {
                 this.WriteLine("movq $0, %rax");
@@ -998,16 +1016,16 @@ namespace ll.assembler
         private void AndExprAsm(AndExpr andExpr)
         {
             this.GetAssember(andExpr.left);
-            
+
             this.WriteLine("cmpq $0, %rax");
             this.WriteLine($"je .L{this.labelCount}");
-            
+
             this.GetAssember(andExpr.right);
 
             this.WriteLine("cmpq $0, %rax");
             this.WriteLine($"je .L{this.labelCount}");
             this.WriteLine("movq $1, %rax");
-            this.WriteLine($"jmp .L{this.labelCount+1}");
+            this.WriteLine($"jmp .L{this.labelCount + 1}");
 
 
             this.depth -= 1;
@@ -1030,7 +1048,7 @@ namespace ll.assembler
             this.WriteLine("cmpq $1, %rax");
             this.WriteLine($"je .L{this.labelCount}");
             this.WriteLine("movq $0, %rax");
-            this.WriteLine($"jmp .L{this.labelCount+1}");
+            this.WriteLine($"jmp .L{this.labelCount + 1}");
 
             this.depth -= 1;
             this.WriteLine($".L{this.labelCount++}:");

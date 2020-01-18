@@ -17,6 +17,7 @@ namespace ll.AST
                 {
                     this.variable = variable;
                     this.value = value;
+                    return;
                 }
                 else
                     throw new ArgumentException($"Variable type {value.type} does not match {variable.type}");
