@@ -42,6 +42,4 @@ steps:
     TargetFolder: './testGeneratedCode/'
     Contents: '**'
 
-- script: 'cd ./testGeneratedCode/'
-
 - script: 'make'
