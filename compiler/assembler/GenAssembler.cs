@@ -506,8 +506,18 @@ namespace ll.assembler
                     }
 
                     break;
+                case BooleanType booleanType:
+                    this.GetAssember(equalityExpr.right);
+                    this.WriteLine("pushq %rax");
+
+                    this.GetAssember(equalityExpr.left);
+                    this.WriteLine("popq %rbx");
+                    this.WriteLine("cmpq %rbx, %rax");
+                    this.WriteLine("sete %al");
+
+                    break;
                 default:
-                    throw new InvalidOperationException($"Can not use \"greater\" operator with {equalityExpr.right.type}");
+                    throw new InvalidOperationException($"Can not use \"equal\" operator with {equalityExpr.right.type}");
             }
 
             this.WriteLine("movzbl %al, %rax");
@@ -1059,6 +1069,8 @@ namespace ll.assembler
             this.WriteLine($".L{this.labelCount++}:");
             this.depth += 1;
         }
+
+        
 
         private void WriteLine(string op)
         {

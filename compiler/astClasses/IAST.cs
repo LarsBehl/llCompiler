@@ -178,6 +178,8 @@ namespace ll.AST
                     return new BoolLit(
                         ((orExpr.left.Eval() as BoolLit).value ?? false)
                         || ((orExpr.right.Eval() as BoolLit).value ?? false));
+                case NotEqualExpr notEqualExpr:
+                    return EvalNotEqualExpression(notEqualExpr);
                 default:
                     throw new ArgumentException("Unknown Ast Object");
             }
@@ -481,6 +483,31 @@ namespace ll.AST
                     return new DoubleLit((variable as DoubleLit).n / (divAssign.right.Eval() as DoubleLit).n);
                 default:
                     throw new ArgumentException($"Could not use type \"{divAssign.type.typeName}\" with DivAssignStatement");
+            }
+        }
+
+        static IAST EvalNotEqualExpression(NotEqualExpr notEqual)
+        {
+            switch (notEqual.left.type)
+            {
+                case IntType i:
+                    if (notEqual.right.type is IntType)
+                        return new BoolLit((notEqual.left.Eval() as IntLit).n != (notEqual.right.Eval() as IntLit).n);
+                    if (notEqual.right.type is DoubleType)
+                        return new BoolLit((notEqual.left.Eval() as IntLit).n != (notEqual.right.Eval() as DoubleLit).n);
+                    throw new ArgumentException($"Type \"{notEqual.left.type.typeName}\" is incompatible with \"{notEqual.right.type.typeName}\"");
+                case DoubleType d:
+                    if (notEqual.right.type is IntType)
+                        return new BoolLit((notEqual.left.Eval() as DoubleLit).n != (notEqual.right.Eval() as IntLit).n);
+                    if (notEqual.right.type is DoubleType)
+                        return new BoolLit((notEqual.left.Eval() as DoubleLit).n != (notEqual.right.Eval() as DoubleLit).n);
+                    throw new ArgumentException($"Type \"{notEqual.left.type.typeName}\" is incompatible with \"{notEqual.right.type.typeName}\"");
+                case BooleanType b:
+                    if (!(notEqual.right.type is BooleanType))
+                        throw new ArgumentException($"Type \"{notEqual.left.type.typeName}\" is incompatible with \"{notEqual.right.type.typeName}\"");
+                    return new BoolLit((notEqual.left.Eval() as BoolLit).value != (notEqual.right.Eval() as BoolLit).value);
+                default:
+                    throw new ArgumentException($"Unknown type \"{notEqual.left.type.typeName}\"");
             }
         }
     }

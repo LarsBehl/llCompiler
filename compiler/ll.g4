@@ -24,6 +24,7 @@ expression
     | left=expression op=GREATER ASSIGN? right=expression #greaterOperator
     | left=expression op=AND right=expression #andOperator
     | left=expression op=OR right=expression #orOperator
+    | left=expression op=NOT_EQUAL right=expression #notEqualOperator
     | unaryExpression #unaryExpr;
 
 statement
@@ -126,5 +127,6 @@ COMMA: ',';
 NOT: '!';
 AND: '&' '&';
 OR: '|' '|';
+NOT_EQUAL: '!' '=';
 
 WHITESPACE  : [ \t\n\r] -> skip;
