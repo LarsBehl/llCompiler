@@ -105,6 +105,13 @@ bool andOperator(bool x, bool y);
 // or operator functions
 bool orOperator(bool x, bool y);
 
+// not equal operator functions
+bool notEqualIntInt(long x, long y);
+bool notEqualIntDouble(long x, double y);
+bool notEqualDoubleInt(double x, long y);
+bool notEqualDoubleDouble(double x, double y);
+bool notEqualBoolBool(bool x, bool y);
+
 // register overflows
 long overFlowOnlyInt(long x, long y, long z, long a, long b, long c, long d, long e, long f);
 double overFlowOnlyDouble(double x, double y, double z, double a, double b, double c, double d, double e, double f);
@@ -333,6 +340,17 @@ void startTests()
     printBool(true, boolResult, "orOperatorFalseTrue");
     boolResult = orOperator(false, false);
     printBool(false, boolResult, "orOperatorFalseFalse");
+
+    boolResult = notEqualIntInt(1, 2);
+    printBool(true, boolResult, "notEqualIntInt");
+    boolResult = notEqualIntDouble(1, 1.0);
+    printBool(false, boolResult, "notEqualIntDouble");
+    boolResult = notEqualDoubleInt(1.0, 2);
+    printBool(true, boolResult, "notEqualDoubleInt");
+    boolResult = notEqualDoubleDouble(1.0, 1.0);
+    printBool(false, boolResult, "notEqualDoubleDouble");
+    boolResult = notEqualBoolBool(true, false);
+    printBool(true, boolResult, "notEqualBoolBool");
 
     intResult = overFlowOnlyInt(1, 1, 1, 1, 1, 1, 1, 1, 1);
     printInt(9, intResult, "overFlowOnlyInt");

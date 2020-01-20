@@ -358,5 +358,10 @@ namespace ll
         {
             return new OrExpr(Visit(context.left), Visit(context.right));
         }
+
+        public override IAST VisitNotEqualOperator(llParser.NotEqualOperatorContext context)
+        {
+            return new NotEqualExpr(Visit(context.left), Visit(context.right));
+        }
     }
 }

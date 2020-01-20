@@ -98,6 +98,8 @@ namespace ll.assembler
                     this.AndExprAsm(andExpr); break;
                 case OrExpr orExpr:
                     this.OrExprAsm(orExpr); break;
+                case NotEqualExpr notEqualExpr:
+                    this.NotEqualExprAsm(notEqualExpr); break;
                 default:
                     throw new NotImplementedException($"Assembler generation not implemented for {astNode.ToString()}");
             }
@@ -506,8 +508,18 @@ namespace ll.assembler
                     }
 
                     break;
+                case BooleanType booleanType:
+                    this.GetAssember(equalityExpr.right);
+                    this.WriteLine("pushq %rax");
+
+                    this.GetAssember(equalityExpr.left);
+                    this.WriteLine("popq %rbx");
+                    this.WriteLine("cmpq %rbx, %rax");
+                    this.WriteLine("sete %al");
+
+                    break;
                 default:
-                    throw new InvalidOperationException($"Can not use \"greater\" operator with {equalityExpr.right.type}");
+                    throw new InvalidOperationException($"Can not use \"equal\" operator with {equalityExpr.right.type}");
             }
 
             this.WriteLine("movzbl %al, %rax");
@@ -1058,6 +1070,58 @@ namespace ll.assembler
             this.depth -= 1;
             this.WriteLine($".L{this.labelCount++}:");
             this.depth += 1;
+        }
+
+        private void NotEqualExprAsm(NotEqualExpr notEqualExpr)
+        {
+            this.GetAssember(notEqualExpr.left);
+
+            switch (notEqualExpr.left.type)
+            {
+                case IntType it:
+                    this.WriteLine("pushq %rax");
+
+                    this.GetAssember(notEqualExpr.right);
+
+                    if (notEqualExpr.right.type is DoubleType)
+                    {
+                        this.WriteLine("popq %rax");
+                        this.WriteLine("cvtsi2sd %rax, %xmm1");
+                        this.WriteLine("ucomisd %xmm0, %xmm1");
+                    }
+                    else
+                    {
+                        this.WriteLine("popq %rax");
+                        this.WriteLine("cmpq %rax, %rbx");
+                    }
+                    
+                    break;
+                case DoubleType doubleType:
+                    this.WriteLine("pushq %rax");
+
+                    this.GetAssember(notEqualExpr.right);
+
+                    if(notEqualExpr.right.type is IntType)
+                        this.WriteLine("cvtsi2sd %rax, %xmm0");
+                    
+                    this.WriteLine("popq %rax");
+                    this.WriteLine("movq %rax, %xmm1");
+                    this.WriteLine("ucomisd %xmm0, %xmm1");
+
+                    break;
+                case BooleanType booleanType:
+                    this.WriteLine("pushq %rax");
+
+                    this.GetAssember(notEqualExpr.right);
+
+                    this.WriteLine("popq %rbx");
+                    this.WriteLine("cmpq %rax, %rbx");
+
+                    break;
+            }
+
+            this.WriteLine("setne %al");
+            this.WriteLine("movzbl %al, %rax");
         }
 
         private void WriteLine(string op)

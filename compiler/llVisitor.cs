@@ -78,6 +78,13 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitBinOpAddSub([NotNull] llParser.BinOpAddSubContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>notEqualOperator</c>
+	/// labeled alternative in <see cref="llParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitNotEqualOperator([NotNull] llParser.NotEqualOperatorContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>unaryExpr</c>
 	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// </summary>
