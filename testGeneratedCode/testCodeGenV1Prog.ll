@@ -407,6 +407,31 @@ orOperator(x:bool, y:bool): bool
     return x || y;
 }
 
+notEqualIntInt(x:int, y:int): bool
+{
+    return x != y;
+}
+
+notEqualIntDouble(x:int, y:double): bool
+{
+    return x != y;
+}
+
+notEqualDoubleInt(x:double, y:int): bool
+{
+    return x != y;
+}
+
+notEqualDoubleDouble(x:double, y:double): bool
+{
+    return x != y;
+}
+
+notEqualBoolBool(x:bool, y:bool): bool
+{
+    return x != y;
+}
+
 factorial(x:int): int
 {
     if(x > 1)
