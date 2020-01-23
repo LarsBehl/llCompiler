@@ -180,6 +180,12 @@ namespace ll.AST
                         || ((orExpr.right.Eval() as BoolLit).value ?? false));
                 case NotEqualExpr notEqualExpr:
                     return EvalNotEqualExpression(notEqualExpr);
+                case ProgramNode programNode:
+                    foreach(var f in programNode.funDefs)
+                    {
+                        f.Eval();
+                    }
+                    return null;
                 default:
                     throw new ArgumentException("Unknown Ast Object");
             }

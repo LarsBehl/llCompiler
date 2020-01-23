@@ -216,11 +216,11 @@ namespace ll
             // save the new function definition
             if (funDef.body != null)
                 throw new ArgumentException($"Trying to override the body of function \"{identifier[0].GetText()}\"");
-            var body = Visit(context.body);
+            var body = Visit(context.body) as BlockStatement;
 
-            if (body.type.typeName != funDef.returnType.typeName)
+            if (body.type.typeName != funDef.returnType.typeName || !body.doesFullyReturn)
             {
-                if (body.type is BlockStatementType)
+                if (body.type is BlockStatementType || !body.doesFullyReturn)
                     throw new ArgumentException($"Missing return statement in \"{funDef.name}\"");
                 throw new ArgumentException($"Return type \"{body.type.typeName}\" does not match \"{funDef.returnType.typeName}\"");
             }

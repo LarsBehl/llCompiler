@@ -6,6 +6,7 @@ namespace ll.AST
     public class WhileStatement : IAST {
         public IAST condition { get; set; }
         public IAST body { get; set; }
+        public bool doesFullyReturn { get; set; }
         
         public WhileStatement(IAST condition, IAST body): base(GetType(body))
         {
@@ -14,6 +15,8 @@ namespace ll.AST
 
             this.condition = condition;
             this.body = body;
+
+            this.doesFullyReturn = DoesFullyReturn();
         }
 
         private static type.Type GetType(IAST body)
@@ -22,6 +25,19 @@ namespace ll.AST
                 return body.type;
             
             return new WhileStatementType();
+        }
+
+        private bool DoesFullyReturn()
+        {
+            if(this.condition is BoolLit)
+            {
+                var tmp = this.condition as BoolLit;
+
+                if(!(this.body.type is BlockStatementType))
+                    return tmp.value ?? false;
+            }
+
+            return false;
         }
     }
 }

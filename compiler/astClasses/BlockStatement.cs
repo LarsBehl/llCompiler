@@ -7,10 +7,12 @@ namespace ll.AST
     public class BlockStatement : IAST
     {
         public List<IAST> body { get; set; }
+        public bool doesFullyReturn { get; set; }
 
         public BlockStatement(List<IAST> body) : base(GetType(body))
         {
             this.body = body;
+            this.doesFullyReturn = DoesFullyReturn();
         }
 
         private static ll.type.Type GetType(List<IAST> body)
@@ -39,6 +41,33 @@ namespace ll.AST
             }
 
             return result;
+        }
+
+        private bool DoesFullyReturn()
+        {
+            foreach(var comp in body)
+            {
+                if(comp is ReturnStatement)
+                    return true;
+                
+                if(comp is IfStatement)
+                {
+                    var tmp = comp as IfStatement;
+                    
+                    if(tmp.doesFullyReturn)
+                        return true;
+                }
+
+                if(comp is WhileStatement)
+                {
+                    var tmp = comp as WhileStatement;
+
+                    if(tmp.doesFullyReturn)
+                        return true;
+                }
+            }
+
+            return false;
         }
     }
 }
