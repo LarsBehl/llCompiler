@@ -186,6 +186,9 @@ namespace ll.AST
                         f.Eval();
                     }
                     return null;
+                case PrintStatement printStatement:
+                    EvalPrintStatement(printStatement);
+                    return null;
                 default:
                     throw new ArgumentException("Unknown Ast Object");
             }
@@ -515,6 +518,30 @@ namespace ll.AST
                 default:
                     throw new ArgumentException($"Unknown type \"{notEqual.left.type.typeName}\"");
             }
+        }
+
+        static void EvalPrintStatement(PrintStatement print)
+        {
+            string result = "";
+            switch(print.value.type)
+            {
+                case IntType it:
+                    var tmp = print.value.Eval() as IntLit;
+                    result = tmp.n.ToString() ?? "";
+                    break;
+                case DoubleType dt:
+                    var tmp2 = print.value.Eval() as DoubleLit;
+                    result = tmp2.n.ToString() ?? "";
+                    break;
+                case BooleanType bt:
+                    var tmp3 = print.value.Eval() as BoolLit;
+                    result = tmp3.value.ToString() ?? "";
+                    break;
+                default:
+                    throw new ArgumentException($"Print does not support type {print.value.type.typeName}");
+            }
+
+            Console.WriteLine(result);
         }
     }
 }

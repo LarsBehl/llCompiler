@@ -14,21 +14,27 @@ namespace ll.assembler
         private int depth = 0;
         private StringBuilder sb = new StringBuilder();
         private StringBuilder doubleNumbers = new StringBuilder();
+        private StringBuilder strings = new StringBuilder();
         private int labelCount = 0;
         private int doubleNumbersLabelCount = 0;
+        private int stringLabelCount = 0;
         private string[] integerRegisters = { "%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9" };
         private string[] doubleRegisters = { "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7" };
         private Dictionary<string, FunctionAsm> functionMap = new Dictionary<string, FunctionAsm>();
         private Dictionary<double, int> doubleMap = new Dictionary<double, int>();
         private Dictionary<string, int> variableMap;
+        private Dictionary<string, int> stringLabelMap = new Dictionary<string, int>();
         private int localVariablePointer = 0;
         private int localVariableCount = 0;
+        private int stackCounter = 0;
 
         public void PrintAssember()
         {
             Console.WriteLine(this.sb.ToString());
             if (this.doubleNumbers.Length > 0)
                 Console.WriteLine(this.doubleNumbers.ToString());
+            if (this.strings.Length > 0)
+                Console.WriteLine(this.strings.ToString());
         }
 
         /**
@@ -100,6 +106,8 @@ namespace ll.assembler
                     this.OrExprAsm(orExpr); break;
                 case NotEqualExpr notEqualExpr:
                     this.NotEqualExprAsm(notEqualExpr); break;
+                case PrintStatement printStatement:
+                    this.PrintStatementAsm(printStatement); break;
                 default:
                     throw new NotImplementedException($"Assembler generation not implemented for {astNode.ToString()}");
             }
@@ -142,6 +150,8 @@ namespace ll.assembler
 
             if (this.doubleNumbers.Length > 0)
                 fileContent = fileContent + this.doubleNumbers.ToString();
+            if (this.strings.Length > 0)
+                fileContent = fileContent + this.strings.ToString();
 
             fileName = filePath.Substring(0, filePath.IndexOf(".ll")) + ".S";
 
@@ -174,33 +184,33 @@ namespace ll.assembler
                 case DoubleType doubleType:
                     this.GetAssember(addExpr.right);
                     this.WriteLine("movq %xmm0, %rax");
-                    this.WriteLine("pushq %rax");
+                    this.WritePush();
                     this.GetAssember(addExpr.left);
 
                     // convert int to double
                     if (addExpr.left.type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
-                    this.WriteLine("popq %rax");
+                    this.WritePop();
                     this.WriteLine("movq %rax, %xmm1");
                     this.WriteLine("addsd %xmm1, %xmm0");
 
                     break;
                 case IntType intType:
                     this.GetAssember(addExpr.right);
-                    this.WriteLine("pushq %rax");
+                    this.WritePush();
                     this.GetAssember(addExpr.left);
 
                     if (addExpr.left.type is DoubleType)
                     {
-                        this.WriteLine("popq %rax");
+                        this.WritePop();
                         // convert int to double
                         this.WriteLine("cvtsi2sdq %rax, %xmm1");
                         this.WriteLine("addsd %xmm1, %xmm0");
                     }
                     else
                     {
-                        this.WriteLine("popq %rbx");
+                        this.WritePop("%rbx");
                         this.WriteLine("addq %rbx, %rax");
                     }
                     break;
@@ -216,33 +226,33 @@ namespace ll.assembler
                 case DoubleType doubleType:
                     this.GetAssember(subExpr.right);
                     this.WriteLine("movq %xmm0, %rax");
-                    this.WriteLine("pushq %rax");
+                    this.WritePush();
                     this.GetAssember(subExpr.left);
 
                     // convert int to double
                     if (subExpr.left.type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
-                    this.WriteLine("popq %rax");
+                    this.WritePop();
                     this.WriteLine("movq %rax, %xmm1");
                     this.WriteLine("subsd %xmm1, %xmm0");
 
                     break;
                 case IntType intType:
                     this.GetAssember(subExpr.right);
-                    this.WriteLine("pushq %rax");
+                    this.WritePush();
                     this.GetAssember(subExpr.left);
 
                     if (subExpr.left.type is DoubleType)
                     {
-                        this.WriteLine("popq %rax");
+                        this.WritePop();
                         // convert int to double
                         this.WriteLine("cvtsi2sdq %rax, %xmm1");
                         this.WriteLine("subsd %xmm1, %xmm0");
                     }
                     else
                     {
-                        this.WriteLine("popq %rbx");
+                        WritePop("%rbx");
                         this.WriteLine("subq %rbx, %rax");
                     }
                     break;
@@ -258,33 +268,33 @@ namespace ll.assembler
                 case DoubleType doubleType:
                     this.GetAssember(multExpr.right);
                     this.WriteLine("movq %xmm0, %rax");
-                    this.WriteLine("pushq %rax");
+                    this.WritePush();
                     this.GetAssember(multExpr.left);
 
                     // convert int to double
                     if (multExpr.left.type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
-                    this.WriteLine("popq %rax");
+                    this.WritePop();
                     this.WriteLine("movq %rax, %xmm1");
                     this.WriteLine("mulsd %xmm1, %xmm0");
 
                     break;
                 case IntType intType:
                     this.GetAssember(multExpr.right);
-                    this.WriteLine("pushq %rax");
+                    this.WritePush();
                     this.GetAssember(multExpr.left);
 
                     if (multExpr.left.type is DoubleType)
                     {
-                        this.WriteLine("popq %rax");
+                        this.WritePop();
                         // convert int to double
                         this.WriteLine("cvtsi2sdq %rax, %xmm1");
                         this.WriteLine("mulsd %xmm1, %xmm0");
                     }
                     else
                     {
-                        this.WriteLine("popq %rbx");
+                        this.WritePop("%rbx");
                         this.WriteLine("imulq %rbx, %rax");
                     }
                     break;
@@ -300,33 +310,33 @@ namespace ll.assembler
                 case DoubleType doubleType:
                     this.GetAssember(divExpr.right);
                     this.WriteLine("movq %xmm0, %rax");
-                    this.WriteLine("pushq %rax");
+                    this.WritePush();
                     this.GetAssember(divExpr.left);
 
                     // convert int to double
                     if (divExpr.left.type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
-                    this.WriteLine("popq %rax");
+                    this.WritePop();
                     this.WriteLine("movq %rax, %xmm1");
                     this.WriteLine("divsd %xmm1, %xmm0");
 
                     break;
                 case IntType intType:
                     this.GetAssember(divExpr.right);
-                    this.WriteLine("pushq %rax");
+                    this.WritePush();
                     this.GetAssember(divExpr.left);
 
                     if (divExpr.left.type is DoubleType)
                     {
-                        this.WriteLine("popq %rax");
+                        this.WritePop();
                         // convert int to double
                         this.WriteLine("cvtsi2sdq %rax, %xmm1");
                         this.WriteLine("divsd %xmm1, %xmm0");
                     }
                     else
                     {
-                        this.WriteLine("popq %rbx");
+                        this.WritePop("%rbx");
                         this.WriteLine("movq $0, %rdx");
                         this.WriteLine("idivq %rbx");
                     }
@@ -343,7 +353,7 @@ namespace ll.assembler
                 case DoubleType doubleType:
                     this.GetAssember(greaterExpr.right);
                     this.WriteLine("movq %xmm0, %rax");
-                    this.WriteLine("pushq %rax");
+                    this.WritePush();
 
                     this.GetAssember(greaterExpr.left);
 
@@ -351,7 +361,7 @@ namespace ll.assembler
                     if (greaterExpr.left.type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
-                    this.WriteLine("popq %rax");
+                    this.WritePop();
                     this.WriteLine("movq %rax, %xmm1");
                     this.WriteLine("ucomisd %xmm1, %xmm0");
 
@@ -363,13 +373,13 @@ namespace ll.assembler
                     break;
                 case IntType intType:
                     this.GetAssember(greaterExpr.right);
-                    this.WriteLine("pushq %rax");
+                    this.WritePush();
 
                     this.GetAssember(greaterExpr.left);
 
                     if (greaterExpr.left.type is DoubleType)
                     {
-                        this.WriteLine("popq %rax");
+                        this.WritePop();
                         // convert int to double
                         this.WriteLine("cvtsi2sdq %rax, %xmm1");
                         this.WriteLine("ucomisd %xmm1, %xmm0");
@@ -381,7 +391,7 @@ namespace ll.assembler
                     }
                     else
                     {
-                        this.WriteLine("popq %rbx");
+                        this.WritePop("%rbx");
                         this.WriteLine("cmpq %rbx, %rax");
 
                         if (greaterExpr.equal)
@@ -405,7 +415,7 @@ namespace ll.assembler
                 case DoubleType doubleType:
                     this.GetAssember(lessExpr.right);
                     this.WriteLine("movq %xmm0, %rax");
-                    this.WriteLine("pushq %rax");
+                    this.WritePush();
 
                     this.GetAssember(lessExpr.left);
 
@@ -413,7 +423,7 @@ namespace ll.assembler
                     if (lessExpr.left.type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
-                    this.WriteLine("popq %rax");
+                    this.WritePop();
                     this.WriteLine("movq %rax, %xmm1");
 
                     // compare the two values
@@ -429,13 +439,13 @@ namespace ll.assembler
                     break;
                 case IntType intType:
                     this.GetAssember(lessExpr.right);
-                    this.WriteLine("pushq %rax");
+                    this.WritePush();
 
                     this.GetAssember(lessExpr.left);
 
                     if (lessExpr.left.type is DoubleType)
                     {
-                        this.WriteLine("popq %rax");
+                        this.WritePop();
                         // convert int to double
                         this.WriteLine("cvtsi2sdq %rax, %xmm1");
                         // compare the two values
@@ -448,7 +458,7 @@ namespace ll.assembler
                     }
                     else
                     {
-                        this.WriteLine("popq %rbx");
+                        this.WritePop("%rbx");
                         this.WriteLine("cmpq %rbx, %rax");
 
                         if (lessExpr.equal)
@@ -472,7 +482,7 @@ namespace ll.assembler
                 case DoubleType doubleType:
                     this.GetAssember(equalityExpr.right);
                     this.WriteLine("movq %xmm0, %rax");
-                    this.WriteLine("pushq %rax");
+                    this.WritePush();
 
                     this.GetAssember(equalityExpr.left);
 
@@ -480,7 +490,7 @@ namespace ll.assembler
                     if (equalityExpr.left.type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
-                    this.WriteLine("popq %rax");
+                    this.WritePop();
                     this.WriteLine("movq %rax, %xmm1");
                     this.WriteLine("ucomisd %xmm0, %xmm1");
                     this.WriteLine("setz %al");
@@ -488,13 +498,13 @@ namespace ll.assembler
                     break;
                 case IntType intType:
                     this.GetAssember(equalityExpr.right);
-                    this.WriteLine("pushq %rax");
+                    this.WritePush();
 
                     this.GetAssember(equalityExpr.left);
 
                     if (equalityExpr.left.type is DoubleType)
                     {
-                        this.WriteLine("popq %rax");
+                        this.WritePop();
                         // convert int to double
                         this.WriteLine("cvtsi2sdq %rax, %xmm1");
                         this.WriteLine("ucomisd %xmm0, %xmm1");
@@ -502,7 +512,7 @@ namespace ll.assembler
                     }
                     else
                     {
-                        this.WriteLine("popq %rbx");
+                        this.WritePop("%rbx");
                         this.WriteLine("cmpq %rbx, %rax");
                         this.WriteLine("sete %al");
                     }
@@ -510,10 +520,10 @@ namespace ll.assembler
                     break;
                 case BooleanType booleanType:
                     this.GetAssember(equalityExpr.right);
-                    this.WriteLine("pushq %rax");
+                    this.WritePush();
 
                     this.GetAssember(equalityExpr.left);
-                    this.WriteLine("popq %rbx");
+                    this.WritePop("%rbx");
                     this.WriteLine("cmpq %rbx, %rax");
                     this.WriteLine("sete %al");
 
@@ -535,7 +545,7 @@ namespace ll.assembler
         {
             this.GetAssember(returnStatement.returnValue);
             this.WriteLine("movq %rbp, %rsp");
-            this.WriteLine("popq %rbp");
+            this.WritePop("%rbp");
             this.WriteLine("ret");
         }
 
@@ -567,12 +577,13 @@ namespace ll.assembler
             this.depth += 1;
 
             // save previous basepointer
-            this.WriteLine("pushq %rbp");
+            this.WritePush("%rbp");
             // set the new basepointer
             this.WriteLine("movq %rsp, %rbp");
 
             this.localVariableCount = funDef.GetLocalVariables();
             int offSet = this.localVariableCount * -8;
+            this.stackCounter -= offSet;
 
             if (offSet < 0)
                 this.WriteLine($"addq ${offSet}, %rsp");
@@ -584,7 +595,7 @@ namespace ll.assembler
 
             for (int i = 0; i < index; i++)
             {
-                this.WriteLine($"pushq {this.integerRegisters[i]}");
+                this.WritePush(this.integerRegisters[i]);
                 offSet -= 8;
                 lastFound = this.GetNextIntArg(funDef.args, lastFound);
                 this.variableMap[funDef.args[lastFound].name] = offSet;
@@ -596,7 +607,7 @@ namespace ll.assembler
             for (int i = 0; i < index; i++)
             {
                 this.WriteLine($"movq {this.doubleRegisters[i]}, %rax");
-                this.WriteLine($"pushq %rax");
+                this.WritePush();
                 offSet -= 8;
                 lastFound = this.GetNextDoubleArg(funDef.args, lastFound);
                 this.variableMap[funDef.args[lastFound].name] = offSet;
@@ -605,13 +616,13 @@ namespace ll.assembler
             this.GetAssember(funDef.body);
 
             // if the function is a void function, make sure the important registers are set to 0
-            if (funDef.type is VoidType)
+            if (funDef.returnType is VoidType)
             {
                 this.WriteLine("movq $0, %rax");
                 this.WriteLine("movl $0, %eax");
                 this.WriteLine("cvtsi2sd %rax, %xmm0");
                 this.WriteLine("movq %rbp, %rsp");
-                this.WriteLine("popq %rbp");
+                this.WritePop("%rbp");
                 this.WriteLine("ret");
             }
 
@@ -678,7 +689,7 @@ namespace ll.assembler
                             throw new ArgumentException($"Unknown type {functionCall.args[i].type.typeName}");
                     }
                 }
-
+                this.stackCounter += rbpOffset - 16;
                 this.WriteLine($"subq ${rbpOffset - 16}, %rsp");
             }
 
@@ -725,7 +736,7 @@ namespace ll.assembler
                     this.GetAssember(functionCall.args[i]);
 
                     this.WriteLine($"movq %xmm0, %rax");
-                    this.WriteLine($"pushq %rax");
+                    this.WritePush();
                     functionAsm.usedDoubleRegisters++;
                 }
             }
@@ -733,7 +744,7 @@ namespace ll.assembler
             // move the previously pushed double arguments into the double registers
             for (int i = 0; i < functionAsm.usedDoubleRegisters; i++)
             {
-                this.WriteLine("popq %rax");
+                this.WritePop();
                 this.WriteLine($"movq %rax, {doubleRegisters[i]}");
             }
 
@@ -1079,42 +1090,42 @@ namespace ll.assembler
             switch (notEqualExpr.left.type)
             {
                 case IntType it:
-                    this.WriteLine("pushq %rax");
+                    this.WritePush();
 
                     this.GetAssember(notEqualExpr.right);
 
                     if (notEqualExpr.right.type is DoubleType)
                     {
-                        this.WriteLine("popq %rax");
+                        this.WritePop();
                         this.WriteLine("cvtsi2sd %rax, %xmm1");
                         this.WriteLine("ucomisd %xmm0, %xmm1");
                     }
                     else
                     {
-                        this.WriteLine("popq %rax");
+                        this.WritePop();
                         this.WriteLine("cmpq %rax, %rbx");
                     }
-                    
+
                     break;
                 case DoubleType doubleType:
-                    this.WriteLine("pushq %rax");
+                    this.WritePush();
 
                     this.GetAssember(notEqualExpr.right);
 
-                    if(notEqualExpr.right.type is IntType)
+                    if (notEqualExpr.right.type is IntType)
                         this.WriteLine("cvtsi2sd %rax, %xmm0");
-                    
-                    this.WriteLine("popq %rax");
+
+                    this.WritePop();
                     this.WriteLine("movq %rax, %xmm1");
                     this.WriteLine("ucomisd %xmm0, %xmm1");
 
                     break;
                 case BooleanType booleanType:
-                    this.WriteLine("pushq %rax");
+                    this.WritePush();
 
                     this.GetAssember(notEqualExpr.right);
 
-                    this.WriteLine("popq %rbx");
+                    this.WritePop("%rbx");
                     this.WriteLine("cmpq %rax, %rbx");
 
                     break;
@@ -1122,6 +1133,40 @@ namespace ll.assembler
 
             this.WriteLine("setne %al");
             this.WriteLine("movzbl %al, %rax");
+        }
+
+        private void PrintStatementAsm(PrintStatement print)
+        {
+            this.WriteString(print.value);
+
+            this.GetAssember(print.value);
+
+            switch (print.value.type)
+            {
+                case IntType it:
+                    this.WriteLine("movq %rax, %rsi");
+                    this.WriteLine($"leaq .LS{this.stringLabelMap["int"]}(%rip), %rdi");
+                    this.WriteLine("movl $0, %eax");
+
+                    break;
+                case DoubleType dt:
+                    this.WriteLine($"leaq .LS{this.stringLabelMap["double"]}(%rip), %rdi");
+                    this.WriteLine("movl $1, %eax");
+
+                    break;
+                case BooleanType bt:
+                    this.WriteLine("movq %rax, %rsi");
+                    this.WriteLine($"leaq .LS{this.stringLabelMap["int"]}(%rip), %rdi");
+                    this.WriteLine("movl $0, %eax");
+
+                    break;
+            }
+
+            if (this.stackCounter % 16 == 0)
+                this.WritePush("$0");
+
+
+            this.WriteLine("call printf@PLT");
         }
 
         private void WriteLine(string op)
@@ -1147,6 +1192,18 @@ namespace ll.assembler
             this.sb.Append("\n");
         }
 
+        private void WritePush(string register = "%rax")
+        {
+            this.WriteLine($"pushq {register}");
+            this.stackCounter += 8;
+        }
+
+        private void WritePop(string register = "%rax")
+        {
+            this.WriteLine($"popq {register}");
+            this.stackCounter -= 8;
+        }
+
         private void WriteDoubleValue(DoubleLit doubleLit)
         {
             if (doubleLit.n == null)
@@ -1167,6 +1224,33 @@ namespace ll.assembler
             // remember which label corresponds to the given double value
             this.doubleMap.Add(doubleLit.n ?? 0, this.doubleNumbersLabelCount);
             this.doubleNumbersLabelCount += 1;
+        }
+
+        private void WriteString(IAST value)
+        {
+            this.strings.Append($".LS{this.stringLabelCount}:\n");
+            string stringVal = "";
+            string type = "";
+
+            switch (value.type)
+            {
+                case IntType it:
+                    stringVal = "%ld\\n";
+                    type = "int";
+                    break;
+                case DoubleType dt:
+                    stringVal = "%f\\n";
+                    type = "double";
+                    break;
+                case BooleanType bt:
+                    stringVal = "%ld\\n";
+                    type = "int";
+                    break;
+                default:
+                    throw new ArgumentException($"Type {value.type.typeName} not supported for print operation");
+            }
+            this.stringLabelMap[type] = this.stringLabelCount++;
+            this.strings.Append($"{this.indent}.string \"{stringVal}\"\n");
         }
 
         private void DoubleToAssemblerString(DoubleLit doubleLit, out string leftPart, out string rightPart)

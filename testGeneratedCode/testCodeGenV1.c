@@ -112,6 +112,11 @@ bool notEqualDoubleInt(double x, long y);
 bool notEqualDoubleDouble(double x, double y);
 bool notEqualBoolBool(bool x, bool y);
 
+// print statement functions
+void testPrintBool(bool x);
+void testPrintInt(long x);
+void testPrintDouble(double x);
+
 // register overflows
 long overFlowOnlyInt(long x, long y, long z, long a, long b, long c, long d, long e, long f);
 double overFlowOnlyDouble(double x, double y, double z, double a, double b, double c, double d, double e, double f);
@@ -128,10 +133,10 @@ long callMultipleOthers(long x);
 int failedCount = 0;
 int overallCount = 0;
 
-void printInt(long expected, long returned, char* funName)
+void printInt(long expected, long returned, char *funName)
 {
     overallCount++;
-    if(expected != returned)
+    if (expected != returned)
     {
         printf("%s failed: expected %ld but returned %ld\n", funName, expected, returned);
         failedCount++;
@@ -140,10 +145,10 @@ void printInt(long expected, long returned, char* funName)
         printf("%s passed\n", funName);
 }
 
-void printDouble(double expected, double returned, char* funName)
+void printDouble(double expected, double returned, char *funName)
 {
     overallCount++;
-    if(expected != returned)
+    if (expected != returned)
     {
         printf("%s failed: expected %f but returned %f\n", funName, expected, returned);
         failedCount++;
@@ -152,10 +157,10 @@ void printDouble(double expected, double returned, char* funName)
         printf("%s passed\n", funName);
 }
 
-void printBool(bool expected, bool returned, char* funName)
+void printBool(bool expected, bool returned, char *funName)
 {
     overallCount++;
-    if(expected != returned)
+    if (expected != returned)
     {
         printf("%s failed: expected %d but returned %d\n", funName, expected, returned);
         failedCount++;
@@ -352,6 +357,13 @@ void startTests()
     boolResult = notEqualBoolBool(true, false);
     printBool(true, boolResult, "notEqualBoolBool");
 
+    printf("running testPrintBool - expected output \"true\" - output: ");
+    testPrintBool(true);
+    printf("running testPrintInt - expected output \"42\" - output: ");
+    testPrintInt(42);
+    printf("running testPrintDouble - expected output \"17.7\" - output: ");
+    testPrintDouble(17.7);
+
     intResult = overFlowOnlyInt(1, 1, 1, 1, 1, 1, 1, 1, 1);
     printInt(9, intResult, "overFlowOnlyInt");
     doubleResult = overFlowOnlyDouble(1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0);
@@ -372,6 +384,6 @@ void startTests()
     int successCount = overallCount - failedCount;
     printf("\n\n%d tests of %d were successfull\n", successCount, overallCount);
 
-    if(failedCount > 0)
+    if (failedCount > 0)
         exit(EXIT_FAILURE);
 }
