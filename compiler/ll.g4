@@ -34,7 +34,7 @@ statement
     | left=WORD MULT_ASSIGN right=expression SEMCOL #multAssignStatement
     | left=WORD DIV_ASSIGN right=expression SEMCOL #divAssignStatement
     | left=WORD COLON type=typeDefinition SEMCOL #instantiationStatement
-    | left=WORD COLON type=typeDefinition ASSIGN right=expression SEMCOL #initializationStatement
+    | left=WORD COLON type=typeDefinition ASSIGN (expression|arrayCreation) SEMCOL #initializationStatement
     | RETURN expression? SEMCOL #returnStatement
     | IF PAR_L cond=compositUnit PAR_R blockStatement (ELSE blockStatement)? #ifStatement
     | WHILE PAR_L cond=compositUnit PAR_R blockStatement #whileStatement

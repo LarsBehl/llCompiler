@@ -146,7 +146,12 @@ namespace ll
 
             IAST.env[context.left.Text] = variable;
 
-            IAST val = Visit(context.right);
+            IAST val;
+            if (context.expression() != null)
+                val = Visit(context.expression());
+            else
+                val = Visit(context.arrayCreation());
+
             if (variable.type.typeName != val.type.typeName)
             {
                 if (variable.type is DoubleType && val.type is IntType)
@@ -382,32 +387,32 @@ namespace ll
 
         public override IAST VisitIntArrayType(llParser.IntArrayTypeContext context)
         {
-            throw new NotImplementedException();
+            return new IntArray();
         }
 
         public override IAST VisitDoubleArrayType(llParser.DoubleArrayTypeContext context)
         {
-            throw new NotImplementedException();
+            return new DoubleArray();
         }
 
         public override IAST VisitBoolArrayType(llParser.BoolArrayTypeContext context)
         {
-            throw new NotImplementedException();
+            return new BoolArray();
         }
 
         public override IAST VisitIntArrayCreation(llParser.IntArrayCreationContext context)
         {
-            throw new NotImplementedException();
+            return new IntArray(Visit(context.expression()));
         }
 
         public override IAST VisitDoubleArrayCreation(llParser.DoubleArrayCreationContext context)
         {
-            throw new NotImplementedException();
+            return new DoubleArray(Visit(context.expression()));
         }
 
         public override IAST VisitBoolArrayCreation(llParser.BoolArrayCreationContext context)
         {
-            throw new NotImplementedException();
+            return new BoolArray(Visit(context.expression()));
         }
     }
 }

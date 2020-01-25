@@ -181,7 +181,7 @@ namespace ll.AST
                 case NotEqualExpr notEqualExpr:
                     return EvalNotEqualExpression(notEqualExpr);
                 case ProgramNode programNode:
-                    foreach(var f in programNode.funDefs)
+                    foreach (var f in programNode.funDefs)
                     {
                         f.Eval();
                     }
@@ -189,6 +189,15 @@ namespace ll.AST
                 case PrintStatement printStatement:
                     EvalPrintStatement(printStatement);
                     return null;
+                case IntArray intArray:
+                    var tmp4 = EvalIntArray(intArray);
+                    return tmp4;
+                case DoubleArray doubleArray:
+                    var tmp5 = EvalDoubleArray(doubleArray);
+                    return tmp5;
+                case BoolArray boolArray:
+                    var tmp6 = EvalBoolArray(boolArray);
+                    return tmp6;
                 default:
                     throw new ArgumentException("Unknown Ast Object");
             }
@@ -523,7 +532,7 @@ namespace ll.AST
         static void EvalPrintStatement(PrintStatement print)
         {
             string result = "";
-            switch(print.value.type)
+            switch (print.value.type)
             {
                 case IntType it:
                     var tmp = print.value.Eval() as IntLit;
@@ -542,6 +551,51 @@ namespace ll.AST
             }
 
             Console.WriteLine(result);
+        }
+
+        static IAST EvalIntArray(IntArray intArray)
+        {
+            if (intArray.values == null)
+            {
+                long size = (intArray.capacity.Eval() as IntLit).n ?? -1;
+
+                if (size < 0)
+                    throw new ArgumentException("The length of an array has to be positive");
+
+                intArray.values = new IAST[size];
+            }
+
+            return intArray;
+        }
+
+        static IAST EvalDoubleArray(DoubleArray doubleArray)
+        {
+            if (doubleArray.values == null)
+            {
+                long size = (doubleArray.capacity.Eval() as IntLit).n ?? -1;
+
+                if (size < 0)
+                    throw new ArgumentException("The length of an array has to be positive");
+
+                doubleArray.values = new IAST[size];
+            }
+
+            return doubleArray;
+        }
+
+        static IAST EvalBoolArray(BoolArray boolArray)
+        {
+            if (boolArray.values == null)
+            {
+                long size = (boolArray.capacity.Eval() as IntLit).n ?? -1;
+
+                if (size < 0)
+                    throw new ArgumentException("The length of an array has to be positive");
+
+                boolArray.values = new IAST[size];
+            }
+
+            return boolArray;
         }
     }
 }

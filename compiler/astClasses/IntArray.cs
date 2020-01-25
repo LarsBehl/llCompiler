@@ -5,30 +5,43 @@ namespace ll.AST
 {
     public class IntArray : IAST
     {
-        public int capacity { get; set; }
+        public IAST capacity { get; set; }
         public IAST[] values { get; set; }
 
-        public IntArray(int capacity, IAST[] values) : base(new IntArrayType())
+        public IntArray(IAST capacity, IAST[] values) : base(new IntArrayType())
         {
+            if (!(capacity.type is IntType))
+                throw new ArgumentException("Size of an array has to be an integer");
             this.capacity = capacity;
-
-            foreach (IAST node in values)
-            {
-                if (!(node?.type is IntType))
-                    throw new ArgumentException($"Could not save \"{node.type.typeName}\" values in IntArray");
-            }
 
             this.values = values;
         }
 
-        public IntArray(int capacity) : this(capacity, new IAST[capacity])
+        public IntArray(IAST capacity) : this(capacity, null)
         {
 
         }
 
-        public IntArray() : this(-1, new IAST[0])
+        public IntArray() : this(new IntLit(-1), null)
         {
 
+        }
+
+        public override string ToString()
+        {
+            string result = "[";
+
+            foreach (IAST node in this.values)
+            {
+                if (node != null)
+                    result += node.Eval().ToString() + ", ";
+                else
+                    result += "null, ";
+            }
+
+            result = result.Substring(0, result.Length - 2) + "]";
+
+            return result;
         }
     }
 }

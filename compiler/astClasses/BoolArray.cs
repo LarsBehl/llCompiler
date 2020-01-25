@@ -5,11 +5,13 @@ namespace ll.AST
 {
     public class BoolArray : IAST
     {
-        public int capacity { get; set; }
+        public IAST capacity { get; set; }
         public IAST[] values { get; set; }
 
-        public BoolArray(int capacity, IAST[] values) : base(new BoolArrayType())
+        public BoolArray(IAST capacity, IAST[] values) : base(new BoolArrayType())
         {
+            if (!(capacity.type is IntType))
+                throw new ArgumentException("Size of an array has to be an integer");
             this.capacity = capacity;
 
             foreach (IAST node in values)
@@ -21,14 +23,31 @@ namespace ll.AST
             this.values = values;
         }
 
-        public BoolArray(int capacity) : this(capacity, new IAST[capacity])
+        public BoolArray(IAST capacity) : this(capacity, null)
         {
 
         }
 
-        public BoolArray() : this(-1, new IAST[0])
+        public BoolArray() : this(new IntLit(-1), null)
         {
 
+        }
+
+        public override string ToString()
+        {
+            string result = "[";
+
+            foreach (IAST node in this.values)
+            {
+                if (node != null)
+                    result += node.Eval().ToString() + ", ";
+                else
+                    result += "null, ";
+            }
+
+            result = result.Substring(0, result.Length - 2) + "]";
+
+            return result;
         }
     }
 }
