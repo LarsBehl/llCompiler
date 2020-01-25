@@ -289,5 +289,47 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitNotExpression([NotNull] llParser.NotExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>intArrayType</c>
+	/// labeled alternative in <see cref="llParser.arrayTypes"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitIntArrayType([NotNull] llParser.IntArrayTypeContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>doubleArrayType</c>
+	/// labeled alternative in <see cref="llParser.arrayTypes"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDoubleArrayType([NotNull] llParser.DoubleArrayTypeContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>boolArrayType</c>
+	/// labeled alternative in <see cref="llParser.arrayTypes"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitBoolArrayType([NotNull] llParser.BoolArrayTypeContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>intArrayCreation</c>
+	/// labeled alternative in <see cref="llParser.arrayCreation"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitIntArrayCreation([NotNull] llParser.IntArrayCreationContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>doubleArrayCreation</c>
+	/// labeled alternative in <see cref="llParser.arrayCreation"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDoubleArrayCreation([NotNull] llParser.DoubleArrayCreationContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>boolArrayCreation</c>
+	/// labeled alternative in <see cref="llParser.arrayCreation"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitBoolArrayCreation([NotNull] llParser.BoolArrayCreationContext context);
 }
 } // namespace ll

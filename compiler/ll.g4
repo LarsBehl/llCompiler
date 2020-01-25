@@ -28,7 +28,7 @@ expression
     | unaryExpression #unaryExpr;
 
 statement
-    : left=WORD ASSIGN right=expression SEMCOL #assignStatement
+    : left=WORD ASSIGN (expression|arrayCreation) SEMCOL #assignStatement
     | left=WORD ADD_ASSIGN right=expression SEMCOL #addAssignStatement
     | left=WORD SUB_ASSIGN right=expression SEMCOL #subAssignStatement
     | left=WORD MULT_ASSIGN right=expression SEMCOL #multAssignStatement
@@ -75,7 +75,8 @@ typeDefinition
     : INT_TYPE
     | DOUBLE_TYPE
     | BOOL_TYPE
-    | VOID_TYPE;
+    | VOID_TYPE
+    | arrayTypes;
 
 incrementPostExpression
     : variableExpression PLUS PLUS;
@@ -92,6 +93,16 @@ decrementPreExpression
 notExpression
     : NOT expression;
 
+arrayTypes
+    : INT_TYPE BRAC_L BRAC_R #intArrayType
+    | DOUBLE_TYPE BRAC_L BRAC_R #doubleArrayType
+    | BOOL_TYPE BRAC_L BRAC_R #boolArrayType;
+
+arrayCreation
+    : NEW INT_TYPE BRAC_L expression BRAC_R #intArrayCreation
+    | NEW DOUBLE_TYPE BRAC_L expression BRAC_R #doubleArrayCreation
+    | NEW BOOL_TYPE BRAC_L expression BRAC_R #boolArrayCreation;
+
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;
 RETURN: 'r' 'e' 't' 'u' 'r' 'n';
@@ -105,6 +116,7 @@ IF: 'i' 'f';
 ELSE: 'e' 'l' 's' 'e';
 WHILE: 'w' 'h' 'i' 'l' 'e';
 PRINT: 'p' 'r' 'i' 'n' 't';
+NEW: 'n' 'e' 'w';
 WORD: ([a-zA-Z] | '_') ([a-zA-Z0-9] | '_')*;
 MULT: '*';
 PLUS: '+';
@@ -116,6 +128,8 @@ PAR_R: ')';
 ASSIGN: '=';
 CURL_L: '{';
 CURL_R: '}';
+BRAC_L: '[';
+BRAC_R: ']';
 SEMCOL: ';';
 EQUAL: '=' '=';
 ADD_ASSIGN: '+' '=';

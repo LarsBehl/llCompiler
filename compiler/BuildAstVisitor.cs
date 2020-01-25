@@ -84,9 +84,18 @@ namespace ll
 
         public override IAST VisitAssignStatement(llParser.AssignStatementContext context)
         {
+            IAST right;
+
             if (!IAST.env.ContainsKey(context.left.Text))
                 throw new ArgumentException($"Unknown variable \"{context.left.Text}\"");
-            return new AssignStatement(new VarExpr(context.left.Text), Visit(context.right));
+
+            // check if righthand side of the assignment is an array or an expression
+            if (context.expression() != null)
+                right = Visit(context.expression());
+            else
+                right = Visit(context.arrayCreation());
+
+            return new AssignStatement(new VarExpr(context.left.Text), right);
         }
 
         public override IAST VisitBlockStatement(llParser.BlockStatementContext context)
@@ -159,6 +168,8 @@ namespace ll
                 return new BoolLit(null);
             if (context.VOID_TYPE() != null)
                 return new VoidLit();
+            if (context.arrayTypes() != null)
+                return Visit(context.arrayTypes());
             throw new ArgumentException("Unsupported type");
         }
 
@@ -190,7 +201,7 @@ namespace ll
                 return Visit(context.decrementPreExpression());
             if (context.incrementPreExpression() != null)
                 return Visit(context.incrementPreExpression());
-            if(context.notExpression() != null)
+            if (context.notExpression() != null)
                 return Visit(context.notExpression());
 
             throw new ArgumentException("Unknown unary type");
@@ -367,6 +378,36 @@ namespace ll
         public override IAST VisitPrintStatement(llParser.PrintStatementContext context)
         {
             return new PrintStatement(Visit(context.expression()));
+        }
+
+        public override IAST VisitIntArrayType(llParser.IntArrayTypeContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override IAST VisitDoubleArrayType(llParser.DoubleArrayTypeContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override IAST VisitBoolArrayType(llParser.BoolArrayTypeContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override IAST VisitIntArrayCreation(llParser.IntArrayCreationContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override IAST VisitDoubleArrayCreation(llParser.DoubleArrayCreationContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override IAST VisitBoolArrayCreation(llParser.BoolArrayCreationContext context)
+        {
+            throw new NotImplementedException();
         }
     }
 }
