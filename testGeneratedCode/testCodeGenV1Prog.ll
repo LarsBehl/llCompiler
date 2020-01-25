@@ -432,6 +432,21 @@ notEqualBoolBool(x:bool, y:bool): bool
     return x != y;
 }
 
+testPrintBool(x:bool): void
+{
+    print(x);
+}
+
+testPrintInt(x:int): void
+{
+    print(x);
+}
+
+testPrintDouble(x:double): void
+{
+    print(x);
+}
+
 factorial(x:int): int
 {
     if(x > 1)

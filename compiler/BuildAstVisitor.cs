@@ -218,7 +218,7 @@ namespace ll
                 throw new ArgumentException($"Trying to override the body of function \"{identifier[0].GetText()}\"");
             var body = Visit(context.body) as BlockStatement;
 
-            if (body.type.typeName != funDef.returnType.typeName || !body.doesFullyReturn)
+            if ((body.type.typeName != funDef.returnType.typeName || !body.doesFullyReturn) && !(funDef.returnType is VoidType))
             {
                 if (body.type is BlockStatementType || !body.doesFullyReturn)
                     throw new ArgumentException($"Missing return statement in \"{funDef.name}\"");
@@ -362,6 +362,11 @@ namespace ll
         public override IAST VisitNotEqualOperator(llParser.NotEqualOperatorContext context)
         {
             return new NotEqualExpr(Visit(context.left), Visit(context.right));
+        }
+
+        public override IAST VisitPrintStatement(llParser.PrintStatementContext context)
+        {
+            return new PrintStatement(Visit(context.expression()));
         }
     }
 }

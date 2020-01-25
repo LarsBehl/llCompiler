@@ -1,9 +1,9 @@
-f(x: int): int
+f(x: int): void
 {
-    return x;
+    print(x);
 }
 
 main(): void
 {
-    return f(10);
+    f(42);
 }
