@@ -14,12 +14,6 @@ namespace ll.AST
                 throw new ArgumentException("Size of an array has to be an integer");
             this.capacity = capacity;
 
-            foreach (IAST node in values)
-            {
-                if (!(node?.type is BooleanType))
-                    throw new ArgumentException($"Could not save \"{node.type.typeName}\" values in BoolArray");
-            }
-
             this.values = values;
         }
 

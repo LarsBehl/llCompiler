@@ -35,7 +35,7 @@ statement
     | left=WORD DIV_ASSIGN right=expression SEMCOL #divAssignStatement
     | left=WORD COLON type=typeDefinition SEMCOL #instantiationStatement
     | left=WORD COLON type=typeDefinition ASSIGN (expression|arrayCreation) SEMCOL #initializationStatement
-    | RETURN expression? SEMCOL #returnStatement
+    | RETURN (expression|arrayCreation)? SEMCOL #returnStatement
     | IF PAR_L cond=compositUnit PAR_R blockStatement (ELSE blockStatement)? #ifStatement
     | WHILE PAR_L cond=compositUnit PAR_R blockStatement #whileStatement
     | PRINT PAR_L expression PAR_R SEMCOL #printStatement;

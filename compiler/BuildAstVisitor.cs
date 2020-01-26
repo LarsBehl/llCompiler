@@ -118,6 +118,8 @@ namespace ll
         {
             if (context.expression() != null)
                 return new ReturnStatement(Visit(context.expression()));
+            if (context.arrayCreation() != null)
+                return new ReturnStatement(Visit(context.arrayCreation()));
 
             return new ReturnStatement();
         }

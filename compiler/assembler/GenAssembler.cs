@@ -108,6 +108,12 @@ namespace ll.assembler
                     this.NotEqualExprAsm(notEqualExpr); break;
                 case PrintStatement printStatement:
                     this.PrintStatementAsm(printStatement); break;
+                case IntArray intArray:
+                    this.IntArrayAsm(intArray); break;
+                case DoubleArray doubleArray:
+                    this.DoubleArrayAsm(doubleArray); break;
+                case BoolArray boolArray:
+                    this.BoolArrayAsm(boolArray); break;
                 default:
                     throw new NotImplementedException($"Assembler generation not implemented for {astNode.ToString()}");
             }
@@ -757,7 +763,11 @@ namespace ll.assembler
             if (varExpr.type is DoubleType)
                 this.WriteLine($"movq {this.variableMap[varExpr.name]}(%rbp), %xmm0");
 
-            if (varExpr.type is BooleanType || varExpr.type is IntType)
+            if (varExpr.type is BooleanType
+            || varExpr.type is IntType
+            || varExpr.type is IntArrayType
+            || varExpr.type is DoubleArrayType
+            || varExpr.type is BoolArrayType)
                 this.WriteLine($"movq {this.variableMap[varExpr.name]}(%rbp), %rax");
         }
 
@@ -778,7 +788,11 @@ namespace ll.assembler
 
             string register = "";
 
-            if (assignStatement.variable.type is IntType)
+            if (assignStatement.variable.type is IntType
+            || assignStatement.variable.type is BooleanType
+            || assignStatement.value.type is IntArrayType
+            || assignStatement.value.type is BoolArrayType
+            || assignStatement.value.type is DoubleArrayType)
                 register = "%rax";
 
             if (assignStatement.variable.type is DoubleType)
@@ -1167,6 +1181,51 @@ namespace ll.assembler
 
 
             this.WriteLine("call printf@PLT");
+        }
+
+        private void IntArrayAsm(IntArray intArray)
+        {
+            this.GetAssember(intArray.capacity);
+
+            this.WriteLine("movq $8, %rbx");
+            this.WriteLine("imulq %rbx, %rax");
+
+            this.WriteLine("movq %rax, %rdi");
+
+            if (this.stackCounter % 16 == 0)
+                this.WritePush("$0");
+
+            this.WriteLine("call malloc@PLT");
+        }
+
+        private void DoubleArrayAsm(DoubleArray doubleArray)
+        {
+            this.GetAssember(doubleArray.capacity);
+
+            this.WriteLine("movq $8, %rbx");
+            this.WriteLine("imulq %rbx, %rax");
+
+            this.WriteLine("movq %rax, %rdi");
+
+            if (this.stackCounter % 16 == 0)
+                this.WritePush("$0");
+
+            this.WriteLine("call malloc@PLT");
+        }
+
+        private void BoolArrayAsm(BoolArray boolArray)
+        {
+            this.GetAssember(boolArray.capacity);
+
+            this.WriteLine("movq $8, %rbx");
+            this.WriteLine("imulq %rbx, %rax");
+
+            this.WriteLine("movq %rax, %rdi");
+
+            if (this.stackCounter % 16 == 0)
+                this.WritePush("$0");
+
+            this.WriteLine("call malloc@PLT");
         }
 
         private void WriteLine(string op)
