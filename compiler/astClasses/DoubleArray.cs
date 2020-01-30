@@ -3,26 +3,21 @@ using System;
 
 namespace ll.AST
 {
-    public class DoubleArray : IAST
+    public class DoubleArray : Array
     {
-        public IAST capacity { get; set; }
-        public IAST[] values { get; set; }
 
-        public DoubleArray(IAST capacity, IAST[] values) : base(new IntArrayType())
+        public DoubleArray(IAST capacity, IAST[] values) : base(capacity, values, new IntArrayType())
         {
             if (!(capacity.type is IntType))
                 throw new ArgumentException("Size of an array has to be an integer");
-            this.capacity = capacity;
-
-            this.values = values;
         }
 
-        public DoubleArray(IAST capacity) : this(capacity, null)
+        public DoubleArray(IAST capacity) : this(capacity, new IAST[0])
         {
 
         }
 
-        public DoubleArray() : this(new IntLit(-1), null)
+        public DoubleArray() : this(new IntLit(-1), new IAST[0])
         {
 
         }

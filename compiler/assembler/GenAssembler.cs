@@ -1185,7 +1185,7 @@ namespace ll.assembler
 
         private void IntArrayAsm(IntArray intArray)
         {
-            this.GetAssember(intArray.capacity);
+            this.GetAssember(intArray.size);
 
             this.WriteLine("movq $8, %rbx");
             this.WriteLine("imulq %rbx, %rax");
@@ -1200,7 +1200,7 @@ namespace ll.assembler
 
         private void DoubleArrayAsm(DoubleArray doubleArray)
         {
-            this.GetAssember(doubleArray.capacity);
+            this.GetAssember(doubleArray.size);
 
             this.WriteLine("movq $8, %rbx");
             this.WriteLine("imulq %rbx, %rax");
@@ -1215,7 +1215,7 @@ namespace ll.assembler
 
         private void BoolArrayAsm(BoolArray boolArray)
         {
-            this.GetAssember(boolArray.capacity);
+            this.GetAssember(boolArray.size);
 
             this.WriteLine("movq $8, %rbx");
             this.WriteLine("imulq %rbx, %rax");

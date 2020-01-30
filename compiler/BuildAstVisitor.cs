@@ -93,7 +93,7 @@ namespace ll
             if (context.expression() != null)
                 right = Visit(context.expression());
             else
-                right = Visit(context.arrayCreation());
+                right = Visit(context.refTypeCreation());
 
             return new AssignStatement(new VarExpr(context.left.Text), right);
         }
@@ -118,8 +118,8 @@ namespace ll
         {
             if (context.expression() != null)
                 return new ReturnStatement(Visit(context.expression()));
-            if (context.arrayCreation() != null)
-                return new ReturnStatement(Visit(context.arrayCreation()));
+            if (context.refTypeCreation() != null)
+                return new ReturnStatement(Visit(context.refTypeCreation()));
 
             return new ReturnStatement();
         }
@@ -152,7 +152,7 @@ namespace ll
             if (context.expression() != null)
                 val = Visit(context.expression());
             else
-                val = Visit(context.arrayCreation());
+                val = Visit(context.refTypeCreation());
 
             if (variable.type.typeName != val.type.typeName)
             {
@@ -415,6 +415,11 @@ namespace ll
         public override IAST VisitBoolArrayCreation(llParser.BoolArrayCreationContext context)
         {
             return new BoolArray(Visit(context.expression()));
+        }
+
+        public override IAST VisitRefTypeCreation(llParser.RefTypeCreationContext context)
+        {
+            return new RefTypeCreationStatement(Visit(context.arrayCreation()));
         }
     }
 }

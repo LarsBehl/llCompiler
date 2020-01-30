@@ -28,14 +28,14 @@ expression
     | unaryExpression #unaryExpr;
 
 statement
-    : left=WORD ASSIGN (expression|arrayCreation) SEMCOL #assignStatement
+    : left=WORD ASSIGN (expression|refTypeCreation) SEMCOL #assignStatement
     | left=WORD ADD_ASSIGN right=expression SEMCOL #addAssignStatement
     | left=WORD SUB_ASSIGN right=expression SEMCOL #subAssignStatement
     | left=WORD MULT_ASSIGN right=expression SEMCOL #multAssignStatement
     | left=WORD DIV_ASSIGN right=expression SEMCOL #divAssignStatement
     | left=WORD COLON type=typeDefinition SEMCOL #instantiationStatement
-    | left=WORD COLON type=typeDefinition ASSIGN (expression|arrayCreation) SEMCOL #initializationStatement
-    | RETURN (expression|arrayCreation)? SEMCOL #returnStatement
+    | left=WORD COLON type=typeDefinition ASSIGN (expression|refTypeCreation) SEMCOL #initializationStatement
+    | RETURN (expression|refTypeCreation)? SEMCOL #returnStatement
     | IF PAR_L cond=compositUnit PAR_R blockStatement (ELSE blockStatement)? #ifStatement
     | WHILE PAR_L cond=compositUnit PAR_R blockStatement #whileStatement
     | PRINT PAR_L expression PAR_R SEMCOL #printStatement;
@@ -99,9 +99,12 @@ arrayTypes
     | BOOL_TYPE BRAC_L BRAC_R #boolArrayType;
 
 arrayCreation
-    : NEW INT_TYPE BRAC_L expression BRAC_R #intArrayCreation
-    | NEW DOUBLE_TYPE BRAC_L expression BRAC_R #doubleArrayCreation
-    | NEW BOOL_TYPE BRAC_L expression BRAC_R #boolArrayCreation;
+    : INT_TYPE BRAC_L expression BRAC_R #intArrayCreation
+    | DOUBLE_TYPE BRAC_L expression BRAC_R #doubleArrayCreation
+    | BOOL_TYPE BRAC_L expression BRAC_R #boolArrayCreation;
+
+refTypeCreation
+    : NEW arrayCreation;
 
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;

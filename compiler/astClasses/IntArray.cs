@@ -3,26 +3,20 @@ using System;
 
 namespace ll.AST
 {
-    public class IntArray : IAST
+    public class IntArray : Array
     {
-        public IAST capacity { get; set; }
-        public IAST[] values { get; set; }
-
-        public IntArray(IAST capacity, IAST[] values) : base(new IntArrayType())
+        public IntArray(IAST capacity, IAST[] values) : base(capacity, values, new IntArrayType())
         {
             if (!(capacity.type is IntType))
                 throw new ArgumentException("Size of an array has to be an integer");
-            this.capacity = capacity;
-
-            this.values = values;
         }
 
-        public IntArray(IAST capacity) : this(capacity, null)
+        public IntArray(IAST capacity) : this(capacity, new IAST[0])
         {
 
         }
 
-        public IntArray() : this(new IntLit(-1), null)
+        public IntArray() : this(new IntLit(-1), new IAST[0])
         {
 
         }

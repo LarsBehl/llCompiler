@@ -190,14 +190,13 @@ namespace ll.AST
                     EvalPrintStatement(printStatement);
                     return null;
                 case IntArray intArray:
-                    var tmp4 = EvalIntArray(intArray);
-                    return tmp4;
+                    return EvalIntArray(intArray);
                 case DoubleArray doubleArray:
-                    var tmp5 = EvalDoubleArray(doubleArray);
-                    return tmp5;
+                    return EvalDoubleArray(doubleArray);
                 case BoolArray boolArray:
-                    var tmp6 = EvalBoolArray(boolArray);
-                    return tmp6;
+                    return EvalBoolArray(boolArray);
+                case RefTypeCreationStatement refType:
+                    return EvalRefTypeCreationStatement(refType);
                 default:
                     throw new ArgumentException("Unknown Ast Object");
             }
@@ -553,17 +552,24 @@ namespace ll.AST
             Console.WriteLine(result);
         }
 
+        static IAST EvalRefTypeCreationStatement(RefTypeCreationStatement refType)
+        {
+            AST.Array value = refType.createdReftype as Array;
+
+            long size = (value.size.Eval() as IntLit).n ?? -1;
+
+            if (size < 0)
+                throw new ArgumentException("The length of an array has to be positive");
+
+            value.values = new IAST[size];
+
+            return value;
+        }
+
         static IAST EvalIntArray(IntArray intArray)
         {
             if (intArray.values == null)
-            {
-                long size = (intArray.capacity.Eval() as IntLit).n ?? -1;
-
-                if (size < 0)
-                    throw new ArgumentException("The length of an array has to be positive");
-
-                intArray.values = new IAST[size];
-            }
+                throw new ArgumentException("Array is not initialized");
 
             return intArray;
         }
@@ -571,14 +577,7 @@ namespace ll.AST
         static IAST EvalDoubleArray(DoubleArray doubleArray)
         {
             if (doubleArray.values == null)
-            {
-                long size = (doubleArray.capacity.Eval() as IntLit).n ?? -1;
-
-                if (size < 0)
-                    throw new ArgumentException("The length of an array has to be positive");
-
-                doubleArray.values = new IAST[size];
-            }
+                throw new ArgumentException("Array is not initialized");
 
             return doubleArray;
         }
@@ -586,14 +585,7 @@ namespace ll.AST
         static IAST EvalBoolArray(BoolArray boolArray)
         {
             if (boolArray.values == null)
-            {
-                long size = (boolArray.capacity.Eval() as IntLit).n ?? -1;
-
-                if (size < 0)
-                    throw new ArgumentException("The length of an array has to be positive");
-
-                boolArray.values = new IAST[size];
-            }
+                throw new ArgumentException("Array is not initialized");
 
             return boolArray;
         }

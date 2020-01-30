@@ -3,26 +3,21 @@ using System;
 
 namespace ll.AST
 {
-    public class BoolArray : IAST
+    public class BoolArray : Array
     {
-        public IAST capacity { get; set; }
-        public IAST[] values { get; set; }
 
-        public BoolArray(IAST capacity, IAST[] values) : base(new BoolArrayType())
+        public BoolArray(IAST capacity, IAST[] values) : base(capacity, values, new BoolArrayType())
         {
             if (!(capacity.type is IntType))
                 throw new ArgumentException("Size of an array has to be an integer");
-            this.capacity = capacity;
-
-            this.values = values;
         }
 
-        public BoolArray(IAST capacity) : this(capacity, null)
+        public BoolArray(IAST capacity) : this(capacity, new IAST[0])
         {
 
         }
 
-        public BoolArray() : this(new IntLit(-1), null)
+        public BoolArray() : this(new IntLit(-1), new IAST[0])
         {
 
         }
