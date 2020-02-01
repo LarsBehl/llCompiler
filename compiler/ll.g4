@@ -29,6 +29,7 @@ expression
 
 statement
     : left=WORD ASSIGN (expression|refTypeCreation) SEMCOL #assignStatement
+    | left=arrayIndexing ASSIGN (expression) SEMCOL #assignArrayField
     | left=WORD ADD_ASSIGN right=expression SEMCOL #addAssignStatement
     | left=WORD SUB_ASSIGN right=expression SEMCOL #subAssignStatement
     | left=WORD MULT_ASSIGN right=expression SEMCOL #multAssignStatement

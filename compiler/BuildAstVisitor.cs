@@ -428,5 +428,12 @@ namespace ll
         {
             return new ArrayIndexing(Visit(context.variableExpression()), Visit(context.expression()));
         }
+
+        public override IAST VisitAssignArrayField(llParser.AssignArrayFieldContext context)
+        {
+            ArrayIndexing arrayIndexing = Visit(context.arrayIndexing()) as ArrayIndexing;
+
+            return new AssignArrayField(arrayIndexing, Visit(context.expression()));
+        }
     }
 }

@@ -211,6 +211,9 @@ namespace ll.AST
                     return EvalRefTypeCreationStatement(refType);
                 case ArrayIndexing arrayIndexing:
                     return EvalArrayIndexing(arrayIndexing);
+                case AssignArrayField assignArrayField:
+                    EvalAssignArrayField(assignArrayField);
+                    return null;
                 default:
                     throw new ArgumentException("Unknown Ast Object");
             }
@@ -617,6 +620,23 @@ namespace ll.AST
                 throw new ArgumentException($"Index {index} out of range {(arraySize)}");
 
             return array.values[index];
+        }
+
+        static void EvalAssignArrayField(AssignArrayField assignArrayField)
+        {
+            Array array = assignArrayField.arrayIndex.left.Eval() as Array;
+            long index = (assignArrayField.arrayIndex.right.Eval() as IntLit).n ?? -1;
+            long arraySize = (array.size.Eval() as IntLit).n ?? -1;
+
+            if (index < 0)
+                throw new ArgumentException("The index of an array must be initialized");
+
+            if (index >= arraySize)
+                throw new ArgumentException($"Index {index} out of range {arraySize}");
+
+            IAST value = assignArrayField.value.Eval();
+
+            array.values[index] = value;
         }
     }
 }
