@@ -8,8 +8,6 @@ namespace ll.AST
 
         public BoolArray(IAST capacity, IAST[] values) : base(capacity, values, new BoolArrayType())
         {
-            if (!(capacity.type is IntType))
-                throw new ArgumentException("Size of an array has to be an integer");
         }
 
         public BoolArray(IAST capacity) : this(capacity, new IAST[0])

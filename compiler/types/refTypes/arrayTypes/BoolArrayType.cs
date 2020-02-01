@@ -1,6 +1,6 @@
 namespace ll.type
 {
-    public class BoolArrayType : RefType
+    public class BoolArrayType : ArrayType
     {
         public BoolArrayType() : base("boolArrayType")
         {

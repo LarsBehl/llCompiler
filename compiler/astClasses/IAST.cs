@@ -47,6 +47,18 @@ namespace ll.AST
                             if (bl.value == null)
                                 throw new ArgumentException($"Variable \"{varExpr.name}\" is not initialized");
                             break;
+                        case IntArray intArray:
+                            if (((intArray.size.Eval() as IntLit).n ?? -1) < 0)
+                                throw new ArgumentException($"Variable \"{varExpr.name}\" is not initialized");
+                            break;
+                        case DoubleArray doubleArray:
+                            if (((doubleArray.size.Eval() as IntLit).n ?? -1) < 0)
+                                throw new ArgumentException($"Variable \"{varExpr.name}\" is not initialized");
+                            break;
+                        case BoolArray boolArray:
+                            if (((boolArray.size.Eval() as IntLit).n ?? -1) < 0)
+                                throw new ArgumentException($"Variable \"{varExpr.name}\" is not initialized");
+                            break;
                         default:
                             break;
                     }
@@ -197,6 +209,8 @@ namespace ll.AST
                     return EvalBoolArray(boolArray);
                 case RefTypeCreationStatement refType:
                     return EvalRefTypeCreationStatement(refType);
+                case ArrayIndexing arrayIndexing:
+                    return EvalArrayIndexing(arrayIndexing);
                 default:
                     throw new ArgumentException("Unknown Ast Object");
             }
@@ -588,6 +602,21 @@ namespace ll.AST
                 throw new ArgumentException("Array is not initialized");
 
             return boolArray;
+        }
+
+        static IAST EvalArrayIndexing(ArrayIndexing arrayIndexing)
+        {
+            Array array = arrayIndexing.left.Eval() as Array;
+            long index = (arrayIndexing.right.Eval() as IntLit).n ?? -1;
+            long arraySize = (array.size.Eval() as IntLit).n ?? -1;
+
+            if (index < 0)
+                throw new ArgumentException("The index of an array must be initialized");
+
+            if (index >= arraySize)
+                throw new ArgumentException($"Index {index} out of range {(arraySize)}");
+
+            return array.values[index];
         }
     }
 }

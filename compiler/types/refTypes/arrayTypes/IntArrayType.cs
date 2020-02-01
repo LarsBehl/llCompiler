@@ -1,6 +1,6 @@
 namespace ll.type
 {
-    public class IntArrayType : RefType
+    public class IntArrayType : ArrayType
     {
         public IntArrayType() : base("IntArrayType")
         {

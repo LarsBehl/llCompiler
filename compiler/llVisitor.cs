@@ -337,5 +337,11 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitRefTypeCreation([NotNull] llParser.RefTypeCreationContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.arrayIndexing"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitArrayIndexing([NotNull] llParser.ArrayIndexingContext context);
 }
 } // namespace ll

@@ -49,7 +49,8 @@ unaryExpression
     | decrementPostExpression
     | decrementPreExpression
     | incrementPreExpression
-    | notExpression;
+    | notExpression
+    | arrayIndexing;
 
 functionCall
     : name=WORD PAR_L (expression (COMMA expression)*)? PAR_R;
@@ -105,6 +106,9 @@ arrayCreation
 
 refTypeCreation
     : NEW arrayCreation;
+
+arrayIndexing
+    : variableExpression BRAC_L expression BRAC_R;
 
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;

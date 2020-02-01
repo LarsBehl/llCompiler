@@ -8,8 +8,6 @@ namespace ll.AST
 
         public DoubleArray(IAST capacity, IAST[] values) : base(capacity, values, new IntArrayType())
         {
-            if (!(capacity.type is IntType))
-                throw new ArgumentException("Size of an array has to be an integer");
         }
 
         public DoubleArray(IAST capacity) : this(capacity, new IAST[0])

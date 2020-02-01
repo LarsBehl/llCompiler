@@ -210,6 +210,8 @@ namespace ll
                 return Visit(context.incrementPreExpression());
             if (context.notExpression() != null)
                 return Visit(context.notExpression());
+            if (context.arrayIndexing() != null)
+                return Visit(context.arrayIndexing());
 
             throw new ArgumentException("Unknown unary type");
         }
@@ -420,6 +422,11 @@ namespace ll
         public override IAST VisitRefTypeCreation(llParser.RefTypeCreationContext context)
         {
             return new RefTypeCreationStatement(Visit(context.arrayCreation()));
+        }
+
+        public override IAST VisitArrayIndexing(llParser.ArrayIndexingContext context)
+        {
+            return new ArrayIndexing(Visit(context.variableExpression()), Visit(context.expression()));
         }
     }
 }

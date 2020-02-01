@@ -1,6 +1,6 @@
 namespace ll.type
 {
-    public class DoubleArrayType : RefType
+    public class DoubleArrayType : ArrayType
     {
         public DoubleArrayType() : base("doubleArrayType")
         {
