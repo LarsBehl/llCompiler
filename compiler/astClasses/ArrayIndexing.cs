@@ -18,7 +18,7 @@ namespace ll.AST
                 case IntArrayType iat:
                     return new IntType();
                 case DoubleArrayType dat:
-                    return new IntType();
+                    return new DoubleType();
                 case BoolArrayType bat:
                     return new BooleanType();
                 default:

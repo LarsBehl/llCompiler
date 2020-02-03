@@ -6,7 +6,7 @@ namespace ll.AST
     public class DoubleArray : Array
     {
 
-        public DoubleArray(IAST capacity, IAST[] values) : base(capacity, values, new IntArrayType())
+        public DoubleArray(IAST capacity, IAST[] values) : base(capacity, values, new DoubleArrayType())
         {
         }
 

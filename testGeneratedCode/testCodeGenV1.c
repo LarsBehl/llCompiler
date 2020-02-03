@@ -117,6 +117,10 @@ void testPrintBool(bool x);
 void testPrintInt(long x);
 void testPrintDouble(double x);
 
+long testIntArray(long x);
+double testDoubleArray(double x);
+bool testBoolArray(bool x);
+
 // register overflows
 long overFlowOnlyInt(long x, long y, long z, long a, long b, long c, long d, long e, long f);
 double overFlowOnlyDouble(double x, double y, double z, double a, double b, double c, double d, double e, double f);
@@ -363,6 +367,13 @@ void startTests()
     testPrintInt(42);
     printf("running testPrintDouble - expected output \"17.7\" - output: ");
     testPrintDouble(17.7);
+
+    intResult = testIntArray(42);
+    printInt(42, intResult, "testIntArray");
+    doubleResult = testDoubleArray(27.3);
+    printDouble(27.3, doubleResult, "testDoubleArray");
+    boolResult = testBoolArray(false);
+    printBool(false, boolResult, "testBoolArray");
 
     intResult = overFlowOnlyInt(1, 1, 1, 1, 1, 1, 1, 1, 1);
     printInt(9, intResult, "overFlowOnlyInt");
