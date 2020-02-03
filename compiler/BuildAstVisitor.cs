@@ -435,5 +435,15 @@ namespace ll
 
             return new AssignArrayField(arrayIndexing, Visit(context.expression()));
         }
+
+        public override IAST VisitDestructionStatement(llParser.DestructionStatementContext context)
+        {
+            return Visit(context.refTypeDestruction());
+        }
+
+        public override IAST VisitRefTypeDestruction(llParser.RefTypeDestructionContext context)
+        {
+            return new DestructionStatement(Visit(context.variableExpression()) as VarExpr);
+        }
     }
 }

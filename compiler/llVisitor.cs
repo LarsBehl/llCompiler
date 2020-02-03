@@ -183,6 +183,13 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitInitializationStatement([NotNull] llParser.InitializationStatementContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>destructionStatement</c>
+	/// labeled alternative in <see cref="llParser.statement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDestructionStatement([NotNull] llParser.DestructionStatementContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>returnStatement</c>
 	/// labeled alternative in <see cref="llParser.statement"/>.
 	/// </summary>
@@ -350,5 +357,11 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitArrayIndexing([NotNull] llParser.ArrayIndexingContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.refTypeDestruction"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitRefTypeDestruction([NotNull] llParser.RefTypeDestructionContext context);
 }
 } // namespace ll

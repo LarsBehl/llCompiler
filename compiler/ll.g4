@@ -36,6 +36,7 @@ statement
     | left=WORD DIV_ASSIGN right=expression SEMCOL #divAssignStatement
     | left=WORD COLON type=typeDefinition SEMCOL #instantiationStatement
     | left=WORD COLON type=typeDefinition ASSIGN (expression|refTypeCreation) SEMCOL #initializationStatement
+    | refTypeDestruction #destructionStatement
     | RETURN (expression|refTypeCreation)? SEMCOL #returnStatement
     | IF PAR_L cond=compositUnit PAR_R blockStatement (ELSE blockStatement)? #ifStatement
     | WHILE PAR_L cond=compositUnit PAR_R blockStatement #whileStatement
@@ -111,6 +112,9 @@ refTypeCreation
 arrayIndexing
     : variableExpression BRAC_L expression BRAC_R;
 
+refTypeDestruction
+    : DESTROY variableExpression;
+
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;
 RETURN: 'r' 'e' 't' 'u' 'r' 'n';
@@ -125,6 +129,7 @@ ELSE: 'e' 'l' 's' 'e';
 WHILE: 'w' 'h' 'i' 'l' 'e';
 PRINT: 'p' 'r' 'i' 'n' 't';
 NEW: 'n' 'e' 'w';
+DESTROY: 'd' 'e' 's' 't' 'r' 'o' 'y';
 WORD: ([a-zA-Z] | '_') ([a-zA-Z0-9] | '_')*;
 MULT: '*';
 PLUS: '+';

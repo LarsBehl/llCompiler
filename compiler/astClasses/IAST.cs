@@ -214,6 +214,8 @@ namespace ll.AST
                 case AssignArrayField assignArrayField:
                     EvalAssignArrayField(assignArrayField);
                     return null;
+                case DestructionStatement destructionStatement:
+                    throw new ArgumentException("Destruction Statement is not supported in interactive compiler mode");
                 default:
                     throw new ArgumentException("Unknown Ast Object");
             }
