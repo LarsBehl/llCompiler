@@ -1,4 +1,5 @@
 using ll.type;
+using System;
 
 namespace ll.AST
 {
@@ -8,6 +9,8 @@ namespace ll.AST
 
         public DestructionStatement(VarExpr refType) : base(new DestructionStatementType())
         {
+            if (!(refType.type is RefType))
+                throw new ArgumentException($"Coul dnot free non ref type \"{refType.type.typeName}\"");
             this.refType = refType;
         }
     }

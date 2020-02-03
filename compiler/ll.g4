@@ -36,7 +36,7 @@ statement
     | left=WORD DIV_ASSIGN right=expression SEMCOL #divAssignStatement
     | left=WORD COLON type=typeDefinition SEMCOL #instantiationStatement
     | left=WORD COLON type=typeDefinition ASSIGN (expression|refTypeCreation) SEMCOL #initializationStatement
-    | refTypeDestruction #destructionStatement
+    | refTypeDestruction SEMCOL #destructionStatement
     | RETURN (expression|refTypeCreation)? SEMCOL #returnStatement
     | IF PAR_L cond=compositUnit PAR_R blockStatement (ELSE blockStatement)? #ifStatement
     | WHILE PAR_L cond=compositUnit PAR_R blockStatement #whileStatement

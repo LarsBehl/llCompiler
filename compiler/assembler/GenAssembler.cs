@@ -114,6 +114,8 @@ namespace ll.assembler
                     this.ArrayIndexingAsm(arrayIndexing); break;
                 case AssignArrayField assignArray:
                     this.AssignArrayFieldAsm(assignArray); break;
+                case DestructionStatement destruction:
+                    this.DestructionStatementAsm(destruction); break;
                 default:
                     throw new NotImplementedException($"Assembler generation not implemented for {astNode.ToString()}");
             }
@@ -1246,6 +1248,17 @@ namespace ll.assembler
             this.WritePop();
             // save the value in the array
             this.WriteLine("movq %rax, (%rbx)");
+        }
+
+        private void DestructionStatementAsm(DestructionStatement destruction)
+        {
+            this.GetAssember(destruction.refType);
+            this.WriteLine("movq %rax, %rdi");
+
+            if (this.stackCounter % 16 == 0)
+                this.WriteLine("push $1");
+
+            this.WriteLine("call free@PLT");
         }
 
         private void WriteLine(string op)
