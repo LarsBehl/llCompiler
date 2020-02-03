@@ -108,6 +108,14 @@ namespace ll.assembler
                     this.NotEqualExprAsm(notEqualExpr); break;
                 case PrintStatement printStatement:
                     this.PrintStatementAsm(printStatement); break;
+                case RefTypeCreationStatement refTypeCreation:
+                    this.RefTypeCreationStatementAsm(refTypeCreation); break;
+                case ArrayIndexing arrayIndexing:
+                    this.ArrayIndexingAsm(arrayIndexing); break;
+                case AssignArrayField assignArray:
+                    this.AssignArrayFieldAsm(assignArray); break;
+                case DestructionStatement destruction:
+                    this.DestructionStatementAsm(destruction); break;
                 default:
                     throw new NotImplementedException($"Assembler generation not implemented for {astNode.ToString()}");
             }
@@ -757,7 +765,11 @@ namespace ll.assembler
             if (varExpr.type is DoubleType)
                 this.WriteLine($"movq {this.variableMap[varExpr.name]}(%rbp), %xmm0");
 
-            if (varExpr.type is BooleanType || varExpr.type is IntType)
+            if (varExpr.type is BooleanType
+            || varExpr.type is IntType
+            || varExpr.type is IntArrayType
+            || varExpr.type is DoubleArrayType
+            || varExpr.type is BoolArrayType)
                 this.WriteLine($"movq {this.variableMap[varExpr.name]}(%rbp), %rax");
         }
 
@@ -778,7 +790,11 @@ namespace ll.assembler
 
             string register = "";
 
-            if (assignStatement.variable.type is IntType)
+            if (assignStatement.variable.type is IntType
+            || assignStatement.variable.type is BooleanType
+            || assignStatement.value.type is IntArrayType
+            || assignStatement.value.type is BoolArrayType
+            || assignStatement.value.type is DoubleArrayType)
                 register = "%rax";
 
             if (assignStatement.variable.type is DoubleType)
@@ -1167,6 +1183,82 @@ namespace ll.assembler
 
 
             this.WriteLine("call printf@PLT");
+        }
+
+        private void RefTypeCreationStatementAsm(RefTypeCreationStatement refTypeCreation)
+        {
+            switch (refTypeCreation.createdReftype)
+            {
+                case AST.Array array:
+                    this.GetAssember(array.size);
+
+                    this.WriteLine("movq $8, %rbx");
+                    this.WriteLine("imulq %rbx, %rax");
+
+                    this.WriteLine("movq %rax, %rdi");
+
+                    if (this.stackCounter % 16 == 0)
+                        this.WritePush("$0");
+
+                    this.WriteLine("call malloc@PLT");
+                    break;
+                default:
+                    throw new NotImplementedException("Omega NASA");
+            }
+        }
+
+        private void ArrayIndexingAsm(ArrayIndexing arrayIndexing)
+        {
+            // load the value of the variable
+            this.GetAssember(arrayIndexing.left);
+            this.WritePush();
+            // calculate the index
+            this.GetAssember(arrayIndexing.right);
+            this.WriteLine("movq $8, %rbx");
+            this.WriteLine("imulq %rax, %rbx");
+            this.WritePop();
+            this.WriteLine("addq %rbx, %rax");
+
+            if (arrayIndexing.type is DoubleType)
+                this.WriteLine("movq (%rax), %xmm0");
+            else
+                this.WriteLine("movq (%rax), %rax");
+        }
+
+        private void AssignArrayFieldAsm(AssignArrayField assignArray)
+        {
+            // calculate the value
+            this.GetAssember(assignArray.value);
+
+            // save the value on the stack
+            if (assignArray.value.type is DoubleType)
+                this.WriteLine("movq %xmm0, %rax");
+
+            this.WritePush();
+
+            // load the value of the variable
+            this.GetAssember(assignArray.arrayIndex.left);
+            this.WritePush();
+            // calculate the index
+            this.GetAssember(assignArray.arrayIndex.right);
+            this.WriteLine("movq $8, %rbx");
+            this.WriteLine("imulq %rax, %rbx");
+            this.WritePop();
+            this.WriteLine("addq %rax, %rbx");
+            this.WritePop();
+            // save the value in the array
+            this.WriteLine("movq %rax, (%rbx)");
+        }
+
+        private void DestructionStatementAsm(DestructionStatement destruction)
+        {
+            this.GetAssember(destruction.refType);
+            this.WriteLine("movq %rax, %rdi");
+
+            if (this.stackCounter % 16 == 0)
+                this.WriteLine("push $1");
+
+            this.WriteLine("call free@PLT");
         }
 
         private void WriteLine(string op)

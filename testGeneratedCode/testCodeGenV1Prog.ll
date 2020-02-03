@@ -447,6 +447,33 @@ testPrintDouble(x:double): void
     print(x);
 }
 
+testIntArray(x:int): int
+{
+    y: int[] = new int[17];
+    y[12] = x;
+    destroy y;
+
+    return y[12];
+}
+
+testDoubleArray(x:double): double
+{
+    y: double[] = new double[17];
+    y[12] = x;
+    destroy y;
+
+    return y[12];
+}
+
+testBoolArray(x:bool): bool
+{
+    y: bool[] = new bool[17];
+    y[12] = x;
+    destroy y;
+
+    return y[12];
+}
+
 factorial(x:int): int
 {
     if(x > 1)

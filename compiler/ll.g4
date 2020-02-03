@@ -28,14 +28,16 @@ expression
     | unaryExpression #unaryExpr;
 
 statement
-    : left=WORD ASSIGN right=expression SEMCOL #assignStatement
+    : left=WORD ASSIGN (expression|refTypeCreation) SEMCOL #assignStatement
+    | left=arrayIndexing ASSIGN (expression) SEMCOL #assignArrayField
     | left=WORD ADD_ASSIGN right=expression SEMCOL #addAssignStatement
     | left=WORD SUB_ASSIGN right=expression SEMCOL #subAssignStatement
     | left=WORD MULT_ASSIGN right=expression SEMCOL #multAssignStatement
     | left=WORD DIV_ASSIGN right=expression SEMCOL #divAssignStatement
     | left=WORD COLON type=typeDefinition SEMCOL #instantiationStatement
-    | left=WORD COLON type=typeDefinition ASSIGN right=expression SEMCOL #initializationStatement
-    | RETURN expression? SEMCOL #returnStatement
+    | left=WORD COLON type=typeDefinition ASSIGN (expression|refTypeCreation) SEMCOL #initializationStatement
+    | refTypeDestruction SEMCOL #destructionStatement
+    | RETURN (expression|refTypeCreation)? SEMCOL #returnStatement
     | IF PAR_L cond=compositUnit PAR_R blockStatement (ELSE blockStatement)? #ifStatement
     | WHILE PAR_L cond=compositUnit PAR_R blockStatement #whileStatement
     | PRINT PAR_L expression PAR_R SEMCOL #printStatement;
@@ -49,7 +51,8 @@ unaryExpression
     | decrementPostExpression
     | decrementPreExpression
     | incrementPreExpression
-    | notExpression;
+    | notExpression
+    | arrayIndexing;
 
 functionCall
     : name=WORD PAR_L (expression (COMMA expression)*)? PAR_R;
@@ -75,7 +78,8 @@ typeDefinition
     : INT_TYPE
     | DOUBLE_TYPE
     | BOOL_TYPE
-    | VOID_TYPE;
+    | VOID_TYPE
+    | arrayTypes;
 
 incrementPostExpression
     : variableExpression PLUS PLUS;
@@ -92,6 +96,25 @@ decrementPreExpression
 notExpression
     : NOT expression;
 
+arrayTypes
+    : INT_TYPE BRAC_L BRAC_R #intArrayType
+    | DOUBLE_TYPE BRAC_L BRAC_R #doubleArrayType
+    | BOOL_TYPE BRAC_L BRAC_R #boolArrayType;
+
+arrayCreation
+    : INT_TYPE BRAC_L expression BRAC_R #intArrayCreation
+    | DOUBLE_TYPE BRAC_L expression BRAC_R #doubleArrayCreation
+    | BOOL_TYPE BRAC_L expression BRAC_R #boolArrayCreation;
+
+refTypeCreation
+    : NEW arrayCreation;
+
+arrayIndexing
+    : variableExpression BRAC_L expression BRAC_R;
+
+refTypeDestruction
+    : DESTROY variableExpression;
+
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;
 RETURN: 'r' 'e' 't' 'u' 'r' 'n';
@@ -105,6 +128,8 @@ IF: 'i' 'f';
 ELSE: 'e' 'l' 's' 'e';
 WHILE: 'w' 'h' 'i' 'l' 'e';
 PRINT: 'p' 'r' 'i' 'n' 't';
+NEW: 'n' 'e' 'w';
+DESTROY: 'd' 'e' 's' 't' 'r' 'o' 'y';
 WORD: ([a-zA-Z] | '_') ([a-zA-Z0-9] | '_')*;
 MULT: '*';
 PLUS: '+';
@@ -116,6 +141,8 @@ PAR_R: ')';
 ASSIGN: '=';
 CURL_L: '{';
 CURL_R: '}';
+BRAC_L: '[';
+BRAC_R: ']';
 SEMCOL: ';';
 EQUAL: '=' '=';
 ADD_ASSIGN: '+' '=';

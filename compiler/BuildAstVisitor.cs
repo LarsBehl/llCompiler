@@ -84,9 +84,18 @@ namespace ll
 
         public override IAST VisitAssignStatement(llParser.AssignStatementContext context)
         {
+            IAST right;
+
             if (!IAST.env.ContainsKey(context.left.Text))
                 throw new ArgumentException($"Unknown variable \"{context.left.Text}\"");
-            return new AssignStatement(new VarExpr(context.left.Text), Visit(context.right));
+
+            // check if righthand side of the assignment is an array or an expression
+            if (context.expression() != null)
+                right = Visit(context.expression());
+            else
+                right = Visit(context.refTypeCreation());
+
+            return new AssignStatement(new VarExpr(context.left.Text), right);
         }
 
         public override IAST VisitBlockStatement(llParser.BlockStatementContext context)
@@ -109,6 +118,8 @@ namespace ll
         {
             if (context.expression() != null)
                 return new ReturnStatement(Visit(context.expression()));
+            if (context.refTypeCreation() != null)
+                return new ReturnStatement(Visit(context.refTypeCreation()));
 
             return new ReturnStatement();
         }
@@ -137,7 +148,12 @@ namespace ll
 
             IAST.env[context.left.Text] = variable;
 
-            IAST val = Visit(context.right);
+            IAST val;
+            if (context.expression() != null)
+                val = Visit(context.expression());
+            else
+                val = Visit(context.refTypeCreation());
+
             if (variable.type.typeName != val.type.typeName)
             {
                 if (variable.type is DoubleType && val.type is IntType)
@@ -159,6 +175,8 @@ namespace ll
                 return new BoolLit(null);
             if (context.VOID_TYPE() != null)
                 return new VoidLit();
+            if (context.arrayTypes() != null)
+                return Visit(context.arrayTypes());
             throw new ArgumentException("Unsupported type");
         }
 
@@ -190,8 +208,10 @@ namespace ll
                 return Visit(context.decrementPreExpression());
             if (context.incrementPreExpression() != null)
                 return Visit(context.incrementPreExpression());
-            if(context.notExpression() != null)
+            if (context.notExpression() != null)
                 return Visit(context.notExpression());
+            if (context.arrayIndexing() != null)
+                return Visit(context.arrayIndexing());
 
             throw new ArgumentException("Unknown unary type");
         }
@@ -367,6 +387,63 @@ namespace ll
         public override IAST VisitPrintStatement(llParser.PrintStatementContext context)
         {
             return new PrintStatement(Visit(context.expression()));
+        }
+
+        public override IAST VisitIntArrayType(llParser.IntArrayTypeContext context)
+        {
+            return new IntArray();
+        }
+
+        public override IAST VisitDoubleArrayType(llParser.DoubleArrayTypeContext context)
+        {
+            return new DoubleArray();
+        }
+
+        public override IAST VisitBoolArrayType(llParser.BoolArrayTypeContext context)
+        {
+            return new BoolArray();
+        }
+
+        public override IAST VisitIntArrayCreation(llParser.IntArrayCreationContext context)
+        {
+            return new IntArray(Visit(context.expression()));
+        }
+
+        public override IAST VisitDoubleArrayCreation(llParser.DoubleArrayCreationContext context)
+        {
+            return new DoubleArray(Visit(context.expression()));
+        }
+
+        public override IAST VisitBoolArrayCreation(llParser.BoolArrayCreationContext context)
+        {
+            return new BoolArray(Visit(context.expression()));
+        }
+
+        public override IAST VisitRefTypeCreation(llParser.RefTypeCreationContext context)
+        {
+            return new RefTypeCreationStatement(Visit(context.arrayCreation()));
+        }
+
+        public override IAST VisitArrayIndexing(llParser.ArrayIndexingContext context)
+        {
+            return new ArrayIndexing(Visit(context.variableExpression()), Visit(context.expression()));
+        }
+
+        public override IAST VisitAssignArrayField(llParser.AssignArrayFieldContext context)
+        {
+            ArrayIndexing arrayIndexing = Visit(context.arrayIndexing()) as ArrayIndexing;
+
+            return new AssignArrayField(arrayIndexing, Visit(context.expression()));
+        }
+
+        public override IAST VisitDestructionStatement(llParser.DestructionStatementContext context)
+        {
+            return Visit(context.refTypeDestruction());
+        }
+
+        public override IAST VisitRefTypeDestruction(llParser.RefTypeDestructionContext context)
+        {
+            return new DestructionStatement(Visit(context.variableExpression()) as VarExpr);
         }
     }
 }

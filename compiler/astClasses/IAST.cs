@@ -47,6 +47,18 @@ namespace ll.AST
                             if (bl.value == null)
                                 throw new ArgumentException($"Variable \"{varExpr.name}\" is not initialized");
                             break;
+                        case IntArray intArray:
+                            if (((intArray.size.Eval() as IntLit).n ?? -1) < 0)
+                                throw new ArgumentException($"Variable \"{varExpr.name}\" is not initialized");
+                            break;
+                        case DoubleArray doubleArray:
+                            if (((doubleArray.size.Eval() as IntLit).n ?? -1) < 0)
+                                throw new ArgumentException($"Variable \"{varExpr.name}\" is not initialized");
+                            break;
+                        case BoolArray boolArray:
+                            if (((boolArray.size.Eval() as IntLit).n ?? -1) < 0)
+                                throw new ArgumentException($"Variable \"{varExpr.name}\" is not initialized");
+                            break;
                         default:
                             break;
                     }
@@ -181,7 +193,7 @@ namespace ll.AST
                 case NotEqualExpr notEqualExpr:
                     return EvalNotEqualExpression(notEqualExpr);
                 case ProgramNode programNode:
-                    foreach(var f in programNode.funDefs)
+                    foreach (var f in programNode.funDefs)
                     {
                         f.Eval();
                     }
@@ -189,6 +201,21 @@ namespace ll.AST
                 case PrintStatement printStatement:
                     EvalPrintStatement(printStatement);
                     return null;
+                case IntArray intArray:
+                    return EvalIntArray(intArray);
+                case DoubleArray doubleArray:
+                    return EvalDoubleArray(doubleArray);
+                case BoolArray boolArray:
+                    return EvalBoolArray(boolArray);
+                case RefTypeCreationStatement refType:
+                    return EvalRefTypeCreationStatement(refType);
+                case ArrayIndexing arrayIndexing:
+                    return EvalArrayIndexing(arrayIndexing);
+                case AssignArrayField assignArrayField:
+                    EvalAssignArrayField(assignArrayField);
+                    return null;
+                case DestructionStatement destructionStatement:
+                    throw new ArgumentException("Destruction Statement is not supported in interactive compiler mode");
                 default:
                     throw new ArgumentException("Unknown Ast Object");
             }
@@ -523,7 +550,7 @@ namespace ll.AST
         static void EvalPrintStatement(PrintStatement print)
         {
             string result = "";
-            switch(print.value.type)
+            switch (print.value.type)
             {
                 case IntType it:
                     var tmp = print.value.Eval() as IntLit;
@@ -542,6 +569,76 @@ namespace ll.AST
             }
 
             Console.WriteLine(result);
+        }
+
+        static IAST EvalRefTypeCreationStatement(RefTypeCreationStatement refType)
+        {
+            AST.Array value = refType.createdReftype as Array;
+
+            long size = (value.size.Eval() as IntLit).n ?? -1;
+
+            if (size < 0)
+                throw new ArgumentException("The length of an array has to be positive");
+
+            value.values = new IAST[size];
+
+            return value;
+        }
+
+        static IAST EvalIntArray(IntArray intArray)
+        {
+            if (intArray.values == null)
+                throw new ArgumentException("Array is not initialized");
+
+            return intArray;
+        }
+
+        static IAST EvalDoubleArray(DoubleArray doubleArray)
+        {
+            if (doubleArray.values == null)
+                throw new ArgumentException("Array is not initialized");
+
+            return doubleArray;
+        }
+
+        static IAST EvalBoolArray(BoolArray boolArray)
+        {
+            if (boolArray.values == null)
+                throw new ArgumentException("Array is not initialized");
+
+            return boolArray;
+        }
+
+        static IAST EvalArrayIndexing(ArrayIndexing arrayIndexing)
+        {
+            Array array = arrayIndexing.left.Eval() as Array;
+            long index = (arrayIndexing.right.Eval() as IntLit).n ?? -1;
+            long arraySize = (array.size.Eval() as IntLit).n ?? -1;
+
+            if (index < 0)
+                throw new ArgumentException("The index of an array must be initialized");
+
+            if (index >= arraySize)
+                throw new ArgumentException($"Index {index} out of range {(arraySize)}");
+
+            return array.values[index];
+        }
+
+        static void EvalAssignArrayField(AssignArrayField assignArrayField)
+        {
+            Array array = assignArrayField.arrayIndex.left.Eval() as Array;
+            long index = (assignArrayField.arrayIndex.right.Eval() as IntLit).n ?? -1;
+            long arraySize = (array.size.Eval() as IntLit).n ?? -1;
+
+            if (index < 0)
+                throw new ArgumentException("The index of an array must be initialized");
+
+            if (index >= arraySize)
+                throw new ArgumentException($"Index {index} out of range {arraySize}");
+
+            IAST value = assignArrayField.value.Eval();
+
+            array.values[index] = value;
         }
     }
 }

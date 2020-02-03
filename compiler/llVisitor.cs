@@ -134,6 +134,13 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitAssignStatement([NotNull] llParser.AssignStatementContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>assignArrayField</c>
+	/// labeled alternative in <see cref="llParser.statement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAssignArrayField([NotNull] llParser.AssignArrayFieldContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>addAssignStatement</c>
 	/// labeled alternative in <see cref="llParser.statement"/>.
 	/// </summary>
@@ -175,6 +182,13 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitInitializationStatement([NotNull] llParser.InitializationStatementContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>destructionStatement</c>
+	/// labeled alternative in <see cref="llParser.statement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDestructionStatement([NotNull] llParser.DestructionStatementContext context);
 	/// <summary>
 	/// Visit a parse tree produced by the <c>returnStatement</c>
 	/// labeled alternative in <see cref="llParser.statement"/>.
@@ -289,5 +303,65 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitNotExpression([NotNull] llParser.NotExpressionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>intArrayType</c>
+	/// labeled alternative in <see cref="llParser.arrayTypes"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitIntArrayType([NotNull] llParser.IntArrayTypeContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>doubleArrayType</c>
+	/// labeled alternative in <see cref="llParser.arrayTypes"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDoubleArrayType([NotNull] llParser.DoubleArrayTypeContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>boolArrayType</c>
+	/// labeled alternative in <see cref="llParser.arrayTypes"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitBoolArrayType([NotNull] llParser.BoolArrayTypeContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>intArrayCreation</c>
+	/// labeled alternative in <see cref="llParser.arrayCreation"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitIntArrayCreation([NotNull] llParser.IntArrayCreationContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>doubleArrayCreation</c>
+	/// labeled alternative in <see cref="llParser.arrayCreation"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitDoubleArrayCreation([NotNull] llParser.DoubleArrayCreationContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>boolArrayCreation</c>
+	/// labeled alternative in <see cref="llParser.arrayCreation"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitBoolArrayCreation([NotNull] llParser.BoolArrayCreationContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.refTypeCreation"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitRefTypeCreation([NotNull] llParser.RefTypeCreationContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.arrayIndexing"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitArrayIndexing([NotNull] llParser.ArrayIndexingContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.refTypeDestruction"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitRefTypeDestruction([NotNull] llParser.RefTypeDestructionContext context);
 }
 } // namespace ll
