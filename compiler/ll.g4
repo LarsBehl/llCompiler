@@ -109,7 +109,8 @@ arrayCreation
     | BOOL_TYPE BRAC_L expression BRAC_R #boolArrayCreation;
 
 refTypeCreation
-    : NEW arrayCreation;
+    : NEW arrayCreation
+    | NEW structCreation;
 
 arrayIndexing
     : variableExpression BRAC_L expression BRAC_R;
@@ -125,6 +126,9 @@ structDefinition
 
 structName
     : WORD;
+
+structCreation
+    : structName PAR_L PAR_R;
 
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;

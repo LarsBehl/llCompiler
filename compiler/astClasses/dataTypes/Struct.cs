@@ -23,5 +23,24 @@ namespace ll.AST
         {
 
         }
+
+        public override string ToString()
+        {
+            string result = this.name + "{\n";
+
+            foreach (var prop in propValues)
+            {
+                result += $"\t{prop.Key}:";
+
+                if (prop.Value == null)
+                    result += "null";
+                else
+                    result += prop.Value.ToString();
+
+                result += ";\n";
+            }
+
+            return result + "}";
+        }
     }
 }

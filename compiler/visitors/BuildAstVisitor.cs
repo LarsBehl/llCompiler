@@ -433,7 +433,12 @@ namespace ll
 
         public override IAST VisitRefTypeCreation(llParser.RefTypeCreationContext context)
         {
-            return new RefTypeCreationStatement(Visit(context.arrayCreation()));
+            if (context.arrayCreation() != null)
+                return new RefTypeCreationStatement(Visit(context.arrayCreation()));
+            if (context.structCreation() != null)
+                return new RefTypeCreationStatement(Visit(context.structCreation()));
+
+            throw new ArgumentException("Invalid type for reference type creation");
         }
 
         public override IAST VisitArrayIndexing(llParser.ArrayIndexingContext context)
@@ -474,7 +479,14 @@ namespace ll
             List<StructProperty> properties = new List<StructProperty>();
 
             foreach (var prop in props)
-                properties.Add(Visit(prop) as StructProperty);
+            {
+                var tmp = Visit(prop) as StructProperty;
+
+                if (properties.FindIndex(s => s.name == tmp.name) >= 0)
+                    throw new ArgumentException($"Multiple definitions of \"{tmp.name}\" in struct \"{name}\"");
+
+                properties.Add(tmp);
+            }
 
             structDef.properties = properties;
 
@@ -494,6 +506,11 @@ namespace ll
         public override IAST VisitStructProperties(llParser.StructPropertiesContext context)
         {
             return new StructProperty(context.WORD().GetText(), Visit(context.typeDefinition()).type);
+        }
+
+        public override IAST VisitStructCreation(llParser.StructCreationContext context)
+        {
+            return Visit(context.structName());
         }
     }
 }

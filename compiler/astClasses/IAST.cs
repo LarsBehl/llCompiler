@@ -221,6 +221,8 @@ namespace ll.AST
                     return nullLit;
                 case StructDefinition structDef:
                     return null;
+                case Struct @struct:
+                    return @struct;
                 default:
                     throw new ArgumentException("Unknown Ast Object");
             }
@@ -578,16 +580,35 @@ namespace ll.AST
 
         static IAST EvalRefTypeCreationStatement(RefTypeCreationStatement refType)
         {
-            AST.Array value = refType.createdReftype as Array;
+            if (refType.createdReftype is Array)
+                return CreateArray(refType.createdReftype as Array);
+            if (refType.createdReftype is Struct)
+                return CreateStruct(refType.createdReftype as Struct);
 
-            long size = (value.size.Eval() as IntLit).n ?? -1;
+            throw new ArgumentException($"Unknown type for reference type creation: \"{refType.createdReftype.type}\"");
+        }
+
+        static IAST CreateArray(Array array)
+        {
+            long size = (array.size.Eval() as IntLit).n ?? -1;
 
             if (size < 0)
                 throw new ArgumentException("The length of an array has to be positive");
 
-            value.values = new IAST[size];
+            array.values = new IAST[size];
 
-            return value;
+            return array;
+        }
+
+        static IAST CreateStruct(Struct @struct)
+        {
+            @struct.propValues = new Dictionary<string, IAST>();
+            StructDefinition structDef = structs[@struct.name];
+
+            foreach (var prop in structDef.properties)
+                @struct.propValues[prop.name] = null;
+
+            return @struct;
         }
 
         static IAST EvalIntArray(IntArray intArray)
