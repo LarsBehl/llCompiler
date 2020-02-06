@@ -178,6 +178,8 @@ namespace ll
                 return new VoidLit();
             if (context.arrayTypes() != null)
                 return Visit(context.arrayTypes());
+            if (context.structName() != null)
+                return Visit(context.structName());
             throw new ArgumentException("Unsupported type");
         }
 
@@ -272,14 +274,19 @@ namespace ll
         public override IAST VisitProgram(llParser.ProgramContext context)
         {
             List<IAST> funDefs = new List<IAST>();
-            if (context.functionDefinition()?.Length > 0)
-            {
-                foreach (var funDef in context.functionDefinition())
-                {
-                    funDefs.Add(Visit(funDef));
-                }
+            List<IAST> structDefs = new List<IAST>();
+            var structs = context.structDefinition();
+            var funs = context.functionDefinition();
 
-                return new ProgramNode(funDefs);
+            if (funs?.Length > 0 || structs?.Length > 0)
+            {
+                foreach (var funDef in funs)
+                    funDefs.Add(Visit(funDef));
+
+                foreach (var structDef in context.structDefinition())
+                    structDefs.Add(Visit(structDef));
+
+                return new ProgramNode(funDefs, structDefs);
             }
 
             if (context.compositUnit() != null)
@@ -449,6 +456,44 @@ namespace ll
         public override IAST VisitRefTypeDestruction(llParser.RefTypeDestructionContext context)
         {
             return new DestructionStatement(Visit(context.variableExpression()) as VarExpr);
+        }
+
+        public override IAST VisitStructDefinition(llParser.StructDefinitionContext context)
+        {
+            string name = context.WORD().GetText();
+
+            if (!IAST.structs.ContainsKey(name))
+                throw new ArgumentException($"Unknown struct \"{name}\"");
+
+            StructDefinition structDef = IAST.structs[name];
+
+            if (structDef.properties != null)
+                throw new ArgumentException($"Multiple definitions of struct \"{name}\"");
+
+            var props = context.structProperties();
+            List<StructProperty> properties = new List<StructProperty>();
+
+            foreach (var prop in props)
+                properties.Add(Visit(prop) as StructProperty);
+
+            structDef.properties = properties;
+
+            return structDef;
+        }
+
+        public override IAST VisitStructName(llParser.StructNameContext context)
+        {
+            string name = context.WORD().GetText();
+
+            if (!IAST.structs.ContainsKey(name))
+                throw new ArgumentException($"Unknown struct \"{name}\"");
+
+            return new Struct(name);
+        }
+
+        public override IAST VisitStructProperties(llParser.StructPropertiesContext context)
+        {
+            return new StructProperty(context.WORD().GetText(), Visit(context.typeDefinition()).type);
         }
     }
 }

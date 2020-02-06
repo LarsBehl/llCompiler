@@ -5,10 +5,10 @@ namespace ll.AST
 {
     public class StructDefinition : IAST
     {
-        public List<IAST> properties { get; set; }
+        public List<StructProperty> properties { get; set; }
         public string name { get; set; }
 
-        public StructDefinition(string name, List<IAST> properties) : base(new StructDefinitionType())
+        public StructDefinition(string name, List<StructProperty> properties) : base(new StructDefinitionType())
         {
             this.name = name;
             this.properties = properties;

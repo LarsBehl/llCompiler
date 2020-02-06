@@ -24,6 +24,13 @@ namespace ll
                     continue;
                 }
 
+                if (text == ":sts")
+                {
+                    foreach (StructDefinition structDef in IAST.structs.Values)
+                        Console.WriteLine(structDef.name);
+                    continue;
+                }
+
                 if (string.IsNullOrEmpty(text))
                     break;
 
@@ -31,7 +38,13 @@ namespace ll
                 var lexer = new llLexer(inputStream);
                 var tokenStream = new CommonTokenStream(lexer);
                 var parser = new llParser(tokenStream);
-                var tmp = new FunctionDefinitionVisitor().VisitCompileUnit(parser.compileUnit());
+                var tmp = new StructDefinitionVisitor().VisitCompileUnit(parser.compileUnit());
+
+                inputStream = new AntlrInputStream(text);
+                lexer = new llLexer(inputStream);
+                tokenStream = new CommonTokenStream(lexer);
+                parser = new llParser(tokenStream);
+                tmp = new FunctionDefinitionVisitor().VisitCompileUnit(parser.compileUnit());
 
                 inputStream = new AntlrInputStream(text);
                 lexer = new llLexer(inputStream);
