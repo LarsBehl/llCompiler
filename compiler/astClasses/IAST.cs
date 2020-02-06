@@ -216,6 +216,8 @@ namespace ll.AST
                     return null;
                 case DestructionStatement destructionStatement:
                     throw new ArgumentException("Destruction Statement is not supported in interactive compiler mode");
+                case NullLit nullLit:
+                    return nullLit;
                 default:
                     throw new ArgumentException("Unknown Ast Object");
             }

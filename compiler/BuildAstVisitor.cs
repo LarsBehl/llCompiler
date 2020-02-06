@@ -156,7 +156,8 @@ namespace ll
 
             if (variable.type.typeName != val.type.typeName)
             {
-                if (variable.type is DoubleType && val.type is IntType)
+                if (variable.type is DoubleType && val.type is IntType
+                || variable.type is RefType && val.type is RefType)
                     return new AssignStatement(new VarExpr(context.left.Text), val);
                 else
                     throw new ArgumentException($"Type \"{val.type.typeName}\" does not match \"{variable.type.typeName}\"");
@@ -212,6 +213,8 @@ namespace ll
                 return Visit(context.notExpression());
             if (context.arrayIndexing() != null)
                 return Visit(context.arrayIndexing());
+            if (context.NULL() != null)
+                return new NullLit();
 
             throw new ArgumentException("Unknown unary type");
         }
@@ -238,7 +241,9 @@ namespace ll
                 throw new ArgumentException($"Trying to override the body of function \"{identifier[0].GetText()}\"");
             var body = Visit(context.body) as BlockStatement;
 
-            if ((body.type.typeName != funDef.returnType.typeName || !body.doesFullyReturn) && !(funDef.returnType is VoidType))
+            if ((body.type.typeName != funDef.returnType.typeName || !body.doesFullyReturn)
+            && !(funDef.returnType is VoidType)
+            && !(body.type is RefType && funDef.returnType is RefType))
             {
                 if (body.type is BlockStatementType || !body.doesFullyReturn)
                     throw new ArgumentException($"Missing return statement in \"{funDef.name}\"");

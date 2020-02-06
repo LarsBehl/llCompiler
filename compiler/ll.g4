@@ -52,7 +52,8 @@ unaryExpression
     | decrementPreExpression
     | incrementPreExpression
     | notExpression
-    | arrayIndexing;
+    | arrayIndexing
+    | NULL;
 
 functionCall
     : name=WORD PAR_L (expression (COMMA expression)*)? PAR_R;
@@ -130,6 +131,7 @@ WHILE: 'w' 'h' 'i' 'l' 'e';
 PRINT: 'p' 'r' 'i' 'n' 't';
 NEW: 'n' 'e' 'w';
 DESTROY: 'd' 'e' 's' 't' 'r' 'o' 'y';
+NULL: 'n' 'u' 'l' 'l';
 WORD: ([a-zA-Z] | '_') ([a-zA-Z0-9] | '_')*;
 MULT: '*';
 PLUS: '+';

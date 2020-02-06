@@ -8,12 +8,12 @@ namespace ll.AST
         public VarExpr variable { get; set; }
         public IAST value { get; set; }
 
-        // TODO fix type check
         public AssignStatement(VarExpr variable, IAST value) : base(new AssignStatementType())
         {
             if (variable.type.typeName != value.type.typeName)
             {
-                if (variable.type is DoubleType && value.type is IntType)
+                if (variable.type is DoubleType && value.type is IntType
+                || variable.type is RefType && value.type is NullType)
                 {
                     this.variable = variable;
                     this.value = value;
