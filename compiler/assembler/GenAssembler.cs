@@ -116,6 +116,8 @@ namespace ll.assembler
                     this.AssignArrayFieldAsm(assignArray); break;
                 case DestructionStatement destruction:
                     this.DestructionStatementAsm(destruction); break;
+                case NullLit nullLit:
+                    this.NullLitAsm(nullLit); break;
                 default:
                     throw new NotImplementedException($"Assembler generation not implemented for {astNode.ToString()}");
             }
@@ -794,7 +796,8 @@ namespace ll.assembler
             || assignStatement.variable.type is BooleanType
             || assignStatement.value.type is IntArrayType
             || assignStatement.value.type is BoolArrayType
-            || assignStatement.value.type is DoubleArrayType)
+            || assignStatement.value.type is DoubleArrayType
+            || assignStatement.value.type is NullType)
                 register = "%rax";
 
             if (assignStatement.variable.type is DoubleType)
@@ -1259,6 +1262,11 @@ namespace ll.assembler
                 this.WriteLine("push $1");
 
             this.WriteLine("call free@PLT");
+        }
+
+        private void NullLitAsm(NullLit nullLit)
+        {
+            this.WriteLine("movq $0, %rax");
         }
 
         private void WriteLine(string op)
