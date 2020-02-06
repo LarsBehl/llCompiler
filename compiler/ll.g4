@@ -4,7 +4,7 @@ grammar ll;
 compileUnit: program EOF;
 
 program
-    : functionDefinition+
+    : (functionDefinition|structDefinition)+
     | compositUnit;
 
 compositUnit
@@ -80,7 +80,8 @@ typeDefinition
     | DOUBLE_TYPE
     | BOOL_TYPE
     | VOID_TYPE
-    | arrayTypes;
+    | arrayTypes
+    | structName;
 
 incrementPostExpression
     : variableExpression PLUS PLUS;
@@ -116,6 +117,15 @@ arrayIndexing
 refTypeDestruction
     : DESTROY variableExpression;
 
+structProperties
+    : variableExpression COLON typeDefinition SEMCOL;
+
+structDefinition
+    : STRUCT CURL_L structProperties+ CURL_R;
+
+structName
+    : WORD;
+
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;
 RETURN: 'r' 'e' 't' 'u' 'r' 'n';
@@ -132,6 +142,7 @@ PRINT: 'p' 'r' 'i' 'n' 't';
 NEW: 'n' 'e' 'w';
 DESTROY: 'd' 'e' 's' 't' 'r' 'o' 'y';
 NULL: 'n' 'u' 'l' 'l';
+STRUCT: 's' 't' 'r' 'u' 'c' 't';
 WORD: ([a-zA-Z] | '_') ([a-zA-Z0-9] | '_')*;
 MULT: '*';
 PLUS: '+';
