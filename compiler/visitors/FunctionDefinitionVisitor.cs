@@ -45,6 +45,8 @@ namespace ll
                 return new VoidLit();
             if (context.arrayTypes() != null)
                 return Visit(context.arrayTypes());
+            if (context.structName() != null)
+                return Visit(context.structName());
 
             throw new ArgumentException("Unsupported type");
         }
@@ -62,6 +64,22 @@ namespace ll
         public override IAST VisitBoolArrayType(llParser.BoolArrayTypeContext context)
         {
             return new BoolArray();
+        }
+
+        public override IAST VisitStructName(llParser.StructNameContext context)
+        {
+            StructDefinition structDef;
+
+            try
+            {
+                structDef = IAST.structs[context.WORD().GetText()];
+            }
+            catch (Exception e)
+            {
+                throw new ArgumentException($"Unknown struct reference \"{context.WORD().GetText()}\"");
+            }
+
+            return new Struct(structDef.name);
         }
     }
 }

@@ -1,5 +1,6 @@
 using ll.AST;
 using System;
+using System.Collections.Generic;
 
 namespace ll
 {
@@ -7,12 +8,12 @@ namespace ll
     {
         public override IAST VisitStructDefinition(llParser.StructDefinitionContext context)
         {
-            throw new NotImplementedException();
-        }
+            string name = context.WORD().GetText();
 
-        public override IAST VisitTypeDefinition(llParser.TypeDefinitionContext context)
-        {
-            throw new NotImplementedException();
+            IAST.structs[name] = new StructDefinition(name);
+
+            // unused value
+            return null;
         }
     }
 }

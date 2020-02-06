@@ -118,10 +118,10 @@ refTypeDestruction
     : DESTROY variableExpression;
 
 structProperties
-    : variableExpression COLON typeDefinition SEMCOL;
+    : WORD COLON typeDefinition SEMCOL;
 
 structDefinition
-    : STRUCT CURL_L structProperties+ CURL_R;
+    : STRUCT WORD CURL_L structProperties+ CURL_R;
 
 structName
     : WORD;

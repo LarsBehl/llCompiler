@@ -8,6 +8,7 @@ namespace ll.AST
     {
         public static Dictionary<string, IAST> env;
         public static Dictionary<string, FunctionDefinition> funs = new Dictionary<string, FunctionDefinition>();
+        public static Dictionary<string, StructDefinition> structs = new Dictionary<string, StructDefinition>();
         public ll.type.Type type { get; set; }
 
         public IAST(ll.type.Type type)
