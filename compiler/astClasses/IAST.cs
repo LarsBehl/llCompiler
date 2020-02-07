@@ -225,6 +225,9 @@ namespace ll.AST
                     return @struct;
                 case StructPropertyAccess structPropertyAccess:
                     return EvalStructPropertyAccess(structPropertyAccess);
+                case AssignStructProperty assignStruct:
+                    EvalAssignStructProperty(assignStruct);
+                    return null;
                 default:
                     throw new ArgumentException("Unknown Ast Object");
             }
@@ -678,6 +681,13 @@ namespace ll.AST
                 throw new ArgumentException($"Trying to access uninitialized variable \"{structPropertyAccess.propName}\"");
 
             return tmp.Eval();
+        }
+
+        static void EvalAssignStructProperty(AssignStructProperty assignStruct)
+        {
+            Struct @struct = assignStruct.structProp.structRef.Eval() as Struct;
+
+            @struct.propValues[assignStruct.structProp.propName] = assignStruct.val.Eval();
         }
     }
 }

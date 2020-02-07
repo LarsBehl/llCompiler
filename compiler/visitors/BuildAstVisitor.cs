@@ -521,5 +521,18 @@ namespace ll
 
             return new StructPropertyAccess(v, context.WORD().GetText());
         }
+
+        public override IAST VisitAssignStructProp(llParser.AssignStructPropContext context)
+        {
+            StructPropertyAccess structPropAccess = Visit(context.structPropertyAccess()) as StructPropertyAccess;
+            IAST val;
+
+            if (context.expression() != null)
+                val = Visit(context.expression());
+            else
+                val = Visit(context.refTypeCreation());
+
+            return new AssignStructProperty(structPropAccess, val);
+        }
     }
 }

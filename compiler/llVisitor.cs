@@ -141,6 +141,13 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitAssignArrayField([NotNull] llParser.AssignArrayFieldContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>assignStructProp</c>
+	/// labeled alternative in <see cref="llParser.statement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAssignStructProp([NotNull] llParser.AssignStructPropContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>addAssignStatement</c>
 	/// labeled alternative in <see cref="llParser.statement"/>.
 	/// </summary>

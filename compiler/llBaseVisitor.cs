@@ -207,6 +207,17 @@ public partial class llBaseVisitor<Result> : AbstractParseTreeVisitor<Result>, I
 	/// <return>The visitor result.</return>
 	public virtual Result VisitAssignArrayField([NotNull] llParser.AssignArrayFieldContext context) { return VisitChildren(context); }
 	/// <summary>
+	/// Visit a parse tree produced by the <c>assignStructProp</c>
+	/// labeled alternative in <see cref="llParser.statement"/>.
+	/// <para>
+	/// The default implementation returns the result of calling <see cref="AbstractParseTreeVisitor{Result}.VisitChildren(IRuleNode)"/>
+	/// on <paramref name="context"/>.
+	/// </para>
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	public virtual Result VisitAssignStructProp([NotNull] llParser.AssignStructPropContext context) { return VisitChildren(context); }
+	/// <summary>
 	/// Visit a parse tree produced by the <c>addAssignStatement</c>
 	/// labeled alternative in <see cref="llParser.statement"/>.
 	/// <para>

@@ -26,7 +26,7 @@ namespace ll.AST
 
         public override string ToString()
         {
-            string result = this.name + "{\n";
+            string result = this.name + " {\n";
 
             foreach (var prop in propValues)
             {
