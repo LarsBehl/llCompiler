@@ -318,6 +318,7 @@ namespace ll
             return new WhileStatement(cond, body);
         }
 
+        // TODO rework increment, decrement and add-assign like operations so that they work with reference types
         public override IAST VisitIncrementPostExpression(llParser.IncrementPostExpressionContext context)
         {
             var variable = Visit(context.variableExpression()) as VarExpr;
@@ -403,6 +404,7 @@ namespace ll
             return new PrintStatement(Visit(context.expression()));
         }
 
+        // rework arrays so it is possible to create arrays of reference types
         public override IAST VisitIntArrayType(llParser.IntArrayTypeContext context)
         {
             return new IntArray();
