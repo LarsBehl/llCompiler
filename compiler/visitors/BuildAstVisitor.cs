@@ -217,6 +217,8 @@ namespace ll
                 return Visit(context.arrayIndexing());
             if (context.NULL() != null)
                 return new NullLit();
+            if (context.structPropertyAccess() != null)
+                return Visit(context.structPropertyAccess());
 
             throw new ArgumentException("Unknown unary type");
         }
@@ -511,6 +513,13 @@ namespace ll
         public override IAST VisitStructCreation(llParser.StructCreationContext context)
         {
             return Visit(context.structName());
+        }
+
+        public override IAST VisitStructPropertyAccess(llParser.StructPropertyAccessContext context)
+        {
+            VarExpr v = Visit(context.variableExpression()) as VarExpr;
+
+            return new StructPropertyAccess(v, context.WORD().GetText());
         }
     }
 }

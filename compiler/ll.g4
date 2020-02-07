@@ -53,6 +53,7 @@ unaryExpression
     | incrementPreExpression
     | notExpression
     | arrayIndexing
+    | structPropertyAccess
     | NULL;
 
 functionCall
@@ -129,6 +130,9 @@ structName
 
 structCreation
     : structName PAR_L PAR_R;
+
+structPropertyAccess
+    : variableExpression DOT WORD;
 
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;

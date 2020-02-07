@@ -223,6 +223,8 @@ namespace ll.AST
                     return null;
                 case Struct @struct:
                     return @struct;
+                case StructPropertyAccess structPropertyAccess:
+                    return EvalStructPropertyAccess(structPropertyAccess);
                 default:
                     throw new ArgumentException("Unknown Ast Object");
             }
@@ -665,6 +667,17 @@ namespace ll.AST
             IAST value = assignArrayField.value.Eval();
 
             array.values[index] = value;
+        }
+
+        static IAST EvalStructPropertyAccess(StructPropertyAccess structPropertyAccess)
+        {
+            Struct @struct = structPropertyAccess.structRef.Eval() as Struct;
+            IAST tmp = @struct.propValues[structPropertyAccess.propName];
+
+            if (tmp == null)
+                throw new ArgumentException($"Trying to access uninitialized variable \"{structPropertyAccess.propName}\"");
+
+            return tmp.Eval();
         }
     }
 }

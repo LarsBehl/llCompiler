@@ -387,5 +387,11 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitStructCreation([NotNull] llParser.StructCreationContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.structPropertyAccess"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitStructPropertyAccess([NotNull] llParser.StructPropertyAccessContext context);
 }
 } // namespace ll
