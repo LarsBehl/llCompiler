@@ -118,6 +118,12 @@ namespace ll.assembler
                     this.DestructionStatementAsm(destruction); break;
                 case NullLit nullLit:
                     this.NullLitAsm(nullLit); break;
+                case StructDefinition structDefinition:
+                    break;
+                case StructPropertyAccess structPropertyAccess:
+                    this.StructPropertyAccessAsm(structPropertyAccess); break;
+                case AssignStructProperty assignStruct:
+                    this.AssignStructPropertyAsm(assignStruct); break;
                 default:
                     throw new NotImplementedException($"Assembler generation not implemented for {astNode.ToString()}");
             }
@@ -771,7 +777,8 @@ namespace ll.assembler
             || varExpr.type is IntType
             || varExpr.type is IntArrayType
             || varExpr.type is DoubleArrayType
-            || varExpr.type is BoolArrayType)
+            || varExpr.type is BoolArrayType
+            || varExpr.type is StructType)
                 this.WriteLine($"movq {this.variableMap[varExpr.name]}(%rbp), %rax");
         }
 
@@ -797,7 +804,8 @@ namespace ll.assembler
             || assignStatement.value.type is IntArrayType
             || assignStatement.value.type is BoolArrayType
             || assignStatement.value.type is DoubleArrayType
-            || assignStatement.value.type is NullType)
+            || assignStatement.value.type is NullType
+            || assignStatement.value.type is StructType)
                 register = "%rax";
 
             if (assignStatement.variable.type is DoubleType)
@@ -1199,15 +1207,21 @@ namespace ll.assembler
                     this.WriteLine("imulq %rbx, %rax");
 
                     this.WriteLine("movq %rax, %rdi");
+                    break;
+                case Struct @struct:
+                    StructDefinition structDef = IAST.structs[@struct.name];
+                    int size = structDef.GetSize();
 
-                    if (this.stackCounter % 16 == 0)
-                        this.WritePush("$0");
-
-                    this.WriteLine("call malloc@PLT");
+                    this.WriteLine($"movq ${size}, %rdi");
                     break;
                 default:
                     throw new NotImplementedException("Omega NASA");
             }
+
+            if (this.stackCounter % 16 == 0)
+                this.WritePush("$0");
+
+            this.WriteLine("call malloc@PLT");
         }
 
         private void ArrayIndexingAsm(ArrayIndexing arrayIndexing)
@@ -1259,7 +1273,7 @@ namespace ll.assembler
             this.WriteLine("movq %rax, %rdi");
 
             if (this.stackCounter % 16 == 0)
-                this.WriteLine("push $1");
+                this.WriteLine("push $0");
 
             this.WriteLine("call free@PLT");
         }
@@ -1267,6 +1281,54 @@ namespace ll.assembler
         private void NullLitAsm(NullLit nullLit)
         {
             this.WriteLine("movq $0, %rax");
+        }
+
+        private void StructPropertyAccessAsm(StructPropertyAccess structPropertyAccess)
+        {
+            // get the index of the property
+            StructType structType = structPropertyAccess.structRef.type as StructType;
+            string structName = structType.structName;
+            StructDefinition structDef = IAST.structs[structName];
+            int propIndex = structDef.properties.FindIndex(prop => prop.name == structPropertyAccess.propName);
+
+            // get the base adress of the struct
+            this.GetAssember(structPropertyAccess.structRef);
+            // calculate the adress of the property
+            this.WriteLine($"addq ${propIndex * 8}, %rax");
+
+            // write the value in the correct register
+            if (structPropertyAccess.type is DoubleType)
+                this.WriteLine("movq (%rax), %xmm0");
+            else
+                this.WriteLine("movq (%rax), %rax");
+        }
+
+        private void AssignStructPropertyAsm(AssignStructProperty assignStruct)
+        {
+            // calculate the new value
+            this.GetAssember(assignStruct.val);
+
+            // if it is a double, move it into %rax
+            if (assignStruct.val.type is DoubleType)
+                this.WriteLine("movq %xmm0, %rax");
+
+            // push the value on the stack
+            this.WritePush();
+
+            // get the index of the property
+            StructType structType = assignStruct.structProp.structRef.type as StructType;
+            string structName = structType.structName;
+            StructDefinition structDef = IAST.structs[structName];
+            int propIndex = structDef.properties.FindIndex(prop => prop.name == assignStruct.structProp.propName);
+
+            // load the adress of the struct
+            this.GetAssember(assignStruct.structProp.structRef);
+            // add the calculated index to %rax (the base adress of the struct) 
+            this.WriteLine($"addq ${propIndex * 8}, %rax");
+            // get the value from the stack
+            this.WritePop("%rbx");
+            // save the calculated value
+            this.WriteLine("movq %rbx, (%rax)");
         }
 
         private void WriteLine(string op)

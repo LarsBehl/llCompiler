@@ -18,5 +18,18 @@ namespace ll.AST
         {
 
         }
+
+        /**
+        * <summary>Returns the size of the struct in byte</summary>
+        */
+        public int GetSize()
+        {
+            int result = 0;
+
+            foreach (StructProperty structProperty in properties)
+                result += 8;
+
+            return result;
+        }
     }
 }

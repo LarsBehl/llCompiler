@@ -254,6 +254,9 @@ namespace ll
                 throw new ArgumentException($"Return type \"{body.type.typeName}\" does not match \"{funDef.returnType.typeName}\"");
             }
 
+            if ((funDef.returnType is VoidType) && (!(body.type is VoidType) && !(body.type is BlockStatementType)))
+                throw new ArgumentException($"Could not return \"{body.type.typeName}\" in a void function");
+
             funDef.body = body;
             IAST.funs[funDef.name] = funDef;
 
@@ -282,11 +285,11 @@ namespace ll
 
             if (funs?.Length > 0 || structs?.Length > 0)
             {
-                foreach (var funDef in funs)
-                    funDefs.Add(Visit(funDef));
-
                 foreach (var structDef in context.structDefinition())
                     structDefs.Add(Visit(structDef));
+
+                foreach (var funDef in funs)
+                    funDefs.Add(Visit(funDef));
 
                 return new ProgramNode(funDefs, structDefs);
             }
@@ -404,7 +407,7 @@ namespace ll
             return new PrintStatement(Visit(context.expression()));
         }
 
-        // rework arrays so it is possible to create arrays of reference types
+        // TODO rework arrays so it is possible to create arrays of reference types
         public override IAST VisitIntArrayType(llParser.IntArrayTypeContext context)
         {
             return new IntArray();
