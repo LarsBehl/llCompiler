@@ -141,6 +141,13 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitAssignArrayField([NotNull] llParser.AssignArrayFieldContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>assignStructProp</c>
+	/// labeled alternative in <see cref="llParser.statement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitAssignStructProp([NotNull] llParser.AssignStructPropContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>addAssignStatement</c>
 	/// labeled alternative in <see cref="llParser.statement"/>.
 	/// </summary>
@@ -363,5 +370,35 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitRefTypeDestruction([NotNull] llParser.RefTypeDestructionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.structProperties"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitStructProperties([NotNull] llParser.StructPropertiesContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.structDefinition"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitStructDefinition([NotNull] llParser.StructDefinitionContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.structName"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitStructName([NotNull] llParser.StructNameContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.structCreation"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitStructCreation([NotNull] llParser.StructCreationContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.structPropertyAccess"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitStructPropertyAccess([NotNull] llParser.StructPropertyAccessContext context);
 }
 } // namespace ll

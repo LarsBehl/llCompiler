@@ -4,7 +4,7 @@ grammar ll;
 compileUnit: program EOF;
 
 program
-    : functionDefinition+
+    : (functionDefinition|structDefinition)+
     | compositUnit;
 
 compositUnit
@@ -30,6 +30,7 @@ expression
 statement
     : left=WORD ASSIGN (expression|refTypeCreation) SEMCOL #assignStatement
     | left=arrayIndexing ASSIGN (expression) SEMCOL #assignArrayField
+    | left=structPropertyAccess ASSIGN (expression|refTypeCreation) SEMCOL #assignStructProp
     | left=WORD ADD_ASSIGN right=expression SEMCOL #addAssignStatement
     | left=WORD SUB_ASSIGN right=expression SEMCOL #subAssignStatement
     | left=WORD MULT_ASSIGN right=expression SEMCOL #multAssignStatement
@@ -53,6 +54,7 @@ unaryExpression
     | incrementPreExpression
     | notExpression
     | arrayIndexing
+    | structPropertyAccess
     | NULL;
 
 functionCall
@@ -80,7 +82,8 @@ typeDefinition
     | DOUBLE_TYPE
     | BOOL_TYPE
     | VOID_TYPE
-    | arrayTypes;
+    | arrayTypes
+    | structName;
 
 incrementPostExpression
     : variableExpression PLUS PLUS;
@@ -108,13 +111,29 @@ arrayCreation
     | BOOL_TYPE BRAC_L expression BRAC_R #boolArrayCreation;
 
 refTypeCreation
-    : NEW arrayCreation;
+    : NEW arrayCreation
+    | NEW structCreation;
 
 arrayIndexing
     : variableExpression BRAC_L expression BRAC_R;
 
 refTypeDestruction
     : DESTROY variableExpression;
+
+structProperties
+    : WORD COLON typeDefinition SEMCOL;
+
+structDefinition
+    : STRUCT WORD CURL_L structProperties+ CURL_R;
+
+structName
+    : WORD;
+
+structCreation
+    : structName PAR_L PAR_R;
+
+structPropertyAccess
+    : variableExpression DOT WORD;
 
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;
@@ -132,6 +151,7 @@ PRINT: 'p' 'r' 'i' 'n' 't';
 NEW: 'n' 'e' 'w';
 DESTROY: 'd' 'e' 's' 't' 'r' 'o' 'y';
 NULL: 'n' 'u' 'l' 'l';
+STRUCT: 's' 't' 'r' 'u' 'c' 't';
 WORD: ([a-zA-Z] | '_') ([a-zA-Z0-9] | '_')*;
 MULT: '*';
 PLUS: '+';

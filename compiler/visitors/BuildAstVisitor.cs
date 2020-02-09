@@ -178,6 +178,8 @@ namespace ll
                 return new VoidLit();
             if (context.arrayTypes() != null)
                 return Visit(context.arrayTypes());
+            if (context.structName() != null)
+                return Visit(context.structName());
             throw new ArgumentException("Unsupported type");
         }
 
@@ -215,6 +217,8 @@ namespace ll
                 return Visit(context.arrayIndexing());
             if (context.NULL() != null)
                 return new NullLit();
+            if (context.structPropertyAccess() != null)
+                return Visit(context.structPropertyAccess());
 
             throw new ArgumentException("Unknown unary type");
         }
@@ -250,6 +254,9 @@ namespace ll
                 throw new ArgumentException($"Return type \"{body.type.typeName}\" does not match \"{funDef.returnType.typeName}\"");
             }
 
+            if ((funDef.returnType is VoidType) && (!(body.type is VoidType) && !(body.type is BlockStatementType)))
+                throw new ArgumentException($"Could not return \"{body.type.typeName}\" in a void function");
+
             funDef.body = body;
             IAST.funs[funDef.name] = funDef;
 
@@ -272,14 +279,19 @@ namespace ll
         public override IAST VisitProgram(llParser.ProgramContext context)
         {
             List<IAST> funDefs = new List<IAST>();
-            if (context.functionDefinition()?.Length > 0)
-            {
-                foreach (var funDef in context.functionDefinition())
-                {
-                    funDefs.Add(Visit(funDef));
-                }
+            List<IAST> structDefs = new List<IAST>();
+            var structs = context.structDefinition();
+            var funs = context.functionDefinition();
 
-                return new ProgramNode(funDefs);
+            if (funs?.Length > 0 || structs?.Length > 0)
+            {
+                foreach (var structDef in context.structDefinition())
+                    structDefs.Add(Visit(structDef));
+
+                foreach (var funDef in funs)
+                    funDefs.Add(Visit(funDef));
+
+                return new ProgramNode(funDefs, structDefs);
             }
 
             if (context.compositUnit() != null)
@@ -309,6 +321,7 @@ namespace ll
             return new WhileStatement(cond, body);
         }
 
+        // TODO rework increment, decrement and add-assign like operations so that they work with reference types
         public override IAST VisitIncrementPostExpression(llParser.IncrementPostExpressionContext context)
         {
             var variable = Visit(context.variableExpression()) as VarExpr;
@@ -394,6 +407,7 @@ namespace ll
             return new PrintStatement(Visit(context.expression()));
         }
 
+        // TODO rework arrays so it is possible to create arrays of reference types
         public override IAST VisitIntArrayType(llParser.IntArrayTypeContext context)
         {
             return new IntArray();
@@ -426,7 +440,12 @@ namespace ll
 
         public override IAST VisitRefTypeCreation(llParser.RefTypeCreationContext context)
         {
-            return new RefTypeCreationStatement(Visit(context.arrayCreation()));
+            if (context.arrayCreation() != null)
+                return new RefTypeCreationStatement(Visit(context.arrayCreation()));
+            if (context.structCreation() != null)
+                return new RefTypeCreationStatement(Visit(context.structCreation()));
+
+            throw new ArgumentException("Invalid type for reference type creation");
         }
 
         public override IAST VisitArrayIndexing(llParser.ArrayIndexingContext context)
@@ -449,6 +468,76 @@ namespace ll
         public override IAST VisitRefTypeDestruction(llParser.RefTypeDestructionContext context)
         {
             return new DestructionStatement(Visit(context.variableExpression()) as VarExpr);
+        }
+
+        public override IAST VisitStructDefinition(llParser.StructDefinitionContext context)
+        {
+            string name = context.WORD().GetText();
+
+            if (!IAST.structs.ContainsKey(name))
+                throw new ArgumentException($"Unknown struct \"{name}\"");
+
+            StructDefinition structDef = IAST.structs[name];
+
+            if (structDef.properties != null)
+                throw new ArgumentException($"Multiple definitions of struct \"{name}\"");
+
+            var props = context.structProperties();
+            List<StructProperty> properties = new List<StructProperty>();
+
+            foreach (var prop in props)
+            {
+                var tmp = Visit(prop) as StructProperty;
+
+                if (properties.FindIndex(s => s.name == tmp.name) >= 0)
+                    throw new ArgumentException($"Multiple definitions of \"{tmp.name}\" in struct \"{name}\"");
+
+                properties.Add(tmp);
+            }
+
+            structDef.properties = properties;
+
+            return structDef;
+        }
+
+        public override IAST VisitStructName(llParser.StructNameContext context)
+        {
+            string name = context.WORD().GetText();
+
+            if (!IAST.structs.ContainsKey(name))
+                throw new ArgumentException($"Unknown struct \"{name}\"");
+
+            return new Struct(name);
+        }
+
+        public override IAST VisitStructProperties(llParser.StructPropertiesContext context)
+        {
+            return new StructProperty(context.WORD().GetText(), Visit(context.typeDefinition()).type);
+        }
+
+        public override IAST VisitStructCreation(llParser.StructCreationContext context)
+        {
+            return Visit(context.structName());
+        }
+
+        public override IAST VisitStructPropertyAccess(llParser.StructPropertyAccessContext context)
+        {
+            VarExpr v = Visit(context.variableExpression()) as VarExpr;
+
+            return new StructPropertyAccess(v, context.WORD().GetText());
+        }
+
+        public override IAST VisitAssignStructProp(llParser.AssignStructPropContext context)
+        {
+            StructPropertyAccess structPropAccess = Visit(context.structPropertyAccess()) as StructPropertyAccess;
+            IAST val;
+
+            if (context.expression() != null)
+                val = Visit(context.expression());
+            else
+                val = Visit(context.refTypeCreation());
+
+            return new AssignStructProperty(structPropAccess, val);
         }
     }
 }
