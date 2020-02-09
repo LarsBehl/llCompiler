@@ -6,7 +6,7 @@ namespace ll.AST
     {
         public string name { get; set; }
 
-        public InstantiationStatement(string name, type.Type type) : base(type)
+        public InstantiationStatement(string name, type.Type type, int line, int column) : base(type, line, column)
         {
             this.name = name;
         }

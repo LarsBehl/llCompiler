@@ -4,7 +4,7 @@ namespace ll.AST
 {
     public class NullLit : IAST
     {
-        public NullLit() : base(new NullType())
+        public NullLit(int line, int column) : base(new NullType(), line, column)
         {
 
         }

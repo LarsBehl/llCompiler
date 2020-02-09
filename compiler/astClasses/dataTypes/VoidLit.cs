@@ -4,7 +4,7 @@ namespace ll.AST
 {
     public class VoidLit : IAST
     {
-        public VoidLit(): base(new VoidType())
+        public VoidLit(int line, int column) : base(new VoidType(), line, column)
         {
 
         }

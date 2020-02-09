@@ -6,7 +6,7 @@ namespace ll.AST
     {
         public bool? value { get; set; }
 
-        public BoolLit(bool? value) : base(new BooleanType())
+        public BoolLit(bool? value, int line, int column) : base(new BooleanType(), line, column)
         {
             this.value = value;
         }

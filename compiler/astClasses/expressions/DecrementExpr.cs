@@ -5,7 +5,7 @@ namespace ll.AST
         public VarExpr variable { get; set; }
         public bool post { get; set; }
 
-        public DecrementExpr(VarExpr variable, bool post): base(variable.type)
+        public DecrementExpr(VarExpr variable, bool post, int line, int column) : base(variable.type, line, column)
         {
             this.variable = variable;
             this.post = post;

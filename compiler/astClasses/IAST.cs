@@ -10,10 +10,14 @@ namespace ll.AST
         public static Dictionary<string, FunctionDefinition> funs = new Dictionary<string, FunctionDefinition>();
         public static Dictionary<string, StructDefinition> structs = new Dictionary<string, StructDefinition>();
         public ll.type.Type type { get; set; }
+        public int line { get; set; }
+        public int column { get; set; }
 
-        public IAST(ll.type.Type type)
+        public IAST(ll.type.Type type, int line, int column)
         {
             this.type = type;
+            this.line = line;
+            this.column = column;
         }
 
         public IAST Eval()
@@ -182,15 +186,15 @@ namespace ll.AST
                     env[divAssign.left.name] = EvalDivAssign(divAssign);
                     return null;
                 case NotExpr notExpr:
-                    return new BoolLit(!(notExpr.value.Eval() as BoolLit).value);
+                    return new BoolLit(!(notExpr.value.Eval() as BoolLit).value, notExpr.line, notExpr.column);
                 case AndExpr andExpr:
                     return new BoolLit(
                         ((andExpr.left.Eval() as BoolLit).value ?? false)
-                        && ((andExpr.right.Eval() as BoolLit).value ?? false));
+                        && ((andExpr.right.Eval() as BoolLit).value ?? false), andExpr.line, andExpr.column);
                 case OrExpr orExpr:
                     return new BoolLit(
                         ((orExpr.left.Eval() as BoolLit).value ?? false)
-                        || ((orExpr.right.Eval() as BoolLit).value ?? false));
+                        || ((orExpr.right.Eval() as BoolLit).value ?? false), orExpr.line, orExpr.column);
                 case NotEqualExpr notEqualExpr:
                     return EvalNotEqualExpression(notEqualExpr);
                 case ProgramNode programNode:
@@ -239,15 +243,15 @@ namespace ll.AST
             {
                 case IntType i:
                     if (me.right.type is IntType)
-                        return new IntLit((me.left.Eval() as IntLit).n * (me.right.Eval() as IntLit).n);
+                        return new IntLit((me.left.Eval() as IntLit).n * (me.right.Eval() as IntLit).n, me.line, me.column);
                     if (me.right.type is DoubleType)
-                        return new DoubleLit((me.left.Eval() as IntLit).n * (me.right.Eval() as DoubleLit).n);
+                        return new DoubleLit((me.left.Eval() as IntLit).n * (me.right.Eval() as DoubleLit).n, me.line, me.column);
                     throw new ArgumentException($"Type \"{me.left.type.typeName}\" is incompatible with \"{me.right.type.typeName}\"");
                 case DoubleType d:
                     if (me.right.type is IntType)
-                        return new DoubleLit((me.left.Eval() as DoubleLit).n * (me.right.Eval() as IntLit).n);
+                        return new DoubleLit((me.left.Eval() as DoubleLit).n * (me.right.Eval() as IntLit).n, me.line, me.column);
                     if (me.right.type is DoubleType)
-                        return new DoubleLit((me.left.Eval() as DoubleLit).n * (me.right.Eval() as DoubleLit).n);
+                        return new DoubleLit((me.left.Eval() as DoubleLit).n * (me.right.Eval() as DoubleLit).n, me.line, me.column);
                     throw new ArgumentException($"Type \"{me.left.type.typeName}\" is incompatible with \"{me.right.type.typeName}\"");
                 default:
                     throw new ArgumentException($"Unknown type \"{me.left.type.typeName}\"");
@@ -260,15 +264,15 @@ namespace ll.AST
             {
                 case IntType i:
                     if (div.right.type is IntType)
-                        return new IntLit((div.left.Eval() as IntLit).n / (div.right.Eval() as IntLit).n);
+                        return new IntLit((div.left.Eval() as IntLit).n / (div.right.Eval() as IntLit).n, div.line, div.column);
                     if (div.right.type is DoubleType)
-                        return new DoubleLit((div.left.Eval() as IntLit).n / (div.right.Eval() as DoubleLit).n);
+                        return new DoubleLit((div.left.Eval() as IntLit).n / (div.right.Eval() as DoubleLit).n, div.line, div.column);
                     throw new ArgumentException($"Type \"{div.left.type.typeName}\" is incompatible with \"{div.right.type.typeName}\"");
                 case DoubleType d:
                     if (div.right.type is IntType)
-                        return new DoubleLit((div.left.Eval() as DoubleLit).n / (div.right.Eval() as IntLit).n);
+                        return new DoubleLit((div.left.Eval() as DoubleLit).n / (div.right.Eval() as IntLit).n, div.line, div.column);
                     if (div.right.type is DoubleType)
-                        return new DoubleLit((div.left.Eval() as DoubleLit).n / (div.right.Eval() as DoubleLit).n);
+                        return new DoubleLit((div.left.Eval() as DoubleLit).n / (div.right.Eval() as DoubleLit).n, div.line, div.column);
                     throw new ArgumentException($"Type \"{div.left.type.typeName}\" is incompatible with \"{div.right.type.typeName}\"");
                 default:
                     throw new ArgumentException($"Unknown type \"{div.left.type.typeName}\"");
@@ -281,15 +285,15 @@ namespace ll.AST
             {
                 case IntType i:
                     if (add.right.type is IntType)
-                        return new IntLit((add.left.Eval() as IntLit).n + (add.right.Eval() as IntLit).n);
+                        return new IntLit((add.left.Eval() as IntLit).n + (add.right.Eval() as IntLit).n, add.line, add.column);
                     if (add.right.type is DoubleType)
-                        return new DoubleLit((add.left.Eval() as IntLit).n + (add.right.Eval() as DoubleLit).n);
+                        return new DoubleLit((add.left.Eval() as IntLit).n + (add.right.Eval() as DoubleLit).n, add.line, add.column);
                     throw new ArgumentException($"Type \"{add.left.type.typeName}\" is incompatible with \"{add.right.type.typeName}\"");
                 case DoubleType d:
                     if (add.right.type is IntType)
-                        return new DoubleLit((add.left.Eval() as DoubleLit).n + (add.right.Eval() as IntLit).n);
+                        return new DoubleLit((add.left.Eval() as DoubleLit).n + (add.right.Eval() as IntLit).n, add.line, add.column);
                     if (add.right.type is DoubleType)
-                        return new DoubleLit((add.left.Eval() as DoubleLit).n + (add.right.Eval() as DoubleLit).n);
+                        return new DoubleLit((add.left.Eval() as DoubleLit).n + (add.right.Eval() as DoubleLit).n, add.line, add.column);
                     throw new ArgumentException($"Type \"{add.left.type.typeName}\" is incompatible with \"{add.right.type.typeName}\"");
                 default:
                     throw new ArgumentException($"Unknown type \"{add.left.type.typeName}\"");
@@ -302,15 +306,15 @@ namespace ll.AST
             {
                 case IntType i:
                     if (sub.right.type is IntType)
-                        return new IntLit((sub.left.Eval() as IntLit).n - (sub.right.Eval() as IntLit).n);
+                        return new IntLit((sub.left.Eval() as IntLit).n - (sub.right.Eval() as IntLit).n, sub.line, sub.column);
                     if (sub.right.type is DoubleType)
-                        return new DoubleLit((sub.left.Eval() as IntLit).n - (sub.right.Eval() as DoubleLit).n);
+                        return new DoubleLit((sub.left.Eval() as IntLit).n - (sub.right.Eval() as DoubleLit).n, sub.line, sub.column);
                     throw new ArgumentException($"Type \"{sub.left.type.typeName}\" is incompatible with \"{sub.right.type.typeName}\"");
                 case DoubleType d:
                     if (sub.right.type is IntType)
-                        return new DoubleLit((sub.left.Eval() as DoubleLit).n - (sub.right.Eval() as IntLit).n);
+                        return new DoubleLit((sub.left.Eval() as DoubleLit).n - (sub.right.Eval() as IntLit).n, sub.line, sub.column);
                     if (sub.right.type is DoubleType)
-                        return new DoubleLit((sub.left.Eval() as DoubleLit).n - (sub.right.Eval() as DoubleLit).n);
+                        return new DoubleLit((sub.left.Eval() as DoubleLit).n - (sub.right.Eval() as DoubleLit).n, sub.line, sub.column);
                     throw new ArgumentException($"Type \"{sub.left.type.typeName}\" is incompatible with \"{sub.right.type.typeName}\"");
                 default:
                     throw new ArgumentException($"Unknown type \"{sub.left.type.typeName}\"");
@@ -323,20 +327,20 @@ namespace ll.AST
             {
                 case IntType i:
                     if (eq.right.type is IntType)
-                        return new BoolLit((eq.left.Eval() as IntLit).n == (eq.right.Eval() as IntLit).n);
+                        return new BoolLit((eq.left.Eval() as IntLit).n == (eq.right.Eval() as IntLit).n, eq.line, eq.column);
                     if (eq.right.type is DoubleType)
-                        return new BoolLit((eq.left.Eval() as IntLit).n == (eq.right.Eval() as DoubleLit).n);
+                        return new BoolLit((eq.left.Eval() as IntLit).n == (eq.right.Eval() as DoubleLit).n, eq.line, eq.column);
                     throw new ArgumentException($"Type \"{eq.left.type.typeName}\" is incompatible with \"{eq.right.type.typeName}\"");
                 case DoubleType d:
                     if (eq.right.type is IntType)
-                        return new BoolLit((eq.left.Eval() as DoubleLit).n == (eq.right.Eval() as IntLit).n);
+                        return new BoolLit((eq.left.Eval() as DoubleLit).n == (eq.right.Eval() as IntLit).n, eq.line, eq.column);
                     if (eq.right.type is DoubleType)
-                        return new BoolLit((eq.left.Eval() as DoubleLit).n == (eq.right.Eval() as DoubleLit).n);
+                        return new BoolLit((eq.left.Eval() as DoubleLit).n == (eq.right.Eval() as DoubleLit).n, eq.line, eq.column);
                     throw new ArgumentException($"Type \"{eq.left.type.typeName}\" is incompatible with \"{eq.right.type.typeName}\"");
                 case BooleanType b:
                     if (!(eq.right.type is BooleanType))
                         throw new ArgumentException($"Type \"{eq.left.type.typeName}\" is incompatible with \"{eq.right.type.typeName}\"");
-                    return new BoolLit((eq.left.Eval() as BoolLit).value == (eq.right.Eval() as BoolLit).value);
+                    return new BoolLit((eq.left.Eval() as BoolLit).value == (eq.right.Eval() as BoolLit).value, eq.line, eq.column);
                 default:
                     throw new ArgumentException($"Unknown type \"{eq.left.type.typeName}\"");
             }
@@ -350,16 +354,16 @@ namespace ll.AST
                     if (le.right.type is IntType)
                     {
                         IAST result = le.equal
-                            ? new BoolLit((le.left.Eval() as IntLit).n <= (le.right.Eval() as IntLit).n)
-                            : new BoolLit((le.left.Eval() as IntLit).n < (le.right.Eval() as IntLit).n);
+                            ? new BoolLit((le.left.Eval() as IntLit).n <= (le.right.Eval() as IntLit).n, le.line, le.column)
+                            : new BoolLit((le.left.Eval() as IntLit).n < (le.right.Eval() as IntLit).n, le.line, le.column);
                         return result;
                     }
 
                     if (le.right.type is DoubleType)
                     {
                         IAST result = le.equal
-                            ? new BoolLit((le.left.Eval() as IntLit).n <= (le.right.Eval() as DoubleLit).n)
-                            : new BoolLit((le.left.Eval() as IntLit).n < (le.right.Eval() as DoubleLit).n);
+                            ? new BoolLit((le.left.Eval() as IntLit).n <= (le.right.Eval() as DoubleLit).n, le.line, le.column)
+                            : new BoolLit((le.left.Eval() as IntLit).n < (le.right.Eval() as DoubleLit).n, le.line, le.column);
                         return result;
                     }
 
@@ -368,16 +372,16 @@ namespace ll.AST
                     if (le.right.type is IntType)
                     {
                         IAST result = le.equal
-                            ? new BoolLit((le.left.Eval() as DoubleLit).n <= (le.right.Eval() as IntLit).n)
-                            : new BoolLit((le.left.Eval() as DoubleLit).n < (le.right.Eval() as IntLit).n);
+                            ? new BoolLit((le.left.Eval() as DoubleLit).n <= (le.right.Eval() as IntLit).n, le.line, le.column)
+                            : new BoolLit((le.left.Eval() as DoubleLit).n < (le.right.Eval() as IntLit).n, le.line, le.column);
                         return result;
                     }
 
                     if (le.right.type is DoubleType)
                     {
                         IAST result = le.equal
-                            ? new BoolLit((le.left.Eval() as DoubleLit).n <= (le.right.Eval() as DoubleLit).n)
-                            : new BoolLit((le.left.Eval() as DoubleLit).n < (le.right.Eval() as DoubleLit).n);
+                            ? new BoolLit((le.left.Eval() as DoubleLit).n <= (le.right.Eval() as DoubleLit).n, le.line, le.column)
+                            : new BoolLit((le.left.Eval() as DoubleLit).n < (le.right.Eval() as DoubleLit).n, le.line, le.column);
                         return result;
                     }
 
@@ -395,16 +399,16 @@ namespace ll.AST
                     if (ge.right.type is IntType)
                     {
                         IAST result = ge.equal
-                            ? new BoolLit((ge.left.Eval() as IntLit).n >= (ge.right.Eval() as IntLit).n)
-                            : new BoolLit((ge.left.Eval() as IntLit).n > (ge.right.Eval() as IntLit).n);
+                            ? new BoolLit((ge.left.Eval() as IntLit).n >= (ge.right.Eval() as IntLit).n, ge.line, ge.column)
+                            : new BoolLit((ge.left.Eval() as IntLit).n > (ge.right.Eval() as IntLit).n, ge.line, ge.column);
                         return result;
                     }
 
                     if (ge.right.type is DoubleType)
                     {
                         IAST result = ge.equal
-                            ? new BoolLit((ge.left.Eval() as IntLit).n >= (ge.right.Eval() as DoubleLit).n)
-                            : new BoolLit((ge.left.Eval() as IntLit).n > (ge.right.Eval() as DoubleLit).n);
+                            ? new BoolLit((ge.left.Eval() as IntLit).n >= (ge.right.Eval() as DoubleLit).n, ge.line, ge.column)
+                            : new BoolLit((ge.left.Eval() as IntLit).n > (ge.right.Eval() as DoubleLit).n, ge.line, ge.column);
                         return result;
                     }
 
@@ -413,16 +417,16 @@ namespace ll.AST
                     if (ge.right.type is IntType)
                     {
                         IAST result = ge.equal
-                            ? new BoolLit((ge.left.Eval() as IntLit).n >= (ge.right.Eval() as IntLit).n)
-                            : new BoolLit((ge.left.Eval() as IntLit).n > (ge.right.Eval() as IntLit).n);
+                            ? new BoolLit((ge.left.Eval() as IntLit).n >= (ge.right.Eval() as IntLit).n, ge.line, ge.column)
+                            : new BoolLit((ge.left.Eval() as IntLit).n > (ge.right.Eval() as IntLit).n, ge.line, ge.column);
                         return result;
                     }
 
                     if (ge.right.type is DoubleType)
                     {
                         IAST result = ge.equal
-                            ? new BoolLit((ge.left.Eval() as IntLit).n >= (ge.right.Eval() as DoubleLit).n)
-                            : new BoolLit((ge.left.Eval() as IntLit).n > (ge.right.Eval() as DoubleLit).n);
+                            ? new BoolLit((ge.left.Eval() as IntLit).n >= (ge.right.Eval() as DoubleLit).n, ge.line, ge.column)
+                            : new BoolLit((ge.left.Eval() as IntLit).n > (ge.right.Eval() as DoubleLit).n, ge.line, ge.column);
                         return result;
                     }
 
@@ -440,10 +444,10 @@ namespace ll.AST
             {
                 case IntType intType:
                     variable = env[increment.variable.name].Eval();
-                    return new IntLit((variable as IntLit).n + 1);
+                    return new IntLit((variable as IntLit).n + 1, increment.line, increment.column);
                 case DoubleType doubleType:
                     variable = env[increment.variable.name].Eval();
-                    return new DoubleLit((variable as DoubleLit).n + 1);
+                    return new DoubleLit((variable as DoubleLit).n + 1, increment.line, increment.column);
                 default:
                     throw new ArgumentException($"Type \"{increment.type.typeName}\" not allowed for Increment");
             }
@@ -457,10 +461,10 @@ namespace ll.AST
             {
                 case IntType intType:
                     variable = env[decrement.variable.name].Eval();
-                    return new IntLit((variable as IntLit).n - 1);
+                    return new IntLit((variable as IntLit).n - 1, decrement.line, decrement.column);
                 case DoubleType doubleType:
                     variable = env[decrement.variable.name].Eval();
-                    return new DoubleLit((variable as DoubleLit).n - 1);
+                    return new DoubleLit((variable as DoubleLit).n - 1, decrement.line, decrement.column);
                 default:
                     throw new ArgumentException($"Type \"{decrement.type.typeName}\" not allowed for Decrement");
             }
@@ -474,10 +478,10 @@ namespace ll.AST
             {
                 case IntType intType:
                     variable = env[addAssign.left.name].Eval();
-                    return new IntLit((variable as IntLit).n + (addAssign.right.Eval() as IntLit).n);
+                    return new IntLit((variable as IntLit).n + (addAssign.right.Eval() as IntLit).n, addAssign.line, addAssign.column);
                 case DoubleType doubleType:
                     variable = env[addAssign.left.name].Eval();
-                    return new DoubleLit((variable as DoubleLit).n + (addAssign.right.Eval() as DoubleLit).n);
+                    return new DoubleLit((variable as DoubleLit).n + (addAssign.right.Eval() as DoubleLit).n, addAssign.line, addAssign.column);
                 default:
                     throw new ArgumentException($"Could not use type \"{addAssign.type.typeName}\" with AddAssignStatement");
             }
@@ -491,10 +495,10 @@ namespace ll.AST
             {
                 case IntType intType:
                     variable = env[subAssign.left.name].Eval();
-                    return new IntLit((variable as IntLit).n - (subAssign.right.Eval() as IntLit).n);
+                    return new IntLit((variable as IntLit).n - (subAssign.right.Eval() as IntLit).n, subAssign.line, subAssign.column);
                 case DoubleType doubleType:
                     variable = env[subAssign.left.name].Eval();
-                    return new DoubleLit((variable as DoubleLit).n - (subAssign.right.Eval() as DoubleLit).n);
+                    return new DoubleLit((variable as DoubleLit).n - (subAssign.right.Eval() as DoubleLit).n, subAssign.line, subAssign.column);
                 default:
                     throw new ArgumentException($"Could not use type \"{subAssign.type.typeName}\" with SubAssignStatement");
             }
@@ -508,10 +512,10 @@ namespace ll.AST
             {
                 case IntType intType:
                     variable = env[multAssign.left.name].Eval();
-                    return new IntLit((variable as IntLit).n * (multAssign.right.Eval() as IntLit).n);
+                    return new IntLit((variable as IntLit).n * (multAssign.right.Eval() as IntLit).n, multAssign.line, multAssign.column);
                 case DoubleType doubleType:
                     variable = env[multAssign.left.name].Eval();
-                    return new DoubleLit((variable as DoubleLit).n * (multAssign.right.Eval() as DoubleLit).n);
+                    return new DoubleLit((variable as DoubleLit).n * (multAssign.right.Eval() as DoubleLit).n, multAssign.line, multAssign.column);
                 default:
                     throw new ArgumentException($"Could not use type \"{multAssign.type.typeName}\" with MultAssignStatement");
             }
@@ -525,10 +529,10 @@ namespace ll.AST
             {
                 case IntType intType:
                     variable = env[divAssign.left.name].Eval();
-                    return new IntLit((variable as IntLit).n / (divAssign.right.Eval() as IntLit).n);
+                    return new IntLit((variable as IntLit).n / (divAssign.right.Eval() as IntLit).n, divAssign.line, divAssign.column);
                 case DoubleType doubleType:
                     variable = env[divAssign.left.name].Eval();
-                    return new DoubleLit((variable as DoubleLit).n / (divAssign.right.Eval() as DoubleLit).n);
+                    return new DoubleLit((variable as DoubleLit).n / (divAssign.right.Eval() as DoubleLit).n, divAssign.line, divAssign.column);
                 default:
                     throw new ArgumentException($"Could not use type \"{divAssign.type.typeName}\" with DivAssignStatement");
             }
@@ -540,20 +544,20 @@ namespace ll.AST
             {
                 case IntType i:
                     if (notEqual.right.type is IntType)
-                        return new BoolLit((notEqual.left.Eval() as IntLit).n != (notEqual.right.Eval() as IntLit).n);
+                        return new BoolLit((notEqual.left.Eval() as IntLit).n != (notEqual.right.Eval() as IntLit).n, notEqual.line, notEqual.column);
                     if (notEqual.right.type is DoubleType)
-                        return new BoolLit((notEqual.left.Eval() as IntLit).n != (notEqual.right.Eval() as DoubleLit).n);
+                        return new BoolLit((notEqual.left.Eval() as IntLit).n != (notEqual.right.Eval() as DoubleLit).n, notEqual.line, notEqual.column);
                     throw new ArgumentException($"Type \"{notEqual.left.type.typeName}\" is incompatible with \"{notEqual.right.type.typeName}\"");
                 case DoubleType d:
                     if (notEqual.right.type is IntType)
-                        return new BoolLit((notEqual.left.Eval() as DoubleLit).n != (notEqual.right.Eval() as IntLit).n);
+                        return new BoolLit((notEqual.left.Eval() as DoubleLit).n != (notEqual.right.Eval() as IntLit).n, notEqual.line, notEqual.column);
                     if (notEqual.right.type is DoubleType)
-                        return new BoolLit((notEqual.left.Eval() as DoubleLit).n != (notEqual.right.Eval() as DoubleLit).n);
+                        return new BoolLit((notEqual.left.Eval() as DoubleLit).n != (notEqual.right.Eval() as DoubleLit).n, notEqual.line, notEqual.column);
                     throw new ArgumentException($"Type \"{notEqual.left.type.typeName}\" is incompatible with \"{notEqual.right.type.typeName}\"");
                 case BooleanType b:
                     if (!(notEqual.right.type is BooleanType))
                         throw new ArgumentException($"Type \"{notEqual.left.type.typeName}\" is incompatible with \"{notEqual.right.type.typeName}\"");
-                    return new BoolLit((notEqual.left.Eval() as BoolLit).value != (notEqual.right.Eval() as BoolLit).value);
+                    return new BoolLit((notEqual.left.Eval() as BoolLit).value != (notEqual.right.Eval() as BoolLit).value, notEqual.line, notEqual.column);
                 default:
                     throw new ArgumentException($"Unknown type \"{notEqual.left.type.typeName}\"");
             }

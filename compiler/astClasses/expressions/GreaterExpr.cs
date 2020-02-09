@@ -6,21 +6,21 @@ namespace ll.AST
     public class GreaterExpr : BinOp
     {
         public bool equal { get; set; }
-        public GreaterExpr(IAST left, IAST right, bool equal) : base(left, right, ">", GetType(left, right))
+        public GreaterExpr(IAST left, IAST right, bool equal, int line, int column) : base(left, right, ">", GetType(left, right), line, column)
         {
             this.equal = equal;
         }
 
         static ll.type.Type GetType(IAST left, IAST right)
         {
-            switch(left.type)
+            switch (left.type)
             {
                 case IntType i:
-                    if(right.type is IntType || right.type is DoubleType)
+                    if (right.type is IntType || right.type is DoubleType)
                         return new BooleanType();
                     throw new ArgumentException($"Can not compare {left.type} to {right.type}");
                 case DoubleType d:
-                    if(right.type is IntType || right.type is DoubleType)
+                    if (right.type is IntType || right.type is DoubleType)
                         return new BooleanType();
                     throw new ArgumentException($"Can not compare {left.type} to {right.type}");
                 default:

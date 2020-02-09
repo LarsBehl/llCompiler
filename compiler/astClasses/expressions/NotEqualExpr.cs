@@ -5,7 +5,7 @@ namespace ll.AST
 {
     public class NotEqualExpr : BinOp
     {
-        public NotEqualExpr(IAST left, IAST right) : base(left, right, "!=", new BooleanType())
+        public NotEqualExpr(IAST left, IAST right, int line, int column) : base(left, right, "!=", new BooleanType(), line, column)
         {
             this.CheckType();
         }

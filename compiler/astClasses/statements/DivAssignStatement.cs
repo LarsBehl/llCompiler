@@ -8,7 +8,7 @@ namespace ll.AST
         public VarExpr left { get; set; }
         public IAST right { get; set; }
 
-        public DivAssignStatement(VarExpr left, IAST right) : base(new DivAssignStatementType())
+        public DivAssignStatement(VarExpr left, IAST right, int line, int column) : base(new DivAssignStatementType(), line, column)
         {
             if (left.type.typeName != right.type.typeName)
             {

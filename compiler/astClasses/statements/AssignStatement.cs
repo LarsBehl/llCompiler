@@ -8,7 +8,7 @@ namespace ll.AST
         public VarExpr variable { get; set; }
         public IAST value { get; set; }
 
-        public AssignStatement(VarExpr variable, IAST value) : base(new AssignStatementType())
+        public AssignStatement(VarExpr variable, IAST value, int line, int column) : base(new AssignStatementType(), line, column)
         {
             if (variable.type.typeName != value.type.typeName)
             {

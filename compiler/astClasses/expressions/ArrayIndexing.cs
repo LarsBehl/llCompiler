@@ -5,7 +5,7 @@ namespace ll.AST
 {
     public class ArrayIndexing : BinOp
     {
-        public ArrayIndexing(IAST array, IAST index) : base(array, index, "[]", GetType(array))
+        public ArrayIndexing(IAST array, IAST index, int line, int column) : base(array, index, "[]", GetType(array), line, column)
         {
             if (!(index.type is IntType))
                 throw new ArgumentException($"The index of an array has to be an int; received: {index.type.typeName}");

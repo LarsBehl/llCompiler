@@ -8,7 +8,7 @@ namespace ll.AST
         public VarExpr structRef { get; set; }
         public string propName { get; set; }
 
-        public StructPropertyAccess(VarExpr structRef, string propName) : base(GetType(structRef, propName))
+        public StructPropertyAccess(VarExpr structRef, string propName, int line, int column) : base(GetType(structRef, propName), line, column)
         {
             this.structRef = structRef;
             this.propName = propName;

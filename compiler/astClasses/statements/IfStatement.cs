@@ -10,7 +10,7 @@ namespace ll.AST
         public IAST ifBody { get; set; }
         public IAST elseBody { get; set; }
         public bool doesFullyReturn { get; set; }
-        public IfStatement(IAST cond, IAST ifBody, IAST elseBody) : base(GetType(ifBody, elseBody))
+        public IfStatement(IAST cond, IAST ifBody, IAST elseBody, int line, int column) : base(GetType(ifBody, elseBody), line, column)
         {
             if (!(cond.type is BooleanType))
                 throw new ArgumentException($"If-Condition type \"{cond.type.typeName}\" does not match boolean");
@@ -26,7 +26,7 @@ namespace ll.AST
         // currently it is possible that a non void function does not return. But this should never happen
         private static type.Type GetType(IAST ifBody, IAST elseBody)
         {
-            if(elseBody != null && !(ifBody.type is BlockStatementType) && !(elseBody.type is BlockStatementType) && elseBody.type.typeName != ifBody.type.typeName)
+            if (elseBody != null && !(ifBody.type is BlockStatementType) && !(elseBody.type is BlockStatementType) && elseBody.type.typeName != ifBody.type.typeName)
                 throw new ArgumentException($"Returntype missmatch in if-statement \"{ifBody.type.typeName}\" \"{elseBody.type.typeName}\"");
 
             if (!(ifBody.type is BlockStatementType))
@@ -42,10 +42,10 @@ namespace ll.AST
 
         private bool DoesFullyReturn()
         {
-            if(elseBody != null && !(elseBody.type is BlockStatementType) && !(ifBody.type is BlockStatementType))
+            if (elseBody != null && !(elseBody.type is BlockStatementType) && !(ifBody.type is BlockStatementType))
                 return true;
-            
-            if(cond is BoolLit)
+
+            if (cond is BoolLit)
             {
                 var tmp = cond as BoolLit;
 

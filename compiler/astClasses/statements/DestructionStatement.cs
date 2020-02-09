@@ -7,7 +7,7 @@ namespace ll.AST
     {
         public VarExpr refType { get; set; }
 
-        public DestructionStatement(VarExpr refType) : base(new DestructionStatementType())
+        public DestructionStatement(VarExpr refType, int line, int column) : base(new DestructionStatementType(), line, column)
         {
             if (!(refType.type is RefType))
                 throw new ArgumentException($"Coul dnot free non ref type \"{refType.type.typeName}\"");
