@@ -160,7 +160,7 @@ namespace ll
                 || variable.type is RefType && val.type is RefType)
                     return new AssignStatement(new VarExpr(context.left.Text, context.Start.Line, context.left.StartIndex), val, context.Start.Line, context.Start.Column);
                 else
-                    throw new ArgumentException($"Type \"{val.type.typeName}\" does not match \"{variable.type.typeName}\"");
+                    throw new ArgumentException($"Type \"{val.type.typeName}\" does not match \"{variable.type.typeName}\"; On line {context.Start.Line}:{context.Start.Column}");
             }
 
             return new AssignStatement(new VarExpr(context.left.Text, context.Start.Line, context.left.StartIndex), val, context.Start.Line, context.Start.Column);
@@ -180,7 +180,7 @@ namespace ll
                 return Visit(context.arrayTypes());
             if (context.structName() != null)
                 return Visit(context.structName());
-            throw new ArgumentException("Unsupported type");
+            throw new ArgumentException($"Unsupported type; On line {context.Start.Line}:{context.Start.Column}");
         }
 
         public override IAST VisitBoolExpression(llParser.BoolExpressionContext context)
@@ -190,7 +190,7 @@ namespace ll
             if (context.BOOL_TRUE() != null)
                 return new BoolLit(true, context.Start.Line, context.Start.Column);
 
-            throw new ArgumentException("Unsupportet value for bool");
+            throw new ArgumentException($"Unsupportet value for bool; On line {context.Start.Line}:{context.Start.Column}");
         }
 
         public override IAST VisitUnaryExpression(llParser.UnaryExpressionContext context)
@@ -220,7 +220,7 @@ namespace ll
             if (context.structPropertyAccess() != null)
                 return Visit(context.structPropertyAccess());
 
-            throw new ArgumentException("Unknown unary type");
+            throw new ArgumentException($"Unknown unary type; On line {context.Start.Line}:{context.Start.Column}");
         }
 
         public override IAST VisitInstantiationStatement(llParser.InstantiationStatementContext context)
@@ -228,7 +228,7 @@ namespace ll
             IAST variable = Visit(context.type);
 
             if (variable.type is VoidType)
-                throw new ArgumentException($"Type \"{variable.type.typeName}\" is not allowed for variables");
+                throw new ArgumentException($"Type \"{variable.type.typeName}\" is not allowed for variables; On line {variable.line}:{variable.column}");
 
             IAST.env[context.left.Text] = variable;
 
@@ -242,7 +242,7 @@ namespace ll
             IAST.env = funDef.functionEnv;
             // save the new function definition
             if (funDef.body != null)
-                throw new ArgumentException($"Trying to override the body of function \"{identifier[0].GetText()}\"");
+                throw new ArgumentException($"Trying to override the body of function \"{identifier[0].GetText()}\"; On line {context.Start.Line}:{context.Start.Column}");
             var body = Visit(context.body) as BlockStatement;
 
             if ((body.type.typeName != funDef.returnType.typeName || !body.doesFullyReturn)
@@ -250,12 +250,12 @@ namespace ll
             && !(body.type is RefType && funDef.returnType is RefType))
             {
                 if (body.type is BlockStatementType || !body.doesFullyReturn)
-                    throw new ArgumentException($"Missing return statement in \"{funDef.name}\"");
-                throw new ArgumentException($"Return type \"{body.type.typeName}\" does not match \"{funDef.returnType.typeName}\"");
+                    throw new ArgumentException($"Missing return statement in \"{funDef.name}\"; On line {context.Start.Line}:{context.Start.Column}");
+                throw new ArgumentException($"Return type \"{body.type.typeName}\" does not match \"{funDef.returnType.typeName}\"; On line {context.Start.Line}:{context.Start.Column}");
             }
 
             if ((funDef.returnType is VoidType) && (!(body.type is VoidType) && !(body.type is BlockStatementType)))
-                throw new ArgumentException($"Could not return \"{body.type.typeName}\" in a void function");
+                throw new ArgumentException($"Could not return \"{body.type.typeName}\" in a void function; On line {context.Start.Line}:{context.Start.Column}");
 
             funDef.body = body;
             IAST.funs[funDef.name] = funDef;
@@ -297,7 +297,7 @@ namespace ll
             if (context.compositUnit() != null)
                 return Visit(context.compositUnit());
 
-            throw new ArgumentException("Unknown node in Program");
+            throw new ArgumentException($"Unknown node in Program; On line {context.Start.Line}:{context.Start.Column}");
         }
 
         public override IAST VisitIfStatement(llParser.IfStatementContext context)
@@ -353,7 +353,7 @@ namespace ll
         public override IAST VisitAddAssignStatement(llParser.AddAssignStatementContext context)
         {
             if (!IAST.env.ContainsKey(context.left.Text))
-                throw new ArgumentException($"Unknown variable \"{context.left.Text}\"");
+                throw new ArgumentException($"Unknown variable \"{context.left.Text}\"; On line {context.Start.Line}:{context.Start.Column}");
 
             return new AddAssignStatement(new VarExpr(context.left.Text, context.left.Line, context.left.Column), Visit(context.right), context.Start.Line, context.Start.Column);
         }
@@ -361,7 +361,7 @@ namespace ll
         public override IAST VisitSubAssignStatement(llParser.SubAssignStatementContext context)
         {
             if (!IAST.env.ContainsKey(context.left.Text))
-                throw new ArgumentException($"Unknown variable \"{context.left.Text}\"");
+                throw new ArgumentException($"Unknown variable \"{context.left.Text}\"; On line {context.Start.Line}:{context.Start.Column}");
 
             return new SubAssignStatement(new VarExpr(context.left.Text, context.left.Line, context.left.Column), Visit(context.right), context.Start.Line, context.Start.Column);
         }
@@ -369,7 +369,7 @@ namespace ll
         public override IAST VisitMultAssignStatement(llParser.MultAssignStatementContext context)
         {
             if (!IAST.env.ContainsKey(context.left.Text))
-                throw new ArgumentException($"Unknown variable {context.left.Text}");
+                throw new ArgumentException($"Unknown variable {context.left.Text}; On line {context.Start.Line}:{context.Start.Column}");
 
             return new MultAssignStatement(new VarExpr(context.left.Text, context.left.Line, context.left.Column), Visit(context.right), context.Start.Line, context.Start.Column);
         }
@@ -377,7 +377,7 @@ namespace ll
         public override IAST VisitDivAssignStatement(llParser.DivAssignStatementContext context)
         {
             if (!IAST.env.ContainsKey(context.left.Text))
-                throw new ArgumentException($"Unknown variable {context.left.Text}");
+                throw new ArgumentException($"Unknown variable {context.left.Text}; On line {context.Start.Line}:{context.Start.Column}");
 
             return new DivAssignStatement(new VarExpr(context.left.Text, context.left.Line, context.left.Column), Visit(context.right), context.Start.Line, context.Start.Column);
         }
@@ -445,7 +445,7 @@ namespace ll
             if (context.structCreation() != null)
                 return new RefTypeCreationStatement(Visit(context.structCreation()), context.Start.Line, context.Start.Column);
 
-            throw new ArgumentException("Invalid type for reference type creation");
+            throw new ArgumentException($"Invalid type for reference type creation; On line {context.Start.Line}:{context.Start.Column}");
         }
 
         public override IAST VisitArrayIndexing(llParser.ArrayIndexingContext context)
@@ -475,12 +475,12 @@ namespace ll
             string name = context.WORD().GetText();
 
             if (!IAST.structs.ContainsKey(name))
-                throw new ArgumentException($"Unknown struct \"{name}\"");
+                throw new ArgumentException($"Unknown struct \"{name}\"; On line {context.WORD().Symbol.Line}:{context.WORD().Symbol.Column}");
 
             StructDefinition structDef = IAST.structs[name];
 
             if (structDef.properties != null)
-                throw new ArgumentException($"Multiple definitions of struct \"{name}\"");
+                throw new ArgumentException($"Multiple definitions of struct \"{name}\"; On line {context.WORD().Symbol.Line}:{context.WORD().Symbol.Column}");
 
             var props = context.structProperties();
             List<StructProperty> properties = new List<StructProperty>();
@@ -490,7 +490,7 @@ namespace ll
                 var tmp = Visit(prop) as StructProperty;
 
                 if (properties.FindIndex(s => s.name == tmp.name) >= 0)
-                    throw new ArgumentException($"Multiple definitions of \"{tmp.name}\" in struct \"{name}\"");
+                    throw new ArgumentException($"Multiple definitions of \"{tmp.name}\" in struct \"{name}\"; On line {context.Start.Line}:{context.Start.Column}");
 
                 properties.Add(tmp);
             }
@@ -505,7 +505,7 @@ namespace ll
             string name = context.WORD().GetText();
 
             if (!IAST.structs.ContainsKey(name))
-                throw new ArgumentException($"Unknown struct \"{name}\"");
+                throw new ArgumentException($"Unknown struct \"{name}\"; On line {context.Start.Line}:{context.Start.Column}");
 
             return new Struct(name, context.Start.Line, context.Start.Column);
         }

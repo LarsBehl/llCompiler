@@ -19,7 +19,7 @@ namespace ll.AST
                     return;
                 }
                 else
-                    throw new ArgumentException($"Type of variable \"{left.type.typeName}\" does not match \"{right.type.typeName}\"");
+                    throw new ArgumentException($"Type of variable \"{left.type.typeName}\" does not match \"{right.type.typeName}\"; On line {line}:{column}");
             }
 
             this.left = left;

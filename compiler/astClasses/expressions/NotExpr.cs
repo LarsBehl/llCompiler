@@ -10,7 +10,7 @@ namespace ll.AST
         public NotExpr(IAST value, int line, int column) : base(new BooleanType(), line, column)
         {
             if (!(value.type is BooleanType))
-                throw new ArgumentException("\"NotOperator\" only viable for BoolType");
+                throw new ArgumentException($"\"NotOperator\" only viable for BoolType; On line {line}:{column}");
 
             this.value = value;
         }
