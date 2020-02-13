@@ -12,7 +12,7 @@ namespace ll
             var identifier = context.WORD();
 
             if (IAST.funs.ContainsKey(identifier[0].GetText()))
-                throw new ArgumentException($"Multiple definitions of \"{identifier[0].GetText()}\"");
+                throw new ArgumentException($"Multiple definitions of \"{identifier[0].GetText()}\"; On line {context.Start.Line}:{context.Start.Column}");
 
             var types = context.typeDefinition();
             List<InstantiationStatement> args = new List<InstantiationStatement>();
@@ -22,12 +22,12 @@ namespace ll
             {
                 var tmpType = VisitTypeDefinition(types[i]);
                 tmpEnv[identifier[i + 1].GetText()] = tmpType;
-                args.Add(new InstantiationStatement(identifier[i + 1].GetText(), tmpType.type));
+                args.Add(new InstantiationStatement(identifier[i + 1].GetText(), tmpType.type, tmpType.line, tmpType.column));
             }
 
             // BuildAstVisitor should add the function body
             // therefor it should check if the body is null, if not throw exception
-            FunctionDefinition func = new FunctionDefinition(identifier[0].GetText(), args, null, tmpEnv, Visit(types[types.Length - 1]).type);
+            FunctionDefinition func = new FunctionDefinition(identifier[0].GetText(), args, null, tmpEnv, Visit(types[types.Length - 1]).type, context.Start.Line, context.Start.Column);
             IAST.funs[identifier[0].GetText()] = func;
             // unused; the llBaseVisitor expects a type
             return null;
@@ -36,34 +36,34 @@ namespace ll
         public override IAST VisitTypeDefinition(llParser.TypeDefinitionContext context)
         {
             if (context.INT_TYPE() != null)
-                return new IntLit(null);
+                return new IntLit(null, context.Start.Line, context.Start.Column);
             if (context.DOUBLE_TYPE() != null)
-                return new DoubleLit(null);
+                return new DoubleLit(null, context.Start.Line, context.Start.Column);
             if (context.BOOL_TYPE() != null)
-                return new BoolLit(null);
+                return new BoolLit(null, context.Start.Line, context.Start.Column);
             if (context.VOID_TYPE() != null)
-                return new VoidLit();
+                return new VoidLit(context.Start.Line, context.Start.Column);
             if (context.arrayTypes() != null)
                 return Visit(context.arrayTypes());
             if (context.structName() != null)
                 return Visit(context.structName());
 
-            throw new ArgumentException("Unsupported type");
+            throw new ArgumentException($"Unsupported type; On line {context.Start.Line}:{context.Start.Column}");
         }
 
         public override IAST VisitIntArrayType(llParser.IntArrayTypeContext context)
         {
-            return new IntArray();
+            return new IntArray(context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitDoubleArrayType(llParser.DoubleArrayTypeContext context)
         {
-            return new DoubleArray();
+            return new DoubleArray(context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitBoolArrayType(llParser.BoolArrayTypeContext context)
         {
-            return new BoolArray();
+            return new BoolArray(context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitStructName(llParser.StructNameContext context)
@@ -76,10 +76,10 @@ namespace ll
             }
             catch (Exception e)
             {
-                throw new ArgumentException($"Unknown struct reference \"{context.WORD().GetText()}\"");
+                throw new ArgumentException($"Unknown struct reference \"{context.WORD().GetText()}\"; On line {context.Start.Line}:{context.Start.Column}");
             }
 
-            return new Struct(structDef.name);
+            return new Struct(structDef.name, context.Start.Line, context.Start.Column);
         }
     }
 }

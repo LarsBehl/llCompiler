@@ -8,13 +8,13 @@ namespace ll.AST
         public List<StructProperty> properties { get; set; }
         public string name { get; set; }
 
-        public StructDefinition(string name, List<StructProperty> properties) : base(new StructDefinitionType())
+        public StructDefinition(string name, List<StructProperty> properties, int line, int column) : base(new StructDefinitionType(), line, column)
         {
             this.name = name;
             this.properties = properties;
         }
 
-        public StructDefinition(string name) : this(name, null)
+        public StructDefinition(string name, int line, int column) : this(name, null, line, column)
         {
 
         }

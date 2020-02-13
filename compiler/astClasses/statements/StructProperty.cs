@@ -4,7 +4,7 @@ namespace ll.AST
     {
         public string name { get; set; }
 
-        public StructProperty(string name, ll.type.Type type) : base(type)
+        public StructProperty(string name, ll.type.Type type, int line, int column) : base(type, line, column)
         {
             this.name = name;
         }

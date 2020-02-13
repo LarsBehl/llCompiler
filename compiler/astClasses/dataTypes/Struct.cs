@@ -8,18 +8,18 @@ namespace ll.AST
         public string name { get; set; }
         public Dictionary<string, IAST> propValues { get; set; }
 
-        public Struct(string name, Dictionary<string, IAST> propValues) : base(new StructType(name))
+        public Struct(string name, Dictionary<string, IAST> propValues, int line, int column) : base(new StructType(name), line, column)
         {
             this.name = name;
             this.propValues = propValues;
         }
 
-        public Struct(string name) : this(name, null)
+        public Struct(string name, int line, int column) : this(name, null, line, column)
         {
 
         }
 
-        public Struct() : this(null, null)
+        public Struct(int line, int column) : this(null, null, line, column)
         {
 
         }

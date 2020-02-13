@@ -6,16 +6,16 @@ namespace ll.AST
     public class DoubleArray : Array
     {
 
-        public DoubleArray(IAST capacity, IAST[] values) : base(capacity, values, new DoubleArrayType())
+        public DoubleArray(IAST capacity, IAST[] values, int line, int column) : base(capacity, values, new DoubleArrayType(), line, column)
         {
         }
 
-        public DoubleArray(IAST capacity) : this(capacity, new IAST[0])
+        public DoubleArray(IAST capacity, int line, int column) : this(capacity, new IAST[0], line, column)
         {
 
         }
 
-        public DoubleArray() : this(new IntLit(-1), new IAST[0])
+        public DoubleArray(int line, int column) : this(new IntLit(-1, line, column), new IAST[0], line, column)
         {
 
         }

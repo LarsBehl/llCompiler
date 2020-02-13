@@ -8,7 +8,7 @@ namespace ll.AST
         public VarExpr variable { get; set; }
         public IAST value { get; set; }
 
-        public AssignStatement(VarExpr variable, IAST value) : base(new AssignStatementType())
+        public AssignStatement(VarExpr variable, IAST value, int line, int column) : base(new AssignStatementType(), line, column)
         {
             if (variable.type.typeName != value.type.typeName)
             {
@@ -20,7 +20,7 @@ namespace ll.AST
                     return;
                 }
                 else
-                    throw new ArgumentException($"Variable type {value.type} does not match {variable.type}");
+                    throw new ArgumentException($"Variable type {value.type} does not match {variable.type}; On line {line}:{column}");
 
             }
             this.variable = variable;

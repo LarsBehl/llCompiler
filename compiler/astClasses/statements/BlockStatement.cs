@@ -9,7 +9,7 @@ namespace ll.AST
         public List<IAST> body { get; set; }
         public bool doesFullyReturn { get; set; }
 
-        public BlockStatement(List<IAST> body) : base(GetType(body))
+        public BlockStatement(List<IAST> body, int line, int column) : base(GetType(body), line, column)
         {
             this.body = body;
             this.doesFullyReturn = DoesFullyReturn();
@@ -27,13 +27,13 @@ namespace ll.AST
                     break;
                 }
 
-                if(comp is IfStatement && !(comp.type is IfStatementType))
+                if (comp is IfStatement && !(comp.type is IfStatementType))
                 {
                     result = comp.type;
                     break;
                 }
 
-                if(comp is WhileStatement && !(comp.type is WhileStatementType))
+                if (comp is WhileStatement && !(comp.type is WhileStatementType))
                 {
                     result = comp.type;
                     break;
@@ -45,24 +45,24 @@ namespace ll.AST
 
         private bool DoesFullyReturn()
         {
-            foreach(var comp in body)
+            foreach (var comp in body)
             {
-                if(comp is ReturnStatement)
+                if (comp is ReturnStatement)
                     return true;
-                
-                if(comp is IfStatement)
+
+                if (comp is IfStatement)
                 {
                     var tmp = comp as IfStatement;
-                    
-                    if(tmp.doesFullyReturn)
+
+                    if (tmp.doesFullyReturn)
                         return true;
                 }
 
-                if(comp is WhileStatement)
+                if (comp is WhileStatement)
                 {
                     var tmp = comp as WhileStatement;
 
-                    if(tmp.doesFullyReturn)
+                    if (tmp.doesFullyReturn)
                         return true;
                 }
             }

@@ -6,7 +6,7 @@ namespace ll.AST
     {
         public double? n { get; set; }
 
-        public DoubleLit(double? n) : base(new DoubleType())
+        public DoubleLit(double? n, int line, int column) : base(new DoubleType(), line, column)
         {
             this.n = n;
         }

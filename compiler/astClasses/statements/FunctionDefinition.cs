@@ -17,8 +17,10 @@ namespace ll.AST
             List<InstantiationStatement> args,
             IAST body,
             Dictionary<string, IAST> functionEnv,
-            type.Type returnType
-        ) : base(new FunctionDefinitionType())
+            type.Type returnType,
+            int line,
+            int column
+        ) : base(new FunctionDefinitionType(), line, column)
         {
             this.name = name;
             this.args = args;

@@ -8,7 +8,7 @@ namespace ll.AST
         public VarExpr left { get; set; }
         public IAST right { get; set; }
 
-        public AddAssignStatement(VarExpr left, IAST right) : base(new AddAssignStatementType())
+        public AddAssignStatement(VarExpr left, IAST right, int line, int column) : base(new AddAssignStatementType(), line, column)
         {
             if (left.type.typeName != right.type.typeName)
             {
@@ -19,7 +19,7 @@ namespace ll.AST
                     return;
                 }
                 else
-                    throw new ArgumentException($"Type of variable \"{left.type.typeName}\" does not match \"{right.type.typeName}\"");
+                    throw new ArgumentException($"Type of variable \"{left.type.typeName}\" does not match \"{right.type.typeName}\"; On line {line}:{column}");
             }
 
             this.left = left;

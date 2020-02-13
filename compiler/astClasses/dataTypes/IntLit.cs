@@ -6,7 +6,7 @@ namespace ll.AST
     {
         public long? n { get; set; }
 
-        public IntLit(long? n) : base(new IntType())
+        public IntLit(long? n, int line, int column) : base(new IntType(), line, column)
         {
             this.n = n;
         }

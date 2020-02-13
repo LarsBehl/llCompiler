@@ -10,7 +10,7 @@ namespace ll
         {
             string name = context.WORD().GetText();
 
-            IAST.structs[name] = new StructDefinition(name);
+            IAST.structs[name] = new StructDefinition(name, context.Start.Line, context.Start.Column);
 
             // unused value
             return null;

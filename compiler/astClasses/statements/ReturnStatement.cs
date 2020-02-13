@@ -6,12 +6,12 @@ namespace ll.AST
     {
         public IAST returnValue { get; set; }
 
-        public ReturnStatement(): base(new VoidType())
+        public ReturnStatement(int line, int column) : base(new VoidType(), line, column)
         {
 
         }
-        
-        public ReturnStatement(IAST returnValue) : base(returnValue.type)
+
+        public ReturnStatement(IAST returnValue, int line, int column) : base(returnValue.type, line, column)
         {
             this.returnValue = returnValue;
         }
