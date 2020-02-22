@@ -3,7 +3,7 @@ using System;
 
 namespace ll.AST
 {
-    public class StructPropertyAccess : IAST
+    public class StructPropertyAccess : ValueAccessExpression
     {
         public VarExpr structRef { get; set; }
         public string propName { get; set; }
@@ -14,6 +14,7 @@ namespace ll.AST
             this.propName = propName;
         }
 
+        // TODO access props / arrays which are part of the struct does not work
         static ll.type.Type GetType(VarExpr structRef, string propName, int line, int column)
         {
             if (!(structRef.type is StructType structType))

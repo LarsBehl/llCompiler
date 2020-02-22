@@ -86,16 +86,16 @@ typeDefinition
     | structName;
 
 incrementPostExpression
-    : variableExpression PLUS PLUS;
+    : valueAccess PLUS PLUS;
 
 decrementPostExpression
-    : variableExpression MINUS MINUS;
+    : valueAccess MINUS MINUS;
 
 incrementPreExpression
-    : PLUS PLUS variableExpression;
+    : PLUS PLUS valueAccess;
 
 decrementPreExpression
-    : MINUS MINUS variableExpression;
+    : MINUS MINUS valueAccess;
 
 notExpression
     : NOT expression;
@@ -134,6 +134,11 @@ structCreation
 
 structPropertyAccess
     : variableExpression DOT WORD;
+
+valueAccess
+    : variableExpression
+    | arrayIndexing
+    | structPropertyAccess;
 
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;

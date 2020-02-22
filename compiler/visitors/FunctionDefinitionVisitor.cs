@@ -74,7 +74,7 @@ namespace ll
             {
                 structDef = IAST.structs[context.WORD().GetText()];
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 throw new ArgumentException($"Unknown struct reference \"{context.WORD().GetText()}\"; On line {context.Start.Line}:{context.Start.Column}");
             }

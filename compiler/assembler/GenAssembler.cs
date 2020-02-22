@@ -94,10 +94,13 @@ namespace ll.assembler
                     this.MultAssignAsm(multAssign); break;
                 case DivAssignStatement divAssign:
                     this.DivAssignAsm(divAssign); break;
+                /*
                 case IncrementExpr increment:
                     this.IncrementAsm(increment); break;
+                
                 case DecrementExpr decrement:
                     this.DecrementAsm(decrement); break;
+                    */
                 case NotExpr notExpr:
                     this.NotExprAsm(notExpr); break;
                 case AndExpr andExpr:
@@ -985,6 +988,7 @@ namespace ll.assembler
             }
         }
 
+        /*
         private void IncrementAsm(IncrementExpr increment)
         {
             if (increment.post)
@@ -1019,6 +1023,7 @@ namespace ll.assembler
                 }
             }
         }
+        
 
         private void DecrementAsm(DecrementExpr decrement)
         {
@@ -1054,6 +1059,7 @@ namespace ll.assembler
                 }
             }
         }
+        */
 
         private void NotExprAsm(NotExpr notExpr)
         {

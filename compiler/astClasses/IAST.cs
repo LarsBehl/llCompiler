@@ -145,34 +145,9 @@ namespace ll.AST
 
                     return result_while;
                 case IncrementExpr increment:
-                    IAST result_inc;
-                    if (increment.post)
-                    {
-                        result_inc = env[increment.variable.name];
-                        env[increment.variable.name] = EvalIncrementExpr(increment);
-                    }
-                    else
-                    {
-                        result_inc = EvalIncrementExpr(increment);
-                        env[increment.variable.name] = result_inc;
-                    }
-
-                    return result_inc;
-
+                    return EvalIncrementExpr(increment);
                 case DecrementExpr decrement:
-                    IAST result_dec;
-                    if (decrement.post)
-                    {
-                        result_dec = env[decrement.variable.name];
-                        env[decrement.variable.name] = EvalDecrementExpr(decrement);
-                    }
-                    else
-                    {
-                        result_dec = EvalDecrementExpr(decrement);
-                        env[decrement.variable.name] = result_dec;
-                    }
-
-                    return result_dec;
+                    return EvalDecrementExpr(decrement);
                 case AddAssignStatement addAssign:
                     env[addAssign.left.name] = EvalAddAssign(addAssign);
                     return null;
@@ -438,36 +413,79 @@ namespace ll.AST
 
         static IAST EvalIncrementExpr(IncrementExpr increment)
         {
-            IAST variable;
+            IAST result;
+            IAST variable = EvalValueAccessExpression(increment.variable);
 
             switch (increment.type)
             {
                 case IntType intType:
-                    variable = env[increment.variable.name].Eval();
-                    return new IntLit((variable as IntLit).n + 1, increment.line, increment.column);
+                    result = new IntLit((variable as IntLit).n + 1, increment.line, increment.column);
+                    break;
                 case DoubleType doubleType:
-                    variable = env[increment.variable.name].Eval();
-                    return new DoubleLit((variable as DoubleLit).n + 1, increment.line, increment.column);
+                    result = new DoubleLit((variable as DoubleLit).n + 1, increment.line, increment.column);
+                    break;
                 default:
                     throw new ArgumentException($"Type \"{increment.type.typeName}\" not allowed for Increment");
             }
+
+            switch (increment.variable)
+            {
+                case VarExpr varExpr:
+                    env[varExpr.name] = result;
+                    break;
+                case ArrayIndexing arrayIndexing:
+                    var tmp = new AssignArrayField(arrayIndexing, result, arrayIndexing.line, arrayIndexing.column);
+                    tmp.Eval();
+                    break;
+                case StructPropertyAccess structProperty:
+                    var tmp2 = (structProperty.structRef.Eval()) as AST.Struct;
+                    tmp2.propValues[structProperty.propName] = result;
+                    break;
+            }
+
+            if (increment.post)
+                return variable;
+            else
+                return result;
         }
 
         static IAST EvalDecrementExpr(DecrementExpr decrement)
         {
-            IAST variable;
+
+            IAST result;
+            IAST variable = EvalValueAccessExpression(decrement.variable);
 
             switch (decrement.type)
             {
                 case IntType intType:
-                    variable = env[decrement.variable.name].Eval();
-                    return new IntLit((variable as IntLit).n - 1, decrement.line, decrement.column);
+                    result = new IntLit((variable as IntLit).n - 1, decrement.line, decrement.column);
+                    break;
                 case DoubleType doubleType:
-                    variable = env[decrement.variable.name].Eval();
-                    return new DoubleLit((variable as DoubleLit).n - 1, decrement.line, decrement.column);
+                    result = new DoubleLit((variable as DoubleLit).n - 1, decrement.line, decrement.column);
+                    break;
                 default:
-                    throw new ArgumentException($"Type \"{decrement.type.typeName}\" not allowed for Decrement");
+                    throw new ArgumentException($"Type \"{decrement.type.typeName}\" not allowed for Increment");
             }
+
+            switch (decrement.variable)
+            {
+                case VarExpr varExpr:
+                    env[varExpr.name] = result;
+                    break;
+                case ArrayIndexing arrayIndexing:
+                    var tmp = new AssignArrayField(arrayIndexing, result, arrayIndexing.line, arrayIndexing.column);
+                    tmp.Eval();
+                    break;
+                case StructPropertyAccess structProperty:
+                    var tmp2 = (structProperty.structRef.Eval()) as AST.Struct;
+                    tmp2.propValues[structProperty.propName] = result;
+                    break;
+            }
+
+            if (decrement.post)
+                return variable;
+            else
+                return result;
         }
 
         static IAST EvalAddAssign(AddAssignStatement addAssign)
@@ -692,6 +710,18 @@ namespace ll.AST
             Struct @struct = assignStruct.structProp.structRef.Eval() as Struct;
 
             @struct.propValues[assignStruct.structProp.propName] = assignStruct.val.Eval();
+        }
+
+        static IAST EvalValueAccessExpression(ValueAccessExpression valueAccess)
+        {
+            switch (valueAccess)
+            {
+                case VarExpr varExpr: return varExpr.Eval();
+                case ArrayIndexing arrayIndexing: return arrayIndexing.Eval();
+                case StructPropertyAccess structProperty: return structProperty.Eval();
+                default:
+                    throw new ArgumentException($"Unknown valueAccessExpression; On line {valueAccess.line}:{valueAccess.column}");
+            }
         }
     }
 }

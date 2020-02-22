@@ -400,5 +400,11 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitStructPropertyAccess([NotNull] llParser.StructPropertyAccessContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.valueAccess"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitValueAccess([NotNull] llParser.ValueAccessContext context);
 }
 } // namespace ll

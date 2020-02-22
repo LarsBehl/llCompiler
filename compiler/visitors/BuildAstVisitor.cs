@@ -321,31 +321,30 @@ namespace ll
             return new WhileStatement(cond, body, context.Start.Line, context.Start.Column);
         }
 
-        // TODO rework increment, decrement and add-assign like operations so that they work with reference types
         public override IAST VisitIncrementPostExpression(llParser.IncrementPostExpressionContext context)
         {
-            var variable = Visit(context.variableExpression()) as VarExpr;
+            ValueAccessExpression variable = Visit(context.valueAccess()) as ValueAccessExpression;
 
             return new IncrementExpr(variable, true, context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitDecrementPostExpression(llParser.DecrementPostExpressionContext context)
         {
-            var variable = Visit(context.variableExpression()) as VarExpr;
+            ValueAccessExpression variable = Visit(context.valueAccess()) as ValueAccessExpression;
 
             return new DecrementExpr(variable, true, context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitIncrementPreExpression(llParser.IncrementPreExpressionContext context)
         {
-            var variable = Visit(context.variableExpression()) as VarExpr;
+            ValueAccessExpression variable = Visit(context.valueAccess()) as ValueAccessExpression;
 
             return new IncrementExpr(variable, false, context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitDecrementPreExpression(llParser.DecrementPreExpressionContext context)
         {
-            var variable = Visit(context.variableExpression()) as VarExpr;
+            ValueAccessExpression variable = Visit(context.valueAccess()) as ValueAccessExpression;
 
             return new DecrementExpr(variable, false, context.Start.Line, context.Start.Column);
         }
@@ -538,6 +537,20 @@ namespace ll
                 val = Visit(context.refTypeCreation());
 
             return new AssignStructProperty(structPropAccess, val, context.Start.Line, context.Start.Column);
+        }
+
+        public override IAST VisitValueAccess(llParser.ValueAccessContext context)
+        {
+            if (context.arrayIndexing() != null)
+                return Visit(context.arrayIndexing());
+
+            if (context.variableExpression() != null)
+                return Visit(context.variableExpression());
+
+            if (context.structPropertyAccess() != null)
+                return Visit(context.structPropertyAccess());
+
+            throw new ArgumentException($"Unknown value access; On line {context.Start.Line}:{context.Start.Column}");
         }
     }
 }
