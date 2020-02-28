@@ -451,27 +451,30 @@ testIntArray(x:int): int
 {
     y: int[] = new int[17];
     y[12] = x;
+    z: int = y[12];
     destroy y;
 
-    return y[12];
+    return z;
 }
 
 testDoubleArray(x:double): double
 {
     y: double[] = new double[17];
     y[12] = x;
+    z: double = y[12];
     destroy y;
 
-    return y[12];
+    return z;
 }
 
 testBoolArray(x:bool): bool
 {
     y: bool[] = new bool[17];
     y[12] = x;
+    z: bool = y[12];
     destroy y;
 
-    return y[12];
+    return z;
 }
 
 factorial(x:int): int
@@ -514,4 +517,90 @@ overFlowDoubleMixed(x:double, y:int, z:double, a:int, b:double, c:double, d:doub
 overFlowBoth(x:double, y:double, z:double, a:double, b:double, c:double, d:double, e:double, f:int, g:int, h:int, i:int, j:int, k:int, l:int, m:int, n:int): double
 {
     return x+y+z+a+b+c+d+e+f+g+h+i+j+k+l+m+n;
+}
+
+incrementPreArray(x: int): int
+{
+    y: int[] = new int[5];
+    y[2] = x;
+    result: int = ++y[2];
+
+    destroy y;
+
+    return result;
+}
+
+incrementPostArray(x: int): int
+{
+    y: int[] = new int[5];
+    y[2] = x;
+    result: int = y[2]++;
+
+    destroy y;
+
+    return result;
+}
+
+decrementPreArray(x: int): int
+{
+    y: int[] = new int[5];
+    y[2] = x;
+    result: int = --y[2];
+
+    destroy y;
+
+    return result;
+}
+
+decrementPostArray(x: int): int
+{
+    y: int[] = new int[5];
+    y[2] = x;
+    result: int = y[2]--;
+
+    destroy y;
+
+    return result;
+}
+
+struct Point
+{
+    x: int;
+    y: int;
+}
+
+incrementPreStruct(x: int): int
+{
+    p: Point = new Point();
+    p.x = x;
+    result: int = ++p.x;
+    destroy p;
+    return result;
+}
+
+incrementPostStruct(x:int): int
+{
+    p: Point = new Point();
+    p.x = x;
+    result: int = p.x++;
+    destroy p;
+    return result;
+}
+
+decrementPreStruct(x:int): int
+{
+    p: Point = new Point();
+    p.x = x;
+    result: int = --p.x;
+    destroy p;
+    return result;
+}
+
+decrementPostStruct(x:int): int
+{
+    p: Point = new Point();
+    p.x = x;
+    result: int = p.x--;
+    destroy p;
+    return result;
 }

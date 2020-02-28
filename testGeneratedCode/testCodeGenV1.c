@@ -134,6 +134,16 @@ long factorial(long x);
 // multipleFunctionCalls
 long callMultipleOthers(long x);
 
+long incrementPreArray(long x);
+long incrementPostArray(long x);
+long decrementPreArray(long x);
+long decrementPostArray(long x);
+
+long incrementPreStruct(long x);
+long incrementPostStruct(long x);
+long decrementPreStruct(long x);
+long decrementPostStruct(long x);
+
 int failedCount = 0;
 int overallCount = 0;
 
@@ -391,6 +401,24 @@ void startTests()
 
     intResult = callMultipleOthers(7);
     printInt(19, intResult, "callMultiple");
+
+    intResult = incrementPreArray(41);
+    printInt(42, intResult, "incrementPreArray");
+    intResult = incrementPostArray(42);
+    printInt(42, intResult, "incrementPostArray");
+    intResult = decrementPreArray(43);
+    printInt(42, intResult, "decrementPreArray");
+    intResult = decrementPostArray(42);
+    printInt(42, intResult, "decrementPostArray");
+
+    intResult = incrementPreStruct(41);
+    printInt(42, intResult, "incrementPreStruct");
+    intResult = incrementPostStruct(42);
+    printInt(42, intResult, "incrementPostStruct");
+    intResult = decrementPreStruct(43);
+    printInt(42, intResult, "decrementPreStruct");
+    intResult = decrementPostStruct(42);
+    printInt(42, intResult, "decrementPostStruct");
 
     int successCount = overallCount - failedCount;
     printf("\n\n%d tests of %d were successfull\n", successCount, overallCount);

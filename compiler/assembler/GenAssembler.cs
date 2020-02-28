@@ -94,13 +94,10 @@ namespace ll.assembler
                     this.MultAssignAsm(multAssign); break;
                 case DivAssignStatement divAssign:
                     this.DivAssignAsm(divAssign); break;
-                /*
                 case IncrementExpr increment:
                     this.IncrementAsm(increment); break;
-                
                 case DecrementExpr decrement:
                     this.DecrementAsm(decrement); break;
-                    */
                 case NotExpr notExpr:
                     this.NotExprAsm(notExpr); break;
                 case AndExpr andExpr:
@@ -988,78 +985,191 @@ namespace ll.assembler
             }
         }
 
-        /*
         private void IncrementAsm(IncrementExpr increment)
         {
-            if (increment.post)
+            this.GetAssember(increment.variable);
+            string register = null;
+
+            if (!increment.post)
             {
                 if (increment.type is IntType)
                 {
-                    this.WriteLine($"movq {this.variableMap[increment.variable.name]}(%rbp), %rax");
-                    this.WriteLine($"incq {this.variableMap[increment.variable.name]}(%rbp)");
+                    this.WriteLine("incq %rax");
+                    register = "%rax";
                 }
                 else
                 {
-                    this.WriteLine($"movq {this.variableMap[increment.variable.name]}(%rbp), %xmm0");
                     this.WriteLine("movq $1, %rax");
                     this.WriteLine("cvtsi2sdq %rax, %xmm1");
-                    this.WriteLine($"addsd {this.variableMap[increment.variable.name]}(%rbp), %xmm1");
-                    this.WriteLine($"movq %xmm1, {this.variableMap[increment.variable.name]}(%rbp)");
+                    this.WriteLine("addsd %xmm1, %xmm0");
+                    register = "%xmm0";
                 }
             }
             else
             {
                 if (increment.type is IntType)
                 {
-                    this.WriteLine($"incq {this.variableMap[increment.variable.name]}(%rbp)");
-                    this.GetAssember(increment.variable);
+                    this.WriteLine("movq %rax, %rbx");
+                    this.WriteLine("incq %rbx");
+                    register = "%rbx";
                 }
                 else
                 {
                     this.WriteLine("movq $1, %rax");
-                    this.WriteLine("cvtsi2sdq %rax, %xmm0");
-                    this.WriteLine($"addsd {this.variableMap[increment.variable.name]}(%rbp), %xmm0");
-                    this.WriteLine($"movq %xmm0, {this.variableMap[increment.variable.name]}(%rbp)");
+                    this.WriteLine("cvtsi2sdq %rax, %xmm1");
+                    this.WriteLine("addsd %xmm0, %xmm1");
+                    register = "%xmm1";
                 }
             }
+
+            switch (increment.variable)
+            {
+                case VarExpr varExpr:
+                    this.WriteLine($"movq {register}, {this.variableMap[varExpr.name]}(%rbp)");
+                    if (varExpr.type is DoubleType)
+                        this.WriteLine("movq %xmm0, %rax");
+                    break;
+                case ArrayIndexing arrayIndexing:
+                    if (increment.post)
+                    {
+                        if (arrayIndexing.type is DoubleType)
+                            this.WriteLine("movq %xmm0, %rax");
+
+                        this.WritePush();
+                    }
+
+                    if (register != "%rbx")
+                        this.WriteLine($"movq {register}, %rbx");
+
+                    this.WritePush("%rbx");
+                    this.LoadArrayField(arrayIndexing);
+                    this.WritePop("%rbx");
+                    // move the value into the correct adresse
+                    this.WriteLine("movq %rbx, (%rax)");
+                    this.WriteLine("movq %rbx, %rax");
+
+                    if (increment.post)
+                        this.WritePop();
+                    break;
+                case StructPropertyAccess propertyAccess:
+                    if (increment.post)
+                    {
+                        if (propertyAccess.type is DoubleType)
+                            this.WriteLine("movq %xmm0, %rax");
+
+                        this.WritePush();
+                    }
+
+                    if (register != "%rbx")
+                        this.WriteLine($"movq {register}, %rbx");
+
+                    this.WritePush("%rbx");
+                    this.LoadStructProperty(propertyAccess);
+                    this.WritePop("%rbx");
+                    this.WriteLine("movq %rbx, (%rax)");
+                    this.WriteLine("movq %rbx, %rax");
+
+                    if (increment.post)
+                        this.WritePop();
+                    break;
+            }
+
+            if (increment.type is DoubleType)
+                this.WriteLine("movq %rax, %xmm0");
         }
-        
 
         private void DecrementAsm(DecrementExpr decrement)
         {
-            if (decrement.post)
+            this.GetAssember(decrement.variable);
+            string register = null;
+
+            if (!decrement.post)
             {
                 if (decrement.type is IntType)
                 {
-                    this.WriteLine($"movq {this.variableMap[decrement.variable.name]}(%rbp), %rax");
-                    this.WriteLine($"decq {this.variableMap[decrement.variable.name]}(%rbp)");
+                    this.WriteLine("decq %rax");
+                    register = "%rax";
                 }
                 else
                 {
-                    this.WriteLine($"movq {this.variableMap[decrement.variable.name]}(%rbp), %xmm0");
                     this.WriteLine("movq $-1, %rax");
                     this.WriteLine("cvtsi2sdq %rax, %xmm1");
-                    this.WriteLine($"addsd {this.variableMap[decrement.variable.name]}(%rbp), %xmm1");
-                    this.WriteLine($"movq %xmm1, {this.variableMap[decrement.variable.name]}(%rbp)");
+                    this.WriteLine("addsd %xmm1, %xmm0");
+                    register = "%xmm0";
                 }
             }
             else
             {
                 if (decrement.type is IntType)
                 {
-                    this.WriteLine($"decq {this.variableMap[decrement.variable.name]}(%rbp)");
-                    this.GetAssember(decrement.variable);
+                    this.WriteLine("movq %rax, %rbx");
+                    this.WriteLine("decq %rbx");
+                    register = "%rbx";
                 }
                 else
                 {
                     this.WriteLine("movq $-1, %rax");
-                    this.WriteLine("cvtsi2sdq %rax, %xmm0");
-                    this.WriteLine($"addsd {this.variableMap[decrement.variable.name]}(%rbp), %xmm0");
-                    this.WriteLine($"movq %xmm0, {this.variableMap[decrement.variable.name]}(%rbp)");
+                    this.WriteLine("cvtsi2sdq %rax, %xmm1");
+                    this.WriteLine("addsd %xmm0, %xmm1");
+                    register = "%xmm1";
                 }
             }
+
+            switch (decrement.variable)
+            {
+                case VarExpr varExpr:
+                    this.WriteLine($"movq {register}, {variableMap[varExpr.name]}(%rbp)");
+
+                    if (varExpr.type is DoubleType)
+                        this.WriteLine("movq %xmm0, %rax");
+                    break;
+                case ArrayIndexing arrayIndexing:
+                    if (decrement.post)
+                    {
+                        if (arrayIndexing.type is DoubleType)
+                            this.WriteLine("movq %xmm0, %rax");
+
+                        this.WritePush();
+                    }
+
+                    if (register != "%rbx")
+                        this.WriteLine($"movq {register}, %rbx");
+
+                    this.WritePush("%rbx");
+                    this.LoadArrayField(arrayIndexing);
+                    this.WritePop("%rbx");
+                    this.WriteLine("movq %rbx, (%rax)");
+                    this.WriteLine("movq %rbx, %rax");
+
+                    if (decrement.post)
+                        this.WritePop();
+                    break;
+                case StructPropertyAccess propertyAccess:
+                    if (decrement.post)
+                    {
+                        if (propertyAccess.type is DoubleType)
+                            this.WriteLine("movq %xmm0, %rax");
+
+                        this.WritePush();
+                    }
+
+                    if (register != "%rbx")
+                        this.WriteLine($"movq {register}, %rbx");
+
+                    this.WritePush("%rbx");
+                    this.LoadStructProperty(propertyAccess);
+                    this.WritePop("%rbx");
+                    this.WriteLine("movq %rbx, (%rax)");
+                    this.WriteLine("movq %rbx, %rax");
+
+                    if (decrement.post)
+                        this.WritePop();
+                    break;
+            }
+
+            if (decrement.type is DoubleType)
+                this.WriteLine("movq %rax, %xmm0");
         }
-        */
 
         private void NotExprAsm(NotExpr notExpr)
         {
@@ -1232,16 +1342,7 @@ namespace ll.assembler
 
         private void ArrayIndexingAsm(ArrayIndexing arrayIndexing)
         {
-            // load the value of the variable
-            this.GetAssember(arrayIndexing.left);
-            this.WritePush();
-            // calculate the index
-            this.GetAssember(arrayIndexing.right);
-            this.WriteLine("movq $8, %rbx");
-            this.WriteLine("imulq %rax, %rbx");
-            this.WritePop();
-            this.WriteLine("addq %rbx, %rax");
-
+            this.LoadArrayField(arrayIndexing);
             if (arrayIndexing.type is DoubleType)
                 this.WriteLine("movq (%rax), %xmm0");
             else
@@ -1260,17 +1361,10 @@ namespace ll.assembler
             this.WritePush();
 
             // load the value of the variable
-            this.GetAssember(assignArray.arrayIndex.left);
-            this.WritePush();
-            // calculate the index
-            this.GetAssember(assignArray.arrayIndex.right);
-            this.WriteLine("movq $8, %rbx");
-            this.WriteLine("imulq %rax, %rbx");
-            this.WritePop();
-            this.WriteLine("addq %rax, %rbx");
-            this.WritePop();
+            this.LoadArrayField(assignArray.arrayIndex);
+            this.WritePop("%rbx");
             // save the value in the array
-            this.WriteLine("movq %rax, (%rbx)");
+            this.WriteLine("movq %rbx, (%rax)");
         }
 
         private void DestructionStatementAsm(DestructionStatement destruction)
@@ -1291,17 +1385,7 @@ namespace ll.assembler
 
         private void StructPropertyAccessAsm(StructPropertyAccess structPropertyAccess)
         {
-            // get the index of the property
-            StructType structType = structPropertyAccess.structRef.type as StructType;
-            string structName = structType.structName;
-            StructDefinition structDef = IAST.structs[structName];
-            int propIndex = structDef.properties.FindIndex(prop => prop.name == structPropertyAccess.propName);
-
-            // get the base adress of the struct
-            this.GetAssember(structPropertyAccess.structRef);
-            // calculate the adress of the property
-            this.WriteLine($"addq ${propIndex * 8}, %rax");
-
+            this.LoadStructProperty(structPropertyAccess);
             // write the value in the correct register
             if (structPropertyAccess.type is DoubleType)
                 this.WriteLine("movq (%rax), %xmm0");
@@ -1322,15 +1406,7 @@ namespace ll.assembler
             this.WritePush();
 
             // get the index of the property
-            StructType structType = assignStruct.structProp.structRef.type as StructType;
-            string structName = structType.structName;
-            StructDefinition structDef = IAST.structs[structName];
-            int propIndex = structDef.properties.FindIndex(prop => prop.name == assignStruct.structProp.propName);
-
-            // load the adress of the struct
-            this.GetAssember(assignStruct.structProp.structRef);
-            // add the calculated index to %rax (the base adress of the struct) 
-            this.WriteLine($"addq ${propIndex * 8}, %rax");
+            this.LoadStructProperty(assignStruct.structProp);
             // get the value from the stack
             this.WritePop("%rbx");
             // save the calculated value
@@ -1595,6 +1671,29 @@ namespace ll.assembler
             }
 
             throw new ArgumentOutOfRangeException("Expected to find more double arguments");
+        }
+
+        private void LoadArrayField(ArrayIndexing arrayIndexing)
+        {
+            this.GetAssember(arrayIndexing.left);
+
+            this.WritePush();
+
+            this.GetAssember(arrayIndexing.right);
+            this.WriteLine("imulq $8, %rax");
+
+            this.WritePop("%rbx");
+            this.WriteLine("addq %rbx, %rax");
+        }
+
+        private void LoadStructProperty(StructPropertyAccess structProperty)
+        {
+            StructType st = structProperty.structRef.type as StructType;
+            var structDef = IAST.structs[st.structName];
+            int propIndex = structDef.properties.FindIndex(sp => sp.name == structProperty.propName);
+
+            this.GetAssember(structProperty.structRef);
+            this.WriteLine($"addq ${propIndex * 8}, %rax");
         }
     }
 }
