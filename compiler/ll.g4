@@ -133,7 +133,7 @@ structCreation
     : structName PAR_L PAR_R;
 
 structPropertyAccess
-    : variableExpression DOT WORD;
+    : variableExpression DOT valueAccess;
 
 valueAccess
     : variableExpression

@@ -8,6 +8,7 @@ namespace ll
 {
     public class BuildAstVisitor : llBaseVisitor<IAST>
     {
+        static VarExpr sR = null;
         public override IAST VisitCompileUnit(llParser.CompileUnitContext context)
         {
             return Visit(context.program());
@@ -79,6 +80,23 @@ namespace ll
 
         public override IAST VisitVariableExpression(llParser.VariableExpressionContext context)
         {
+            type.Type type = null;
+
+            if(sR != null)
+            {
+                try
+                {
+                    // search in the current struct for the accessed property and the assosiated type
+                    type = IAST.structs[(sR.type as StructType).structName].properties.Find(s => s.name == context.WORD().GetText()).type;
+                }
+                catch
+                {
+                    throw new ArgumentException($"Unknown struct property {context.WORD().GetText()}; On line {context.Start.Line}:{context.Start.Column}");
+                }
+
+                return new VarExpr(context.WORD().GetText(), type, context.Start.Line, context.Start.Column);
+            }
+            
             return new VarExpr(context.WORD().GetText(), context.Start.Line, context.Start.Column);
         }
 
@@ -519,13 +537,27 @@ namespace ll
             return Visit(context.structName());
         }
 
+        /*
+        * TODO change the grammer so that the struct prop access could have:
+        *   - struct prop access done
+        *   - array indexing done
+        *   - variable expression done
+        *   - increment done
+        *   - decrement done
+        *   - array assign
+        *   - struct prop assign
+        * on the righthand site
+        */
         public override IAST VisitStructPropertyAccess(llParser.StructPropertyAccessContext context)
         {
             VarExpr v = Visit(context.variableExpression()) as VarExpr;
-
-            return new StructPropertyAccess(v, context.WORD().GetText(), context.Start.Line, context.Start.Column);
+            sR = v;
+            ValueAccessExpression right = Visit(context.valueAccess()) as ValueAccessExpression;
+            sR = null;
+            return new StructPropertyAccess(v, right, context.Start.Line, context.Start.Column);
         }
 
+        // TODO check if the prop is a struct that the structnames match
         public override IAST VisitAssignStructProp(llParser.AssignStructPropContext context)
         {
             StructPropertyAccess structPropAccess = Visit(context.structPropertyAccess()) as StructPropertyAccess;

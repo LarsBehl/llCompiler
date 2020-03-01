@@ -22,8 +22,6 @@ namespace ll.AST
             this.doesFullyReturn = this.DoesFullyReturn();
         }
 
-        // TODO rework evaluation of type of conditions and loops
-        // currently it is possible that a non void function does not return. But this should never happen
         private static type.Type GetType(IAST ifBody, IAST elseBody, int line, int column)
         {
             if (elseBody != null && !(ifBody.type is BlockStatementType) && !(elseBody.type is BlockStatementType) && elseBody.type.typeName != ifBody.type.typeName)

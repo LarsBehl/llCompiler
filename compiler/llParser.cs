@@ -2636,7 +2636,9 @@ public partial class llParser : Parser {
 			return GetRuleContext<VariableExpressionContext>(0);
 		}
 		public ITerminalNode DOT() { return GetToken(llParser.DOT, 0); }
-		public ITerminalNode WORD() { return GetToken(llParser.WORD, 0); }
+		public ValueAccessContext valueAccess() {
+			return GetRuleContext<ValueAccessContext>(0);
+		}
 		public StructPropertyAccessContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
 		{
@@ -2658,7 +2660,7 @@ public partial class llParser : Parser {
 			{
 			State = 375; variableExpression();
 			State = 376; Match(DOT);
-			State = 377; Match(WORD);
+			State = 377; valueAccess();
 			}
 		}
 		catch (RecognitionException re) {
@@ -3079,7 +3081,7 @@ public partial class llParser : Parser {
 		'\x177', '\a', '\x1A', '\x2', '\x2', '\x177', '\x178', '\a', '\x1B', '\x2', 
 		'\x2', '\x178', '\x39', '\x3', '\x2', '\x2', '\x2', '\x179', '\x17A', 
 		'\x5', '\x14', '\v', '\x2', '\x17A', '\x17B', '\a', '\x19', '\x2', '\x2', 
-		'\x17B', '\x17C', '\a', '\x14', '\x2', '\x2', '\x17C', ';', '\x3', '\x2', 
+		'\x17B', '\x17C', '\x5', '<', '\x1F', '\x2', '\x17C', ';', '\x3', '\x2', 
 		'\x2', '\x2', '\x17D', '\x181', '\x5', '\x14', '\v', '\x2', '\x17E', '\x181', 
 		'\x5', '.', '\x18', '\x2', '\x17F', '\x181', '\x5', ':', '\x1E', '\x2', 
 		'\x180', '\x17D', '\x3', '\x2', '\x2', '\x2', '\x180', '\x17E', '\x3', 

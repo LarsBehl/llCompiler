@@ -11,6 +11,11 @@ namespace ll.AST
             this.name = name;
         }
 
+        public VarExpr(string name, ll.type.Type type, int line, int column): base(type, line, column)
+        {
+            this.name = name;
+        }
+
         public override string ToString()
         {
             return this.name;

@@ -1690,7 +1690,22 @@ namespace ll.assembler
         {
             StructType st = structProperty.structRef.type as StructType;
             var structDef = IAST.structs[st.structName];
-            int propIndex = structDef.properties.FindIndex(sp => sp.name == structProperty.propName);
+            string propName = "";
+            switch (structProperty.prop)
+            {
+                case VarExpr varExpr:
+                    propName = varExpr.name;
+                    break;
+                case ArrayIndexing arrayIndexing:
+                    propName = (arrayIndexing.left as VarExpr).name;
+                    break;
+                case StructPropertyAccess propertyAccess:
+                    propName = propertyAccess.structRef.name;
+                    break;
+                default:
+                    throw new ArgumentException("Unknown property type");
+            }
+            int propIndex = structDef.properties.FindIndex(sp => sp.name == propName);
 
             this.GetAssember(structProperty.structRef);
             this.WriteLine($"addq ${propIndex * 8}, %rax");

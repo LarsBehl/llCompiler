@@ -439,7 +439,11 @@ namespace ll.AST
                     break;
                 case StructPropertyAccess structProperty:
                     var tmp2 = (structProperty.structRef.Eval()) as AST.Struct;
-                    tmp2.propValues[structProperty.propName] = result;
+
+                    if(!(structProperty.prop is VarExpr))
+                        throw new ArgumentException("Accessed structproperty is not a variable");
+
+                    tmp2.propValues[(structProperty.prop as VarExpr).name] = result;
                     break;
             }
 
@@ -478,7 +482,10 @@ namespace ll.AST
                     break;
                 case StructPropertyAccess structProperty:
                     var tmp2 = (structProperty.structRef.Eval()) as AST.Struct;
-                    tmp2.propValues[structProperty.propName] = result;
+                    
+                    if(!(structProperty.prop is VarExpr))
+                        throw new ArgumentException("Accessed property is not a variable");
+                    tmp2.propValues[(structProperty.prop as VarExpr).name] = result;
                     break;
             }
 
@@ -697,19 +704,39 @@ namespace ll.AST
         static IAST EvalStructPropertyAccess(StructPropertyAccess structPropertyAccess)
         {
             Struct @struct = structPropertyAccess.structRef.Eval() as Struct;
-            IAST tmp = @struct.propValues[structPropertyAccess.propName];
+            string propName = "";
+            
+            switch(structPropertyAccess.prop)
+            {
+                case VarExpr varExpr:
+                    propName = varExpr.name;
+                    break;
+                case ArrayIndexing arrayIndexing:
+                    propName = (arrayIndexing.left as VarExpr).name;
+                    break;
+                case StructPropertyAccess propertyAccess:
+                    propName = propertyAccess.structRef.name;
+                    break;
+                default:
+                    throw new ArgumentException("Unsupported type of prop");
+            }
+
+            var tmp = @struct.propValues[propName];
 
             if (tmp == null)
-                throw new ArgumentException($"Trying to access uninitialized variable \"{structPropertyAccess.propName}\"");
+                throw new ArgumentException($"Trying to access uninitialized variable \"{propName}\"");
 
             return tmp.Eval();
         }
 
+        // TODO write code that returns the correct variable; see EvalStructPropertyAccess
         static void EvalAssignStructProperty(AssignStructProperty assignStruct)
         {
             Struct @struct = assignStruct.structProp.structRef.Eval() as Struct;
 
-            @struct.propValues[assignStruct.structProp.propName] = assignStruct.val.Eval();
+            var structName = (assignStruct.structProp.Eval() as VarExpr).name;
+
+            @struct.propValues[structName] = assignStruct.val.Eval();
         }
 
         static IAST EvalValueAccessExpression(ValueAccessExpression valueAccess)

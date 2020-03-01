@@ -6,7 +6,6 @@ namespace ll
 {
     public class FunctionDefinitionVisitor : llBaseVisitor<IAST>
     {
-        // TODO rework grammar to eliminate repetitions
         public override IAST VisitFunctionDefinition(llParser.FunctionDefinitionContext context)
         {
             var identifier = context.WORD();
