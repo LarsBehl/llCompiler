@@ -9,6 +9,7 @@ namespace ll.AST
         public static Dictionary<string, IAST> env;
         public static Dictionary<string, FunctionDefinition> funs = new Dictionary<string, FunctionDefinition>();
         public static Dictionary<string, StructDefinition> structs = new Dictionary<string, StructDefinition>();
+        public static Dictionary<string, IAST> structEnv = null;
         public ll.type.Type type { get; set; }
         public int line { get; set; }
         public int column { get; set; }
@@ -36,6 +37,8 @@ namespace ll.AST
                 case DivExpr div:
                     return EvalDivExpression(div);
                 case VarExpr varExpr:
+                    if(structEnv != null)
+                        return structEnv[varExpr.name];
                     var envVar = env[varExpr.name];
 
                     switch (envVar)
@@ -704,39 +707,22 @@ namespace ll.AST
         static IAST EvalStructPropertyAccess(StructPropertyAccess structPropertyAccess)
         {
             Struct @struct = structPropertyAccess.structRef.Eval() as Struct;
-            string propName = "";
-            
-            switch(structPropertyAccess.prop)
-            {
-                case VarExpr varExpr:
-                    propName = varExpr.name;
-                    break;
-                case ArrayIndexing arrayIndexing:
-                    propName = (arrayIndexing.left as VarExpr).name;
-                    break;
-                case StructPropertyAccess propertyAccess:
-                    propName = propertyAccess.structRef.name;
-                    break;
-                default:
-                    throw new ArgumentException("Unsupported type of prop");
-            }
+            structEnv = @struct.propValues;
+            var result = structPropertyAccess.prop.Eval();
 
-            var tmp = @struct.propValues[propName];
+            structEnv = null;
 
-            if (tmp == null)
-                throw new ArgumentException($"Trying to access uninitialized variable \"{propName}\"");
-
-            return tmp.Eval();
+            return result;
         }
 
-        // TODO write code that returns the correct variable; see EvalStructPropertyAccess
         static void EvalAssignStructProperty(AssignStructProperty assignStruct)
         {
-            Struct @struct = assignStruct.structProp.structRef.Eval() as Struct;
+            StructPropertyAccess innerStruct = GetPropRef(assignStruct.structProp);
+            Struct @struct = innerStruct.structRef.Eval() as Struct;
+            string propName = (innerStruct.prop as VarExpr).name;
+            structEnv = null;
 
-            var structName = (assignStruct.structProp.Eval() as VarExpr).name;
-
-            @struct.propValues[structName] = assignStruct.val.Eval();
+            @struct.propValues[propName] = assignStruct.val.Eval();
         }
 
         static IAST EvalValueAccessExpression(ValueAccessExpression valueAccess)
@@ -748,6 +734,20 @@ namespace ll.AST
                 case StructPropertyAccess structProperty: return structProperty.Eval();
                 default:
                     throw new ArgumentException($"Unknown valueAccessExpression; On line {valueAccess.line}:{valueAccess.column}");
+            }
+        }
+
+        static StructPropertyAccess GetPropRef(StructPropertyAccess val)
+        {
+            if(val.prop is VarExpr)
+                return val;
+            else
+            {
+                structEnv = (val.structRef.Eval() as Struct).propValues;
+
+                var result = GetPropRef(val.prop as StructPropertyAccess);
+
+                return result;
             }
         }
     }

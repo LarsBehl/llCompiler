@@ -10,6 +10,12 @@ namespace ll.AST
 
         public AssignStructProperty(StructPropertyAccess structProp, IAST val, int line, int column) : base(new AssignStructPropertyType(), line, column)
         {
+            if((structProp.type is StructType propType) && (val.type is StructType valType))
+            {
+                if(propType.structName != valType.structName)
+                    throw new ArgumentException($"Type \"{structProp.type.typeName}\" is not compatible with \"{val.type.typeName}\"; On line {line}:{column}");
+            }
+
             if (structProp.type.typeName != val.type.typeName)
                 throw new ArgumentException($"Type \"{structProp.type.typeName}\" is not compatible with \"{val.type.typeName}\"; On line {line}:{column}");
 

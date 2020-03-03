@@ -557,7 +557,6 @@ namespace ll
             return new StructPropertyAccess(v, right, context.Start.Line, context.Start.Column);
         }
 
-        // TODO check if the prop is a struct that the structnames match
         public override IAST VisitAssignStructProp(llParser.AssignStructPropContext context)
         {
             StructPropertyAccess structPropAccess = Visit(context.structPropertyAccess()) as StructPropertyAccess;
