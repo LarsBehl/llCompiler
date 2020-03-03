@@ -37,7 +37,7 @@ namespace ll.AST
                 case DivExpr div:
                     return EvalDivExpression(div);
                 case VarExpr varExpr:
-                    if(structEnv != null)
+                    if (structEnv != null)
                         return structEnv[varExpr.name];
                     var envVar = env[varExpr.name];
 
@@ -443,7 +443,7 @@ namespace ll.AST
                 case StructPropertyAccess structProperty:
                     var tmp2 = (structProperty.structRef.Eval()) as AST.Struct;
 
-                    if(!(structProperty.prop is VarExpr))
+                    if (!(structProperty.prop is VarExpr))
                         throw new ArgumentException("Accessed structproperty is not a variable");
 
                     tmp2.propValues[(structProperty.prop as VarExpr).name] = result;
@@ -485,8 +485,8 @@ namespace ll.AST
                     break;
                 case StructPropertyAccess structProperty:
                     var tmp2 = (structProperty.structRef.Eval()) as AST.Struct;
-                    
-                    if(!(structProperty.prop is VarExpr))
+
+                    if (!(structProperty.prop is VarExpr))
                         throw new ArgumentException("Accessed property is not a variable");
                     tmp2.propValues[(structProperty.prop as VarExpr).name] = result;
                     break;
@@ -717,12 +717,21 @@ namespace ll.AST
 
         static void EvalAssignStructProperty(AssignStructProperty assignStruct)
         {
-            StructPropertyAccess innerStruct = GetPropRef(assignStruct.structProp);
+            StructPropertyAccess innerStruct = GetPropRef(assignStruct.structProp, out long index);
             Struct @struct = innerStruct.structRef.Eval() as Struct;
-            string propName = (innerStruct.prop as VarExpr).name;
+            string propName = "";
+
+            if(index >= 0)
+                propName = ((innerStruct.prop as ArrayIndexing).left as VarExpr).name;
+            else
+                propName = (innerStruct.prop as VarExpr).name;
+
             structEnv = null;
 
-            @struct.propValues[propName] = assignStruct.val.Eval();
+            if(index >= 0)
+                (@struct.propValues[propName] as Array).values[index] = assignStruct.val.Eval();
+            else
+                @struct.propValues[propName] = assignStruct.val.Eval();
         }
 
         static IAST EvalValueAccessExpression(ValueAccessExpression valueAccess)
@@ -737,15 +746,22 @@ namespace ll.AST
             }
         }
 
-        static StructPropertyAccess GetPropRef(StructPropertyAccess val)
+        static StructPropertyAccess GetPropRef(StructPropertyAccess val, out long index)
         {
-            if(val.prop is VarExpr)
+            index = -1;
+            if (val.prop is VarExpr)
                 return val;
+            else if(val.prop is ArrayIndexing arrayIndexing)
+            {
+                index = (arrayIndexing.right.Eval() as IntLit).n ?? -1;
+                return val;
+            }
             else
             {
                 structEnv = (val.structRef.Eval() as Struct).propValues;
 
-                var result = GetPropRef(val.prop as StructPropertyAccess);
+                var result = GetPropRef(val.prop as StructPropertyAccess, out long i);
+                index = i;
 
                 return result;
             }
