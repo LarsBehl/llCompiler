@@ -477,6 +477,7 @@ namespace ll
             return new AssignArrayField(arrayIndexing, Visit(context.expression()), context.Start.Line, context.Start.Column);
         }
 
+        // TODO add recursive destruction
         public override IAST VisitDestructionStatement(llParser.DestructionStatementContext context)
         {
             return Visit(context.refTypeDestruction());

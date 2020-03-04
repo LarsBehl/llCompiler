@@ -604,3 +604,41 @@ decrementPostStruct(x:int): int
     destroy p;
     return result;
 }
+
+struct Line 
+{
+    p1: Point;
+    p2: Point;
+}
+
+accessFirstInnerStruct(x:int): int
+{
+    l: Line = new Line();
+    l.p1 = new Point();
+    l.p1.x = 42;
+
+    return l.p1.x;
+}
+
+accessSecondInnerStruct(x:int): int
+{
+    l: Line = new Line();
+    l.p2 = new Point();
+    l.p2.y = 42;
+
+    return l.p2.y;
+}
+
+struct iA
+{
+    array: int[];
+}
+
+accessInnerArray(x:int): int
+{
+    a: iA = new iA();
+    a.array = new int[10];
+    a.array[5] = 42;
+
+    return a.array[5];
+}

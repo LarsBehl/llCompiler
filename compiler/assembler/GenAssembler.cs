@@ -27,6 +27,7 @@ namespace ll.assembler
         private int localVariablePointer = 0;
         private int localVariableCount = 0;
         private int stackCounter = 0;
+        private bool innerStruct = false;
 
         public void PrintAssember()
         {
@@ -1383,6 +1384,7 @@ namespace ll.assembler
             this.WriteLine("movq $0, %rax");
         }
 
+        // TODO rewrite the code
         private void StructPropertyAccessAsm(StructPropertyAccess structPropertyAccess)
         {
             this.LoadStructProperty(structPropertyAccess);
@@ -1393,6 +1395,7 @@ namespace ll.assembler
                 this.WriteLine("movq (%rax), %rax");
         }
 
+        // TODO rewrite the code
         private void AssignStructPropertyAsm(AssignStructProperty assignStruct)
         {
             // calculate the new value
@@ -1405,7 +1408,7 @@ namespace ll.assembler
             // push the value on the stack
             this.WritePush();
 
-            // get the index of the property
+            // get the address of the property
             this.LoadStructProperty(assignStruct.structProp);
             // get the value from the stack
             this.WritePop("%rbx");
@@ -1686,11 +1689,24 @@ namespace ll.assembler
             this.WriteLine("addq %rbx, %rax");
         }
 
+        /*
+        * if is VarExpr, just load the struct from the env and calculate the offset
+        * if is ArrayIndexing, just load the struct form the env and calculate the offset
+        * if is StructPropertyAccess:
+        *   1. load the outer struct from the env
+        *   2. calculate the offset of the inner struct
+        *   3. add the offset to the address and store this on the stack
+        *   4. set flag (C# code)
+        *   5. do again
+        */
         private void LoadStructProperty(StructPropertyAccess structProperty)
         {
             StructType st = structProperty.structRef.type as StructType;
             var structDef = IAST.structs[st.structName];
             string propName = "";
+            bool hasInnerStruct = false;
+            bool isArrayIndexing = false;
+
             switch (structProperty.prop)
             {
                 case VarExpr varExpr:
@@ -1698,17 +1714,43 @@ namespace ll.assembler
                     break;
                 case ArrayIndexing arrayIndexing:
                     propName = (arrayIndexing.left as VarExpr).name;
+                    isArrayIndexing = true;
                     break;
                 case StructPropertyAccess propertyAccess:
                     propName = propertyAccess.structRef.name;
+                    hasInnerStruct = true;
                     break;
                 default:
                     throw new ArgumentException("Unknown property type");
             }
             int propIndex = structDef.properties.FindIndex(sp => sp.name == propName);
 
-            this.GetAssember(structProperty.structRef);
+            if(!this.innerStruct)
+                this.GetAssember(structProperty.structRef);
             this.WriteLine($"addq ${propIndex * 8}, %rax");
+
+            if(isArrayIndexing)
+            {
+                // save the base address of the array
+                this.WritePush("(%rax)");
+                // calculate the offset
+                this.GetAssember((structProperty.prop as ArrayIndexing).right);
+                // load the base address of the array
+                this.WritePop("%rbx");
+                this.WriteLine("imulq $8, %rax");
+                // add the offset
+                this.WriteLine("addq %rbx, %rax");
+            }
+
+            if(hasInnerStruct)
+            {
+                this.innerStruct = true;
+                // load the base address of the inner struct
+                this.WriteLine("movq (%rax), %rax");
+                // walk recursivly
+                this.LoadStructProperty(structProperty.prop as StructPropertyAccess);
+                this.innerStruct = false;
+            }
         }
     }
 }

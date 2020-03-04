@@ -144,6 +144,11 @@ long incrementPostStruct(long x);
 long decrementPreStruct(long x);
 long decrementPostStruct(long x);
 
+long accessFirstInnerStruct(long x);
+long accessSecondInnerStruct(long x);
+
+long accessInnerArray(long x);
+
 int failedCount = 0;
 int overallCount = 0;
 
@@ -419,6 +424,13 @@ void startTests()
     printInt(42, intResult, "decrementPreStruct");
     intResult = decrementPostStruct(42);
     printInt(42, intResult, "decrementPostStruct");
+
+    intResult = accessFirstInnerStruct(42);
+    printInt(42, intResult, "firstInnerStruct");
+    intResult = accessSecondInnerStruct(42);
+    printInt(42, intResult, "secondInnerStruct");
+    intResult = accessInnerArray(42);
+    printInt(42, intResult, "accessInnerArray");
 
     int successCount = overallCount - failedCount;
     printf("\n\n%d tests of %d were successfull\n", successCount, overallCount);
