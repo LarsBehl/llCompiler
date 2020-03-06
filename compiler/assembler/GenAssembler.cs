@@ -353,7 +353,9 @@ namespace ll.assembler
                     else
                     {
                         this.WritePop("%rbx");
-                        this.WriteLine("movq $0, %rdx");
+                        // clear %rdx as idiv divides rdx:rax by specified register
+                        this.WriteLine("cqto");
+
                         this.WriteLine("idivq %rbx");
                     }
                     break;
@@ -965,7 +967,7 @@ namespace ll.assembler
             {
                 case IntType intType:
                     this.WriteLine("movq %rax, %rbx");
-                    this.WriteLine("movq $0, %rdx");
+                    this.WriteLine("cqto");
                     this.WriteLine($"movq {this.variableMap[divAssignStatement.left.name]}(%rbp), %rax");
                     this.WriteLine($"idivq %rbx");
                     this.WriteLine($"movq %rax, {this.variableMap[divAssignStatement.left.name]}(%rbp)");
