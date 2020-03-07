@@ -6,7 +6,6 @@ using ll.type;
 using System.Runtime.InteropServices;
 using System.IO;
 
-// TODO 16 Byte align each function
 namespace ll.assembler
 {
     public class GenAssembler
@@ -584,6 +583,7 @@ namespace ll.assembler
 
             this.variableMap = funAsm.variableMap;
             this.localVariablePointer = 0;
+            this.stackCounter = 0;
 
             this.depth += 1;
 
@@ -778,6 +778,10 @@ namespace ll.assembler
                 this.WriteLine($"movq %rax, {doubleRegisters[i]}");
             }
 
+            // 16 byte align the stack before each function call
+            if(this.stackCounter % 16 == 0)
+                this.WritePush("$0");
+
             this.WriteLine($"call {functionCall.name}");
         }
 
@@ -843,10 +847,13 @@ namespace ll.assembler
 
         private void WhileStatementAsm(WhileStatement whileStatement)
         {
-            this.WriteLine($"jmp .L{this.labelCount + 1}");
+            int nextLabel = this.labelCount;
+            this.labelCount += 2;
+
+            this.WriteLine($"jmp .L{nextLabel + 1}");
             // create a label for the body
             this.depth -= 1;
-            this.WriteLine($".L{this.labelCount++}:");
+            this.WriteLine($".L{nextLabel++}:");
             this.depth += 1;
 
             // generate the code for the body
@@ -854,7 +861,7 @@ namespace ll.assembler
 
             // create the label for the condition
             this.depth -= 1;
-            this.WriteLine($".L{this.labelCount++}:");
+            this.WriteLine($".L{nextLabel++}:");
             this.depth += 1;
 
             // generate the code for the condition
@@ -862,22 +869,24 @@ namespace ll.assembler
 
             // if the value of the condition is true, jump to the body
             this.WriteLine("cmpq $1, %rax");
-            this.WriteLine($"je .L{this.labelCount - 2}");
+            this.WriteLine($"je .L{nextLabel - 2}");
         }
 
         private void IfStatementAsm(IfStatement ifStatement)
         {
+            int nextLabel = this.labelCount;
+            this.labelCount += 3;
             // generate the code of the condition
             this.GetAssember(ifStatement.cond);
 
             // if the condition is true
             this.WriteLine("cmpq $1, %rax");
             // jump to the label of the if clause
-            this.WriteLine($"je .L{this.labelCount + 1}");
+            this.WriteLine($"je .L{nextLabel + 1}");
 
             // create a label for the else case
             this.depth -= 1;
-            this.WriteLine($".L{this.labelCount++}:");
+            this.WriteLine($".L{nextLabel++}:");
             this.depth += 1;
 
             // if there is an else case
@@ -886,11 +895,11 @@ namespace ll.assembler
                 this.GetAssember(ifStatement.elseBody);
 
             // jump to the end of the if statement
-            this.WriteLine($"jmp .L{this.labelCount + 1}");
+            this.WriteLine($"jmp .L{nextLabel + 1}");
 
             // create a label for the if case
             this.depth -= 1;
-            this.WriteLine($".L{this.labelCount++}:");
+            this.WriteLine($".L{nextLabel++}:");
             this.depth += 1;
 
             // generate the assembler for the if case
@@ -898,7 +907,7 @@ namespace ll.assembler
 
             // create a label for the end of the if statement
             this.depth -= 1;
-            this.WriteLine($".L{this.labelCount++}:");
+            this.WriteLine($".L{nextLabel++}:");
             this.depth += 1;
         }
 
@@ -1195,48 +1204,53 @@ namespace ll.assembler
 
         private void AndExprAsm(AndExpr andExpr)
         {
+            int nextLabel = this.labelCount;
+            this.labelCount += 2;
+
             this.GetAssember(andExpr.left);
 
             this.WriteLine("cmpq $0, %rax");
-            this.WriteLine($"je .L{this.labelCount}");
+            this.WriteLine($"je .L{nextLabel}");
 
             this.GetAssember(andExpr.right);
 
             this.WriteLine("cmpq $0, %rax");
-            this.WriteLine($"je .L{this.labelCount}");
+            this.WriteLine($"je .L{nextLabel}");
             this.WriteLine("movq $1, %rax");
-            this.WriteLine($"jmp .L{this.labelCount + 1}");
-
+            this.WriteLine($"jmp .L{nextLabel + 1}");
 
             this.depth -= 1;
-            this.WriteLine($".L{this.labelCount++}:");
+            this.WriteLine($".L{nextLabel++}:");
             this.depth += 1;
             this.WriteLine("movq $0, %rax");
             this.depth -= 1;
-            this.WriteLine($".L{this.labelCount++}:");
+            this.WriteLine($".L{nextLabel++}:");
             this.depth += 1;
         }
 
         private void OrExprAsm(OrExpr orExpr)
         {
+            int nextLabel = this.labelCount;
+            this.labelCount += 2;
+
             this.GetAssember(orExpr.left);
 
             this.WriteLine("cmpq $1, %rax");
-            this.WriteLine($"je .L{this.labelCount}");
+            this.WriteLine($"je .L{nextLabel}");
 
             this.GetAssember(orExpr.right);
             this.WriteLine("cmpq $1, %rax");
-            this.WriteLine($"je .L{this.labelCount}");
+            this.WriteLine($"je .L{nextLabel}");
             this.WriteLine("movq $0, %rax");
-            this.WriteLine($"jmp .L{this.labelCount + 1}");
+            this.WriteLine($"jmp .L{nextLabel + 1}");
 
             this.depth -= 1;
-            this.WriteLine($".L{this.labelCount++}:");
+            this.WriteLine($".L{nextLabel++}:");
             this.depth += 1;
             this.WriteLine("movq $1, %rax");
 
             this.depth -= 1;
-            this.WriteLine($".L{this.labelCount++}:");
+            this.WriteLine($".L{nextLabel++}:");
             this.depth += 1;
         }
 

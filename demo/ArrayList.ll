@@ -27,7 +27,6 @@ get(index: int, al: ArrayList): int
 
 add(item: int, al: ArrayList): void
 {
-    print(item);
     if(al.length + 1 > al.size)
     {
         al.size = al.length + 5;
@@ -129,5 +128,19 @@ main(): void
         i += 1;
     }
 
-    
+    success: bool = remove(19, al);
+    print(success);
+    print(al.length);
+    success = insert(42, 17, al);
+    print(success);
+
+    success = update(0, 42, al);
+    print(success);
+    print(get(0, al));
+
+    add(12, al);
+    print(get(al.length - 1, al));
+
+    destroy al.content;
+    destroy al;
 }
