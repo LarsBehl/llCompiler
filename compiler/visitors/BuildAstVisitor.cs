@@ -8,6 +8,7 @@ namespace ll
 {
     public class BuildAstVisitor : llBaseVisitor<IAST>
     {
+        static VarExpr sR = null;
         public override IAST VisitCompileUnit(llParser.CompileUnitContext context)
         {
             return Visit(context.program());
@@ -79,6 +80,23 @@ namespace ll
 
         public override IAST VisitVariableExpression(llParser.VariableExpressionContext context)
         {
+            type.Type type = null;
+
+            if (sR != null)
+            {
+                try
+                {
+                    // search in the current struct for the accessed property and the assosiated type
+                    type = IAST.structs[(sR.type as StructType).structName].properties.Find(s => s.name == context.WORD().GetText()).type;
+                }
+                catch
+                {
+                    throw new ArgumentException($"Unknown struct property {context.WORD().GetText()}; On line {context.Start.Line}:{context.Start.Column}");
+                }
+
+                return new VarExpr(context.WORD().GetText(), type, context.Start.Line, context.Start.Column);
+            }
+
             return new VarExpr(context.WORD().GetText(), context.Start.Line, context.Start.Column);
         }
 
@@ -321,31 +339,30 @@ namespace ll
             return new WhileStatement(cond, body, context.Start.Line, context.Start.Column);
         }
 
-        // TODO rework increment, decrement and add-assign like operations so that they work with reference types
         public override IAST VisitIncrementPostExpression(llParser.IncrementPostExpressionContext context)
         {
-            var variable = Visit(context.variableExpression()) as VarExpr;
+            ValueAccessExpression variable = Visit(context.valueAccess()) as ValueAccessExpression;
 
             return new IncrementExpr(variable, true, context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitDecrementPostExpression(llParser.DecrementPostExpressionContext context)
         {
-            var variable = Visit(context.variableExpression()) as VarExpr;
+            ValueAccessExpression variable = Visit(context.valueAccess()) as ValueAccessExpression;
 
             return new DecrementExpr(variable, true, context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitIncrementPreExpression(llParser.IncrementPreExpressionContext context)
         {
-            var variable = Visit(context.variableExpression()) as VarExpr;
+            ValueAccessExpression variable = Visit(context.valueAccess()) as ValueAccessExpression;
 
             return new IncrementExpr(variable, false, context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitDecrementPreExpression(llParser.DecrementPreExpressionContext context)
         {
-            var variable = Visit(context.variableExpression()) as VarExpr;
+            ValueAccessExpression variable = Visit(context.valueAccess()) as ValueAccessExpression;
 
             return new DecrementExpr(variable, false, context.Start.Line, context.Start.Column);
         }
@@ -450,7 +467,12 @@ namespace ll
 
         public override IAST VisitArrayIndexing(llParser.ArrayIndexingContext context)
         {
-            return new ArrayIndexing(Visit(context.variableExpression()), Visit(context.expression()), context.Start.Line, context.Start.Column);
+            var tmp = sR;
+            sR = null;
+            var index = Visit(context.expression());
+            sR = tmp;
+
+            return new ArrayIndexing(Visit(context.variableExpression()), index, context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitAssignArrayField(llParser.AssignArrayFieldContext context)
@@ -467,7 +489,7 @@ namespace ll
 
         public override IAST VisitRefTypeDestruction(llParser.RefTypeDestructionContext context)
         {
-            return new DestructionStatement(Visit(context.variableExpression()) as VarExpr, context.Start.Line, context.Start.Column);
+            return new DestructionStatement(Visit(context.valueAccess()) as ValueAccessExpression, context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitStructDefinition(llParser.StructDefinitionContext context)
@@ -520,11 +542,24 @@ namespace ll
             return Visit(context.structName());
         }
 
+        /*
+        * TODO change the grammer so that the struct prop access could have:
+        *   - struct prop access done
+        *   - array indexing done
+        *   - variable expression done
+        *   - increment done
+        *   - decrement done
+        *   - array assign
+        *   - struct prop assign
+        * on the righthand site
+        */
         public override IAST VisitStructPropertyAccess(llParser.StructPropertyAccessContext context)
         {
             VarExpr v = Visit(context.variableExpression()) as VarExpr;
-
-            return new StructPropertyAccess(v, context.WORD().GetText(), context.Start.Line, context.Start.Column);
+            sR = v;
+            ValueAccessExpression right = Visit(context.valueAccess()) as ValueAccessExpression;
+            sR = null;
+            return new StructPropertyAccess(v, right, context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitAssignStructProp(llParser.AssignStructPropContext context)
@@ -538,6 +573,20 @@ namespace ll
                 val = Visit(context.refTypeCreation());
 
             return new AssignStructProperty(structPropAccess, val, context.Start.Line, context.Start.Column);
+        }
+
+        public override IAST VisitValueAccess(llParser.ValueAccessContext context)
+        {
+            if (context.arrayIndexing() != null)
+                return Visit(context.arrayIndexing());
+
+            if (context.variableExpression() != null)
+                return Visit(context.variableExpression());
+
+            if (context.structPropertyAccess() != null)
+                return Visit(context.structPropertyAccess());
+
+            throw new ArgumentException($"Unknown value access; On line {context.Start.Line}:{context.Start.Column}");
         }
     }
 }

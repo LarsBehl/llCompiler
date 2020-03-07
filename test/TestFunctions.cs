@@ -22,7 +22,7 @@ namespace ll.test
             return new llParser(stream);
         }
 
-        
+
         [TestCase("aCallsB(3)", 5)]
         [TestCase("id(5)", 5)]
         [TestCase("square(5)", 25)]
@@ -63,7 +63,8 @@ namespace ll.test
         {
             llParser parser;
             StreamReader reader = new StreamReader("../../../programs/TestFile3.ll");
-            try{
+            try
+            {
                 string input = reader.ReadToEnd();
 
                 parser = Setup(input);
@@ -72,7 +73,7 @@ namespace ll.test
                 parser = Setup(input);
                 Assert.Throws<ArgumentException>(() => visitor.Visit(parser.program()));
             }
-            catch(IOException e)
+            catch (IOException e)
             {
                 Console.WriteLine(e);
             }

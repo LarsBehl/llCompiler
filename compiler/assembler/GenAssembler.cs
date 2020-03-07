@@ -27,6 +27,7 @@ namespace ll.assembler
         private int localVariablePointer = 0;
         private int localVariableCount = 0;
         private int stackCounter = 0;
+        private bool innerStruct = false;
 
         public void PrintAssember()
         {
@@ -582,6 +583,7 @@ namespace ll.assembler
 
             this.variableMap = funAsm.variableMap;
             this.localVariablePointer = 0;
+            this.stackCounter = 0;
 
             this.depth += 1;
 
@@ -659,8 +661,10 @@ namespace ll.assembler
             {
                 functionAsm = new FunctionAsm(functionCall.name);
                 this.functionMap.Add(functionCall.name, functionAsm);
-
             }
+
+            functionAsm.usedDoubleRegisters = 0;
+            functionAsm.usedIntegerRegisters = 0;
 
             bool doesOverflow = this.DoesOverflowRegisters(
                 functionCall.args,
@@ -703,6 +707,14 @@ namespace ll.assembler
                             }
 
                             break;
+                        case RefType refType:
+                            if(i >= integerOverflowPosition)
+                            {
+                                functionAsm.variableMap[funDef.args[i].name] = rbpOffset;
+                                rbpOffset += 8;
+                            }
+
+                            break;
                         default:
                             throw new ArgumentException($"Unknown type {functionCall.args[i].type.typeName}");
                     }
@@ -715,7 +727,7 @@ namespace ll.assembler
             // move integer/boolean arguments into registers until they are full
             for (int i = 0; i < index; i++)
             {
-                if (functionCall.args[i].type is IntType || functionCall.args[i].type is BooleanType)
+                if (functionCall.args[i].type is IntType || functionCall.args[i].type is BooleanType || functionCall.args[i].type is RefType)
                 {
                     this.GetAssember(functionCall.args[i]);
 
@@ -727,7 +739,7 @@ namespace ll.assembler
             // move integer/boolean arguments that overflew on stack
             for (int i = functionCall.args.Count - 1; i >= integerOverflowPosition; i++)
             {
-                if (functionCall.args[i].type is IntType || functionCall.args[i].type is BooleanType)
+                if (functionCall.args[i].type is IntType || functionCall.args[i].type is BooleanType || functionCall.args[i].type is RefType)
                 {
                     this.GetAssember(functionCall.args[i]);
 
@@ -765,6 +777,10 @@ namespace ll.assembler
                 this.WritePop();
                 this.WriteLine($"movq %rax, {doubleRegisters[i]}");
             }
+
+            // 16 byte align the stack before each function call
+            if(this.stackCounter % 16 == 0)
+                this.WritePush("$0");
 
             this.WriteLine($"call {functionCall.name}");
         }
@@ -831,10 +847,13 @@ namespace ll.assembler
 
         private void WhileStatementAsm(WhileStatement whileStatement)
         {
-            this.WriteLine($"jmp .L{this.labelCount + 1}");
+            int nextLabel = this.labelCount;
+            this.labelCount += 2;
+
+            this.WriteLine($"jmp .L{nextLabel + 1}");
             // create a label for the body
             this.depth -= 1;
-            this.WriteLine($".L{this.labelCount++}:");
+            this.WriteLine($".L{nextLabel++}:");
             this.depth += 1;
 
             // generate the code for the body
@@ -842,7 +861,7 @@ namespace ll.assembler
 
             // create the label for the condition
             this.depth -= 1;
-            this.WriteLine($".L{this.labelCount++}:");
+            this.WriteLine($".L{nextLabel++}:");
             this.depth += 1;
 
             // generate the code for the condition
@@ -850,22 +869,24 @@ namespace ll.assembler
 
             // if the value of the condition is true, jump to the body
             this.WriteLine("cmpq $1, %rax");
-            this.WriteLine($"je .L{this.labelCount - 2}");
+            this.WriteLine($"je .L{nextLabel - 2}");
         }
 
         private void IfStatementAsm(IfStatement ifStatement)
         {
+            int nextLabel = this.labelCount;
+            this.labelCount += 3;
             // generate the code of the condition
             this.GetAssember(ifStatement.cond);
 
             // if the condition is true
             this.WriteLine("cmpq $1, %rax");
             // jump to the label of the if clause
-            this.WriteLine($"je .L{this.labelCount + 1}");
+            this.WriteLine($"je .L{nextLabel + 1}");
 
             // create a label for the else case
             this.depth -= 1;
-            this.WriteLine($".L{this.labelCount++}:");
+            this.WriteLine($".L{nextLabel++}:");
             this.depth += 1;
 
             // if there is an else case
@@ -874,11 +895,11 @@ namespace ll.assembler
                 this.GetAssember(ifStatement.elseBody);
 
             // jump to the end of the if statement
-            this.WriteLine($"jmp .L{this.labelCount + 1}");
+            this.WriteLine($"jmp .L{nextLabel + 1}");
 
             // create a label for the if case
             this.depth -= 1;
-            this.WriteLine($".L{this.labelCount++}:");
+            this.WriteLine($".L{nextLabel++}:");
             this.depth += 1;
 
             // generate the assembler for the if case
@@ -886,7 +907,7 @@ namespace ll.assembler
 
             // create a label for the end of the if statement
             this.depth -= 1;
-            this.WriteLine($".L{this.labelCount++}:");
+            this.WriteLine($".L{nextLabel++}:");
             this.depth += 1;
         }
 
@@ -989,72 +1010,188 @@ namespace ll.assembler
 
         private void IncrementAsm(IncrementExpr increment)
         {
-            if (increment.post)
+            this.GetAssember(increment.variable);
+            string register = null;
+
+            if (!increment.post)
             {
                 if (increment.type is IntType)
                 {
-                    this.WriteLine($"movq {this.variableMap[increment.variable.name]}(%rbp), %rax");
-                    this.WriteLine($"incq {this.variableMap[increment.variable.name]}(%rbp)");
+                    this.WriteLine("incq %rax");
+                    register = "%rax";
                 }
                 else
                 {
-                    this.WriteLine($"movq {this.variableMap[increment.variable.name]}(%rbp), %xmm0");
                     this.WriteLine("movq $1, %rax");
                     this.WriteLine("cvtsi2sdq %rax, %xmm1");
-                    this.WriteLine($"addsd {this.variableMap[increment.variable.name]}(%rbp), %xmm1");
-                    this.WriteLine($"movq %xmm1, {this.variableMap[increment.variable.name]}(%rbp)");
+                    this.WriteLine("addsd %xmm1, %xmm0");
+                    register = "%xmm0";
                 }
             }
             else
             {
                 if (increment.type is IntType)
                 {
-                    this.WriteLine($"incq {this.variableMap[increment.variable.name]}(%rbp)");
-                    this.GetAssember(increment.variable);
+                    this.WriteLine("movq %rax, %rbx");
+                    this.WriteLine("incq %rbx");
+                    register = "%rbx";
                 }
                 else
                 {
                     this.WriteLine("movq $1, %rax");
-                    this.WriteLine("cvtsi2sdq %rax, %xmm0");
-                    this.WriteLine($"addsd {this.variableMap[increment.variable.name]}(%rbp), %xmm0");
-                    this.WriteLine($"movq %xmm0, {this.variableMap[increment.variable.name]}(%rbp)");
+                    this.WriteLine("cvtsi2sdq %rax, %xmm1");
+                    this.WriteLine("addsd %xmm0, %xmm1");
+                    register = "%xmm1";
                 }
             }
+
+            switch (increment.variable)
+            {
+                case VarExpr varExpr:
+                    this.WriteLine($"movq {register}, {this.variableMap[varExpr.name]}(%rbp)");
+                    if (varExpr.type is DoubleType)
+                        this.WriteLine("movq %xmm0, %rax");
+                    break;
+                case ArrayIndexing arrayIndexing:
+                    if (increment.post)
+                    {
+                        if (arrayIndexing.type is DoubleType)
+                            this.WriteLine("movq %xmm0, %rax");
+
+                        this.WritePush();
+                    }
+
+                    if (register != "%rbx")
+                        this.WriteLine($"movq {register}, %rbx");
+
+                    this.WritePush("%rbx");
+                    this.LoadArrayField(arrayIndexing);
+                    this.WritePop("%rbx");
+                    // move the value into the correct adresse
+                    this.WriteLine("movq %rbx, (%rax)");
+                    this.WriteLine("movq %rbx, %rax");
+
+                    if (increment.post)
+                        this.WritePop();
+                    break;
+                case StructPropertyAccess propertyAccess:
+                    if (increment.post)
+                    {
+                        if (propertyAccess.type is DoubleType)
+                            this.WriteLine("movq %xmm0, %rax");
+
+                        this.WritePush();
+                    }
+
+                    if (register != "%rbx")
+                        this.WriteLine($"movq {register}, %rbx");
+
+                    this.WritePush("%rbx");
+                    this.LoadStructProperty(propertyAccess);
+                    this.WritePop("%rbx");
+                    this.WriteLine("movq %rbx, (%rax)");
+                    this.WriteLine("movq %rbx, %rax");
+
+                    if (increment.post)
+                        this.WritePop();
+                    break;
+            }
+
+            if (increment.type is DoubleType)
+                this.WriteLine("movq %rax, %xmm0");
         }
 
         private void DecrementAsm(DecrementExpr decrement)
         {
-            if (decrement.post)
+            this.GetAssember(decrement.variable);
+            string register = null;
+
+            if (!decrement.post)
             {
                 if (decrement.type is IntType)
                 {
-                    this.WriteLine($"movq {this.variableMap[decrement.variable.name]}(%rbp), %rax");
-                    this.WriteLine($"decq {this.variableMap[decrement.variable.name]}(%rbp)");
+                    this.WriteLine("decq %rax");
+                    register = "%rax";
                 }
                 else
                 {
-                    this.WriteLine($"movq {this.variableMap[decrement.variable.name]}(%rbp), %xmm0");
                     this.WriteLine("movq $-1, %rax");
                     this.WriteLine("cvtsi2sdq %rax, %xmm1");
-                    this.WriteLine($"addsd {this.variableMap[decrement.variable.name]}(%rbp), %xmm1");
-                    this.WriteLine($"movq %xmm1, {this.variableMap[decrement.variable.name]}(%rbp)");
+                    this.WriteLine("addsd %xmm1, %xmm0");
+                    register = "%xmm0";
                 }
             }
             else
             {
                 if (decrement.type is IntType)
                 {
-                    this.WriteLine($"decq {this.variableMap[decrement.variable.name]}(%rbp)");
-                    this.GetAssember(decrement.variable);
+                    this.WriteLine("movq %rax, %rbx");
+                    this.WriteLine("decq %rbx");
+                    register = "%rbx";
                 }
                 else
                 {
                     this.WriteLine("movq $-1, %rax");
-                    this.WriteLine("cvtsi2sdq %rax, %xmm0");
-                    this.WriteLine($"addsd {this.variableMap[decrement.variable.name]}(%rbp), %xmm0");
-                    this.WriteLine($"movq %xmm0, {this.variableMap[decrement.variable.name]}(%rbp)");
+                    this.WriteLine("cvtsi2sdq %rax, %xmm1");
+                    this.WriteLine("addsd %xmm0, %xmm1");
+                    register = "%xmm1";
                 }
             }
+
+            switch (decrement.variable)
+            {
+                case VarExpr varExpr:
+                    this.WriteLine($"movq {register}, {variableMap[varExpr.name]}(%rbp)");
+
+                    if (varExpr.type is DoubleType)
+                        this.WriteLine("movq %xmm0, %rax");
+                    break;
+                case ArrayIndexing arrayIndexing:
+                    if (decrement.post)
+                    {
+                        if (arrayIndexing.type is DoubleType)
+                            this.WriteLine("movq %xmm0, %rax");
+
+                        this.WritePush();
+                    }
+
+                    if (register != "%rbx")
+                        this.WriteLine($"movq {register}, %rbx");
+
+                    this.WritePush("%rbx");
+                    this.LoadArrayField(arrayIndexing);
+                    this.WritePop("%rbx");
+                    this.WriteLine("movq %rbx, (%rax)");
+                    this.WriteLine("movq %rbx, %rax");
+
+                    if (decrement.post)
+                        this.WritePop();
+                    break;
+                case StructPropertyAccess propertyAccess:
+                    if (decrement.post)
+                    {
+                        if (propertyAccess.type is DoubleType)
+                            this.WriteLine("movq %xmm0, %rax");
+
+                        this.WritePush();
+                    }
+
+                    if (register != "%rbx")
+                        this.WriteLine($"movq {register}, %rbx");
+
+                    this.WritePush("%rbx");
+                    this.LoadStructProperty(propertyAccess);
+                    this.WritePop("%rbx");
+                    this.WriteLine("movq %rbx, (%rax)");
+                    this.WriteLine("movq %rbx, %rax");
+
+                    if (decrement.post)
+                        this.WritePop();
+                    break;
+            }
+
+            if (decrement.type is DoubleType)
+                this.WriteLine("movq %rax, %xmm0");
         }
 
         private void NotExprAsm(NotExpr notExpr)
@@ -1067,48 +1204,53 @@ namespace ll.assembler
 
         private void AndExprAsm(AndExpr andExpr)
         {
+            int nextLabel = this.labelCount;
+            this.labelCount += 2;
+
             this.GetAssember(andExpr.left);
 
             this.WriteLine("cmpq $0, %rax");
-            this.WriteLine($"je .L{this.labelCount}");
+            this.WriteLine($"je .L{nextLabel}");
 
             this.GetAssember(andExpr.right);
 
             this.WriteLine("cmpq $0, %rax");
-            this.WriteLine($"je .L{this.labelCount}");
+            this.WriteLine($"je .L{nextLabel}");
             this.WriteLine("movq $1, %rax");
-            this.WriteLine($"jmp .L{this.labelCount + 1}");
-
+            this.WriteLine($"jmp .L{nextLabel + 1}");
 
             this.depth -= 1;
-            this.WriteLine($".L{this.labelCount++}:");
+            this.WriteLine($".L{nextLabel++}:");
             this.depth += 1;
             this.WriteLine("movq $0, %rax");
             this.depth -= 1;
-            this.WriteLine($".L{this.labelCount++}:");
+            this.WriteLine($".L{nextLabel++}:");
             this.depth += 1;
         }
 
         private void OrExprAsm(OrExpr orExpr)
         {
+            int nextLabel = this.labelCount;
+            this.labelCount += 2;
+
             this.GetAssember(orExpr.left);
 
             this.WriteLine("cmpq $1, %rax");
-            this.WriteLine($"je .L{this.labelCount}");
+            this.WriteLine($"je .L{nextLabel}");
 
             this.GetAssember(orExpr.right);
             this.WriteLine("cmpq $1, %rax");
-            this.WriteLine($"je .L{this.labelCount}");
+            this.WriteLine($"je .L{nextLabel}");
             this.WriteLine("movq $0, %rax");
-            this.WriteLine($"jmp .L{this.labelCount + 1}");
+            this.WriteLine($"jmp .L{nextLabel + 1}");
 
             this.depth -= 1;
-            this.WriteLine($".L{this.labelCount++}:");
+            this.WriteLine($".L{nextLabel++}:");
             this.depth += 1;
             this.WriteLine("movq $1, %rax");
 
             this.depth -= 1;
-            this.WriteLine($".L{this.labelCount++}:");
+            this.WriteLine($".L{nextLabel++}:");
             this.depth += 1;
         }
 
@@ -1228,16 +1370,7 @@ namespace ll.assembler
 
         private void ArrayIndexingAsm(ArrayIndexing arrayIndexing)
         {
-            // load the value of the variable
-            this.GetAssember(arrayIndexing.left);
-            this.WritePush();
-            // calculate the index
-            this.GetAssember(arrayIndexing.right);
-            this.WriteLine("movq $8, %rbx");
-            this.WriteLine("imulq %rax, %rbx");
-            this.WritePop();
-            this.WriteLine("addq %rbx, %rax");
-
+            this.LoadArrayField(arrayIndexing);
             if (arrayIndexing.type is DoubleType)
                 this.WriteLine("movq (%rax), %xmm0");
             else
@@ -1256,17 +1389,10 @@ namespace ll.assembler
             this.WritePush();
 
             // load the value of the variable
-            this.GetAssember(assignArray.arrayIndex.left);
-            this.WritePush();
-            // calculate the index
-            this.GetAssember(assignArray.arrayIndex.right);
-            this.WriteLine("movq $8, %rbx");
-            this.WriteLine("imulq %rax, %rbx");
-            this.WritePop();
-            this.WriteLine("addq %rax, %rbx");
-            this.WritePop();
+            this.LoadArrayField(assignArray.arrayIndex);
+            this.WritePop("%rbx");
             // save the value in the array
-            this.WriteLine("movq %rax, (%rbx)");
+            this.WriteLine("movq %rbx, (%rax)");
         }
 
         private void DestructionStatementAsm(DestructionStatement destruction)
@@ -1285,19 +1411,10 @@ namespace ll.assembler
             this.WriteLine("movq $0, %rax");
         }
 
+        // TODO rewrite the code
         private void StructPropertyAccessAsm(StructPropertyAccess structPropertyAccess)
         {
-            // get the index of the property
-            StructType structType = structPropertyAccess.structRef.type as StructType;
-            string structName = structType.structName;
-            StructDefinition structDef = IAST.structs[structName];
-            int propIndex = structDef.properties.FindIndex(prop => prop.name == structPropertyAccess.propName);
-
-            // get the base adress of the struct
-            this.GetAssember(structPropertyAccess.structRef);
-            // calculate the adress of the property
-            this.WriteLine($"addq ${propIndex * 8}, %rax");
-
+            this.LoadStructProperty(structPropertyAccess);
             // write the value in the correct register
             if (structPropertyAccess.type is DoubleType)
                 this.WriteLine("movq (%rax), %xmm0");
@@ -1305,6 +1422,7 @@ namespace ll.assembler
                 this.WriteLine("movq (%rax), %rax");
         }
 
+        // TODO rewrite the code
         private void AssignStructPropertyAsm(AssignStructProperty assignStruct)
         {
             // calculate the new value
@@ -1317,16 +1435,8 @@ namespace ll.assembler
             // push the value on the stack
             this.WritePush();
 
-            // get the index of the property
-            StructType structType = assignStruct.structProp.structRef.type as StructType;
-            string structName = structType.structName;
-            StructDefinition structDef = IAST.structs[structName];
-            int propIndex = structDef.properties.FindIndex(prop => prop.name == assignStruct.structProp.propName);
-
-            // load the adress of the struct
-            this.GetAssember(assignStruct.structProp.structRef);
-            // add the calculated index to %rax (the base adress of the struct) 
-            this.WriteLine($"addq ${propIndex * 8}, %rax");
+            // get the address of the property
+            this.LoadStructProperty(assignStruct.structProp);
             // get the value from the stack
             this.WritePop("%rbx");
             // save the calculated value
@@ -1444,7 +1554,7 @@ namespace ll.assembler
 
             for (int i = 0; i < args.Count; i++)
             {
-                if (args[i].type is IntType || args[i].type is BooleanType)
+                if (args[i].type is IntType || args[i].type is BooleanType || args[i].type is RefType)
                 {
                     usedInt += 1;
 
@@ -1480,7 +1590,7 @@ namespace ll.assembler
 
             for (int i = 0; i < args.Count; i++)
             {
-                if (args[i].type is IntType || args[i].type is BooleanType)
+                if (args[i].type is IntType || args[i].type is BooleanType || args[i].type is RefType)
                 {
                     usedInt += 1;
 
@@ -1549,6 +1659,14 @@ namespace ll.assembler
                             }
 
                             break;
+                        case RefType refType:
+                            if(i >= integerOverflowPosition)
+                            {
+                                functionAsm.variableMap.Add(functionDefinition.args[i].name, rbpOffset);
+                                rbpOffset += 8;
+                            }
+
+                            break;
                         default:
                             throw new ArgumentException($"Unknown type {functionDefinition.args[i].type.typeName}");
                     }
@@ -1566,7 +1684,7 @@ namespace ll.assembler
                 if (arg.type is DoubleType)
                     doubleArgCount++;
 
-                if (arg.type is BooleanType || arg.type is IntType)
+                if (arg.type is BooleanType || arg.type is IntType || arg.type is RefType)
                     intArgCount++;
             }
         }
@@ -1575,7 +1693,7 @@ namespace ll.assembler
         {
             for (int i = startIndex + 1; i < args.Count; i++)
             {
-                if (args[i].type is IntType || args[i].type is BooleanType)
+                if (args[i].type is IntType || args[i].type is BooleanType || args[i].type is RefType)
                     return i;
             }
 
@@ -1591,6 +1709,83 @@ namespace ll.assembler
             }
 
             throw new ArgumentOutOfRangeException("Expected to find more double arguments");
+        }
+
+        private void LoadArrayField(ArrayIndexing arrayIndexing)
+        {
+            this.GetAssember(arrayIndexing.left);
+
+            this.WritePush();
+
+            this.GetAssember(arrayIndexing.right);
+            this.WriteLine("imulq $8, %rax");
+
+            this.WritePop("%rbx");
+            this.WriteLine("addq %rbx, %rax");
+        }
+
+        /*
+        * if is VarExpr, just load the struct from the env and calculate the offset
+        * if is ArrayIndexing, just load the struct form the env and calculate the offset
+        * if is StructPropertyAccess:
+        *   1. load the outer struct from the env
+        *   2. calculate the offset of the inner struct
+        *   3. add the offset to the address and store this on the stack
+        *   4. set flag (C# code)
+        *   5. do again
+        */
+        private void LoadStructProperty(StructPropertyAccess structProperty)
+        {
+            StructType st = structProperty.structRef.type as StructType;
+            var structDef = IAST.structs[st.structName];
+            string propName = "";
+            bool hasInnerStruct = false;
+            bool isArrayIndexing = false;
+
+            switch (structProperty.prop)
+            {
+                case VarExpr varExpr:
+                    propName = varExpr.name;
+                    break;
+                case ArrayIndexing arrayIndexing:
+                    propName = (arrayIndexing.left as VarExpr).name;
+                    isArrayIndexing = true;
+                    break;
+                case StructPropertyAccess propertyAccess:
+                    propName = propertyAccess.structRef.name;
+                    hasInnerStruct = true;
+                    break;
+                default:
+                    throw new ArgumentException("Unknown property type");
+            }
+            int propIndex = structDef.properties.FindIndex(sp => sp.name == propName);
+
+            if(!this.innerStruct)
+                this.GetAssember(structProperty.structRef);
+            this.WriteLine($"addq ${propIndex * 8}, %rax");
+
+            if(isArrayIndexing)
+            {
+                // save the base address of the array
+                this.WritePush("(%rax)");
+                // calculate the offset
+                this.GetAssember((structProperty.prop as ArrayIndexing).right);
+                // load the base address of the array
+                this.WritePop("%rbx");
+                this.WriteLine("imulq $8, %rax");
+                // add the offset
+                this.WriteLine("addq %rbx, %rax");
+            }
+
+            if(hasInnerStruct)
+            {
+                this.innerStruct = true;
+                // load the base address of the inner struct
+                this.WriteLine("movq (%rax), %rax");
+                // walk recursivly
+                this.LoadStructProperty(structProperty.prop as StructPropertyAccess);
+                this.innerStruct = false;
+            }
         }
     }
 }

@@ -6,7 +6,6 @@ namespace ll
 {
     public class FunctionDefinitionVisitor : llBaseVisitor<IAST>
     {
-        // TODO rework grammar to eliminate repetitions
         public override IAST VisitFunctionDefinition(llParser.FunctionDefinitionContext context)
         {
             var identifier = context.WORD();
@@ -74,7 +73,7 @@ namespace ll
             {
                 structDef = IAST.structs[context.WORD().GetText()];
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 throw new ArgumentException($"Unknown struct reference \"{context.WORD().GetText()}\"; On line {context.Start.Line}:{context.Start.Column}");
             }
