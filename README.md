@@ -5,8 +5,21 @@ This is the repository for the compiler that has to be written in the 5th semest
 
 ## Datatypes
 The llCompiler knows three different primitiv data types. These are
-* int - 64 Bit integer. Other languages often refer to it as "long"
-* double - 64 Bit double precision floating point number
-* bool - Boolean value
+* `int` - 64 Bit integer. Other languages often refer to it as `long`
+* `double` - 64 Bit double precision floating point number
+* `bool` - Boolean value
 
-It is also possible to mark a function as void returning. In this case, the function does not return any value.
+In addition LL knows to reference data types
+* `structs` - Structures that hold properties with potentially differnt type of data. Comparable with C structs
+* `arrays` - A memory section that can hold x times the given data type; Arrays of arrays and arrays of structs are not supported at the moment
+
+## Functions
+To prevent repetitive code, LL supports the defintion of functions. These functions can return values of one of the five integrated data types. It is also possible to create `void` returing functions.
+
+If a function returns a reference type, it is also possible to return `null`.
+
+## Examples
+In the demo folder you can find some examples of LL-Code.
+
+## The Future
+One of the biggest features planned is to support multiple target languages. Currently the code is compiled to x86 Assembler with AT & T syntax. With further iterations the compiler is going to support the intermediate language. The compiled program could then be run in the .NET Core Runtime. This means that when compiling the user could decide wich platform he wants to target
