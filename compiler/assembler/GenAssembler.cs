@@ -1411,7 +1411,6 @@ namespace ll.assembler
             this.WriteLine("movq $0, %rax");
         }
 
-        // TODO rewrite the code
         private void StructPropertyAccessAsm(StructPropertyAccess structPropertyAccess)
         {
             this.LoadStructProperty(structPropertyAccess);
@@ -1422,7 +1421,6 @@ namespace ll.assembler
                 this.WriteLine("movq (%rax), %rax");
         }
 
-        // TODO rewrite the code
         private void AssignStructPropertyAsm(AssignStructProperty assignStruct)
         {
             // calculate the new value
