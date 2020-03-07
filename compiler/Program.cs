@@ -17,6 +17,14 @@ namespace ll
                 Console.Write("> ");
                 string text = Console.ReadLine();
 
+                if(text == "?")
+                {
+                    Console.WriteLine("Available commands:");
+                    Console.WriteLine("  \":fs\": Get all defined functions");
+                    Console.WriteLine("  \":sts\": Get all defined structs");
+                    continue;
+                }
+
                 if (text == ":fs")
                 {
                     foreach (FunctionDefinition funDef in IAST.funs.Values)
@@ -120,6 +128,14 @@ namespace ll
             assemblerGenerator.WriteToFile(inputFile, ast);
         }
 
+        static void RTFM()
+        {
+            Console.WriteLine("Usage: ./llCompiler <flag> [file]");
+            Console.WriteLine("  Flags:");
+            Console.WriteLine("    \"-i\": Run compiler in interpreter mode");
+            Console.WriteLine("    \"-c\": Run compiler in compiler mode; In this mode [file] must be specified");
+        }
+
         static void Main(string[] args)
         {
             if (args.Length > 0)
@@ -129,14 +145,21 @@ namespace ll
                     Program.InterpreterMode();
                     return;
                 }
-                if (args[0] == "-c" && args.Length > 1)
+                if (args[0] == "-c" && args.Length == 2)
                     Program.CompilerMode(args[1]);
                 else
+                {
                     Console.WriteLine($"unknown flag {args[0]}");
+                    Program.RTFM();
+                }
             }
             else
             {
+# if DEBUG
                 Program.InteractiveCompilerMode();
+# elif RELEASE
+                Program.RTFM();
+#endif
             }
         }
     }

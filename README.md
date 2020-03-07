@@ -18,6 +18,18 @@ To prevent repetitive code, LL supports the defintion of functions. These functi
 
 If a function returns a reference type, it is also possible to return `null`.
 
+## Compilation
+To compile the LL-Compiler you need to have .NET Core 3.1 installed. To compile the LL-Compiler navigate to `./compiler` and run the batch file `publish.bat`:
+```bash
+./publish.bat
+```
+
+For the Linux users there is a `MAKEFILE` in the `./compiler` folder. You can run this command to compile the LL-Compiler.
+
+When you are done with the compilation, navigate to `./bin`. In there you can find the folders `win10`, `unix` and `OSX`. Each of the folders contains one executable for the corresponding operating system.
+
+This will generate the outputs in the 
+
 ## Examples
 In the demo folder you can find some examples of LL-Code.
 
