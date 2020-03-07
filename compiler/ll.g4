@@ -19,12 +19,12 @@ expression
     : PAR_L expression PAR_R #parenthes
     | left=expression op=(MULT|DIV) right=expression #binOpMultDiv
     | left=expression op=(PLUS|MINUS) right=expression #binOpAddSub
-    | left=expression op=EQUAL right=expression #equalityOpertor
     | left=expression op=LESS ASSIGN? right=expression #lessOperator
     | left=expression op=GREATER ASSIGN? right=expression #greaterOperator
+    | left=expression op=EQUAL right=expression #equalityOpertor
+    | left=expression op=NOT_EQUAL right=expression #notEqualOperator
     | left=expression op=AND right=expression #andOperator
     | left=expression op=OR right=expression #orOperator
-    | left=expression op=NOT_EQUAL right=expression #notEqualOperator
     | unaryExpression #unaryExpr;
 
 statement

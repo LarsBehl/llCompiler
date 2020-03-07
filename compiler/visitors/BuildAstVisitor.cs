@@ -274,6 +274,8 @@ namespace ll
 
             if ((funDef.returnType is VoidType) && (!(body.type is VoidType) && !(body.type is BlockStatementType)))
                 throw new ArgumentException($"Could not return \"{body.type.typeName}\" in a void function; On line {context.Start.Line}:{context.Start.Column}");
+            if((funDef.returnType is StructType ft && body.type is StructType bt) && ft.structName != bt.structName)
+                throw new ArgumentException($"Return type \"{bt.structName}\" does not match \"{ft.structName}\"; On line {context.Start.Line}:{context.Start.Column}"); 
 
             funDef.body = body;
             IAST.funs[funDef.name] = funDef;
