@@ -6,6 +6,7 @@ using ll.type;
 using System.Runtime.InteropServices;
 using System.IO;
 
+// TODO 16 Byte align each function
 namespace ll.assembler
 {
     public class GenAssembler
@@ -660,8 +661,10 @@ namespace ll.assembler
             {
                 functionAsm = new FunctionAsm(functionCall.name);
                 this.functionMap.Add(functionCall.name, functionAsm);
-
             }
+
+            functionAsm.usedDoubleRegisters = 0;
+            functionAsm.usedIntegerRegisters = 0;
 
             bool doesOverflow = this.DoesOverflowRegisters(
                 functionCall.args,
@@ -704,6 +707,14 @@ namespace ll.assembler
                             }
 
                             break;
+                        case RefType refType:
+                            if(i >= integerOverflowPosition)
+                            {
+                                functionAsm.variableMap[funDef.args[i].name] = rbpOffset;
+                                rbpOffset += 8;
+                            }
+
+                            break;
                         default:
                             throw new ArgumentException($"Unknown type {functionCall.args[i].type.typeName}");
                     }
@@ -716,7 +727,7 @@ namespace ll.assembler
             // move integer/boolean arguments into registers until they are full
             for (int i = 0; i < index; i++)
             {
-                if (functionCall.args[i].type is IntType || functionCall.args[i].type is BooleanType)
+                if (functionCall.args[i].type is IntType || functionCall.args[i].type is BooleanType || functionCall.args[i].type is RefType)
                 {
                     this.GetAssember(functionCall.args[i]);
 
@@ -728,7 +739,7 @@ namespace ll.assembler
             // move integer/boolean arguments that overflew on stack
             for (int i = functionCall.args.Count - 1; i >= integerOverflowPosition; i++)
             {
-                if (functionCall.args[i].type is IntType || functionCall.args[i].type is BooleanType)
+                if (functionCall.args[i].type is IntType || functionCall.args[i].type is BooleanType || functionCall.args[i].type is RefType)
                 {
                     this.GetAssember(functionCall.args[i]);
 
@@ -1529,7 +1540,7 @@ namespace ll.assembler
 
             for (int i = 0; i < args.Count; i++)
             {
-                if (args[i].type is IntType || args[i].type is BooleanType)
+                if (args[i].type is IntType || args[i].type is BooleanType || args[i].type is RefType)
                 {
                     usedInt += 1;
 
@@ -1565,7 +1576,7 @@ namespace ll.assembler
 
             for (int i = 0; i < args.Count; i++)
             {
-                if (args[i].type is IntType || args[i].type is BooleanType)
+                if (args[i].type is IntType || args[i].type is BooleanType || args[i].type is RefType)
                 {
                     usedInt += 1;
 
@@ -1634,6 +1645,14 @@ namespace ll.assembler
                             }
 
                             break;
+                        case RefType refType:
+                            if(i >= integerOverflowPosition)
+                            {
+                                functionAsm.variableMap.Add(functionDefinition.args[i].name, rbpOffset);
+                                rbpOffset += 8;
+                            }
+
+                            break;
                         default:
                             throw new ArgumentException($"Unknown type {functionDefinition.args[i].type.typeName}");
                     }
@@ -1651,7 +1670,7 @@ namespace ll.assembler
                 if (arg.type is DoubleType)
                     doubleArgCount++;
 
-                if (arg.type is BooleanType || arg.type is IntType)
+                if (arg.type is BooleanType || arg.type is IntType || arg.type is RefType)
                     intArgCount++;
             }
         }
@@ -1660,7 +1679,7 @@ namespace ll.assembler
         {
             for (int i = startIndex + 1; i < args.Count; i++)
             {
-                if (args[i].type is IntType || args[i].type is BooleanType)
+                if (args[i].type is IntType || args[i].type is BooleanType || args[i].type is RefType)
                     return i;
             }
 

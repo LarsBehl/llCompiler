@@ -118,7 +118,7 @@ arrayIndexing
     : variableExpression BRAC_L expression BRAC_R;
 
 refTypeDestruction
-    : DESTROY variableExpression;
+    : DESTROY valueAccess;
 
 structProperties
     : WORD COLON typeDefinition SEMCOL;

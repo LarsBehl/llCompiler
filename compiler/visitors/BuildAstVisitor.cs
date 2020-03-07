@@ -82,7 +82,7 @@ namespace ll
         {
             type.Type type = null;
 
-            if(sR != null)
+            if (sR != null)
             {
                 try
                 {
@@ -96,7 +96,7 @@ namespace ll
 
                 return new VarExpr(context.WORD().GetText(), type, context.Start.Line, context.Start.Column);
             }
-            
+
             return new VarExpr(context.WORD().GetText(), context.Start.Line, context.Start.Column);
         }
 
@@ -467,7 +467,12 @@ namespace ll
 
         public override IAST VisitArrayIndexing(llParser.ArrayIndexingContext context)
         {
-            return new ArrayIndexing(Visit(context.variableExpression()), Visit(context.expression()), context.Start.Line, context.Start.Column);
+            var tmp = sR;
+            sR = null;
+            var index = Visit(context.expression());
+            sR = tmp;
+
+            return new ArrayIndexing(Visit(context.variableExpression()), index, context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitAssignArrayField(llParser.AssignArrayFieldContext context)
@@ -477,7 +482,6 @@ namespace ll
             return new AssignArrayField(arrayIndexing, Visit(context.expression()), context.Start.Line, context.Start.Column);
         }
 
-        // TODO add recursive destruction
         public override IAST VisitDestructionStatement(llParser.DestructionStatementContext context)
         {
             return Visit(context.refTypeDestruction());
@@ -485,7 +489,7 @@ namespace ll
 
         public override IAST VisitRefTypeDestruction(llParser.RefTypeDestructionContext context)
         {
-            return new DestructionStatement(Visit(context.variableExpression()) as VarExpr, context.Start.Line, context.Start.Column);
+            return new DestructionStatement(Visit(context.valueAccess()) as ValueAccessExpression, context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitStructDefinition(llParser.StructDefinitionContext context)

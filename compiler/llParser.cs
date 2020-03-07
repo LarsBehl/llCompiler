@@ -2414,8 +2414,8 @@ public partial class llParser : Parser {
 
 	public partial class RefTypeDestructionContext : ParserRuleContext {
 		public ITerminalNode DESTROY() { return GetToken(llParser.DESTROY, 0); }
-		public VariableExpressionContext variableExpression() {
-			return GetRuleContext<VariableExpressionContext>(0);
+		public ValueAccessContext valueAccess() {
+			return GetRuleContext<ValueAccessContext>(0);
 		}
 		public RefTypeDestructionContext(ParserRuleContext parent, int invokingState)
 			: base(parent, invokingState)
@@ -2437,7 +2437,7 @@ public partial class llParser : Parser {
 			EnterOuterAlt(_localctx, 1);
 			{
 			State = 351; Match(DESTROY);
-			State = 352; variableExpression();
+			State = 352; valueAccess();
 			}
 		}
 		catch (RecognitionException re) {
@@ -3065,7 +3065,7 @@ public partial class llParser : Parser {
 		'\a', '\x1F', '\x2', '\x2', '\x15E', '\x15F', '\x5', '\n', '\x6', '\x2', 
 		'\x15F', '\x160', '\a', ' ', '\x2', '\x2', '\x160', '/', '\x3', '\x2', 
 		'\x2', '\x2', '\x161', '\x162', '\a', '\x11', '\x2', '\x2', '\x162', '\x163', 
-		'\x5', '\x14', '\v', '\x2', '\x163', '\x31', '\x3', '\x2', '\x2', '\x2', 
+		'\x5', '<', '\x1F', '\x2', '\x163', '\x31', '\x3', '\x2', '\x2', '\x2', 
 		'\x164', '\x165', '\a', '\x14', '\x2', '\x2', '\x165', '\x166', '\a', 
 		')', '\x2', '\x2', '\x166', '\x167', '\x5', '\x1C', '\xF', '\x2', '\x167', 
 		'\x168', '\a', '!', '\x2', '\x2', '\x168', '\x33', '\x3', '\x2', '\x2', 

@@ -198,7 +198,7 @@ namespace ll.AST
                     EvalAssignArrayField(assignArrayField);
                     return null;
                 case DestructionStatement destructionStatement:
-                    throw new ArgumentException("Destruction Statement is not supported in interactive compiler mode");
+                    throw new ArgumentException("Destruction Statement is not supported in interactive mode");
                 case NullLit nullLit:
                     return nullLit;
                 case StructDefinition structDef:

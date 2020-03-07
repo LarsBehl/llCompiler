@@ -1,6 +1,7 @@
 struct ArrayList
 {
     length: int;
+    size: int;
     content: int[];
 }
 
@@ -8,6 +9,7 @@ newArrayList(): ArrayList
 {
     result: ArrayList = new ArrayList();
     result.length = 0;
+    result.size = 5;
     result.content = new int[5];
 
     return result;
@@ -15,7 +17,7 @@ newArrayList(): ArrayList
 
 get(index: int, al: ArrayList): int
 {
-    if(index >= length)
+    if(index >= al.length)
     {
         return -42;
     }
@@ -25,16 +27,18 @@ get(index: int, al: ArrayList): int
 
 add(item: int, al: ArrayList): void
 {
-    if(al.length + 1 > al.content.length)
+    print(item);
+    if(al.length + 1 > al.size)
     {
-        tmp: int[] = new int[al.length + 5];
+        al.size = al.length + 5;
+        tmp: int[] = new int[al.size];
         i: int = 0;
 
         while(i < al.length)
         {
-            tmp[i] = al[i];
+            tmp[i] = al.content[i];
+            i+=1;
         }
-
         destroy al.content;
 
         al.content = tmp;
@@ -57,7 +61,7 @@ remove(index: int, al: ArrayList): bool
             index += 1;
         }
 
-        al.length -= 1;
+        al.length--;
         al.content[al.length] = 0;
 
         return true;
@@ -122,18 +126,8 @@ main(): void
     while(i < 20)
     {
         add(i, al);
+        i += 1;
     }
 
-    success: bool = remove(19, al);
-    print(success);
-    print(al.length);
-    success = insert(42, 17, al);
-    print(success);
-
-    success = update(0, 42, al);
-    print(success);
-    print(get(0, al));
-
-    add(12, al);
-    print(get(al.length - 1, al));
+    
 }
