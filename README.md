@@ -24,7 +24,10 @@ To compile the LL-Compiler you need to have .NET Core 3.1 installed. To compile 
 ./publish.bat
 ```
 
-For the Linux users there is a `MAKEFILE` in the `./compiler` folder. You can run this command to compile the LL-Compiler.
+For the Linux users there is a `MAKEFILE` in the `./compiler` folder. You can run this command to compile the LL-Compiler:
+```bash
+make
+```
 
 When you are done with the compilation, navigate to `./bin`. In there you can find the folders `win10`, `unix` and `OSX`. Each of the folders contains one executable for the corresponding operating system.
 
