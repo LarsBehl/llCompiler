@@ -31,8 +31,6 @@ make
 
 When you are done with the compilation, navigate to `./bin`. In there you can find the folders `win10`, `unix` and `OSX`. Each of the folders contains one executable for the corresponding operating system.
 
-This will generate the outputs in the 
-
 ## Examples
 In the demo folder you can find some examples of LL-Code.
 
