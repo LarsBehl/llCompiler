@@ -153,6 +153,28 @@ equalDoubleDouble(x:double, y:double): bool
     return x == y;
 }
 
+equalArrayArray(): bool
+{
+    x: int[] = new int[5];
+    y: int[] = new int[10];
+
+    return x == y;
+}
+
+equalArrayNull(): bool
+{
+    x: int[] = new int[5];
+
+    return x == null;
+}
+
+equalNullArrayNull(): bool
+{
+    x: int[] = null;
+
+    return null == x;
+}
+
 withoutElse(x:int):int
 {
     result:int = 42;
@@ -430,6 +452,28 @@ notEqualDoubleDouble(x:double, y:double): bool
 notEqualBoolBool(x:bool, y:bool): bool
 {
     return x != y;
+}
+
+notEqualArrayArray(): bool
+{
+    x: int[] = new int[5];
+    y: int[] = new int[10];
+
+    return x != y;
+}
+
+notEqualArrayNull(): bool
+{
+    x: int[] = new int[5];
+
+    return x != null;
+}
+
+notEqualNullArrayNull(): bool
+{
+    x: int[] = null;
+
+    return null != x;
 }
 
 testPrintBool(x:bool): void

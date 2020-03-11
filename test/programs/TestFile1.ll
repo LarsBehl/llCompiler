@@ -62,3 +62,76 @@ voidFunction(): void
 
     return;
 }
+
+equalsArray(): int
+{
+    x: int[] = new int[5];
+    y: int[] = x;
+    if(x == y)
+    {
+        return 42;
+    }
+
+    return 17;
+}
+
+equalsArrayNull(): int
+{
+    x: int[] = new int[5];
+
+    if(null == x)
+    {
+        return 17;
+    }
+
+    return 42;
+}
+
+equalsNullArrayNull(): int
+{
+    x: int[] = null;
+
+    if(x == null)
+    {
+        return 42;
+    }
+
+    return 17;
+}
+
+notEqualsArray(): int
+{
+    x: int[] = new int[5];
+    y: int[] = new int[10];
+
+    if(x != y)
+    {
+        return 42;
+    }
+
+    return 17;
+}
+
+notEqualsArrayNull(): int
+{
+    x: int[] = new int[42];
+
+    if(x != null)
+    {
+        return 42;
+    }
+
+    return 17;
+}
+
+notEqualsNullArrayNull(): int
+{
+    x: int[] = null;
+
+    if(null != x)
+    {
+        return 17;
+    }
+
+    return 42;
+}

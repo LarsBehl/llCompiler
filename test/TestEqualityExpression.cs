@@ -23,6 +23,7 @@ namespace ll.test
         [TestCase("-2==2", false)]
         [TestCase("-2==-2", true)]
         [TestCase("(2>1)==true", true)]
+        [TestCase("null == null", true)]
         public void TestEqualityExpression_1(string input, bool expected)
         {
             llParser parser = Setup(input);

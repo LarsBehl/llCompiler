@@ -12,6 +12,7 @@ namespace ll.test
         BuildAstVisitor visitor = new BuildAstVisitor();
         FunctionDefinitionVisitor funDefVisitor = new FunctionDefinitionVisitor();
         bool once = false;
+        bool t3 = false;
 
         public llParser Setup(string text)
         {
@@ -30,6 +31,12 @@ namespace ll.test
         [TestCase("plusSeventeen(square(5))", 42)]
         [TestCase("fac(5)", 120)]
         [TestCase("facIter(5)", 120)]
+        [TestCase("equalsArray()", 42)]
+        [TestCase("equalsArrayNull()", 42)]
+        [TestCase("equalsNullArrayNull()", 42)]
+        [TestCase("notEqualsArrayNull()", 42)]
+        [TestCase("notEqualsArray()", 42)]
+        [TestCase("notEqualsNullArrayNull()", 42)]
         public void TestFunctions_1(string funCall, int expected)
         {
             llParser parser;

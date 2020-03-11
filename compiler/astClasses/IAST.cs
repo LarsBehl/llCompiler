@@ -301,6 +301,10 @@ namespace ll.AST
 
         static IAST EvalEqualityExpression(EqualityExpr eq)
         {
+            bool tmp = false;
+            IAST left = null;
+            IAST right = null;
+
             switch (eq.left.type)
             {
                 case IntType i:
@@ -319,6 +323,37 @@ namespace ll.AST
                     if (!(eq.right.type is BooleanType))
                         throw new ArgumentException($"Type \"{eq.left.type.typeName}\" is incompatible with \"{eq.right.type.typeName}\"");
                     return new BoolLit((eq.left.Eval() as BoolLit).value == (eq.right.Eval() as BoolLit).value, eq.line, eq.column);
+                case NullType nullType:
+                    tmp = false;
+
+                    if (eq.right.Eval().type is NullType)
+                        tmp = true;
+
+                    return new BoolLit(tmp, eq.line, eq.column);
+                case StructType structType:
+                    tmp = false;
+                    left = eq.left.Eval();
+                    right = eq.right.Eval();
+
+                    if (left.type is NullType && right.type is NullType)
+                        tmp = true;
+
+                    if (left.Equals(right))
+                        tmp = true;
+
+                    return new BoolLit(tmp, eq.line, eq.column);
+                case ArrayType arrayType:
+                    tmp = false;
+                    left = eq.left.Eval();
+                    right = eq.right.Eval();
+
+                    if (left.type is NullType && right.type is NullType)
+                        tmp = true;
+
+                    if (left.Equals(right))
+                        tmp = true;
+
+                    return new BoolLit(tmp, eq.line, eq.column);
                 default:
                     throw new ArgumentException($"Unknown type \"{eq.left.type.typeName}\"");
             }
@@ -568,6 +603,10 @@ namespace ll.AST
 
         static IAST EvalNotEqualExpression(NotEqualExpr notEqual)
         {
+            bool tmp = false;
+            IAST left = null;
+            IAST right = null;
+
             switch (notEqual.left.type)
             {
                 case IntType i:
@@ -586,6 +625,37 @@ namespace ll.AST
                     if (!(notEqual.right.type is BooleanType))
                         throw new ArgumentException($"Type \"{notEqual.left.type.typeName}\" is incompatible with \"{notEqual.right.type.typeName}\"");
                     return new BoolLit((notEqual.left.Eval() as BoolLit).value != (notEqual.right.Eval() as BoolLit).value, notEqual.line, notEqual.column);
+                case NullType nullType:
+                    tmp = false;
+
+                    if (!(notEqual.right.Eval().type is NullType))
+                        tmp = true;
+
+                    return new BoolLit(tmp, notEqual.line, notEqual.column);
+                case StructType structType:
+                    tmp = false;
+                    left = notEqual.left.Eval();
+                    right = notEqual.right.Eval();
+
+                    if (!(left.type is NullType && right.type is NullType))
+                        tmp = true;
+
+                    if (!(left.Equals(right)))
+                        tmp = true;
+
+                    return new BoolLit(tmp, notEqual.line, notEqual.column);
+                case ArrayType arrayType:
+                    tmp = false;
+                    left = notEqual.left.Eval();
+                    right = notEqual.right.Eval();
+
+                    if (!(left.type is NullType && right.type is NullType))
+                        tmp = true;
+
+                    if (!left.Equals(right))
+                        tmp = true;
+
+                    return new BoolLit(tmp, notEqual.line, notEqual.column);
                 default:
                     throw new ArgumentException($"Unknown type \"{notEqual.left.type.typeName}\"");
             }
@@ -721,14 +791,14 @@ namespace ll.AST
             Struct @struct = innerStruct.structRef.Eval() as Struct;
             string propName = "";
 
-            if(index >= 0)
+            if (index >= 0)
                 propName = ((innerStruct.prop as ArrayIndexing).left as VarExpr).name;
             else
                 propName = (innerStruct.prop as VarExpr).name;
 
             structEnv = null;
 
-            if(index >= 0)
+            if (index >= 0)
                 (@struct.propValues[propName] as Array).values[index] = assignStruct.val.Eval();
             else
                 @struct.propValues[propName] = assignStruct.val.Eval();
@@ -751,7 +821,7 @@ namespace ll.AST
             index = -1;
             if (val.prop is VarExpr)
                 return val;
-            else if(val.prop is ArrayIndexing arrayIndexing)
+            else if (val.prop is ArrayIndexing arrayIndexing)
             {
                 index = (arrayIndexing.right.Eval() as IntLit).n ?? -1;
                 return val;

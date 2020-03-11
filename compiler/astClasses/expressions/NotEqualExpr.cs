@@ -28,6 +28,20 @@ namespace ll.AST
                     if (!(right.type is BooleanType))
                         hasToThrow = true;
                     break;
+                case ArrayType arrayType:
+                    if(!(right.type is ArrayType) && !(right.type is NullType)
+                        || (right.type is ArrayType at) && at.typeName != arrayType.typeName)
+                        hasToThrow = true;
+                    break;
+                case StructType structType:
+                    if(!(right.type is StructType) && !(right.type is NullType)
+                        || (right.type is StructType st) && st.structName != structType.structName)
+                        hasToThrow = true;
+                    break;
+                case NullType nullType:
+                    if(!(right.type is StructType) && !(right.type is NullType) && !(right.type is ArrayType))
+                        hasToThrow = true;
+                    break;
                 default:
                     throw new ArgumentException($"Unknown type {this.left.type.typeName}; On line {this.line}:{this.column}");
             }
