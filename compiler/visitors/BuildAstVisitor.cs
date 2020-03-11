@@ -274,8 +274,8 @@ namespace ll
 
             if ((funDef.returnType is VoidType) && (!(body.type is VoidType) && !(body.type is BlockStatementType)))
                 throw new ArgumentException($"Could not return \"{body.type.typeName}\" in a void function; On line {context.Start.Line}:{context.Start.Column}");
-            if((funDef.returnType is StructType ft && body.type is StructType bt) && ft.structName != bt.structName)
-                throw new ArgumentException($"Return type \"{bt.structName}\" does not match \"{ft.structName}\"; On line {context.Start.Line}:{context.Start.Column}"); 
+            if ((funDef.returnType is StructType ft && body.type is StructType bt) && ft.structName != bt.structName)
+                throw new ArgumentException($"Return type \"{bt.structName}\" does not match \"{ft.structName}\"; On line {context.Start.Line}:{context.Start.Column}");
 
             funDef.body = body;
             IAST.funs[funDef.name] = funDef;
@@ -589,6 +589,11 @@ namespace ll
                 return Visit(context.structPropertyAccess());
 
             throw new ArgumentException($"Unknown value access; On line {context.Start.Line}:{context.Start.Column}");
+        }
+
+        public override IAST VisitBinOpMod(llParser.BinOpModContext context)
+        {
+            return new ModExpr(Visit(context.left), Visit(context.right), context.Start.Line, context.Start.Column);
         }
     }
 }

@@ -99,6 +99,13 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitBinOpMultDiv([NotNull] llParser.BinOpMultDivContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>binOpMod</c>
+	/// labeled alternative in <see cref="llParser.expression"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitBinOpMod([NotNull] llParser.BinOpModContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>parenthes</c>
 	/// labeled alternative in <see cref="llParser.expression"/>.
 	/// </summary>
