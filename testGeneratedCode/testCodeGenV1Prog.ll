@@ -694,3 +694,8 @@ assignNullStructProp(): int
 
     return 42;
 }
+
+modExpr(x: int, y: int): int
+{
+    return x % y;
+}
