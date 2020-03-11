@@ -49,6 +49,9 @@ bool equalIntInt(long x, long y);
 bool equalIntDouble(long x, double y);
 bool equalDoubleInt(double x, long y);
 bool equalDoubleDouble(double x, double y);
+bool equalArrayArray();
+bool equalArrayNull();
+bool equalNullArrayNull();
 
 // if functions
 long withoutElse(long x);
@@ -111,6 +114,9 @@ bool notEqualIntDouble(long x, double y);
 bool notEqualDoubleInt(double x, long y);
 bool notEqualDoubleDouble(double x, double y);
 bool notEqualBoolBool(bool x, bool y);
+bool notEqualArrayArray();
+bool notEqualArrayNull();
+bool notEqualNullArrayNull();
 
 // print statement functions
 void testPrintBool(bool x);
@@ -265,6 +271,12 @@ void startTests()
     printBool(true, boolResult, "equalDoubleInt");
     boolResult = equalDoubleDouble(3.0, 3.0);
     printBool(true, boolResult, "equalDoubleDouble");
+    boolResult = equalArrayArray();
+    printBool(false, boolResult, "equalArrayArray");
+    boolResult = equalArrayNull();
+    printBool(false, boolResult, "equalArrayNull");
+    boolResult = equalNullArrayNull();
+    printBool(true, boolResult, "equalNullArrayNull");
 
     intResult = withoutElse(42);
     printInt(17, intResult, "withoutElse");
@@ -377,6 +389,13 @@ void startTests()
     printBool(false, boolResult, "notEqualDoubleDouble");
     boolResult = notEqualBoolBool(true, false);
     printBool(true, boolResult, "notEqualBoolBool");
+
+    boolResult = notEqualArrayArray();
+    printBool(true, boolResult, "equalArrayArray");
+    boolResult = notEqualArrayNull();
+    printBool(true, boolResult, "equalArrayNull");
+    boolResult = notEqualNullArrayNull();
+    printBool(false, boolResult, "equalNullArrayNull");
 
     printf("running testPrintBool - expected output \"true\" - output: ");
     testPrintBool(true);

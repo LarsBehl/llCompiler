@@ -547,6 +547,36 @@ namespace ll.assembler
                     this.WriteLine("sete %al");
 
                     break;
+                case NullType nullType:
+                    this.GetAssember(equalityExpr.right);
+                    this.WritePush();
+
+                    this.GetAssember(equalityExpr.left);
+                    this.WritePop("%rbx");
+                    this.WriteLine("cmpq %rbx, %rax");
+                    this.WriteLine("sete %al");
+
+                    break;
+                case ArrayType arrayType:
+                    this.GetAssember(equalityExpr.right);
+                    this.WritePush();
+
+                    this.GetAssember(equalityExpr.left);
+                    this.WritePop("%rbx");
+                    this.WriteLine("cmpq %rbx, %rax");
+                    this.WriteLine("sete %al");
+
+                    break;
+                case StructType structType:
+                    this.GetAssember(equalityExpr.right);
+                    this.WritePush();
+
+                    this.GetAssember(equalityExpr.left);
+                    this.WritePop("%rbx");
+                    this.WriteLine("cmpq %rbx, %rax");
+                    this.WriteLine("sete %al");
+
+                    break;
                 default:
                     throw new InvalidOperationException($"Can not use \"equal\" operator with {equalityExpr.right.type}");
             }
@@ -708,7 +738,7 @@ namespace ll.assembler
 
                             break;
                         case RefType refType:
-                            if(i >= integerOverflowPosition)
+                            if (i >= integerOverflowPosition)
                             {
                                 functionAsm.variableMap[funDef.args[i].name] = rbpOffset;
                                 rbpOffset += 8;
@@ -779,7 +809,7 @@ namespace ll.assembler
             }
 
             // 16 byte align the stack before each function call
-            if(this.stackCounter % 16 == 0)
+            if (this.stackCounter % 16 == 0)
                 this.WritePush("$0");
 
             this.WriteLine($"call {functionCall.name}");
@@ -1300,6 +1330,33 @@ namespace ll.assembler
                     this.WriteLine("cmpq %rax, %rbx");
 
                     break;
+                case NullType nullType:
+                    this.WritePush();
+
+                    this.GetAssember(notEqualExpr.right);
+
+                    this.WritePop("%rbx");
+                    this.WriteLine("cmpq %rax, %rbx");
+
+                    break;
+                case ArrayType arrayType:
+                    this.WritePush();
+
+                    this.GetAssember(notEqualExpr.right);
+
+                    this.WritePop("%rbx");
+                    this.WriteLine("cmpq %rax, %rbx");
+
+                    break;
+                case StructType structType:
+                    this.WritePush();
+
+                    this.GetAssember(notEqualExpr.right);
+
+                    this.WritePop("%rbx");
+                    this.WriteLine("cmpq %rax, %rbx");
+
+                    break;
             }
 
             this.WriteLine("setne %al");
@@ -1658,7 +1715,7 @@ namespace ll.assembler
 
                             break;
                         case RefType refType:
-                            if(i >= integerOverflowPosition)
+                            if (i >= integerOverflowPosition)
                             {
                                 functionAsm.variableMap.Add(functionDefinition.args[i].name, rbpOffset);
                                 rbpOffset += 8;
@@ -1758,11 +1815,11 @@ namespace ll.assembler
             }
             int propIndex = structDef.properties.FindIndex(sp => sp.name == propName);
 
-            if(!this.innerStruct)
+            if (!this.innerStruct)
                 this.GetAssember(structProperty.structRef);
             this.WriteLine($"addq ${propIndex * 8}, %rax");
 
-            if(isArrayIndexing)
+            if (isArrayIndexing)
             {
                 // save the base address of the array
                 this.WritePush("(%rax)");
@@ -1775,7 +1832,7 @@ namespace ll.assembler
                 this.WriteLine("addq %rbx, %rax");
             }
 
-            if(hasInnerStruct)
+            if (hasInnerStruct)
             {
                 this.innerStruct = true;
                 // load the base address of the inner struct
