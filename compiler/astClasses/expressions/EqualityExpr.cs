@@ -5,30 +5,49 @@ namespace ll.AST
 {
     public class EqualityExpr : BinOp
     {
-        public EqualityExpr(IAST left, IAST right, int line, int column) : base(left, right, "==", GetType(left, right, line, column), line, column)
+        public EqualityExpr(IAST left, IAST right, int line, int column) : base(left, right, "==", new BooleanType(), line, column)
         {
-
+            this.CheckType();
         }
 
-        static ll.type.Type GetType(IAST left, IAST right, int line, int column)
+        private void CheckType()
         {
-            switch (left.type)
+            bool hasToThrow = false;
+
+            switch (this.left.type)
             {
-                case IntType i:
-                    if (right.type is IntType || right.type is DoubleType)
-                        return new BooleanType();
-                    throw new ArgumentException($"Can not compare {left.type} to {right.type}; On line {line}:{column}");
-                case DoubleType d:
-                    if (right.type is IntType || right.type is DoubleType)
-                        return new BooleanType();
-                    throw new ArgumentException($"Can not compare {left.type} to {right.type}; On line {line}:{column}");
-                case BooleanType b:
+                case DoubleType doubleType:
+                    if (!(right.type is DoubleType || right.type is IntType))
+                        hasToThrow = true;
+                    break;
+                case IntType intType:
+                    if (!(right.type is DoubleType || right.type is IntType))
+                        hasToThrow = true;
+                    break;
+                case BooleanType booleanType:
                     if (!(right.type is BooleanType))
-                        throw new ArgumentException($"Type {right.type} is not allowed for \"==\" operation; On line {line}:{column}");
-                    return new BooleanType();
+                        hasToThrow = true;
+                    break;
+                case ArrayType arrayType:
+                    if (!(right.type is ArrayType) && !(right.type is NullType)
+                        || (right.type is ArrayType at) && at.typeName != arrayType.typeName)
+                        hasToThrow = true;
+                    break;
+                case StructType structType:
+                    if (!(right.type is StructType) && !(right.type is NullType)
+                        || (right.type is StructType st) && st.structName != structType.structName)
+                        hasToThrow = true;
+                    break;
+                case NullType nullType:
+                    if (!(right.type is StructType) && !(right.type is NullType) && !(right.type is ArrayType))
+                        hasToThrow = true;
+                    break;
                 default:
-                    throw new ArgumentException($"Can not compare {left.type} to {right.type}; On line {line}:{column}");
+                    throw new ArgumentException($"Unknown type {this.left.type.typeName}; On line {this.line}:{this.column}");
             }
+
+            if (hasToThrow)
+                throw new ArgumentException($"Could not compare {this.left.type.typeName} with {this.right.type.typeName}; On line {this.line}:{this.column}");
         }
     }
 }
