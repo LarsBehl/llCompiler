@@ -514,7 +514,7 @@ overFlowDoubleMixed(x:double, y:int, z:double, a:int, b:double, c:double, d:doub
     return x+y+z+a+b+c+d+e+f;
 }
 
-overFlowBoth(x:double, y:double, z:double, a:double, b:double, c:double, d:double, e:double, f:int, g:int, h:int, i:int, j:int, k:int, l:int, m:int, n:int): double
+ overFlowBoth(x:double, y:double, z:double, a:double, b:double, c:double, d:double, e:double, f:int, g:int, h:int, i:int, j:int, k:int, l:int, m:int, n:int): double
 {
     return x+y+z+a+b+c+d+e+f+g+h+i+j+k+l+m+n;
 }
@@ -641,4 +641,12 @@ accessInnerArray(x:int): int
     a.array[5] = 42;
 
     return a.array[5];
+}
+
+assignNullStructProp(): int
+{
+    a: iA = new iA();
+    a.array = null;
+
+    return 42;
 }
