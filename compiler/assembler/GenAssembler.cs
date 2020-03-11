@@ -125,6 +125,8 @@ namespace ll.assembler
                     this.StructPropertyAccessAsm(structPropertyAccess); break;
                 case AssignStructProperty assignStruct:
                     this.AssignStructPropertyAsm(assignStruct); break;
+                case ModExpr modExpr:
+                    this.ModExprAsm(modExpr); break;
                 default:
                     throw new NotImplementedException($"Assembler generation not implemented for {astNode.ToString()}");
             }
@@ -1496,6 +1498,21 @@ namespace ll.assembler
             this.WritePop("%rbx");
             // save the calculated value
             this.WriteLine("movq %rbx, (%rax)");
+        }
+
+        private void ModExprAsm(ModExpr modExpr)
+        {
+            this.GetAssember(modExpr.right);
+            this.WritePush();
+            this.GetAssember(modExpr.left);
+
+            this.WritePop("%rbx");
+            // clear %rdx as idiv divides rdx:rax by specified register
+            this.WriteLine("cqto");
+
+            this.WriteLine("idivq %rbx");
+
+            this.WriteLine("movq %rdx, %rax");
         }
 
         private void WriteLine(string op)

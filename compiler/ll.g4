@@ -1,144 +1,133 @@
 grammar ll;
 
-
 compileUnit: program EOF;
 
-program
-    : (functionDefinition|structDefinition)+
-    | compositUnit;
+program: (functionDefinition | structDefinition)+
+	| compositUnit;
 
-compositUnit
-    : statement
-    | expression;
+compositUnit: statement | expression;
 
-line
-    : statement
-    | expression SEMCOL;
+line: statement | expression SEMCOL;
 
-expression
-    : PAR_L expression PAR_R #parenthes
-    | left=expression op=(MULT|DIV) right=expression #binOpMultDiv
-    | left=expression op=(PLUS|MINUS) right=expression #binOpAddSub
-    | left=expression op=LESS ASSIGN? right=expression #lessOperator
-    | left=expression op=GREATER ASSIGN? right=expression #greaterOperator
-    | left=expression op=EQUAL right=expression #equalityOpertor
-    | left=expression op=NOT_EQUAL right=expression #notEqualOperator
-    | left=expression op=AND right=expression #andOperator
-    | left=expression op=OR right=expression #orOperator
-    | unaryExpression #unaryExpr;
+expression:
+	PAR_L expression PAR_R										# parenthes
+	| left = expression op = MOD right = expression				# binOpMod
+	| left = expression op = (MULT | DIV) right = expression	# binOpMultDiv
+	| left = expression op = (PLUS | MINUS) right = expression	# binOpAddSub
+	| left = expression op = LESS ASSIGN? right = expression	# lessOperator
+	| left = expression op = GREATER ASSIGN? right = expression	# greaterOperator
+	| left = expression op = EQUAL right = expression			# equalityOpertor
+	| left = expression op = NOT_EQUAL right = expression		# notEqualOperator
+	| left = expression op = AND right = expression				# andOperator
+	| left = expression op = OR right = expression				# orOperator
+	| unaryExpression											# unaryExpr;
 
-statement
-    : left=WORD ASSIGN (expression|refTypeCreation) SEMCOL #assignStatement
-    | left=arrayIndexing ASSIGN (expression) SEMCOL #assignArrayField
-    | left=structPropertyAccess ASSIGN (expression|refTypeCreation) SEMCOL #assignStructProp
-    | left=WORD ADD_ASSIGN right=expression SEMCOL #addAssignStatement
-    | left=WORD SUB_ASSIGN right=expression SEMCOL #subAssignStatement
-    | left=WORD MULT_ASSIGN right=expression SEMCOL #multAssignStatement
-    | left=WORD DIV_ASSIGN right=expression SEMCOL #divAssignStatement
-    | left=WORD COLON type=typeDefinition SEMCOL #instantiationStatement
-    | left=WORD COLON type=typeDefinition ASSIGN (expression|refTypeCreation) SEMCOL #initializationStatement
-    | refTypeDestruction SEMCOL #destructionStatement
-    | RETURN (expression|refTypeCreation)? SEMCOL #returnStatement
-    | IF PAR_L cond=compositUnit PAR_R blockStatement (ELSE blockStatement)? #ifStatement
-    | WHILE PAR_L cond=compositUnit PAR_R blockStatement #whileStatement
-    | PRINT PAR_L expression PAR_R SEMCOL #printStatement;
+statement:
+	left = WORD ASSIGN (expression | refTypeCreation) SEMCOL	# assignStatement
+	| left = arrayIndexing ASSIGN (expression) SEMCOL			# assignArrayField
+	| left = structPropertyAccess ASSIGN (
+		expression
+		| refTypeCreation
+	) SEMCOL											# assignStructProp
+	| left = WORD ADD_ASSIGN right = expression SEMCOL	# addAssignStatement
+	| left = WORD SUB_ASSIGN right = expression SEMCOL	# subAssignStatement
+	| left = WORD MULT_ASSIGN right = expression SEMCOL	# multAssignStatement
+	| left = WORD DIV_ASSIGN right = expression SEMCOL	# divAssignStatement
+	| left = WORD COLON type = typeDefinition SEMCOL	# instantiationStatement
+	| left = WORD COLON type = typeDefinition ASSIGN (
+		expression
+		| refTypeCreation
+	) SEMCOL										# initializationStatement
+	| refTypeDestruction SEMCOL						# destructionStatement
+	| RETURN (expression | refTypeCreation)? SEMCOL	# returnStatement
+	| IF PAR_L cond = compositUnit PAR_R blockStatement (
+		ELSE blockStatement
+	)?														# ifStatement
+	| WHILE PAR_L cond = compositUnit PAR_R blockStatement	# whileStatement
+	| PRINT PAR_L expression PAR_R SEMCOL					# printStatement;
 
-unaryExpression
-    : numericExpression
-    | boolExpression
-    | functionCall
-    | variableExpression
-    | incrementPostExpression
-    | decrementPostExpression
-    | decrementPreExpression
-    | incrementPreExpression
-    | notExpression
-    | arrayIndexing
-    | structPropertyAccess
-    | NULL;
+unaryExpression:
+	numericExpression
+	| boolExpression
+	| functionCall
+	| variableExpression
+	| incrementPostExpression
+	| decrementPostExpression
+	| decrementPreExpression
+	| incrementPreExpression
+	| notExpression
+	| arrayIndexing
+	| structPropertyAccess
+	| NULL;
 
-functionCall
-    : name=WORD PAR_L (expression (COMMA expression)*)? PAR_R;
+functionCall:
+	name = WORD PAR_L (expression (COMMA expression)*)? PAR_R;
 
-functionDefinition
-    : name=WORD PAR_L (WORD COLON typeDefinition (COMMA WORD COLON typeDefinition)*)? PAR_R COLON typeDefinition body=blockStatement;
+functionDefinition:
+	name = WORD PAR_L (
+		WORD COLON typeDefinition (
+			COMMA WORD COLON typeDefinition
+		)*
+	)? PAR_R COLON typeDefinition body = blockStatement;
 
-variableExpression
-    : WORD;
+variableExpression: WORD;
 
-numericExpression
-    : sign=(MINUS|PLUS)? DOUBLE_LITERAL #doubleAtomExpression
-    | sign=(MINUS|PLUS)? INTEGER_LITERAL #integerAtomExpression;
+numericExpression:
+	sign = (MINUS | PLUS)? DOUBLE_LITERAL		# doubleAtomExpression
+	| sign = (MINUS | PLUS)? INTEGER_LITERAL	# integerAtomExpression;
 
-boolExpression
-    : BOOL_TRUE
-    | BOOL_FALSE;
+boolExpression: BOOL_TRUE | BOOL_FALSE;
 
-blockStatement
-    : CURL_L line* CURL_R;
+blockStatement: CURL_L line* CURL_R;
 
-typeDefinition
-    : INT_TYPE
-    | DOUBLE_TYPE
-    | BOOL_TYPE
-    | VOID_TYPE
-    | arrayTypes
-    | structName;
+typeDefinition:
+	INT_TYPE
+	| DOUBLE_TYPE
+	| BOOL_TYPE
+	| VOID_TYPE
+	| arrayTypes
+	| structName;
 
-incrementPostExpression
-    : valueAccess PLUS PLUS;
+incrementPostExpression: valueAccess PLUS PLUS;
 
-decrementPostExpression
-    : valueAccess MINUS MINUS;
+decrementPostExpression: valueAccess MINUS MINUS;
 
-incrementPreExpression
-    : PLUS PLUS valueAccess;
+incrementPreExpression: PLUS PLUS valueAccess;
 
-decrementPreExpression
-    : MINUS MINUS valueAccess;
+decrementPreExpression: MINUS MINUS valueAccess;
 
-notExpression
-    : NOT expression;
+notExpression: NOT expression;
 
-arrayTypes
-    : INT_TYPE BRAC_L BRAC_R #intArrayType
-    | DOUBLE_TYPE BRAC_L BRAC_R #doubleArrayType
-    | BOOL_TYPE BRAC_L BRAC_R #boolArrayType;
+arrayTypes:
+	INT_TYPE BRAC_L BRAC_R		# intArrayType
+	| DOUBLE_TYPE BRAC_L BRAC_R	# doubleArrayType
+	| BOOL_TYPE BRAC_L BRAC_R	# boolArrayType;
 
-arrayCreation
-    : INT_TYPE BRAC_L expression BRAC_R #intArrayCreation
-    | DOUBLE_TYPE BRAC_L expression BRAC_R #doubleArrayCreation
-    | BOOL_TYPE BRAC_L expression BRAC_R #boolArrayCreation;
+arrayCreation:
+	INT_TYPE BRAC_L expression BRAC_R		# intArrayCreation
+	| DOUBLE_TYPE BRAC_L expression BRAC_R	# doubleArrayCreation
+	| BOOL_TYPE BRAC_L expression BRAC_R	# boolArrayCreation;
 
-refTypeCreation
-    : NEW arrayCreation
-    | NEW structCreation;
+refTypeCreation: NEW arrayCreation | NEW structCreation;
 
-arrayIndexing
-    : variableExpression BRAC_L expression BRAC_R;
+arrayIndexing: variableExpression BRAC_L expression BRAC_R;
 
-refTypeDestruction
-    : DESTROY valueAccess;
+refTypeDestruction: DESTROY valueAccess;
 
-structProperties
-    : WORD COLON typeDefinition SEMCOL;
+structProperties: WORD COLON typeDefinition SEMCOL;
 
-structDefinition
-    : STRUCT WORD CURL_L structProperties+ CURL_R;
+structDefinition: STRUCT WORD CURL_L structProperties+ CURL_R;
 
-structName
-    : WORD;
+structName: WORD;
 
-structCreation
-    : structName PAR_L PAR_R;
+structCreation: structName PAR_L PAR_R;
 
-structPropertyAccess
-    : variableExpression DOT valueAccess;
+structPropertyAccess: variableExpression DOT valueAccess;
 
-valueAccess
-    : variableExpression
-    | arrayIndexing
-    | structPropertyAccess;
+valueAccess:
+	variableExpression
+	| arrayIndexing
+	| structPropertyAccess;
 
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;
@@ -158,6 +147,7 @@ DESTROY: 'd' 'e' 's' 't' 'r' 'o' 'y';
 NULL: 'n' 'u' 'l' 'l';
 STRUCT: 's' 't' 'r' 'u' 'c' 't';
 WORD: ([a-zA-Z] | '_') ([a-zA-Z0-9] | '_')*;
+MOD: '%';
 MULT: '*';
 PLUS: '+';
 MINUS: '-';
@@ -185,4 +175,4 @@ AND: '&' '&';
 OR: '|' '|';
 NOT_EQUAL: '!' '=';
 
-WHITESPACE  : [ \t\n\r] -> skip;
+WHITESPACE: [ \t\n\r] -> skip;

@@ -157,6 +157,8 @@ long accessInnerArray(long x);
 
 long assignNullStructProp();
 
+long modExpr(long x, long y);
+
 int failedCount = 0;
 int overallCount = 0;
 
@@ -454,6 +456,13 @@ void startTests()
     printInt(42, intResult, "accessInnerArray");
     intResult = assignNullStructProp();
     printInt(42, intResult, "assignNullStructProp");
+
+    intResult = modExpr(5, 2);
+    printInt(1, intResult, "modExpr1");
+    intResult = modExpr(-1, 3);
+    printInt(-1, intResult, "modExpr2");
+    intResult = modExpr(4, 2);
+    printInt(0, intResult, "modExpr3");
 
     int successCount = overallCount - failedCount;
     printf("\n\n%d tests of %d were successfull\n", successCount, overallCount);

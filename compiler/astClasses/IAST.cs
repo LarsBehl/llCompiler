@@ -210,6 +210,8 @@ namespace ll.AST
                 case AssignStructProperty assignStruct:
                     EvalAssignStructProperty(assignStruct);
                     return null;
+                case ModExpr modExpr:
+                    return EvalModExpr(modExpr);
                 default:
                     throw new ArgumentException("Unknown Ast Object");
             }
@@ -814,6 +816,20 @@ namespace ll.AST
                 default:
                     throw new ArgumentException($"Unknown valueAccessExpression; On line {valueAccess.line}:{valueAccess.column}");
             }
+        }
+
+        static IAST EvalModExpr(ModExpr modExpr)
+        {
+            IntLit leftVal = modExpr.left.Eval() as IntLit;
+            IntLit rightVal = modExpr.right.Eval() as IntLit;
+
+            if (leftVal.n == null)
+                throw new ArgumentNullException($"Left operand is null; On line {modExpr.line}:{modExpr.column}");
+
+            if (rightVal == null)
+                throw new ArgumentException($"Right operand is null; On line {modExpr.line}:{modExpr.column}");
+
+            return new IntLit((leftVal.n ?? -1) % (rightVal.n ?? -1), modExpr.line, modExpr.column);
         }
 
         static StructPropertyAccess GetPropRef(StructPropertyAccess val, out long index)
