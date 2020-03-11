@@ -16,7 +16,7 @@ namespace ll.AST
                     throw new ArgumentException($"Type \"{structProp.type.typeName}\" is not compatible with \"{val.type.typeName}\"; On line {line}:{column}");
             }
 
-            if (structProp.type.typeName != val.type.typeName)
+            if (structProp.type.typeName != val.type.typeName && !(structProp.type is RefType && val.type is NullType))
                 throw new ArgumentException($"Type \"{structProp.type.typeName}\" is not compatible with \"{val.type.typeName}\"; On line {line}:{column}");
 
             this.structProp = structProp;

@@ -149,6 +149,8 @@ long accessSecondInnerStruct(long x);
 
 long accessInnerArray(long x);
 
+long assignNullStructProp();
+
 int failedCount = 0;
 int overallCount = 0;
 
@@ -431,6 +433,8 @@ void startTests()
     printInt(42, intResult, "secondInnerStruct");
     intResult = accessInnerArray(42);
     printInt(42, intResult, "accessInnerArray");
+    intResult = assignNullStructProp();
+    printInt(42, intResult, "assignNullStructProp");
 
     int successCount = overallCount - failedCount;
     printf("\n\n%d tests of %d were successfull\n", successCount, overallCount);
