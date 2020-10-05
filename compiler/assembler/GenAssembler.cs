@@ -1424,7 +1424,7 @@ namespace ll.assembler
             if (this.stackCounter % 16 == 0)
                 this.WritePush("$0");
 
-            this.WriteLine("call malloc@PLT");
+            this.WriteLine("call createHeapObject@PLT");
         }
 
         private void ArrayIndexingAsm(ArrayIndexing arrayIndexing)
@@ -1462,7 +1462,7 @@ namespace ll.assembler
             if (this.stackCounter % 16 == 0)
                 this.WriteLine("push $0");
 
-            this.WriteLine("call free@PLT");
+            this.WriteLine("call destroyHeapObject@PLT");
         }
 
         private void NullLitAsm(NullLit nullLit)
