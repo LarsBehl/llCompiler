@@ -5,9 +5,11 @@
 
 trigger:
 - master
+- development
 
 pr:
 - master
+- development
 
 pool:
   vmImage: 'ubuntu-18.04'
