@@ -1,13 +1,18 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include "addrList.h"
 
 AddrList *create_AddrList()
 {
     AddrList *result = (AddrList *)malloc(sizeof(AddrList));
+
+    if (!result)
+        outOfMemory();
+
     result->size = INITIAL_SIZE;
     result->values = (void **)malloc((sizeof(void *) * result->size));
+
+    if (!result->values)
+        outOfMemory();
+
     result->values = (void **)memset(result->values, 0, result->size);
     result->count = 0;
 
@@ -30,12 +35,8 @@ int add_AddrList(void *val, AddrList *list)
         list->size += INITIAL_SIZE;
         void **tmp = (void **)malloc(sizeof(void *) * list->size);
 
-        // TODO add runtime cleanup
         if (!tmp)
-        {
-            printf("No memory available; shutting down...\n");
-            exit(EXIT_FAILURE);
-        }
+            outOfMemory();
 
         for (int i = 0; i < list->count; i++)
         {

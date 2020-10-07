@@ -1,4 +1,8 @@
-#define INITIAL_SIZE 5
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include "constants.h"
+#include "errors.h"
 
 typedef struct
 {
