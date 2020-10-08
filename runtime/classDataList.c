@@ -63,8 +63,8 @@ ClassData *getById_ClassDataList(long id, ClassDataList *list)
 {
     for (int i = 0; i < list->count; i++)
     {
-        if (list->values[i] == id)
-            return list->values[i;]
+        if (list->values[i]->id == id)
+            return list->values[i];
     }
 
     return NULL;
@@ -81,7 +81,7 @@ void removeByIndex_ClassDataList(int index, ClassDataList *list)
     list->values[--list->count] = NULL;
 }
 
-void removeById_ClassDataList(int id, ClassDataList *list)
+void removeById_ClassDataList(long id, ClassDataList *list)
 {
     int index = getIndex_ClassDataList(id, list);
 

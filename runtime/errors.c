@@ -14,7 +14,7 @@ void outOfRange(int index, int range)
     exit(EXIT_FAILURE);
 }
 
-void unknownId(int id)
+void unknownObject(int id)
 {
     printf("Unknown Class ID \"%d\"; Shutting down...\n", id);
     // TODO clean up runtime
