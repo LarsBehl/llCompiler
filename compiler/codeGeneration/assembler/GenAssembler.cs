@@ -752,6 +752,14 @@ namespace ll.assembler
                     }
                 }
                 this.stackCounter += rbpOffset - 16;
+
+                // align the stack if needed
+                if (this.stackCounter % 16 == 0)
+                {
+                    this.stackCounter += 8;
+                    rbpOffset += 8;
+                }
+
                 this.WriteLine($"subq ${rbpOffset - 16}, %rsp");
             }
 
@@ -810,7 +818,7 @@ namespace ll.assembler
                 this.WriteLine($"movq %rax, {doubleRegisters[i]}");
             }
 
-            // 16 byte align the stack before each function call
+            // this should only happen if the registers do not overflow and the stack is not aligned
             if (this.stackCounter % 16 == 0)
                 this.WritePush("$0");
 
