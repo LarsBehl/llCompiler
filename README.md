@@ -24,7 +24,7 @@ To prevent repetitive code, LL supports the defintion of functions. These functi
 If a function returns a reference type, it is also possible to return `null`.
 
 ## Compilation
-To compile the LL-Compiler you need to have .NET Core 3.1 installed. To compile the LL-Compiler navigate to `./compiler` and run the batch file `publish.bat`:
+To compile the LL-Compiler you need to have .NET 5.0 installed. To compile the LL-Compiler navigate to `./compiler` and run the batch file `publish.bat`:
 ```bash
 ./publish.bat
 ```
