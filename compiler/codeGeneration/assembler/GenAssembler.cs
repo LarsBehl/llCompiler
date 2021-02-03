@@ -1464,6 +1464,14 @@ namespace ll.assembler
             // load the value of the variable
             this.LoadArrayField(assignArray.arrayIndex);
             this.WritePop("%rbx");
+
+            // value is int but should be interpreted as double
+            if(assignArray.value.type is IntType && assignArray.arrayIndex.type is DoubleType)
+            {
+                this.WriteLine("cvtsi2sdq %rbx, %xmm0");
+                this.WriteLine("movq %xmm0, %rbx");
+            }
+
             // save the value in the array
             this.WriteLine("movq %rbx, (%rax)");
         }
@@ -1510,6 +1518,13 @@ namespace ll.assembler
             this.LoadStructProperty(assignStruct.structProp);
             // get the value from the stack
             this.WritePop("%rbx");
+
+            if(assignStruct.structProp.type is DoubleType && assignStruct.val.type is IntType)
+            {
+                this.WriteLine("cvtsi2sdq %rbx, %xmm0");
+                this.WriteLine("movq %xmm0, %rbx");
+            }
+
             // save the calculated value
             this.WriteLine("movq %rbx, (%rax)");
         }
