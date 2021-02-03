@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System;
+using ll.type;
 
 namespace ll.AST
 {
@@ -16,7 +17,10 @@ namespace ll.AST
             for (int i = 0; i < tmp.Count; i++)
             {
                 if (args[i].type.typeName != tmp[i].type.typeName)
-                    throw new ArgumentException($"Type missmatch for \"{tmp[0]}\" \"{args[i].type.typeName}\" \"{tmp[i].type.typeName}\"; On line {line}:{column}");
+                {
+                    if(tmp[i].type is not DoubleType || args[i].type is not IntType)
+                        throw new ArgumentException($"Type missmatch for \"{tmp[0]}\" \"{args[i].type.typeName}\" \"{tmp[i].type.typeName}\"; On line {line}:{column}");
+                }
             }
             this.name = name;
             this.args = args;

@@ -711,7 +711,7 @@ namespace ll.assembler
                 int rbpOffset = +16;
 
                 // calculate the position of the overflown arguments on the stack
-                for (int i = functionCall.args.Count - 1; i >= min; i--)
+                for (int i = funDef.args.Count - 1; i >= min; i--)
                 {
                     switch (functionCall.args[i].type)
                     {
@@ -767,7 +767,7 @@ namespace ll.assembler
             // move integer/boolean arguments into registers until they are full
             for (int i = 0; i < index; i++)
             {
-                if (functionCall.args[i].type is IntType || functionCall.args[i].type is BooleanType || functionCall.args[i].type is RefType)
+                if (funDef.args[i].type is IntType || funDef.args[i].type is BooleanType || funDef.args[i].type is RefType)
                 {
                     this.GetAssember(functionCall.args[i]);
 
@@ -779,7 +779,7 @@ namespace ll.assembler
             // move integer/boolean arguments that overflew on stack
             for (int i = functionCall.args.Count - 1; i >= integerOverflowPosition; i++)
             {
-                if (functionCall.args[i].type is IntType || functionCall.args[i].type is BooleanType || functionCall.args[i].type is RefType)
+                if (funDef.args[i].type is IntType || funDef.args[i].type is BooleanType || funDef.args[i].type is RefType)
                 {
                     this.GetAssember(functionCall.args[i]);
 
@@ -790,9 +790,12 @@ namespace ll.assembler
             // move double arguments that overflew on the stack
             for (int i = functionCall.args.Count - 1; i >= doubleOverflowPosition; i++)
             {
-                if (functionCall.args[i].type is DoubleType)
+                if (funDef.args[i].type is DoubleType)
                 {
                     this.GetAssember(functionCall.args[i]);
+                    
+                    if(functionCall.args[i].type is IntType)
+                        this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
                     this.WriteLine($"movq %xmm0, {functionAsm.variableMap[funDef.args[i].name] - 16}(%rsp)");
                 }
@@ -801,9 +804,12 @@ namespace ll.assembler
             // calculate the rest of the double arguments and push them on the stack
             for (int i = Math.Min(functionCall.args.Count - 1, doubleOverflowPosition); i >= 0; i--)
             {
-                if (functionCall.args[i].type is DoubleType)
+                if (funDef.args[i].type is DoubleType)
                 {
                     this.GetAssember(functionCall.args[i]);
+
+                    if(functionCall.args[i].type is IntType)
+                        this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
                     this.WriteLine($"movq %xmm0, %rax");
                     this.WritePush();
