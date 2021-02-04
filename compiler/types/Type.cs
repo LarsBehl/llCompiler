@@ -78,23 +78,23 @@ namespace ll.type
             switch(t1)
             {
                 case IntType it:
-                    return it == t2;
+                    return it != t2;
                 case DoubleType dt:
-                    return dt == t2;
+                    return dt != t2;
                 case BooleanType bt:
-                    return bt == t2;
+                    return bt != t2;
                 case VoidType vt:
-                    return vt == t2;
+                    return vt != t2;
                 case BoolArrayType boolArrayType:
-                    return boolArrayType == t2;
+                    return boolArrayType != t2;
                 case IntArrayType intArrayType:
-                    return intArrayType == t2;
+                    return intArrayType != t2;
                 case DoubleArrayType doubleArrayType:
-                    return doubleArrayType == t2;
+                    return doubleArrayType != t2;
                 case NullType nullType:
-                    return nullType == t2;
+                    return nullType != t2;
                 case StructType structType:
-                    return structType == t2;
+                    return structType != t2;
                 default:
                     return false;
             }

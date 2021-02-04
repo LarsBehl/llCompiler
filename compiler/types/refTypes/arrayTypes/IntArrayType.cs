@@ -24,7 +24,7 @@ namespace ll.type
 
         public static bool operator !=(IntArrayType intArrayType, Type t)
         {
-            return t is not IntArrayType && t is not IntArrayType;
+            return t is not IntArrayType && t is not NullType;
         }
     }
 }

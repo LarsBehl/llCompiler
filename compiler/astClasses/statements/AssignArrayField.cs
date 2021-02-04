@@ -10,7 +10,7 @@ namespace ll.AST
 
         public AssignArrayField(ArrayIndexing arrayIndexing, IAST value, int line, int column) : base(arrayIndexing.type, line, column)
         {
-            if (arrayIndexing.type.typeName != value.type.typeName)
+            if (arrayIndexing.type != value.type)
             {
                 if(arrayIndexing.type is not DoubleType || value.type is not IntType)
                     throw new ArgumentException($"Could not assign \"{value.type.typeName}\" to an \"{arrayIndexing.type.typeName}\" array; On line {line}:{column}");

@@ -19,12 +19,12 @@ namespace ll.type
 
         public static bool operator ==(BoolArrayType boolArrayType, Type t)
         {
-            return t is ArrayType || t is NullType;
+            return t is BoolArrayType || t is NullType;
         }
 
         public static bool operator !=(BoolArrayType boolArrayType, Type t)
         {
-            return t is not ArrayType && t is not NullType;
+            return t is not BoolArrayType && t is not NullType;
         }
     }
 }

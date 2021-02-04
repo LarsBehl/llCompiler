@@ -24,7 +24,7 @@ namespace ll.AST
 
         private static type.Type GetType(IAST ifBody, IAST elseBody, int line, int column)
         {
-            if (elseBody != null && !(ifBody.type is BlockStatementType) && !(elseBody.type is BlockStatementType) && elseBody.type.typeName != ifBody.type.typeName)
+            if (elseBody != null && !(ifBody.type is BlockStatementType) && !(elseBody.type is BlockStatementType) && elseBody.type != ifBody.type)
                 throw new ArgumentException($"Returntype missmatch in if-statement \"{ifBody.type.typeName}\" \"{elseBody.type.typeName}\"; On line {line}:{column}");
 
             if (!(ifBody.type is BlockStatementType))
