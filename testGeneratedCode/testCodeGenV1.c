@@ -159,6 +159,11 @@ long assignNullStructProp();
 
 long modExpr(long x, long y);
 
+// assign
+double callIntDouble(long x);
+double assignIntDoubleArray(long x);
+double assignIntDoubleStruct(long x);
+
 int failedCount = 0;
 int overallCount = 0;
 
@@ -463,6 +468,13 @@ void startTests()
     printInt(-1, intResult, "modExpr2");
     intResult = modExpr(4, 2);
     printInt(0, intResult, "modExpr3");
+
+    doubleResult = callIntDouble(42);
+    printDouble(42.0, doubleResult, "callIntDouble");
+    doubleResult = assignIntDoubleArray(17);
+    printDouble(17.0, doubleResult, "assignIntDoubleArray");
+    doubleResult = assignIntDoubleStruct(3);
+    printDouble(3.0, doubleResult, "assignIntDoubleStruct");
 
     int successCount = overallCount - failedCount;
     printf("\n\n%d tests of %d were successfull\n", successCount, overallCount);
