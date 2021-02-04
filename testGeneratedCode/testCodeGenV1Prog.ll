@@ -695,6 +695,41 @@ assignNullStructProp(): int
     return 42;
 }
 
+struct doubleStruct
+{
+    d: double;
+}
+
+callIntDouble(x: int): double
+{
+    return doubleFunctionInt(x);
+}
+
+doubleFunctionInt(x: double): double
+{
+    y: double = x;
+
+    return y;
+}
+
+assignIntDoubleArray(x: int): double
+{
+    y: double[] = new double[5];
+    y[0] = x;
+
+    return y[0];
+}
+
+assignIntDoubleStruct(x: int): double
+{
+    y: doubleStruct = new doubleStruct();
+    y.d = x;
+    result: double = y.d;
+    destroy y;
+
+    return result;
+}
+
 modExpr(x: int, y: int): int
 {
     return x % y;
