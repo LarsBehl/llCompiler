@@ -6,5 +6,25 @@ namespace ll.type
         {
 
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is DoubleArrayType;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public static bool operator ==(DoubleArrayType doubleArrayType, Type t)
+        {
+            return t is DoubleArrayType || t is NullType;
+        }
+
+        public static bool operator !=(DoubleArrayType doubleArrayType, Type t)
+        {
+            return t is not DoubleArrayType && t is not NullType;
+        }
     }
 }
