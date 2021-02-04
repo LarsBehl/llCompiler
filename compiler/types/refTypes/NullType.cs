@@ -6,5 +6,25 @@ namespace ll.type
         {
 
         }
+
+        public override bool Equals(object obj)
+        {
+            return obj is NullType;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
+
+        public static bool operator ==(NullType nt, Type t)
+        {
+            return t is RefType;
+        }
+
+        public static bool operator !=(NullType nt, Type t)
+        {
+            return t is not RefType;
+        }
     }
 }

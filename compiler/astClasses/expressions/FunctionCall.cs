@@ -16,7 +16,7 @@ namespace ll.AST
             var tmp = IAST.funs[name].args;
             for (int i = 0; i < tmp.Count; i++)
             {
-                if (args[i].type.typeName != tmp[i].type.typeName)
+                if (args[i].type != tmp[i].type)
                 {
                     if(tmp[i].type is not DoubleType || args[i].type is not IntType)
                         throw new ArgumentException($"Type missmatch for \"{tmp[0]}\" \"{args[i].type.typeName}\" \"{tmp[i].type.typeName}\"; On line {line}:{column}");

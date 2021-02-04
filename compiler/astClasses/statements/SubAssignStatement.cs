@@ -10,7 +10,7 @@ namespace ll.AST
 
         public SubAssignStatement(VarExpr left, IAST right, int line, int column) : base(new SubAssignStatementType(), line, column)
         {
-            if (left.type.typeName != right.type.typeName)
+            if (left.type != right.type)
             {
                 if (left.type is DoubleType && right.type is IntType)
                 {

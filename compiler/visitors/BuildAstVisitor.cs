@@ -172,12 +172,9 @@ namespace ll
             else
                 val = Visit(context.refTypeCreation());
 
-            if (variable.type.typeName != val.type.typeName)
+            if (variable.type != val.type)
             {
-                if (variable.type is DoubleType && val.type is IntType
-                || variable.type is RefType && val.type is RefType)
-                    return new AssignStatement(new VarExpr(context.left.Text, context.Start.Line, context.left.StartIndex), val, context.Start.Line, context.Start.Column);
-                else
+                if (variable.type is not DoubleType || val.type is not IntType)
                     throw new ArgumentException($"Type \"{val.type.typeName}\" does not match \"{variable.type.typeName}\"; On line {context.Start.Line}:{context.Start.Column}");
             }
 
@@ -263,9 +260,8 @@ namespace ll
                 throw new ArgumentException($"Trying to override the body of function \"{identifier[0].GetText()}\"; On line {context.Start.Line}:{context.Start.Column}");
             var body = Visit(context.body) as BlockStatement;
 
-            if ((body.type.typeName != funDef.returnType.typeName || !body.doesFullyReturn)
-            && !(funDef.returnType is VoidType)
-            && !(body.type is RefType && funDef.returnType is RefType))
+            if ((body.type != funDef.returnType || !body.doesFullyReturn)
+            && !(funDef.returnType is VoidType))
             {
                 if (body.type is BlockStatementType || !body.doesFullyReturn)
                     throw new ArgumentException($"Missing return statement in \"{funDef.name}\"; On line {context.Start.Line}:{context.Start.Column}");
