@@ -1,1 +1,0 @@
-java -jar "C:\Program Files\Antlr\antlr-4.9.1-complete.jar" -Dlanguage=CSharp ll.g4 -no-listener -visitor  -package ll %*

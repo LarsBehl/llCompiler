@@ -156,7 +156,7 @@ switch ($args[0]) {
         test
     }
     "generateCode" {
-
+        generateCode
     }
     Default {
         Write-Host "Unknown argument: " -ForegroundColor Red
