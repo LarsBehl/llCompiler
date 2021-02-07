@@ -24,17 +24,21 @@ To prevent repetitive code, LL supports the defintion of functions. These functi
 If a function returns a reference type, it is also possible to return `null`.
 
 ## Compilation
-To compile the LL-Compiler you need to have .NET 5.0 installed. To compile the LL-Compiler navigate to `./compiler` and run the batch file `publish.bat`:
+To compile the LL-Compiler you need to have .NET 5.0 installed. To compile the LL-Compiler run the following command:
 ```bash
-./publish.bat
+./make.ps1 publishWindows
+```
+Make sure that powershell script execution is set correctly.
+
+For the Linux users there is a `MAKEFILE`. You can run this command to compile the LL-Compiler:
+```bash
+make publishWindows
 ```
 
-For the Linux users there is a `MAKEFILE` in the `./compiler` folder. You can run this command to compile the LL-Compiler:
-```bash
-make
-```
+When you are done with the compilation, navigate to `./bin`. In there you can find the folders `win10`, `unix` or `OSX`. Each of the folders contains an executable for the corresponding operating system and all needed dependencies.
 
-When you are done with the compilation, navigate to `./bin`. In there you can find the folders `win10`, `unix` and `OSX`. Each of the folders contains one executable for the corresponding operating system.
+## Running compiled LL-Code
+The by the LL-Compiler generated assembler code uses AT & T syntax. It is recommended to use a linux based operting system when trying to compile the assembler code. For windows useres the easiest way is to use [WSL](https://docs.microsoft.com/en-us/windows/wsl/about) or [WSL2](https://docs.microsoft.com/en-us/windows/wsl/about#what-is-wsl-2). It is also possible to compile the code using mingw, but it has **not** been tested.
 
 ## Examples
 In the demo folder you can find some examples of LL-Code.

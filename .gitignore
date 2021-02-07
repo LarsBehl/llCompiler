@@ -9,7 +9,9 @@ demo/al
 TestFile2.ll
 testGeneratedCode/*.o
 testGeneratedCode/*.S
+testGeneratedCode/*.dll
 testGeneratedCode/testCodeGen
 testGeneratedCode/Antlr4.Runtime.Standard.dll
 testGeneratedCode/llCompiler.*
 testGeneratedCode/llCompiler
+deps/

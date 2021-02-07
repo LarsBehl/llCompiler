@@ -620,7 +620,6 @@ namespace ll.assembler
             this.depth += 1;
 
             this.WriteLine($".global {funDef.name}");
-            this.WriteLine($".type {funDef.name}, @function");
 
             this.depth -= 1;
 
