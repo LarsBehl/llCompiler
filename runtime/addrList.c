@@ -38,7 +38,8 @@ int add_AddrList(void *val, AddrList *list)
         if (!tmp)
             outOfMemory();
 
-        for (int i = 0; i < list->count; i++)
+        int i;
+        for (i = 0; i < list->count; i++)
         {
             tmp[i] = list->values[i];
         }
@@ -64,7 +65,8 @@ int removeByIndex_AddrList(int index, AddrList *list)
 
     if (index < list->count - 1)
     {
-        for (int i = index; i < list->count - 1; i++)
+        int i;
+        for (i = index; i < list->count - 1; i++)
         {
             list->values[i] = list->values[i + 1];
         }
@@ -86,7 +88,8 @@ int removeByValue_AddrList(void *val, AddrList *list)
 
 int getIndex_AddrList(void *val, AddrList *list)
 {
-    for (int i = 0; i < list->count; i++)
+    int i;
+    for (i = 0; i < list->count; i++)
     {
         if (list->values[i] == val)
             return i;
