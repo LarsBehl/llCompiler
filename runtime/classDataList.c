@@ -20,7 +20,8 @@ ClassDataList *create_ClassDataList()
 
 void destroy_ClassDataList(ClassDataList *l)
 {
-    for (int i = 0; i < l->count; i++)
+    int i;
+    for (i = 0; i < l->count; i++)
         destroy_ClassData(l->values[i]);
 
     free(l->values);
@@ -39,7 +40,8 @@ int add_ClassDataList(ClassData *val, ClassDataList *l)
         l->size += 5;
         ClassData **tmp = (ClassData **)malloc(sizeof(ClassData *) * l->size);
 
-        for (int i = 0; i < l->count; i++)
+        int i;
+        for (i = 0; i < l->count; i++)
             tmp[i] = l->values[i];
 
         free(l->values);
@@ -61,7 +63,8 @@ ClassData *get_ClassDatList(int index, ClassDataList *list)
 
 ClassData *getById_ClassDataList(long id, ClassDataList *list)
 {
-    for (int i = 0; i < list->count; i++)
+    int i;
+    for (i = 0; i < list->count; i++)
     {
         if (list->values[i]->id == id)
             return list->values[i];
@@ -75,7 +78,8 @@ void removeByIndex_ClassDataList(int index, ClassDataList *list)
     if (index >= list->count || index < 0)
         outOfRange(index, list->count);
 
-    for (int i = index; i < list->count - 1; i++)
+    int i;
+    for (i = index; i < list->count - 1; i++)
         list->values[i] = list->values[i + 1];
 
     list->values[--list->count] = NULL;
@@ -88,7 +92,8 @@ void removeById_ClassDataList(long id, ClassDataList *list)
     if (index < 0)
         unknownObject(id);
 
-    for (int i = index; i < list->count - 1; i++)
+    int i;
+    for (i = index; i < list->count - 1; i++)
         list->values[i] = list->values[i + 1];
 
     list->values[--list->count] = NULL;
@@ -96,7 +101,8 @@ void removeById_ClassDataList(long id, ClassDataList *list)
 
 int getIndex_ClassDataList(long id, ClassDataList *list)
 {
-    for (int i = 0; i < list->count; i++)
+    int i;
+    for (i = 0; i < list->count; i++)
     {
         if (list->values[i]->id == id)
             return i;
