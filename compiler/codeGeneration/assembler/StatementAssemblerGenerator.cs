@@ -256,9 +256,7 @@ namespace ll.assembler
                     break;
             }
 
-            if (this.stackCounter % 16 == 0)
-                this.WritePush("$0");
-
+            this.AlignStack();
 
             this.WriteLine("call printf@PLT");
         }
@@ -285,8 +283,7 @@ namespace ll.assembler
                     throw new NotImplementedException("Omega NASA");
             }
 
-            if (this.stackCounter % 16 == 0)
-                this.WritePush("$0");
+            this.AlignStack();
 
             this.WriteLine("call createHeapObject@PLT");
         }
@@ -322,8 +319,7 @@ namespace ll.assembler
             this.GetAssember(destruction.refType);
             this.WriteLine("movq %rax, %rdi");
 
-            if (this.stackCounter % 16 == 0)
-                this.WriteLine("push $0");
+            this.AlignStack();
 
             this.WriteLine("call destroyHeapObject@PLT");
         }

@@ -167,8 +167,7 @@ namespace ll.assembler
             }
 
             // this should only happen if the registers do not overflow and the stack is not aligned
-            if (this.stackCounter % 16 == 0)
-                this.WritePush("$0");
+            this.AlignStack();
 
             this.WriteLine($"call {functionCall.name}");
         }
