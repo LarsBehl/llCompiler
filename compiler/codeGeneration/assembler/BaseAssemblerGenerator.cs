@@ -605,5 +605,18 @@ namespace ll.assembler
                 this.innerStruct = false;
             }
         }
+
+        private bool AlignStack()
+        {
+            bool result = false;
+
+            if(this.stackCounter % 16 == 0)
+            {
+                this.WritePush("$0");
+                result = true;
+            }
+
+            return result;
+        }
     }
 }
