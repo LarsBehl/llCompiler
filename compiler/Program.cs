@@ -96,7 +96,7 @@ namespace ll
                 tokenStream = new CommonTokenStream(lexer);
                 parser = new llParser(tokenStream);
                 var ast = new BuildAstVisitor().VisitCompileUnit(parser.compileUnit());
-                var assemblerGenerator = new GenAssembler();
+                var assemblerGenerator = new AssemblerGenerator();
                 assemblerGenerator.GenerateAssember(ast);
                 assemblerGenerator.PrintAssember();
             }
@@ -123,7 +123,7 @@ namespace ll
             tokenStream = new CommonTokenStream(lexer);
             parser = new llParser(tokenStream);
             var ast = new BuildAstVisitor().Visit(parser.compileUnit());
-            var assemblerGenerator = new GenAssembler();
+            var assemblerGenerator = new AssemblerGenerator();
 
             assemblerGenerator.WriteToFile(inputFile, ast);
         }

@@ -38,10 +38,4 @@ steps:
     command: 'test'
     projects: '**/*.csproj'
 
-- task: CopyFiles@2
-  inputs:
-    SourceFolder: './compiler/bin/Release/net5.0/'
-    TargetFolder: './testGeneratedCode/'
-    Contents: '**'
-
 - script: 'make test'
