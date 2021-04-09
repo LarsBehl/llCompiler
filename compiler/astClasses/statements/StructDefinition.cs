@@ -19,9 +19,8 @@ namespace ll.AST
 
         }
 
-        /**
-        * <summary>Returns the size of the struct in byte</summary>
-        */
+        /// <summary>Returns the size of the struct in byte</summary>
+        /// <return>Size of an instance of the struct in bytes</return>
         public int GetSize()
         {
             int result = 0;

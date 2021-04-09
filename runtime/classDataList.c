@@ -15,6 +15,8 @@ ClassDataList *create_ClassDataList()
     result->size = INITIAL_SIZE;
     result->count = 0;
 
+    result->values = (ClassData**) memset(result->values, 0, result->size * sizeof(ClassData*));
+
     return result;
 }
 

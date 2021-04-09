@@ -15,6 +15,7 @@ namespace ll.assembler
         private StringBuilder sb = new StringBuilder();
         private StringBuilder doubleNumbers = new StringBuilder();
         private StringBuilder strings = new StringBuilder();
+        private StringBuilder structDefinitionBuilder = new StringBuilder();
         private int labelCount = 0;
         private int doubleNumbersLabelCount = 0;
         private int stringLabelCount = 0;
@@ -24,6 +25,7 @@ namespace ll.assembler
         private Dictionary<double, int> doubleMap = new Dictionary<double, int>();
         private Dictionary<string, int> variableMap;
         private Dictionary<string, int> stringLabelMap = new Dictionary<string, int>();
+        private Dictionary<string, int> structIdMap = new Dictionary<string, int>();
         private int localVariablePointer = 0;
         private int localVariableCount = 0;
         private int stackCounter = 0;
@@ -120,6 +122,7 @@ namespace ll.assembler
                 case NullLit nullLit:
                     this.NullLitAsm(nullLit); break;
                 case StructDefinition structDefinition:
+                    this.StructDefinitionAsm(structDefinition);
                     break;
                 case StructPropertyAccess structPropertyAccess:
                     this.StructPropertyAccessAsm(structPropertyAccess); break;
@@ -259,6 +262,20 @@ namespace ll.assembler
 
             this.depth -= 1;
 
+        }
+
+        private void StructDefinitionAsm(StructDefinition structDef)
+        {
+            Random random = new Random();
+            int id = random.Next();
+
+            while(this.structIdMap.ContainsValue(id))
+                id = random.Next();
+            
+            this.structIdMap[structDef.name] = id;
+
+            this.structDefinitionBuilder.AppendLine($"{this.indent}movq {id}, {this.integerRegisters[0]}");
+            this.structDefinitionBuilder.AppendLine($"{this.indent}movq {structDef.GetSize()}, {this.integerRegisters[0]}");
         }
 
         private void WriteLine(string op)
