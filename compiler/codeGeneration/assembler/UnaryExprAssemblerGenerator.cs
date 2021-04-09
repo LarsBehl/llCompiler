@@ -119,7 +119,7 @@ namespace ll.assembler
             }
 
             // move integer/boolean arguments that overflew on stack
-            for (int i = functionCall.args.Count - 1; i >= integerOverflowPosition; i++)
+            for (int i = functionCall.args.Count - 1; i >= integerOverflowPosition; i--)
             {
                 if (funDef.args[i].type is IntType || funDef.args[i].type is BooleanType || funDef.args[i].type is RefType)
                 {
@@ -130,7 +130,7 @@ namespace ll.assembler
             }
 
             // move double arguments that overflew on the stack
-            for (int i = functionCall.args.Count - 1; i >= doubleOverflowPosition; i++)
+            for (int i = functionCall.args.Count - 1; i >= doubleOverflowPosition; i--)
             {
                 if (funDef.args[i].type is DoubleType)
                 {
@@ -144,7 +144,7 @@ namespace ll.assembler
             }
 
             // calculate the rest of the double arguments and push them on the stack
-            for (int i = Math.Min(functionCall.args.Count - 1, doubleOverflowPosition); i >= 0; i--)
+            for (int i = Math.Min(functionCall.args.Count - 1, doubleOverflowPosition - 1); i >= 0; i--)
             {
                 if (funDef.args[i].type is DoubleType)
                 {
@@ -167,9 +167,12 @@ namespace ll.assembler
             }
 
             // this should only happen if the registers do not overflow and the stack is not aligned
-            this.AlignStack();
+            bool aligned = this.AlignStack();
 
             this.WriteLine($"call {functionCall.name}");
+
+            if(aligned)
+                this.WritePop("%rbx");
         }
 
         private void VariableAsm(VarExpr varExpr)

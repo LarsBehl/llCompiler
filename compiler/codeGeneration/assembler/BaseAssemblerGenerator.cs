@@ -122,10 +122,11 @@ namespace ll.assembler
                 case NullLit nullLit:
                     this.NullLitAsm(nullLit); break;
                 case StructDefinition structDefinition:
-                    this.StructDefinitionAsm(structDefinition);
+                    // this.StructDefinitionAsm(structDefinition);
                     break;
                 case StructPropertyAccess structPropertyAccess:
-                    this.StructPropertyAccessAsm(structPropertyAccess); break;
+                    this.StructPropertyAccessAsm(structPropertyAccess);
+                    break;
                 case AssignStructProperty assignStruct:
                     this.AssignStructPropertyAsm(assignStruct); break;
                 case ModExpr modExpr:

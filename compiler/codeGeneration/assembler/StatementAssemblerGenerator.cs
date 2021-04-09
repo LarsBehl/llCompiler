@@ -256,9 +256,12 @@ namespace ll.assembler
                     break;
             }
 
-            this.AlignStack();
+            bool aligned = this.AlignStack();
 
             this.WriteLine("call printf@PLT");
+
+            if(aligned)
+                this.WritePop("%rbx");
         }
 
         private void RefTypeCreationStatementAsm(RefTypeCreationStatement refTypeCreation)
@@ -283,9 +286,12 @@ namespace ll.assembler
                     throw new NotImplementedException("Omega NASA");
             }
 
-            this.AlignStack();
+            bool aligned = this.AlignStack();
 
             this.WriteLine("call createHeapObject@PLT");
+
+            if(aligned)
+                this.WritePop("%rbx");
         }
 
         private void AssignArrayFieldAsm(AssignArrayField assignArray)
@@ -319,9 +325,12 @@ namespace ll.assembler
             this.GetAssember(destruction.refType);
             this.WriteLine("movq %rax, %rdi");
 
-            this.AlignStack();
+            bool aligned = this.AlignStack();
 
             this.WriteLine("call destroyHeapObject@PLT");
+
+            if(aligned)
+                this.WritePop("%rbx");
         }
 
         private void AssignStructPropertyAsm(AssignStructProperty assignStruct)
