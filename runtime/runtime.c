@@ -4,8 +4,13 @@
 
 ClassDataList* classDataList;
 
-void *createHeapObject(long size)
+void *createHeapObject(long size, bool isArray)
 {
+    if(!isArray)
+    {
+        size = getById_ClassDataList(size, classDataList);
+    }
+    
     void *tmp = malloc(size);
 
     if (!tmp)

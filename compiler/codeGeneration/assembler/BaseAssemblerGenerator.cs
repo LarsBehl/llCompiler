@@ -40,9 +40,7 @@ namespace ll.assembler
                 Console.WriteLine(this.strings.ToString());
         }
 
-        /**
-        * <summary>Get the assembler code of the given AST node</summary>
-        */
+        /// <summary>Get the assembler code of the given AST node</summary>
         private void GetAssember(IAST astNode)
         {
             switch (astNode)

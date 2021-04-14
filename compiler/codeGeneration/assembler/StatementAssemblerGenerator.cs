@@ -275,12 +275,13 @@ namespace ll.assembler
                     this.WriteLine("imulq %rbx, %rax");
 
                     this.WriteLine("movq %rax, %rdi");
+                    this.WriteLine("movq $1, %rsi");
                     break;
                 case Struct @struct:
-                    StructDefinition structDef = IAST.structs[@struct.name];
-                    int size = structDef.GetSize();
+                    int structId = this.structIdMap[@struct.name];
 
-                    this.WriteLine($"movq ${size}, %rdi");
+                    this.WriteLine($"movq ${structId}, %rdi");
+                    this.WriteLine($"movq $0, %rsi");
                     break;
                 default:
                     throw new NotImplementedException("Omega NASA");
