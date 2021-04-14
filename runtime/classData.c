@@ -10,8 +10,6 @@ ClassData *create_ClassData(long id, long size)
     result->id = id;
     result->size = size;
 
-    result = (ClassData *)memset(result, 0, sizeof(ClassData));
-
     return result;
 }
 

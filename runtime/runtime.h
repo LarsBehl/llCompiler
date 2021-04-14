@@ -1,13 +1,15 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 /**
  * Creates a new heap object
  * 
- * @param size  size of the object in byte
- * @returns     base address of the object
+ * @param size      size of the object in byte, or id of the struct
+ * @param isArray   true if array should be created
+ * @returns         base address of the object
  */
-void *createHeapObject(long size);
+void *createHeapObject(long size, bool isArray);
 
 /**
  * Frees up the memory used by the object

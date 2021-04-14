@@ -15,6 +15,7 @@ namespace ll.assembler
         private StringBuilder sb = new StringBuilder();
         private StringBuilder doubleNumbers = new StringBuilder();
         private StringBuilder strings = new StringBuilder();
+        private StringBuilder structDefinitionBuilder = new StringBuilder();
         private int labelCount = 0;
         private int doubleNumbersLabelCount = 0;
         private int stringLabelCount = 0;
@@ -24,6 +25,7 @@ namespace ll.assembler
         private Dictionary<double, int> doubleMap = new Dictionary<double, int>();
         private Dictionary<string, int> variableMap;
         private Dictionary<string, int> stringLabelMap = new Dictionary<string, int>();
+        private Dictionary<string, int> structIdMap = new Dictionary<string, int>();
         private int localVariablePointer = 0;
         private int localVariableCount = 0;
         private int stackCounter = 0;
@@ -38,9 +40,7 @@ namespace ll.assembler
                 Console.WriteLine(this.strings.ToString());
         }
 
-        /**
-        * <summary>Get the assembler code of the given AST node</summary>
-        */
+        /// <summary>Get the assembler code of the given AST node</summary>
         private void GetAssember(IAST astNode)
         {
             switch (astNode)
@@ -74,6 +74,8 @@ namespace ll.assembler
                 case FunctionCall funCall:
                     this.FunctionCallAsm(funCall); break;
                 case ProgramNode programNode:
+                    foreach (var structDef in programNode.structDefs)
+                        this.GetAssember(structDef);
                     foreach (var fun in programNode.funDefs)
                         this.GetAssember(fun);
                     break;
@@ -120,9 +122,10 @@ namespace ll.assembler
                 case NullLit nullLit:
                     this.NullLitAsm(nullLit); break;
                 case StructDefinition structDefinition:
-                    break;
+                    this.StructDefinitionAsm(structDefinition); break;
                 case StructPropertyAccess structPropertyAccess:
-                    this.StructPropertyAccessAsm(structPropertyAccess); break;
+                    this.StructPropertyAccessAsm(structPropertyAccess);
+                    break;
                 case AssignStructProperty assignStruct:
                     this.AssignStructPropertyAsm(assignStruct); break;
                 case ModExpr modExpr:
@@ -244,7 +247,29 @@ namespace ll.assembler
                 this.variableMap[funDef.args[lastFound].name] = offSet;
             }
 
+
+            if (funDef.name == "main")
+            {
+                this.InitializeRuntime();
+
+                bool aligned = false;
+                
+                if (this.stackCounter % 16 == 0)
+                {
+                    aligned = true;
+                    this.WritePush("$0");
+                }
+
+                this.WriteLine(this.structDefinitionBuilder.ToString());
+
+                if (aligned)
+                    this.WritePop("%rbx");
+            }
+
             this.GetAssember(funDef.body);
+
+            if(funDef.name == "main")
+                this.CleanUpRuntime();
 
             // if the function is a void function, make sure the important registers are set to 0
             if (funDef.returnType is VoidType)
@@ -258,7 +283,42 @@ namespace ll.assembler
             }
 
             this.depth -= 1;
+        }
 
+        private void StructDefinitionAsm(StructDefinition structDef)
+        {
+            Random random = new Random();
+            int id = random.Next();
+
+            while (this.structIdMap.ContainsValue(id))
+                id = random.Next();
+
+            this.structIdMap[structDef.name] = id;
+
+            this.structDefinitionBuilder.AppendLine($"{this.indent}movq ${id}, {this.integerRegisters[0]}");
+            this.structDefinitionBuilder.AppendLine($"{this.indent}movq ${structDef.GetSize()}, {this.integerRegisters[0]}");
+
+            this.structDefinitionBuilder.AppendLine($"{this.indent}call registerClass@PLT");
+        }
+
+        private void InitializeRuntime()
+        {
+            bool aligned = this.AlignStack();
+
+            this.WriteLine("call initializeRuntime@PLT");
+
+            if (aligned)
+                this.WritePop("%rbx");
+        }
+
+        private void CleanUpRuntime()
+        {
+            bool aligned = this.AlignStack();
+
+            this.WriteLine("call cleanUpRuntime@PLT");
+
+            if(aligned)
+                this.WritePop("%rbx");
         }
 
         private void WriteLine(string op)
@@ -610,7 +670,7 @@ namespace ll.assembler
         {
             bool result = false;
 
-            if(this.stackCounter % 16 == 0)
+            if (this.stackCounter % 16 == 0)
             {
                 this.WritePush("$0");
                 result = true;

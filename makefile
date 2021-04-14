@@ -5,12 +5,10 @@ test: linkTest
 linkTest: compileAssembler
 	@echo "\n\n\e[0;32mLinking tests...\n\e[0m"
 	cp ./runtime/bin/libLL.a ./testGeneratedCode/bin/
-	gcc -o ./testGeneratedCode/bin/testCodeGen ./testGeneratedCode/bin/runner.o ./testGeneratedCode/bin/testCodeGenV1.o ./testGeneratedCode/bin/testCodeGenV1Prog.o -LtestGeneratedCode/bin -lLL
+	gcc -o ./testGeneratedCode/bin/testCodeGen ./testGeneratedCode/bin/testCodeGenV1Prog.o -LtestGeneratedCode/bin -lLL
 
 compileAssembler: packageRuntime
 	@echo "\n\n\e[0;32mCompiling tests...\n\e[0m"
-	gcc -c -g ./testGeneratedCode/util/runner.c -o ./testGeneratedCode/bin/runner.o
-	gcc -c -g ./testGeneratedCode/util/testCodeGenV1.c -o ./testGeneratedCode/bin/testCodeGenV1.o
 	gcc -c -g ./testGeneratedCode/bin/testCodeGenV1Prog.S -o ./testGeneratedCode/bin/testCodeGenV1Prog.o
 
 packageRuntime: compileRuntime

@@ -27,6 +27,9 @@ namespace ll.AST
             this.body = body;
             this.functionEnv = functionEnv;
             this.returnType = returnType;
+
+            if(this.returnType is not VoidType && this.name == "main")
+                throw new ArgumentException($"Main method has to be void; On line {line}:{column}");
         }
 
         public int GetLocalVariables()
