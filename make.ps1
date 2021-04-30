@@ -56,13 +56,11 @@ function linkTest() {
     printMessage -message "Linking tests"
     Write-Host "cp $($runtimeLocation)/bin/libLL.a $($testLocation)/bin/"
     Copy-Item "$($runtimeLocation)/bin/libLL.a" -Destination "$($testLocation)/bin/"
-    printAndRun -command "wsl gcc -o $($testLocation)/bin/testCodeGen $($testLocation)/bin/runner.o $($testLocation)/bin/testCodeGenV1.o $($testLocation)/bin/testCodeGenV1Prog.o -LtestGeneratedCode/bin -lLL"
+    printAndRun -command "wsl gcc -o $($testLocation)/bin/testCodeGen $($testLocation)/bin/testCodeGenV1Prog.o -LtestGeneratedCode/bin -lLL"
 }
 
 function compileAssember() {
     printMessage -message "Compiling tests"
-    printAndRun -command "wsl gcc -c -g $($testLocation)/util/runner.c -o $($testLocation)/bin/runner.o"
-    printAndRun -command "wsl gcc -c -g $($testLocation)/util/testCodeGenV1.c -o $($testLocation)/bin/testCodeGenV1.o"
     printAndRun -command "wsl gcc -c -g $($testLocation)/bin/testCodeGenV1Prog.S -o $($testLocation)/bin/testCodeGenV1Prog.o"
 }
 

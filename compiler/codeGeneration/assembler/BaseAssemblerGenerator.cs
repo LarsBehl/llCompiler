@@ -296,7 +296,7 @@ namespace ll.assembler
             this.structIdMap[structDef.name] = id;
 
             this.structDefinitionBuilder.AppendLine($"{this.indent}movq ${id}, {this.integerRegisters[0]}");
-            this.structDefinitionBuilder.AppendLine($"{this.indent}movq ${structDef.GetSize()}, {this.integerRegisters[0]}");
+            this.structDefinitionBuilder.AppendLine($"{this.indent}movq ${structDef.GetSize()}, {this.integerRegisters[1]}");
 
             this.structDefinitionBuilder.AppendLine($"{this.indent}call registerClass@PLT");
         }
