@@ -5,7 +5,7 @@ grammar ll;
 
 compileUnit: program EOF;
 
-program: (functionDefinition | structDefinition)+
+program: (loadStatement* (functionDefinition | structDefinition)+)
 	| compositUnit;
 
 compositUnit: statement | expression;
@@ -127,6 +127,8 @@ structCreation: structName PAR_L PAR_R;
 
 structPropertyAccess: variableExpression DOT valueAccess;
 
+loadStatement: LOAD fileName = WORD SEMCOL;
+
 valueAccess:
 	variableExpression
 	| arrayIndexing
@@ -149,6 +151,7 @@ NEW: 'n' 'e' 'w';
 DESTROY: 'd' 'e' 's' 't' 'r' 'o' 'y';
 NULL: 'n' 'u' 'l' 'l';
 STRUCT: 's' 't' 'r' 'u' 'c' 't';
+LOAD: 'l' 'o' 'a' 'd';
 WORD: ([a-zA-Z] | '_') ([a-zA-Z0-9] | '_')*;
 MOD: '%';
 MULT: '*';

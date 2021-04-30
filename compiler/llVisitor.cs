@@ -20,6 +20,7 @@
 #pragma warning disable 419
 
 namespace ll {
+#pragma warning disable 3021
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using IToken = Antlr4.Runtime.IToken;
@@ -407,6 +408,12 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitStructPropertyAccess([NotNull] llParser.StructPropertyAccessContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.loadStatement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitLoadStatement([NotNull] llParser.LoadStatementContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="llParser.valueAccess"/>.
 	/// </summary>
