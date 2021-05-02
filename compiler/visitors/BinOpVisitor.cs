@@ -1,5 +1,6 @@
 using System;
 using LL.AST;
+using LL.Exceptions;
 
 namespace LL
 {
@@ -7,23 +8,31 @@ namespace LL
     {
         public override IAST VisitBinOpAddSub(llParser.BinOpAddSubContext context)
         {
-            switch (context.op.Text)
+            string op = context.op.Text;
+            int line = context.Start.Line;
+            int column = context.Start.Column;
+
+            switch (op)
             {
-                case "+": return new AddExpr(Visit(context.left), Visit(context.right), context.Start.Line, context.Start.Column);
-                case "-": return new SubExpr(Visit(context.left), Visit(context.right), context.Start.Line, context.Start.Column);
+                case "+": return new AddExpr(Visit(context.left), Visit(context.right), line, column);
+                case "-": return new SubExpr(Visit(context.left), Visit(context.right), line, column);
                 default:
-                    throw new ArgumentException($"unknown operator {context.op.Text}; On line {context.op.Line}:{context.op.Column}");
+                    throw new UnknownOperatorException(op, this.CurrentFile, line, column);
             }
         }
 
         public override IAST VisitBinOpMultDiv(llParser.BinOpMultDivContext context)
         {
-            switch (context.op.Text)
+            string op = context.op.Text;
+            int line = context.Start.Line;
+            int column = context.Start.Column;
+
+            switch (op)
             {
-                case "*": return new MultExpr(Visit(context.left), Visit(context.right), context.Start.Line, context.Start.Column);
-                case "/": return new DivExpr(Visit(context.left), Visit(context.right), context.Start.Line, context.Start.Column);
+                case "*": return new MultExpr(Visit(context.left), Visit(context.right), line, column);
+                case "/": return new DivExpr(Visit(context.left), Visit(context.right), line, column);
                 default:
-                    throw new ArgumentException($"unknown operator {context.op.Text}; On line {context.Start.Line}:{context.Start.Column}");
+                    throw new UnknownOperatorException(op, this.CurrentFile, line, column);
             }
         }
 

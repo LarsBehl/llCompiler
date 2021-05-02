@@ -9,7 +9,7 @@ namespace test
     [TestFixture]
     public class TestAddSubExpression
     {
-        BuildAstVisitor visitor = new BuildAstVisitor();
+        BuildAstVisitor visitor = new BuildAstVisitor("UnitTests");
 
         public llParser Setup(string text)
         {

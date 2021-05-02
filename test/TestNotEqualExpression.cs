@@ -8,7 +8,7 @@ namespace LL.test
     [TestFixture]
     public class TestNotEqualExpression
     {
-        BuildAstVisitor visitor = new BuildAstVisitor();
+        BuildAstVisitor visitor = new BuildAstVisitor("UnitTests");
 
         public llParser Setup(string text)
         {

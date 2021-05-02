@@ -2,6 +2,7 @@ bin/
 obj/
 .vscode/
 .vs/
+.VSCodeCounter/
 demo/llCompiler
 demo/*.S
 demo/*.o

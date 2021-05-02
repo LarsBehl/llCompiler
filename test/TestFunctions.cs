@@ -9,7 +9,7 @@ namespace LL.test
     [TestFixture]
     public class TestFunctions
     {
-        BuildAstVisitor visitor = new BuildAstVisitor();
+        BuildAstVisitor visitor = new BuildAstVisitor("UnitTests");
         FunctionDefinitionVisitor funDefVisitor = new FunctionDefinitionVisitor("Unit Tests");
         bool once = false;
         bool t3 = false;

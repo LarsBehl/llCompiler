@@ -7,7 +7,7 @@ namespace LL.test
     [TestFixture]
     public class TestMultDivExpression
     {
-        BuildAstVisitor visitor = new BuildAstVisitor();
+        BuildAstVisitor visitor = new BuildAstVisitor("UnitTests");
 
         public llParser Setup(string text)
         {
