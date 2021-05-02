@@ -1,4 +1,5 @@
 using LL.AST;
+using LL.Exceptions;
 using System;
 using System.Collections.Generic;
 
@@ -6,12 +7,26 @@ namespace LL
 {
     public class FunctionDefinitionVisitor : llBaseVisitor<IAST>
     {
+        private string CurrentFile;
+
+        private FunctionDefinitionVisitor(): base()
+        {
+
+        }
+
+        public FunctionDefinitionVisitor(string currentFile): this()
+        {
+            this.CurrentFile = currentFile;
+        }
+
         public override IAST VisitFunctionDefinition(llParser.FunctionDefinitionContext context)
         {
             var identifier = context.WORD();
+            int line = context.Start.Line;
+            int column = context.Start.Column;
 
             if (IAST.Funs.ContainsKey(identifier[0].GetText()))
-                throw new ArgumentException($"Multiple definitions of \"{identifier[0].GetText()}\"; On line {context.Start.Line}:{context.Start.Column}");
+                throw new FunctionAlreadyDefinedException(identifier[0].GetText(), this.CurrentFile, line, column);
 
             var types = context.typeDefinition();
             List<InstantiationStatement> args = new List<InstantiationStatement>();
@@ -26,7 +41,7 @@ namespace LL
 
             // BuildAstVisitor should add the function body
             // therefor it should check if the body is null, if not throw exception
-            FunctionDefinition func = new FunctionDefinition(identifier[0].GetText(), args, null, tmpEnv, Visit(types[types.Length - 1]).Type, context.Start.Line, context.Start.Column);
+            FunctionDefinition func = new FunctionDefinition(identifier[0].GetText(), args, null, tmpEnv, Visit(types[types.Length - 1]).Type, line, column);
             IAST.Funs[identifier[0].GetText()] = func;
             // unused; the llBaseVisitor expects a type
             return null;
@@ -34,20 +49,23 @@ namespace LL
 
         public override IAST VisitTypeDefinition(llParser.TypeDefinitionContext context)
         {
+            int line = context.Start.Line;
+            int column = context.Start.Column;
+            
             if (context.INT_TYPE() != null)
-                return new IntLit(null, context.Start.Line, context.Start.Column);
+                return new IntLit(null, line, column);
             if (context.DOUBLE_TYPE() != null)
-                return new DoubleLit(null, context.Start.Line, context.Start.Column);
+                return new DoubleLit(null, line, column);
             if (context.BOOL_TYPE() != null)
-                return new BoolLit(null, context.Start.Line, context.Start.Column);
+                return new BoolLit(null, line, column);
             if (context.VOID_TYPE() != null)
-                return new VoidLit(context.Start.Line, context.Start.Column);
+                return new VoidLit(line, column);
             if (context.arrayTypes() != null)
                 return Visit(context.arrayTypes());
             if (context.structName() != null)
                 return Visit(context.structName());
 
-            throw new ArgumentException($"Unsupported type; On line {context.Start.Line}:{context.Start.Column}");
+            throw new UnknownTypeException(context.GetText(), this.CurrentFile, line, column);
         }
 
         public override IAST VisitIntArrayType(llParser.IntArrayTypeContext context)
@@ -68,17 +86,20 @@ namespace LL
         public override IAST VisitStructName(llParser.StructNameContext context)
         {
             StructDefinition structDef;
+            string structName = context.WORD().GetText();
+            int line = context.Start.Line;
+            int column = context.Start.Column;
 
             try
             {
-                structDef = IAST.Structs[context.WORD().GetText()];
+                structDef = IAST.Structs[structName];
             }
             catch (Exception)
             {
-                throw new ArgumentException($"Unknown struct reference \"{context.WORD().GetText()}\"; On line {context.Start.Line}:{context.Start.Column}");
+                throw new UnknownTypeException(structName, this.CurrentFile, line, column);
             }
 
-            return new Struct(structDef.Name, context.Start.Line, context.Start.Column);
+            return new Struct(structDef.Name, line, column);
         }
     }
 }

@@ -10,7 +10,7 @@ namespace LL.test
     public class TestFunctions
     {
         BuildAstVisitor visitor = new BuildAstVisitor();
-        FunctionDefinitionVisitor funDefVisitor = new FunctionDefinitionVisitor();
+        FunctionDefinitionVisitor funDefVisitor = new FunctionDefinitionVisitor("Unit Tests");
         bool once = false;
         bool t3 = false;
 

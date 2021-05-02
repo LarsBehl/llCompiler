@@ -11,6 +11,7 @@ namespace LL
         static void InterpreterMode()
         {
             Console.WriteLine("Running in Interpreter Mode\n");
+            string file = "InterpreterMode";
 
             while (true)
             {
@@ -46,13 +47,13 @@ namespace LL
                 var lexer = new llLexer(inputStream);
                 var tokenStream = new CommonTokenStream(lexer);
                 var parser = new llParser(tokenStream);
-                var tmp = new StructDefinitionVisitor("InterpreterMode").VisitCompileUnit(parser.compileUnit());
+                var tmp = new StructDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
 
                 inputStream = new AntlrInputStream(text);
                 lexer = new llLexer(inputStream);
                 tokenStream = new CommonTokenStream(lexer);
                 parser = new llParser(tokenStream);
-                tmp = new FunctionDefinitionVisitor().VisitCompileUnit(parser.compileUnit());
+                tmp = new FunctionDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
 
                 inputStream = new AntlrInputStream(text);
                 lexer = new llLexer(inputStream);
@@ -70,6 +71,7 @@ namespace LL
 
         static void InteractiveCompilerMode()
         {
+            string file = "InteractiveCompilerMode";
             Console.WriteLine("Running in interactive Compilermode\n");
             while (true)
             {
@@ -83,13 +85,13 @@ namespace LL
                 var lexer = new llLexer(inputStream);
                 var tokenStream = new CommonTokenStream(lexer);
                 var parser = new llParser(tokenStream);
-                var tmp = new StructDefinitionVisitor("InteractiveCompilerMode").VisitCompileUnit(parser.compileUnit());
+                var tmp = new StructDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
 
                 inputStream = new AntlrInputStream(text);
                 lexer = new llLexer(inputStream);
                 tokenStream = new CommonTokenStream(lexer);
                 parser = new llParser(tokenStream);
-                tmp = new FunctionDefinitionVisitor().VisitCompileUnit(parser.compileUnit());
+                tmp = new FunctionDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
 
                 inputStream = new AntlrInputStream(text);
                 lexer = new llLexer(inputStream);
@@ -116,7 +118,7 @@ namespace LL
             lexer = new llLexer(inputStream);
             tokenStream = new CommonTokenStream(lexer);
             parser = new llParser(tokenStream);
-            tmp = new FunctionDefinitionVisitor().Visit(parser.compileUnit());
+            tmp = new FunctionDefinitionVisitor(inputFile).Visit(parser.compileUnit());
 
             inputStream = new AntlrFileStream(inputFile);
             lexer = new llLexer(inputStream);
