@@ -59,7 +59,7 @@ namespace LL
                 lexer = new llLexer(inputStream);
                 tokenStream = new CommonTokenStream(lexer);
                 parser = new llParser(tokenStream);
-                var ast = new BuildAstVisitor().VisitCompileUnit(parser.compileUnit());
+                var ast = new BuildAstVisitor(file).VisitCompileUnit(parser.compileUnit());
                 var value = ast.Eval();
 
                 if (value != null)
@@ -97,7 +97,7 @@ namespace LL
                 lexer = new llLexer(inputStream);
                 tokenStream = new CommonTokenStream(lexer);
                 parser = new llParser(tokenStream);
-                var ast = new BuildAstVisitor().VisitCompileUnit(parser.compileUnit());
+                var ast = new BuildAstVisitor(file).VisitCompileUnit(parser.compileUnit());
                 var assemblerGenerator = new AssemblerGenerator();
                 assemblerGenerator.GenerateAssember(ast);
                 assemblerGenerator.PrintAssember();
@@ -124,7 +124,7 @@ namespace LL
             lexer = new llLexer(inputStream);
             tokenStream = new CommonTokenStream(lexer);
             parser = new llParser(tokenStream);
-            var ast = new BuildAstVisitor().Visit(parser.compileUnit());
+            var ast = new BuildAstVisitor(inputFile).Visit(parser.compileUnit());
             var assemblerGenerator = new AssemblerGenerator();
 
             assemblerGenerator.WriteToFile(inputFile, ast);

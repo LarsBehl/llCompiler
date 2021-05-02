@@ -12,7 +12,7 @@ namespace LL.AST
         public WhileStatement(IAST condition, IAST body, int line, int column) : base(GetType(body), line, column)
         {
             if (!(condition.Type is BooleanType))
-                throw new ArgumentException($"While-Condition type \"{condition.Type.typeName}\" does not match boolean; On line {line}:{column}");
+                throw new ArgumentException($"While-Condition type \"{condition.Type.TypeName}\" does not match boolean; On line {line}:{column}");
 
             this.Condition = condition;
             this.Body = body;

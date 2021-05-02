@@ -14,7 +14,7 @@ namespace LL.AST
         public IfStatement(IAST cond, IAST ifBody, IAST elseBody, int line, int column) : base(GetType(ifBody, elseBody, line, column), line, column)
         {
             if (!(cond.Type is BooleanType))
-                throw new ArgumentException($"If-Condition type \"{cond.Type.typeName}\" does not match boolean; On line {line}:{column}");
+                throw new ArgumentException($"If-Condition type \"{cond.Type.TypeName}\" does not match boolean; On line {line}:{column}");
 
             this.Cond = cond;
             this.IfBody = ifBody;
@@ -26,7 +26,7 @@ namespace LL.AST
         private static Types.Type GetType(IAST ifBody, IAST elseBody, int line, int column)
         {
             if (elseBody != null && !(ifBody.Type is BlockStatementType) && !(elseBody.Type is BlockStatementType) && elseBody.Type != ifBody.Type)
-                throw new ArgumentException($"Returntype missmatch in if-statement \"{ifBody.Type.typeName}\" \"{elseBody.Type.typeName}\"; On line {line}:{column}");
+                throw new ArgumentException($"Returntype missmatch in if-statement \"{ifBody.Type.TypeName}\" \"{elseBody.Type.TypeName}\"; On line {line}:{column}");
 
             if (!(ifBody.Type is BlockStatementType))
             {

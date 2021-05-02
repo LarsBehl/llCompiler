@@ -399,7 +399,7 @@ namespace LL.CodeGeneration
                     type = "int";
                     break;
                 default:
-                    throw new ArgumentException($"Type {value.Type.typeName} not supported for print operation");
+                    throw new ArgumentException($"Type {value.Type.TypeName} not supported for print operation");
             }
             this.stringLabelMap[type] = this.stringLabelCount++;
             this.strings.Append($"{this.indent}.string \"{stringVal}\"\n");
@@ -546,7 +546,7 @@ namespace LL.CodeGeneration
 
                             break;
                         default:
-                            throw new ArgumentException($"Unknown type {functionDefinition.Args[i].Type.typeName}");
+                            throw new ArgumentException($"Unknown type {functionDefinition.Args[i].Type.TypeName}");
                     }
                 }
             }
@@ -615,7 +615,7 @@ namespace LL.CodeGeneration
         private void LoadStructProperty(StructPropertyAccess structProperty)
         {
             StructType st = structProperty.StructRef.Type as StructType;
-            var structDef = IAST.Structs[st.structName];
+            var structDef = IAST.Structs[st.StructName];
             string propName = "";
             bool hasInnerStruct = false;
             bool isArrayIndexing = false;

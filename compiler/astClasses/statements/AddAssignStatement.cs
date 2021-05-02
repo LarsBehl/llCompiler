@@ -19,7 +19,7 @@ namespace LL.AST
                     return;
                 }
                 else
-                    throw new ArgumentException($"Type of variable \"{left.Type.typeName}\" does not match \"{right.Type.typeName}\"; On line {line}:{column}");
+                    throw new ArgumentException($"Type of variable \"{left.Type.TypeName}\" does not match \"{right.Type.TypeName}\"; On line {line}:{column}");
             }
 
             this.Left = left;

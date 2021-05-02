@@ -12,7 +12,7 @@ namespace LL.AST
         {
             if (structProp.Type != val.Type
                 && !(structProp.Type is DoubleType && val.Type is IntType))
-                throw new ArgumentException($"Type \"{structProp.Type.typeName}\" is not compatible with \"{val.Type.typeName}\"; On line {line}:{column}");
+                throw new ArgumentException($"Type \"{structProp.Type.TypeName}\" is not compatible with \"{val.Type.TypeName}\"; On line {line}:{column}");
 
             this.StructProp = structProp;
             this.Value = val;

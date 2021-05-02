@@ -19,7 +19,7 @@ namespace LL.AST
                 if (args[i].Type != tmp[i].Type)
                 {
                     if(tmp[i].Type is not DoubleType || args[i].Type is not IntType)
-                        throw new ArgumentException($"Type missmatch for \"{tmp[0]}\" \"{args[i].Type.typeName}\" \"{tmp[i].Type.typeName}\"; On line {line}:{column}");
+                        throw new ArgumentException($"Type missmatch for \"{tmp[0]}\" \"{args[i].Type.TypeName}\" \"{tmp[i].Type.TypeName}\"; On line {line}:{column}");
                 }
             }
             this.FunctionName = name;

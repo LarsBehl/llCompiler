@@ -54,7 +54,7 @@ namespace LL
             IAST variable = Visit(context.type);
 
             if (variable.Type is VoidType)
-                throw new ArgumentException($"Type \"{variable.Type.typeName}\" not allowed for variables; On line {variable.Line}:{variable.Column}");
+                throw new ArgumentException($"Type \"{variable.Type.TypeName}\" not allowed for variables; On line {variable.Line}:{variable.Column}");
 
             IAST.Env[context.left.Text] = variable;
 
@@ -67,7 +67,7 @@ namespace LL
             if (variable.Type != val.Type)
             {
                 if (variable.Type is not DoubleType || val.Type is not IntType)
-                    throw new ArgumentException($"Type \"{val.Type.typeName}\" does not match \"{variable.Type.typeName}\"; On line {context.Start.Line}:{context.Start.Column}");
+                    throw new ArgumentException($"Type \"{val.Type.TypeName}\" does not match \"{variable.Type.TypeName}\"; On line {context.Start.Line}:{context.Start.Column}");
             }
 
             return new AssignStatement(new VarExpr(context.left.Text, context.Start.Line, context.left.StartIndex), val, context.Start.Line, context.Start.Column);
@@ -78,7 +78,7 @@ namespace LL
             IAST variable = Visit(context.type);
 
             if (variable.Type is VoidType)
-                throw new ArgumentException($"Type \"{variable.Type.typeName}\" is not allowed for variables; On line {variable.Line}:{variable.Column}");
+                throw new ArgumentException($"Type \"{variable.Type.TypeName}\" is not allowed for variables; On line {variable.Line}:{variable.Column}");
 
             IAST.Env[context.left.Text] = variable;
 

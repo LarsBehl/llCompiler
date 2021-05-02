@@ -152,7 +152,7 @@ namespace LL
                 try
                 {
                     // search in the current struct for the accessed property and the assosiated type
-                    type = IAST.Structs[(sR.Type as StructType).structName].Properties.Find(s => s.Name == context.WORD().GetText()).Type;
+                    type = IAST.Structs[(sR.Type as StructType).StructName].Properties.Find(s => s.Name == context.WORD().GetText()).Type;
                 }
                 catch
                 {

@@ -3,13 +3,22 @@ using System.Globalization;
 using System.Collections.Generic;
 using LL.AST;
 using LL.Types;
+using LL.Exceptions;
 
 namespace LL
 {
     public partial class BuildAstVisitor : llBaseVisitor<IAST>
     {
+        private string CurrentFile;
         static VarExpr sR = null;
         
+        private BuildAstVisitor(): base()
+        {
+
+        }
+
+        public BuildAstVisitor(string currentFile): this() => this.CurrentFile = currentFile;
+
         public override IAST VisitCompileUnit(llParser.CompileUnitContext context)
         {
             return Visit(context.program());
@@ -21,8 +30,8 @@ namespace LL
                 return Visit(context.expression());
             if (context.statement() != null)
                 return Visit(context.statement());
-
-            throw new ArgumentException($"Unknown AST Node; On line {context.Start.Line}:{context.Start.Column}");
+            
+            throw new NodeNotImplementedException(context.GetText(), this.CurrentFile, context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitCompositUnit(llParser.CompositUnitContext context)
@@ -33,7 +42,7 @@ namespace LL
             if (context.expression() != null)
                 return Visit(context.expression());
 
-            throw new ArgumentException($"Unknown node; On line {context.Start.Line}:{context.Start.Column}");
+            throw new NodeNotImplementedException(context.GetText(), this.CurrentFile, context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitParenthes(llParser.ParenthesContext context)
@@ -46,23 +55,22 @@ namespace LL
             var identifier = context.WORD();
             FunctionDefinition funDef = IAST.Funs[identifier[0].GetText()];
             IAST.Env = funDef.FunctionEnv;
+            int line = context.Start.Line;
+            int column = context.Start.Column;
+
             // save the new function definition
-            if (funDef.Body != null)
-                throw new ArgumentException($"Trying to override the body of function \"{identifier[0].GetText()}\"; On line {context.Start.Line}:{context.Start.Column}");
             var body = Visit(context.body) as BlockStatement;
 
             if ((body.Type != funDef.ReturnType || !body.DoesFullyReturn)
             && !(funDef.ReturnType is VoidType))
             {
                 if (body.Type is BlockStatementType || !body.DoesFullyReturn)
-                    throw new ArgumentException($"Missing return statement in \"{funDef.Name}\"; On line {context.Start.Line}:{context.Start.Column}");
-                throw new ArgumentException($"Return type \"{body.Type.typeName}\" does not match \"{funDef.ReturnType.typeName}\"; On line {context.Start.Line}:{context.Start.Column}");
+                    throw new MissingReturnStatementException(funDef.Name, funDef.ReturnType.ToString(), this.CurrentFile, line, column);
+                throw new TypeMissmatchException(funDef.ReturnType.ToString(), body.Type.ToString(), this.CurrentFile, line, column);
             }
 
             if ((funDef.ReturnType is VoidType) && (!(body.Type is VoidType) && !(body.Type is BlockStatementType)))
-                throw new ArgumentException($"Could not return \"{body.Type.typeName}\" in a void function; On line {context.Start.Line}:{context.Start.Column}");
-            if ((funDef.ReturnType is StructType ft && body.Type is StructType bt) && ft.structName != bt.structName)
-                throw new ArgumentException($"Return type \"{bt.structName}\" does not match \"{ft.structName}\"; On line {context.Start.Line}:{context.Start.Column}");
+                throw new TypeMissmatchException(funDef.ReturnType.ToString(), body.Type.ToString(), this.CurrentFile, line, column);
 
             funDef.Body = body;
             IAST.Funs[funDef.Name] = funDef;
@@ -76,6 +84,8 @@ namespace LL
             List<IAST> structDefs = new List<IAST>();
             var structs = context.structDefinition();
             var funs = context.functionDefinition();
+            int line = context.Start.Line;
+            int column = context.Start.Column;
 
             if (funs?.Length > 0 || structs?.Length > 0)
             {
@@ -85,26 +95,25 @@ namespace LL
                 foreach (var funDef in funs)
                     funDefs.Add(Visit(funDef));
 
-                return new ProgramNode(funDefs, structDefs, context.Start.Line, context.Start.Column);
+                return new ProgramNode(funDefs, structDefs, line, column);
             }
 
             if (context.compositUnit() != null)
                 return Visit(context.compositUnit());
 
-            throw new ArgumentException($"Unknown node in Program; On line {context.Start.Line}:{context.Start.Column}");
+            throw new NodeNotImplementedException(context.GetText(), this.CurrentFile, line, column);
         }
 
         public override IAST VisitStructDefinition(llParser.StructDefinitionContext context)
         {
             string name = context.WORD().GetText();
+            int line = context.WORD().Symbol.Line;
+            int column = context.WORD().Symbol.Column;
 
             if (!IAST.Structs.ContainsKey(name))
-                throw new ArgumentException($"Unknown struct \"{name}\"; On line {context.WORD().Symbol.Line}:{context.WORD().Symbol.Column}");
+                throw new UnknownTypeException(name, this.CurrentFile, line, column);
 
             StructDefinition structDef = IAST.Structs[name];
-
-            if (structDef.Properties != null)
-                throw new ArgumentException($"Multiple definitions of struct \"{name}\"; On line {context.WORD().Symbol.Line}:{context.WORD().Symbol.Column}");
 
             var props = context.structProperties();
             List<StructProperty> properties = new List<StructProperty>();
@@ -114,7 +123,7 @@ namespace LL
                 var tmp = Visit(prop) as StructProperty;
 
                 if (properties.FindIndex(s => s.Name == tmp.Name) >= 0)
-                    throw new ArgumentException($"Multiple definitions of \"{tmp.Name}\" in struct \"{name}\"; On line {context.Start.Line}:{context.Start.Column}");
+                    throw new PropertyAlreadyDefinedException(tmp.Name, name, this.CurrentFile, line, column);
 
                 properties.Add(tmp);
             }

@@ -90,7 +90,7 @@ namespace LL.CodeGeneration
 
                             break;
                         default:
-                            throw new ArgumentException($"Unknown type {functionCall.Args[i].Type.typeName}");
+                            throw new ArgumentException($"Unknown type {functionCall.Args[i].Type.TypeName}");
                     }
                 }
                 this.stackCounter += rbpOffset - 16;

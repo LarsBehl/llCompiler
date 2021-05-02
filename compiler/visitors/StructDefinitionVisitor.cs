@@ -1,5 +1,6 @@
 using Antlr4.Runtime.Misc;
 using LL.AST;
+using LL.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -54,8 +55,13 @@ namespace LL
         public override IAST VisitStructDefinition(llParser.StructDefinitionContext context)
         {
             string name = context.WORD().GetText();
+            int line = context.Start.Line;
+            int column = context.Start.Column;
 
-            IAST.Structs[name] = new StructDefinition(name, context.Start.Line, context.Start.Column);
+            if(IAST.Structs.ContainsKey(name))
+                throw new StructAlreadyDefinedException(name, this.CurrentFile, line, column);
+
+            IAST.Structs[name] = new StructDefinition(name, line, column);
 
             // unused value
             return null;

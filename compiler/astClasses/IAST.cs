@@ -226,15 +226,15 @@ namespace LL.AST
                         return new IntLit((me.Left.Eval() as IntLit).Value * (me.Right.Eval() as IntLit).Value, me.Line, me.Column);
                     if (me.Right.Type is DoubleType)
                         return new DoubleLit((me.Left.Eval() as IntLit).Value * (me.Right.Eval() as DoubleLit).Value, me.Line, me.Column);
-                    throw new ArgumentException($"Type \"{me.Left.Type.typeName}\" is incompatible with \"{me.Right.Type.typeName}\"");
+                    throw new ArgumentException($"Type \"{me.Left.Type.TypeName}\" is incompatible with \"{me.Right.Type.TypeName}\"");
                 case DoubleType d:
                     if (me.Right.Type is IntType)
                         return new DoubleLit((me.Left.Eval() as DoubleLit).Value * (me.Right.Eval() as IntLit).Value, me.Line, me.Column);
                     if (me.Right.Type is DoubleType)
                         return new DoubleLit((me.Left.Eval() as DoubleLit).Value * (me.Right.Eval() as DoubleLit).Value, me.Line, me.Column);
-                    throw new ArgumentException($"Type \"{me.Left.Type.typeName}\" is incompatible with \"{me.Right.Type.typeName}\"");
+                    throw new ArgumentException($"Type \"{me.Left.Type.TypeName}\" is incompatible with \"{me.Right.Type.TypeName}\"");
                 default:
-                    throw new ArgumentException($"Unknown type \"{me.Left.Type.typeName}\"");
+                    throw new ArgumentException($"Unknown type \"{me.Left.Type.TypeName}\"");
             }
         }
 
@@ -247,15 +247,15 @@ namespace LL.AST
                         return new IntLit((div.Left.Eval() as IntLit).Value / (div.Right.Eval() as IntLit).Value, div.Line, div.Column);
                     if (div.Right.Type is DoubleType)
                         return new DoubleLit((div.Left.Eval() as IntLit).Value / (div.Right.Eval() as DoubleLit).Value, div.Line, div.Column);
-                    throw new ArgumentException($"Type \"{div.Left.Type.typeName}\" is incompatible with \"{div.Right.Type.typeName}\"");
+                    throw new ArgumentException($"Type \"{div.Left.Type.TypeName}\" is incompatible with \"{div.Right.Type.TypeName}\"");
                 case DoubleType d:
                     if (div.Right.Type is IntType)
                         return new DoubleLit((div.Left.Eval() as DoubleLit).Value / (div.Right.Eval() as IntLit).Value, div.Line, div.Column);
                     if (div.Right.Type is DoubleType)
                         return new DoubleLit((div.Left.Eval() as DoubleLit).Value / (div.Right.Eval() as DoubleLit).Value, div.Line, div.Column);
-                    throw new ArgumentException($"Type \"{div.Left.Type.typeName}\" is incompatible with \"{div.Right.Type.typeName}\"");
+                    throw new ArgumentException($"Type \"{div.Left.Type.TypeName}\" is incompatible with \"{div.Right.Type.TypeName}\"");
                 default:
-                    throw new ArgumentException($"Unknown type \"{div.Left.Type.typeName}\"");
+                    throw new ArgumentException($"Unknown type \"{div.Left.Type.TypeName}\"");
             }
         }
 
@@ -268,15 +268,15 @@ namespace LL.AST
                         return new IntLit((add.Left.Eval() as IntLit).Value + (add.Right.Eval() as IntLit).Value, add.Line, add.Column);
                     if (add.Right.Type is DoubleType)
                         return new DoubleLit((add.Left.Eval() as IntLit).Value + (add.Right.Eval() as DoubleLit).Value, add.Line, add.Column);
-                    throw new ArgumentException($"Type \"{add.Left.Type.typeName}\" is incompatible with \"{add.Right.Type.typeName}\"");
+                    throw new ArgumentException($"Type \"{add.Left.Type.TypeName}\" is incompatible with \"{add.Right.Type.TypeName}\"");
                 case DoubleType d:
                     if (add.Right.Type is IntType)
                         return new DoubleLit((add.Left.Eval() as DoubleLit).Value + (add.Right.Eval() as IntLit).Value, add.Line, add.Column);
                     if (add.Right.Type is DoubleType)
                         return new DoubleLit((add.Left.Eval() as DoubleLit).Value + (add.Right.Eval() as DoubleLit).Value, add.Line, add.Column);
-                    throw new ArgumentException($"Type \"{add.Left.Type.typeName}\" is incompatible with \"{add.Right.Type.typeName}\"");
+                    throw new ArgumentException($"Type \"{add.Left.Type.TypeName}\" is incompatible with \"{add.Right.Type.TypeName}\"");
                 default:
-                    throw new ArgumentException($"Unknown type \"{add.Left.Type.typeName}\"");
+                    throw new ArgumentException($"Unknown type \"{add.Left.Type.TypeName}\"");
             }
         }
 
@@ -289,15 +289,15 @@ namespace LL.AST
                         return new IntLit((sub.Left.Eval() as IntLit).Value - (sub.Right.Eval() as IntLit).Value, sub.Line, sub.Column);
                     if (sub.Right.Type is DoubleType)
                         return new DoubleLit((sub.Left.Eval() as IntLit).Value - (sub.Right.Eval() as DoubleLit).Value, sub.Line, sub.Column);
-                    throw new ArgumentException($"Type \"{sub.Left.Type.typeName}\" is incompatible with \"{sub.Right.Type.typeName}\"");
+                    throw new ArgumentException($"Type \"{sub.Left.Type.TypeName}\" is incompatible with \"{sub.Right.Type.TypeName}\"");
                 case DoubleType d:
                     if (sub.Right.Type is IntType)
                         return new DoubleLit((sub.Left.Eval() as DoubleLit).Value - (sub.Right.Eval() as IntLit).Value, sub.Line, sub.Column);
                     if (sub.Right.Type is DoubleType)
                         return new DoubleLit((sub.Left.Eval() as DoubleLit).Value - (sub.Right.Eval() as DoubleLit).Value, sub.Line, sub.Column);
-                    throw new ArgumentException($"Type \"{sub.Left.Type.typeName}\" is incompatible with \"{sub.Right.Type.typeName}\"");
+                    throw new ArgumentException($"Type \"{sub.Left.Type.TypeName}\" is incompatible with \"{sub.Right.Type.TypeName}\"");
                 default:
-                    throw new ArgumentException($"Unknown type \"{sub.Left.Type.typeName}\"");
+                    throw new ArgumentException($"Unknown type \"{sub.Left.Type.TypeName}\"");
             }
         }
 
@@ -314,16 +314,16 @@ namespace LL.AST
                         return new BoolLit((eq.Left.Eval() as IntLit).Value == (eq.Right.Eval() as IntLit).Value, eq.Line, eq.Column);
                     if (eq.Right.Type is DoubleType)
                         return new BoolLit((eq.Left.Eval() as IntLit).Value == (eq.Right.Eval() as DoubleLit).Value, eq.Line, eq.Column);
-                    throw new ArgumentException($"Type \"{eq.Left.Type.typeName}\" is incompatible with \"{eq.Right.Type.typeName}\"");
+                    throw new ArgumentException($"Type \"{eq.Left.Type.TypeName}\" is incompatible with \"{eq.Right.Type.TypeName}\"");
                 case DoubleType d:
                     if (eq.Right.Type is IntType)
                         return new BoolLit((eq.Left.Eval() as DoubleLit).Value == (eq.Right.Eval() as IntLit).Value, eq.Line, eq.Column);
                     if (eq.Right.Type is DoubleType)
                         return new BoolLit((eq.Left.Eval() as DoubleLit).Value == (eq.Right.Eval() as DoubleLit).Value, eq.Line, eq.Column);
-                    throw new ArgumentException($"Type \"{eq.Left.Type.typeName}\" is incompatible with \"{eq.Right.Type.typeName}\"");
+                    throw new ArgumentException($"Type \"{eq.Left.Type.TypeName}\" is incompatible with \"{eq.Right.Type.TypeName}\"");
                 case BooleanType b:
                     if (!(eq.Right.Type is BooleanType))
-                        throw new ArgumentException($"Type \"{eq.Left.Type.typeName}\" is incompatible with \"{eq.Right.Type.typeName}\"");
+                        throw new ArgumentException($"Type \"{eq.Left.Type.TypeName}\" is incompatible with \"{eq.Right.Type.TypeName}\"");
                     return new BoolLit((eq.Left.Eval() as BoolLit).Value == (eq.Right.Eval() as BoolLit).Value, eq.Line, eq.Column);
                 case NullType nullType:
                     tmp = false;
@@ -357,7 +357,7 @@ namespace LL.AST
 
                     return new BoolLit(tmp, eq.Line, eq.Column);
                 default:
-                    throw new ArgumentException($"Unknown type \"{eq.Left.Type.typeName}\"");
+                    throw new ArgumentException($"Unknown type \"{eq.Left.Type.TypeName}\"");
             }
         }
 
@@ -382,7 +382,7 @@ namespace LL.AST
                         return result;
                     }
 
-                    throw new ArgumentException($"Type \"{le.Left.Type.typeName}\" is incompatible with \"{le.Right.Type.typeName}\"");
+                    throw new ArgumentException($"Type \"{le.Left.Type.TypeName}\" is incompatible with \"{le.Right.Type.TypeName}\"");
                 case DoubleType d:
                     if (le.Right.Type is IntType)
                     {
@@ -400,9 +400,9 @@ namespace LL.AST
                         return result;
                     }
 
-                    throw new ArgumentException($"Type \"{le.Left.Type.typeName}\" is incompatible with \"{le.Right.Type.typeName}\"");
+                    throw new ArgumentException($"Type \"{le.Left.Type.TypeName}\" is incompatible with \"{le.Right.Type.TypeName}\"");
                 default:
-                    throw new ArgumentException($"Unknown type \"{le.Left.Type.typeName}\"");
+                    throw new ArgumentException($"Unknown type \"{le.Left.Type.TypeName}\"");
             }
         }
 
@@ -427,7 +427,7 @@ namespace LL.AST
                         return result;
                     }
 
-                    throw new ArgumentException($"Type \"{ge.Left.Type.typeName}\" is incompatible with \"{ge.Right.Type.typeName}\"");
+                    throw new ArgumentException($"Type \"{ge.Left.Type.TypeName}\" is incompatible with \"{ge.Right.Type.TypeName}\"");
                 case DoubleType d:
                     if (ge.Right.Type is IntType)
                     {
@@ -445,9 +445,9 @@ namespace LL.AST
                         return result;
                     }
 
-                    throw new ArgumentException($"Type \"{ge.Left.Type.typeName}\" is incompatible with \"{ge.Right.Type.typeName}\"");
+                    throw new ArgumentException($"Type \"{ge.Left.Type.TypeName}\" is incompatible with \"{ge.Right.Type.TypeName}\"");
                 default:
-                    throw new ArgumentException($"Unknown type \"{ge.Left.Type.typeName}\"");
+                    throw new ArgumentException($"Unknown type \"{ge.Left.Type.TypeName}\"");
             }
         }
 
@@ -465,7 +465,7 @@ namespace LL.AST
                     result = new DoubleLit((variable as DoubleLit).Value + 1, increment.Line, increment.Column);
                     break;
                 default:
-                    throw new ArgumentException($"Type \"{increment.Type.typeName}\" not allowed for Increment");
+                    throw new ArgumentException($"Type \"{increment.Type.TypeName}\" not allowed for Increment");
             }
 
             switch (increment.Variable)
@@ -508,7 +508,7 @@ namespace LL.AST
                     result = new DoubleLit((variable as DoubleLit).Value - 1, decrement.Line, decrement.Column);
                     break;
                 default:
-                    throw new ArgumentException($"Type \"{decrement.Type.typeName}\" not allowed for Increment");
+                    throw new ArgumentException($"Type \"{decrement.Type.TypeName}\" not allowed for Increment");
             }
 
             switch (decrement.Variable)
@@ -548,7 +548,7 @@ namespace LL.AST
                     variable = Env[addAssign.Left.Name].Eval();
                     return new DoubleLit((variable as DoubleLit).Value + (addAssign.Right.Eval() as DoubleLit).Value, addAssign.Line, addAssign.Column);
                 default:
-                    throw new ArgumentException($"Could not use type \"{addAssign.Type.typeName}\" with AddAssignStatement");
+                    throw new ArgumentException($"Could not use type \"{addAssign.Type.TypeName}\" with AddAssignStatement");
             }
         }
 
@@ -565,7 +565,7 @@ namespace LL.AST
                     variable = Env[subAssign.Left.Name].Eval();
                     return new DoubleLit((variable as DoubleLit).Value - (subAssign.Right.Eval() as DoubleLit).Value, subAssign.Line, subAssign.Column);
                 default:
-                    throw new ArgumentException($"Could not use type \"{subAssign.Type.typeName}\" with SubAssignStatement");
+                    throw new ArgumentException($"Could not use type \"{subAssign.Type.TypeName}\" with SubAssignStatement");
             }
         }
 
@@ -582,7 +582,7 @@ namespace LL.AST
                     variable = Env[multAssign.Left.Name].Eval();
                     return new DoubleLit((variable as DoubleLit).Value * (multAssign.Right.Eval() as DoubleLit).Value, multAssign.Line, multAssign.Column);
                 default:
-                    throw new ArgumentException($"Could not use type \"{multAssign.Type.typeName}\" with MultAssignStatement");
+                    throw new ArgumentException($"Could not use type \"{multAssign.Type.TypeName}\" with MultAssignStatement");
             }
         }
 
@@ -599,7 +599,7 @@ namespace LL.AST
                     variable = Env[divAssign.Left.Name].Eval();
                     return new DoubleLit((variable as DoubleLit).Value / (divAssign.Right.Eval() as DoubleLit).Value, divAssign.Line, divAssign.Column);
                 default:
-                    throw new ArgumentException($"Could not use type \"{divAssign.Type.typeName}\" with DivAssignStatement");
+                    throw new ArgumentException($"Could not use type \"{divAssign.Type.TypeName}\" with DivAssignStatement");
             }
         }
 
@@ -616,16 +616,16 @@ namespace LL.AST
                         return new BoolLit((notEqual.Left.Eval() as IntLit).Value != (notEqual.Right.Eval() as IntLit).Value, notEqual.Line, notEqual.Column);
                     if (notEqual.Right.Type is DoubleType)
                         return new BoolLit((notEqual.Left.Eval() as IntLit).Value != (notEqual.Right.Eval() as DoubleLit).Value, notEqual.Line, notEqual.Column);
-                    throw new ArgumentException($"Type \"{notEqual.Left.Type.typeName}\" is incompatible with \"{notEqual.Right.Type.typeName}\"");
+                    throw new ArgumentException($"Type \"{notEqual.Left.Type.TypeName}\" is incompatible with \"{notEqual.Right.Type.TypeName}\"");
                 case DoubleType d:
                     if (notEqual.Right.Type is IntType)
                         return new BoolLit((notEqual.Left.Eval() as DoubleLit).Value != (notEqual.Right.Eval() as IntLit).Value, notEqual.Line, notEqual.Column);
                     if (notEqual.Right.Type is DoubleType)
                         return new BoolLit((notEqual.Left.Eval() as DoubleLit).Value != (notEqual.Right.Eval() as DoubleLit).Value, notEqual.Line, notEqual.Column);
-                    throw new ArgumentException($"Type \"{notEqual.Left.Type.typeName}\" is incompatible with \"{notEqual.Right.Type.typeName}\"");
+                    throw new ArgumentException($"Type \"{notEqual.Left.Type.TypeName}\" is incompatible with \"{notEqual.Right.Type.TypeName}\"");
                 case BooleanType b:
                     if (!(notEqual.Right.Type is BooleanType))
-                        throw new ArgumentException($"Type \"{notEqual.Left.Type.typeName}\" is incompatible with \"{notEqual.Right.Type.typeName}\"");
+                        throw new ArgumentException($"Type \"{notEqual.Left.Type.TypeName}\" is incompatible with \"{notEqual.Right.Type.TypeName}\"");
                     return new BoolLit((notEqual.Left.Eval() as BoolLit).Value != (notEqual.Right.Eval() as BoolLit).Value, notEqual.Line, notEqual.Column);
                 case NullType nullType:
                     tmp = false;
@@ -659,7 +659,7 @@ namespace LL.AST
 
                     return new BoolLit(tmp, notEqual.Line, notEqual.Column);
                 default:
-                    throw new ArgumentException($"Unknown type \"{notEqual.Left.Type.typeName}\"");
+                    throw new ArgumentException($"Unknown type \"{notEqual.Left.Type.TypeName}\"");
             }
         }
 
@@ -681,7 +681,7 @@ namespace LL.AST
                     result = tmp3.Value.ToString() ?? "";
                     break;
                 default:
-                    throw new ArgumentException($"Print does not support type {print.Value.Type.typeName}");
+                    throw new ArgumentException($"Print does not support type {print.Value.Type.TypeName}");
             }
 
             Console.WriteLine(result);

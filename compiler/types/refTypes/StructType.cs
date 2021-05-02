@@ -2,16 +2,22 @@ namespace LL.Types
 {
     public class StructType : RefType
     {
-        public string structName { get; set; }
+        public string StructName { get; set; }
+        
         public StructType(string structName) : base("StructType")
         {
-            this.structName = structName;
+            this.StructName = structName;
+        }
+
+        public override string ToString()
+        {
+            return $"{this.TypeName}: {this.StructName}";
         }
 
         public override bool Equals(object obj)
         {
             if(obj is StructType st)
-                return st.structName == this.structName;
+                return st.StructName == this.StructName;
             
             return obj is NullType;
         }

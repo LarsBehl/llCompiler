@@ -10,7 +10,7 @@ namespace LL.AST
         public DestructionStatement(ValueAccessExpression refType, int line, int column) : base(new DestructionStatementType(), line, column)
         {
             if (!(refType.Type is RefType))
-                throw new ArgumentException($"Coul dnot free non ref type \"{refType.Type.typeName}\"; On line {line}:{column}");
+                throw new ArgumentException($"Coul dnot free non ref type \"{refType.Type.TypeName}\"; On line {line}:{column}");
             this.RefType = refType;
         }
     }

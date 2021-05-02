@@ -15,7 +15,7 @@ namespace LL.AST
             if(Left.Type != Right.Type)
             {
                 if((Left.Type is not DoubleType || Right.Type is not IntType) && (Left.Type is not IntType || Right.Type is not DoubleType))
-                    throw new ArgumentException($"Could not compare {this.Left.Type.typeName} with {this.Right.Type.typeName}; On line {this.Line}:{this.Column}");
+                    throw new ArgumentException($"Could not compare {this.Left.Type.TypeName} with {this.Right.Type.TypeName}; On line {this.Line}:{this.Column}");
             }
         }
     }

@@ -151,7 +151,7 @@ namespace LL.CodeGeneration
                     this.WriteLine($"movq %xmm0, {this.variableMap[addAssignStatement.Left.Name]}(%rbp)");
                     break;
                 default:
-                    throw new ArgumentException($"AddAssign Statement not compatible with type \"{addAssignStatement.Left.Type.typeName}\"");
+                    throw new ArgumentException($"AddAssign Statement not compatible with type \"{addAssignStatement.Left.Type.TypeName}\"");
             }
         }
 
@@ -174,7 +174,7 @@ namespace LL.CodeGeneration
                     this.WriteLine($"movq %xmm0, {this.variableMap[subAssignStatement.Left.Name]}(%rbp)");
                     break;
                 default:
-                    throw new ArgumentException($"SubAssign Statement not compatible with type \"{subAssignStatement.Left.Type.typeName}\"");
+                    throw new ArgumentException($"SubAssign Statement not compatible with type \"{subAssignStatement.Left.Type.TypeName}\"");
             }
         }
 
@@ -197,7 +197,7 @@ namespace LL.CodeGeneration
                     this.WriteLine($"movq %xmm0, {this.variableMap[multAssignStatement.Left.Name]}(%rbp)");
                     break;
                 default:
-                    throw new ArgumentException($"MultAssign Statment not compatible with type \"{multAssignStatement.Left.Type.typeName}\"");
+                    throw new ArgumentException($"MultAssign Statment not compatible with type \"{multAssignStatement.Left.Type.TypeName}\"");
             }
         }
 
@@ -225,7 +225,7 @@ namespace LL.CodeGeneration
                     this.WriteLine($"movq %xmm0, {this.variableMap[divAssignStatement.Left.Name]}(%rbp)");
                     break;
                 default:
-                    throw new ArgumentException($"DivAssign Statement not compatible with type \"{divAssignStatement.Left.Type.typeName}\"");
+                    throw new ArgumentException($"DivAssign Statement not compatible with type \"{divAssignStatement.Left.Type.TypeName}\"");
             }
         }
 

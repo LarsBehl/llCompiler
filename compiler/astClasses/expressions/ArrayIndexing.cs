@@ -10,7 +10,7 @@ namespace LL.AST
         public ArrayIndexing(IAST array, IAST index, int line, int column) : base(GetType(array, line, column), line, column)
         {
             if (!(index.Type is IntType))
-                throw new ArgumentException($"The index of an array has to be an int; received: {index.Type.typeName}; On line {line}:{column}");
+                throw new ArgumentException($"The index of an array has to be an int; received: {index.Type.TypeName}; On line {line}:{column}");
 
             this.Left = array;
             this.Right = index;
@@ -27,7 +27,7 @@ namespace LL.AST
                 case BoolArrayType bat:
                     return new BooleanType();
                 default:
-                    throw new ArgumentException($"Given object is not an array: {array.Type.typeName}; On line {line}:{column}");
+                    throw new ArgumentException($"Given object is not an array: {array.Type.TypeName}; On line {line}:{column}");
             }
         }
     }

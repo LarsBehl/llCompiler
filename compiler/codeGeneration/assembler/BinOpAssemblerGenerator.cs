@@ -45,7 +45,7 @@ namespace LL.CodeGeneration
                     }
                     break;
                 default:
-                    throw new InvalidOperationException($"Could not perform addition on type {addExpr.Type.typeName}");
+                    throw new InvalidOperationException($"Could not perform addition on type {addExpr.Type.TypeName}");
             }
         }
 
@@ -87,7 +87,7 @@ namespace LL.CodeGeneration
                     }
                     break;
                 default:
-                    throw new InvalidOperationException($"Could not perform addition on type {subExpr.Type.typeName}");
+                    throw new InvalidOperationException($"Could not perform addition on type {subExpr.Type.TypeName}");
             }
         }
 
@@ -129,7 +129,7 @@ namespace LL.CodeGeneration
                     }
                     break;
                 default:
-                    throw new InvalidOperationException($"Could not perform addition on type {multExpr.Type.typeName}");
+                    throw new InvalidOperationException($"Could not perform addition on type {multExpr.Type.TypeName}");
             }
         }
 
@@ -174,7 +174,7 @@ namespace LL.CodeGeneration
                     }
                     break;
                 default:
-                    throw new InvalidOperationException($"Could not perform addition on type {divExpr.Type.typeName}");
+                    throw new InvalidOperationException($"Could not perform addition on type {divExpr.Type.TypeName}");
             }
         }
 

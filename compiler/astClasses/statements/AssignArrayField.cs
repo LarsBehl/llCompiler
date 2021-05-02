@@ -13,7 +13,7 @@ namespace LL.AST
             if (arrayIndexing.Type != value.Type)
             {
                 if(arrayIndexing.Type is not DoubleType || value.Type is not IntType)
-                    throw new ArgumentException($"Could not assign \"{value.Type.typeName}\" to an \"{arrayIndexing.Type.typeName}\" array; On line {line}:{column}");
+                    throw new ArgumentException($"Could not assign \"{value.Type.TypeName}\" to an \"{arrayIndexing.Type.TypeName}\" array; On line {line}:{column}");
             }
 
             this.ArrayIndex = arrayIndexing;
