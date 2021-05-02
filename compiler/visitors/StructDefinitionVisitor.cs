@@ -11,7 +11,7 @@ namespace LL
     {
         private Queue<string> Directories;
         private List<string> Files;
-        private static readonly string FILE_ENDING;
+        private static readonly string FILE_ENDING = "ll";
         private string CurrentFile;
 
         // hide the default constructor
@@ -43,10 +43,10 @@ namespace LL
                 Files.AddRange(Directory.GetFiles(Environment.CurrentDirectory));
             }
 
-            string fileToFind = context.fileName.ToString();
+            string fileToFind = context.fileName.Text;
 
             if(!IsFilePresent(fileToFind))
-                throw new Exceptions.FileNotFoundException(fileToFind, null, context.Start.Line, context.Start.Column);
+                throw new Exceptions.FileNotFoundException(fileToFind, CurrentFile, context.Start.Line, context.Start.Column);
 
             throw new NotImplementedException();
         }
@@ -91,8 +91,8 @@ namespace LL
         {
             return Files.Find(filePath =>
             {
-                int lastSlash = filePath.LastIndexOf('/');
-                string fName = filePath.Substring(lastSlash);
+                int lastSlash = filePath.LastIndexOf(Path.DirectorySeparatorChar);
+                string fName = filePath.Substring(lastSlash+1);
                 string[] parts = fName.Split('.', StringSplitOptions.RemoveEmptyEntries);
 
                 return parts[0] == fileName && parts[1] == FILE_ENDING;
