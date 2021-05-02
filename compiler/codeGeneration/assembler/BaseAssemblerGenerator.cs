@@ -3,6 +3,7 @@ using System.Text;
 using System.Collections.Generic;
 using LL.AST;
 using LL.Types;
+using LL.Exceptions;
 using System.Runtime.InteropServices;
 using System.IO;
 
@@ -131,7 +132,7 @@ namespace LL.CodeGeneration
                 case ModExpr modExpr:
                     this.ModExprAsm(modExpr); break;
                 default:
-                    throw new NotImplementedException($"Assembler generation not implemented for {astNode.ToString()}");
+                    throw new CodeGenerationNotImplementedException(astNode.ToString(), null, astNode.Line, astNode.Column);
             }
         }
 

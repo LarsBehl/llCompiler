@@ -1,5 +1,6 @@
 using System;
 using LL.AST;
+using LL.Exceptions;
 
 namespace LL
 {
@@ -7,19 +8,23 @@ namespace LL
     {
         public override IAST VisitTypeDefinition(llParser.TypeDefinitionContext context)
         {
+            int line = context.Start.Line;
+            int column = context.Start.Column;
+
             if (context.INT_TYPE() != null)
-                return new IntLit(null, context.Start.Line, context.Start.Column);
+                return new IntLit(null, line, column);
             if (context.DOUBLE_TYPE() != null)
-                return new DoubleLit(null, context.Start.Line, context.Start.Column);
+                return new DoubleLit(null, line, column);
             if (context.BOOL_TYPE() != null)
-                return new BoolLit(null, context.Start.Line, context.Start.Column);
+                return new BoolLit(null, line, column);
             if (context.VOID_TYPE() != null)
-                return new VoidLit(context.Start.Line, context.Start.Column);
+                return new VoidLit(line, column);
             if (context.arrayTypes() != null)
                 return Visit(context.arrayTypes());
             if (context.structName() != null)
                 return Visit(context.structName());
-            throw new ArgumentException($"Unsupported type; On line {context.Start.Line}:{context.Start.Column}");
+            
+            throw new UnknownTypeException(context.GetText(), this.CurrentFile, line, column);
         }
 
         // TODO rework arrays so it is possible to create arrays of reference types
@@ -41,11 +46,13 @@ namespace LL
         public override IAST VisitStructName(llParser.StructNameContext context)
         {
             string name = context.WORD().GetText();
+            int line = context.Start.Line;
+            int column = context.Start.Column;
 
             if (!IAST.Structs.ContainsKey(name))
-                throw new ArgumentException($"Unknown struct \"{name}\"; On line {context.Start.Line}:{context.Start.Column}");
+                throw new UnknownTypeException(name, this.CurrentFile, line, column);
 
-            return new Struct(name, context.Start.Line, context.Start.Column);
+            return new Struct(name, line, column);
         }
     }
 }
