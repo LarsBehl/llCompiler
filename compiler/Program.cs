@@ -46,7 +46,7 @@ namespace ll
                 var lexer = new llLexer(inputStream);
                 var tokenStream = new CommonTokenStream(lexer);
                 var parser = new llParser(tokenStream);
-                var tmp = new StructDefinitionVisitor().VisitCompileUnit(parser.compileUnit());
+                var tmp = new StructDefinitionVisitor("InterpreterMode").VisitCompileUnit(parser.compileUnit());
 
                 inputStream = new AntlrInputStream(text);
                 lexer = new llLexer(inputStream);
@@ -83,7 +83,7 @@ namespace ll
                 var lexer = new llLexer(inputStream);
                 var tokenStream = new CommonTokenStream(lexer);
                 var parser = new llParser(tokenStream);
-                var tmp = new StructDefinitionVisitor().VisitCompileUnit(parser.compileUnit());
+                var tmp = new StructDefinitionVisitor("InteractiveCompilerMode").VisitCompileUnit(parser.compileUnit());
 
                 inputStream = new AntlrInputStream(text);
                 lexer = new llLexer(inputStream);
@@ -110,7 +110,7 @@ namespace ll
             var lexer = new llLexer(inputStream);
             var tokenStream = new CommonTokenStream(lexer);
             var parser = new llParser(tokenStream);
-            var tmp = new StructDefinitionVisitor().VisitCompileUnit(parser.compileUnit());
+            var tmp = new StructDefinitionVisitor(inputFile).VisitCompileUnit(parser.compileUnit());
 
             inputStream = new AntlrFileStream(inputFile);
             lexer = new llLexer(inputStream);
