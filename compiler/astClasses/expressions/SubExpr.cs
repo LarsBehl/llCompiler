@@ -1,7 +1,7 @@
 using System;
-using ll.type;
+using LL.Types;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class SubExpr : BinOp
     {
@@ -10,22 +10,22 @@ namespace ll.AST
 
         }
 
-        static ll.type.Type GetType(IAST left, IAST right, int line, int column)
+        static LL.Types.Type GetType(IAST left, IAST right, int line, int column)
         {
-            switch (left.type)
+            switch (left.Type)
             {
                 case IntType i:
-                    if (right.type is IntType)
+                    if (right.Type is IntType)
                         return new IntType();
-                    if (right.type is DoubleType)
+                    if (right.Type is DoubleType)
                         return new DoubleType();
-                    throw new ArgumentException($"Type {right.type} is not allowed for \"-\" operation; On line {line}:{column}");
+                    throw new ArgumentException($"Type {right.Type} is not allowed for \"-\" operation; On line {line}:{column}");
                 case DoubleType d:
-                    if (right.type is IntType || right.type is DoubleType)
+                    if (right.Type is IntType || right.Type is DoubleType)
                         return new DoubleType();
-                    throw new ArgumentException($"Type {right.type} is not allowed for \"-\" operation; On line {line}:{column}");
+                    throw new ArgumentException($"Type {right.Type} is not allowed for \"-\" operation; On line {line}:{column}");
                 default:
-                    throw new ArgumentException($"Type {left.type} is not allowed for \"-\" operation; On line {line}:{column}");
+                    throw new ArgumentException($"Type {left.Type} is not allowed for \"-\" operation; On line {line}:{column}");
             }
         }
     }

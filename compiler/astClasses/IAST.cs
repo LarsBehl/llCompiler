@@ -1,24 +1,24 @@
 using System;
 using System.Collections.Generic;
-using ll.type;
+using LL.Types;
 
-namespace ll.AST
+namespace LL.AST
 {
     public abstract class IAST
     {
-        public static Dictionary<string, IAST> env;
-        public static Dictionary<string, FunctionDefinition> funs = new Dictionary<string, FunctionDefinition>();
-        public static Dictionary<string, StructDefinition> structs = new Dictionary<string, StructDefinition>();
-        public static Dictionary<string, IAST> structEnv = null;
-        public ll.type.Type type { get; set; }
-        public int line { get; set; }
-        public int column { get; set; }
+        public static Dictionary<string, IAST> Env;
+        public static Dictionary<string, FunctionDefinition> Funs = new Dictionary<string, FunctionDefinition>();
+        public static Dictionary<string, StructDefinition> Structs = new Dictionary<string, StructDefinition>();
+        public static Dictionary<string, IAST> StructEnv = null;
+        public LL.Types.Type Type { get; set; }
+        public int Line { get; set; }
+        public int Column { get; set; }
 
-        public IAST(ll.type.Type type, int line, int column)
+        public IAST(LL.Types.Type type, int line, int column)
         {
-            this.type = type;
-            this.line = line;
-            this.column = column;
+            this.Type = type;
+            this.Line = line;
+            this.Column = column;
         }
 
         public IAST Eval()
@@ -37,35 +37,35 @@ namespace ll.AST
                 case DivExpr div:
                     return EvalDivExpression(div);
                 case VarExpr varExpr:
-                    if (structEnv != null)
-                        return structEnv[varExpr.name];
-                    var envVar = env[varExpr.name];
+                    if (StructEnv != null)
+                        return StructEnv[varExpr.Name];
+                    var envVar = Env[varExpr.Name];
 
                     switch (envVar)
                     {
                         case DoubleLit dl:
-                            if (dl.n == null)
-                                throw new ArgumentException($"Variable \"{varExpr.name}\" is not initialized");
+                            if (dl.Value == null)
+                                throw new ArgumentException($"Variable \"{varExpr.Name}\" is not initialized");
                             break;
                         case IntLit il:
-                            if (il.n == null)
-                                throw new ArgumentException($"Variable \"{varExpr.name}\" is not initialized");
+                            if (il.Value == null)
+                                throw new ArgumentException($"Variable \"{varExpr.Name}\" is not initialized");
                             break;
                         case BoolLit bl:
-                            if (bl.value == null)
-                                throw new ArgumentException($"Variable \"{varExpr.name}\" is not initialized");
+                            if (bl.Value == null)
+                                throw new ArgumentException($"Variable \"{varExpr.Name}\" is not initialized");
                             break;
                         case IntArray intArray:
-                            if (((intArray.size.Eval() as IntLit).n ?? -1) < 0)
-                                throw new ArgumentException($"Variable \"{varExpr.name}\" is not initialized");
+                            if (((intArray.Size.Eval() as IntLit).Value ?? -1) < 0)
+                                throw new ArgumentException($"Variable \"{varExpr.Name}\" is not initialized");
                             break;
                         case DoubleArray doubleArray:
-                            if (((doubleArray.size.Eval() as IntLit).n ?? -1) < 0)
-                                throw new ArgumentException($"Variable \"{varExpr.name}\" is not initialized");
+                            if (((doubleArray.Size.Eval() as IntLit).Value ?? -1) < 0)
+                                throw new ArgumentException($"Variable \"{varExpr.Name}\" is not initialized");
                             break;
                         case BoolArray boolArray:
-                            if (((boolArray.size.Eval() as IntLit).n ?? -1) < 0)
-                                throw new ArgumentException($"Variable \"{varExpr.name}\" is not initialized");
+                            if (((boolArray.Size.Eval() as IntLit).Value ?? -1) < 0)
+                                throw new ArgumentException($"Variable \"{varExpr.Name}\" is not initialized");
                             break;
                         default:
                             break;
@@ -73,13 +73,13 @@ namespace ll.AST
 
                     return envVar.Eval();
                 case AssignStatement assign:
-                    var tmp = assign.value.Eval();
-                    env[assign.variable.name] = tmp;
+                    var tmp = assign.Value.Eval();
+                    Env[assign.Variable.Name] = tmp;
                     return null;
                 case BlockStatement block:
                     IAST resultBlock = null;
 
-                    foreach (var comp in block.body)
+                    foreach (var comp in block.Body)
                     {
                         if (comp is ReturnStatement)
                         {
@@ -95,7 +95,7 @@ namespace ll.AST
                             break;
                         }
 
-                        if (comp is WhileStatement && !(comp.type is WhileStatementType))
+                        if (comp is WhileStatement && !(comp.Type is WhileStatementType))
                         {
                             resultBlock = comp.Eval();
                             break;
@@ -106,7 +106,7 @@ namespace ll.AST
 
                     return resultBlock;
                 case ReturnStatement returnExpr:
-                    return returnExpr.returnValue?.Eval() ?? null;
+                    return returnExpr.ReturnValue?.Eval() ?? null;
                 case EqualityExpr equalityExpr:
                     return EvalEqualityExpression(equalityExpr);
                 case LessExpr lessExpr:
@@ -118,31 +118,31 @@ namespace ll.AST
                 case FunctionDefinition funDef:
                     return null;
                 case FunctionCall funCall:
-                    FunctionDefinition fDef = funs[funCall.name];
-                    var newEnv = new Dictionary<string, IAST>(fDef.functionEnv);
+                    FunctionDefinition fDef = Funs[funCall.FunctionName];
+                    var newEnv = new Dictionary<string, IAST>(fDef.FunctionEnv);
 
-                    for (int k = 0; k < funCall.args.Count; k++)
+                    for (int k = 0; k < funCall.Args.Count; k++)
                     {
-                        newEnv[fDef.args[k].name] = funCall.args[k].Eval();
+                        newEnv[fDef.Args[k].Name] = funCall.Args[k].Eval();
                     }
 
-                    var oldEnv = env;
-                    env = newEnv;
+                    var oldEnv = Env;
+                    Env = newEnv;
 
-                    var result = fDef.body.Eval();
-                    env = oldEnv;
+                    var result = fDef.Body.Eval();
+                    Env = oldEnv;
 
                     return result;
                 case IfStatement ifStatement:
-                    if ((ifStatement.cond.Eval() as BoolLit).value ?? false)
-                        return ifStatement.ifBody.Eval();
-                    return ifStatement.elseBody?.Eval() ?? null;
+                    if ((ifStatement.Cond.Eval() as BoolLit).Value ?? false)
+                        return ifStatement.IfBody.Eval();
+                    return ifStatement.ElseBody?.Eval() ?? null;
                 case WhileStatement whileStatement:
                     IAST result_while = null;
-                    while ((whileStatement.condition.Eval() as BoolLit).value ?? false)
+                    while ((whileStatement.Condition.Eval() as BoolLit).Value ?? false)
                     {
-                        result_while = whileStatement.body.Eval();
-                        if (result_while != null && !(result_while.type is BlockStatementType))
+                        result_while = whileStatement.Body.Eval();
+                        if (result_while != null && !(result_while.Type is BlockStatementType))
                             break;
                     }
 
@@ -152,31 +152,31 @@ namespace ll.AST
                 case DecrementExpr decrement:
                     return EvalDecrementExpr(decrement);
                 case AddAssignStatement addAssign:
-                    env[addAssign.left.name] = EvalAddAssign(addAssign);
+                    Env[addAssign.Left.Name] = EvalAddAssign(addAssign);
                     return null;
                 case SubAssignStatement subAssign:
-                    env[subAssign.left.name] = EvalSubAssign(subAssign);
+                    Env[subAssign.Left.Name] = EvalSubAssign(subAssign);
                     return null;
                 case MultAssignStatement multAssign:
-                    env[multAssign.left.name] = EvalMultAssign(multAssign);
+                    Env[multAssign.Left.Name] = EvalMultAssign(multAssign);
                     return null;
                 case DivAssignStatement divAssign:
-                    env[divAssign.left.name] = EvalDivAssign(divAssign);
+                    Env[divAssign.Left.Name] = EvalDivAssign(divAssign);
                     return null;
                 case NotExpr notExpr:
-                    return new BoolLit(!(notExpr.value.Eval() as BoolLit).value, notExpr.line, notExpr.column);
+                    return new BoolLit(!(notExpr.Value.Eval() as BoolLit).Value, notExpr.Line, notExpr.Column);
                 case AndExpr andExpr:
                     return new BoolLit(
-                        ((andExpr.left.Eval() as BoolLit).value ?? false)
-                        && ((andExpr.right.Eval() as BoolLit).value ?? false), andExpr.line, andExpr.column);
+                        ((andExpr.Left.Eval() as BoolLit).Value ?? false)
+                        && ((andExpr.Right.Eval() as BoolLit).Value ?? false), andExpr.Line, andExpr.Column);
                 case OrExpr orExpr:
                     return new BoolLit(
-                        ((orExpr.left.Eval() as BoolLit).value ?? false)
-                        || ((orExpr.right.Eval() as BoolLit).value ?? false), orExpr.line, orExpr.column);
+                        ((orExpr.Left.Eval() as BoolLit).Value ?? false)
+                        || ((orExpr.Right.Eval() as BoolLit).Value ?? false), orExpr.Line, orExpr.Column);
                 case NotEqualExpr notEqualExpr:
                     return EvalNotEqualExpression(notEqualExpr);
                 case ProgramNode programNode:
-                    foreach (var f in programNode.funDefs)
+                    foreach (var f in programNode.FunDefs)
                     {
                         f.Eval();
                     }
@@ -219,85 +219,85 @@ namespace ll.AST
 
         static IAST EvalMultExpression(MultExpr me)
         {
-            switch (me.left.type)
+            switch (me.Left.Type)
             {
                 case IntType i:
-                    if (me.right.type is IntType)
-                        return new IntLit((me.left.Eval() as IntLit).n * (me.right.Eval() as IntLit).n, me.line, me.column);
-                    if (me.right.type is DoubleType)
-                        return new DoubleLit((me.left.Eval() as IntLit).n * (me.right.Eval() as DoubleLit).n, me.line, me.column);
-                    throw new ArgumentException($"Type \"{me.left.type.typeName}\" is incompatible with \"{me.right.type.typeName}\"");
+                    if (me.Right.Type is IntType)
+                        return new IntLit((me.Left.Eval() as IntLit).Value * (me.Right.Eval() as IntLit).Value, me.Line, me.Column);
+                    if (me.Right.Type is DoubleType)
+                        return new DoubleLit((me.Left.Eval() as IntLit).Value * (me.Right.Eval() as DoubleLit).Value, me.Line, me.Column);
+                    throw new ArgumentException($"Type \"{me.Left.Type.typeName}\" is incompatible with \"{me.Right.Type.typeName}\"");
                 case DoubleType d:
-                    if (me.right.type is IntType)
-                        return new DoubleLit((me.left.Eval() as DoubleLit).n * (me.right.Eval() as IntLit).n, me.line, me.column);
-                    if (me.right.type is DoubleType)
-                        return new DoubleLit((me.left.Eval() as DoubleLit).n * (me.right.Eval() as DoubleLit).n, me.line, me.column);
-                    throw new ArgumentException($"Type \"{me.left.type.typeName}\" is incompatible with \"{me.right.type.typeName}\"");
+                    if (me.Right.Type is IntType)
+                        return new DoubleLit((me.Left.Eval() as DoubleLit).Value * (me.Right.Eval() as IntLit).Value, me.Line, me.Column);
+                    if (me.Right.Type is DoubleType)
+                        return new DoubleLit((me.Left.Eval() as DoubleLit).Value * (me.Right.Eval() as DoubleLit).Value, me.Line, me.Column);
+                    throw new ArgumentException($"Type \"{me.Left.Type.typeName}\" is incompatible with \"{me.Right.Type.typeName}\"");
                 default:
-                    throw new ArgumentException($"Unknown type \"{me.left.type.typeName}\"");
+                    throw new ArgumentException($"Unknown type \"{me.Left.Type.typeName}\"");
             }
         }
 
         static IAST EvalDivExpression(DivExpr div)
         {
-            switch (div.left.type)
+            switch (div.Left.Type)
             {
                 case IntType i:
-                    if (div.right.type is IntType)
-                        return new IntLit((div.left.Eval() as IntLit).n / (div.right.Eval() as IntLit).n, div.line, div.column);
-                    if (div.right.type is DoubleType)
-                        return new DoubleLit((div.left.Eval() as IntLit).n / (div.right.Eval() as DoubleLit).n, div.line, div.column);
-                    throw new ArgumentException($"Type \"{div.left.type.typeName}\" is incompatible with \"{div.right.type.typeName}\"");
+                    if (div.Right.Type is IntType)
+                        return new IntLit((div.Left.Eval() as IntLit).Value / (div.Right.Eval() as IntLit).Value, div.Line, div.Column);
+                    if (div.Right.Type is DoubleType)
+                        return new DoubleLit((div.Left.Eval() as IntLit).Value / (div.Right.Eval() as DoubleLit).Value, div.Line, div.Column);
+                    throw new ArgumentException($"Type \"{div.Left.Type.typeName}\" is incompatible with \"{div.Right.Type.typeName}\"");
                 case DoubleType d:
-                    if (div.right.type is IntType)
-                        return new DoubleLit((div.left.Eval() as DoubleLit).n / (div.right.Eval() as IntLit).n, div.line, div.column);
-                    if (div.right.type is DoubleType)
-                        return new DoubleLit((div.left.Eval() as DoubleLit).n / (div.right.Eval() as DoubleLit).n, div.line, div.column);
-                    throw new ArgumentException($"Type \"{div.left.type.typeName}\" is incompatible with \"{div.right.type.typeName}\"");
+                    if (div.Right.Type is IntType)
+                        return new DoubleLit((div.Left.Eval() as DoubleLit).Value / (div.Right.Eval() as IntLit).Value, div.Line, div.Column);
+                    if (div.Right.Type is DoubleType)
+                        return new DoubleLit((div.Left.Eval() as DoubleLit).Value / (div.Right.Eval() as DoubleLit).Value, div.Line, div.Column);
+                    throw new ArgumentException($"Type \"{div.Left.Type.typeName}\" is incompatible with \"{div.Right.Type.typeName}\"");
                 default:
-                    throw new ArgumentException($"Unknown type \"{div.left.type.typeName}\"");
+                    throw new ArgumentException($"Unknown type \"{div.Left.Type.typeName}\"");
             }
         }
 
         static IAST EvalAddExpression(AddExpr add)
         {
-            switch (add.left.type)
+            switch (add.Left.Type)
             {
                 case IntType i:
-                    if (add.right.type is IntType)
-                        return new IntLit((add.left.Eval() as IntLit).n + (add.right.Eval() as IntLit).n, add.line, add.column);
-                    if (add.right.type is DoubleType)
-                        return new DoubleLit((add.left.Eval() as IntLit).n + (add.right.Eval() as DoubleLit).n, add.line, add.column);
-                    throw new ArgumentException($"Type \"{add.left.type.typeName}\" is incompatible with \"{add.right.type.typeName}\"");
+                    if (add.Right.Type is IntType)
+                        return new IntLit((add.Left.Eval() as IntLit).Value + (add.Right.Eval() as IntLit).Value, add.Line, add.Column);
+                    if (add.Right.Type is DoubleType)
+                        return new DoubleLit((add.Left.Eval() as IntLit).Value + (add.Right.Eval() as DoubleLit).Value, add.Line, add.Column);
+                    throw new ArgumentException($"Type \"{add.Left.Type.typeName}\" is incompatible with \"{add.Right.Type.typeName}\"");
                 case DoubleType d:
-                    if (add.right.type is IntType)
-                        return new DoubleLit((add.left.Eval() as DoubleLit).n + (add.right.Eval() as IntLit).n, add.line, add.column);
-                    if (add.right.type is DoubleType)
-                        return new DoubleLit((add.left.Eval() as DoubleLit).n + (add.right.Eval() as DoubleLit).n, add.line, add.column);
-                    throw new ArgumentException($"Type \"{add.left.type.typeName}\" is incompatible with \"{add.right.type.typeName}\"");
+                    if (add.Right.Type is IntType)
+                        return new DoubleLit((add.Left.Eval() as DoubleLit).Value + (add.Right.Eval() as IntLit).Value, add.Line, add.Column);
+                    if (add.Right.Type is DoubleType)
+                        return new DoubleLit((add.Left.Eval() as DoubleLit).Value + (add.Right.Eval() as DoubleLit).Value, add.Line, add.Column);
+                    throw new ArgumentException($"Type \"{add.Left.Type.typeName}\" is incompatible with \"{add.Right.Type.typeName}\"");
                 default:
-                    throw new ArgumentException($"Unknown type \"{add.left.type.typeName}\"");
+                    throw new ArgumentException($"Unknown type \"{add.Left.Type.typeName}\"");
             }
         }
 
         static IAST EvalSubExpression(SubExpr sub)
         {
-            switch (sub.left.type)
+            switch (sub.Left.Type)
             {
                 case IntType i:
-                    if (sub.right.type is IntType)
-                        return new IntLit((sub.left.Eval() as IntLit).n - (sub.right.Eval() as IntLit).n, sub.line, sub.column);
-                    if (sub.right.type is DoubleType)
-                        return new DoubleLit((sub.left.Eval() as IntLit).n - (sub.right.Eval() as DoubleLit).n, sub.line, sub.column);
-                    throw new ArgumentException($"Type \"{sub.left.type.typeName}\" is incompatible with \"{sub.right.type.typeName}\"");
+                    if (sub.Right.Type is IntType)
+                        return new IntLit((sub.Left.Eval() as IntLit).Value - (sub.Right.Eval() as IntLit).Value, sub.Line, sub.Column);
+                    if (sub.Right.Type is DoubleType)
+                        return new DoubleLit((sub.Left.Eval() as IntLit).Value - (sub.Right.Eval() as DoubleLit).Value, sub.Line, sub.Column);
+                    throw new ArgumentException($"Type \"{sub.Left.Type.typeName}\" is incompatible with \"{sub.Right.Type.typeName}\"");
                 case DoubleType d:
-                    if (sub.right.type is IntType)
-                        return new DoubleLit((sub.left.Eval() as DoubleLit).n - (sub.right.Eval() as IntLit).n, sub.line, sub.column);
-                    if (sub.right.type is DoubleType)
-                        return new DoubleLit((sub.left.Eval() as DoubleLit).n - (sub.right.Eval() as DoubleLit).n, sub.line, sub.column);
-                    throw new ArgumentException($"Type \"{sub.left.type.typeName}\" is incompatible with \"{sub.right.type.typeName}\"");
+                    if (sub.Right.Type is IntType)
+                        return new DoubleLit((sub.Left.Eval() as DoubleLit).Value - (sub.Right.Eval() as IntLit).Value, sub.Line, sub.Column);
+                    if (sub.Right.Type is DoubleType)
+                        return new DoubleLit((sub.Left.Eval() as DoubleLit).Value - (sub.Right.Eval() as DoubleLit).Value, sub.Line, sub.Column);
+                    throw new ArgumentException($"Type \"{sub.Left.Type.typeName}\" is incompatible with \"{sub.Right.Type.typeName}\"");
                 default:
-                    throw new ArgumentException($"Unknown type \"{sub.left.type.typeName}\"");
+                    throw new ArgumentException($"Unknown type \"{sub.Left.Type.typeName}\"");
             }
         }
 
@@ -307,187 +307,187 @@ namespace ll.AST
             IAST left = null;
             IAST right = null;
 
-            switch (eq.left.type)
+            switch (eq.Left.Type)
             {
                 case IntType i:
-                    if (eq.right.type is IntType)
-                        return new BoolLit((eq.left.Eval() as IntLit).n == (eq.right.Eval() as IntLit).n, eq.line, eq.column);
-                    if (eq.right.type is DoubleType)
-                        return new BoolLit((eq.left.Eval() as IntLit).n == (eq.right.Eval() as DoubleLit).n, eq.line, eq.column);
-                    throw new ArgumentException($"Type \"{eq.left.type.typeName}\" is incompatible with \"{eq.right.type.typeName}\"");
+                    if (eq.Right.Type is IntType)
+                        return new BoolLit((eq.Left.Eval() as IntLit).Value == (eq.Right.Eval() as IntLit).Value, eq.Line, eq.Column);
+                    if (eq.Right.Type is DoubleType)
+                        return new BoolLit((eq.Left.Eval() as IntLit).Value == (eq.Right.Eval() as DoubleLit).Value, eq.Line, eq.Column);
+                    throw new ArgumentException($"Type \"{eq.Left.Type.typeName}\" is incompatible with \"{eq.Right.Type.typeName}\"");
                 case DoubleType d:
-                    if (eq.right.type is IntType)
-                        return new BoolLit((eq.left.Eval() as DoubleLit).n == (eq.right.Eval() as IntLit).n, eq.line, eq.column);
-                    if (eq.right.type is DoubleType)
-                        return new BoolLit((eq.left.Eval() as DoubleLit).n == (eq.right.Eval() as DoubleLit).n, eq.line, eq.column);
-                    throw new ArgumentException($"Type \"{eq.left.type.typeName}\" is incompatible with \"{eq.right.type.typeName}\"");
+                    if (eq.Right.Type is IntType)
+                        return new BoolLit((eq.Left.Eval() as DoubleLit).Value == (eq.Right.Eval() as IntLit).Value, eq.Line, eq.Column);
+                    if (eq.Right.Type is DoubleType)
+                        return new BoolLit((eq.Left.Eval() as DoubleLit).Value == (eq.Right.Eval() as DoubleLit).Value, eq.Line, eq.Column);
+                    throw new ArgumentException($"Type \"{eq.Left.Type.typeName}\" is incompatible with \"{eq.Right.Type.typeName}\"");
                 case BooleanType b:
-                    if (!(eq.right.type is BooleanType))
-                        throw new ArgumentException($"Type \"{eq.left.type.typeName}\" is incompatible with \"{eq.right.type.typeName}\"");
-                    return new BoolLit((eq.left.Eval() as BoolLit).value == (eq.right.Eval() as BoolLit).value, eq.line, eq.column);
+                    if (!(eq.Right.Type is BooleanType))
+                        throw new ArgumentException($"Type \"{eq.Left.Type.typeName}\" is incompatible with \"{eq.Right.Type.typeName}\"");
+                    return new BoolLit((eq.Left.Eval() as BoolLit).Value == (eq.Right.Eval() as BoolLit).Value, eq.Line, eq.Column);
                 case NullType nullType:
                     tmp = false;
 
-                    if (eq.right.Eval().type is NullType)
+                    if (eq.Right.Eval().Type is NullType)
                         tmp = true;
 
-                    return new BoolLit(tmp, eq.line, eq.column);
+                    return new BoolLit(tmp, eq.Line, eq.Column);
                 case StructType structType:
                     tmp = false;
-                    left = eq.left.Eval();
-                    right = eq.right.Eval();
+                    left = eq.Left.Eval();
+                    right = eq.Right.Eval();
 
-                    if (left.type is NullType && right.type is NullType)
+                    if (left.Type is NullType && right.Type is NullType)
                         tmp = true;
 
                     if (left.Equals(right))
                         tmp = true;
 
-                    return new BoolLit(tmp, eq.line, eq.column);
+                    return new BoolLit(tmp, eq.Line, eq.Column);
                 case ArrayType arrayType:
                     tmp = false;
-                    left = eq.left.Eval();
-                    right = eq.right.Eval();
+                    left = eq.Left.Eval();
+                    right = eq.Right.Eval();
 
-                    if (left.type is NullType && right.type is NullType)
+                    if (left.Type is NullType && right.Type is NullType)
                         tmp = true;
 
                     if (left.Equals(right))
                         tmp = true;
 
-                    return new BoolLit(tmp, eq.line, eq.column);
+                    return new BoolLit(tmp, eq.Line, eq.Column);
                 default:
-                    throw new ArgumentException($"Unknown type \"{eq.left.type.typeName}\"");
+                    throw new ArgumentException($"Unknown type \"{eq.Left.Type.typeName}\"");
             }
         }
 
         static IAST EvalLessExpression(LessExpr le)
         {
-            switch (le.left.type)
+            switch (le.Left.Type)
             {
                 case IntType i:
-                    if (le.right.type is IntType)
+                    if (le.Right.Type is IntType)
                     {
-                        IAST result = le.equal
-                            ? new BoolLit((le.left.Eval() as IntLit).n <= (le.right.Eval() as IntLit).n, le.line, le.column)
-                            : new BoolLit((le.left.Eval() as IntLit).n < (le.right.Eval() as IntLit).n, le.line, le.column);
+                        IAST result = le.Equal
+                            ? new BoolLit((le.Left.Eval() as IntLit).Value <= (le.Right.Eval() as IntLit).Value, le.Line, le.Column)
+                            : new BoolLit((le.Left.Eval() as IntLit).Value < (le.Right.Eval() as IntLit).Value, le.Line, le.Column);
                         return result;
                     }
 
-                    if (le.right.type is DoubleType)
+                    if (le.Right.Type is DoubleType)
                     {
-                        IAST result = le.equal
-                            ? new BoolLit((le.left.Eval() as IntLit).n <= (le.right.Eval() as DoubleLit).n, le.line, le.column)
-                            : new BoolLit((le.left.Eval() as IntLit).n < (le.right.Eval() as DoubleLit).n, le.line, le.column);
+                        IAST result = le.Equal
+                            ? new BoolLit((le.Left.Eval() as IntLit).Value <= (le.Right.Eval() as DoubleLit).Value, le.Line, le.Column)
+                            : new BoolLit((le.Left.Eval() as IntLit).Value < (le.Right.Eval() as DoubleLit).Value, le.Line, le.Column);
                         return result;
                     }
 
-                    throw new ArgumentException($"Type \"{le.left.type.typeName}\" is incompatible with \"{le.right.type.typeName}\"");
+                    throw new ArgumentException($"Type \"{le.Left.Type.typeName}\" is incompatible with \"{le.Right.Type.typeName}\"");
                 case DoubleType d:
-                    if (le.right.type is IntType)
+                    if (le.Right.Type is IntType)
                     {
-                        IAST result = le.equal
-                            ? new BoolLit((le.left.Eval() as DoubleLit).n <= (le.right.Eval() as IntLit).n, le.line, le.column)
-                            : new BoolLit((le.left.Eval() as DoubleLit).n < (le.right.Eval() as IntLit).n, le.line, le.column);
+                        IAST result = le.Equal
+                            ? new BoolLit((le.Left.Eval() as DoubleLit).Value <= (le.Right.Eval() as IntLit).Value, le.Line, le.Column)
+                            : new BoolLit((le.Left.Eval() as DoubleLit).Value < (le.Right.Eval() as IntLit).Value, le.Line, le.Column);
                         return result;
                     }
 
-                    if (le.right.type is DoubleType)
+                    if (le.Right.Type is DoubleType)
                     {
-                        IAST result = le.equal
-                            ? new BoolLit((le.left.Eval() as DoubleLit).n <= (le.right.Eval() as DoubleLit).n, le.line, le.column)
-                            : new BoolLit((le.left.Eval() as DoubleLit).n < (le.right.Eval() as DoubleLit).n, le.line, le.column);
+                        IAST result = le.Equal
+                            ? new BoolLit((le.Left.Eval() as DoubleLit).Value <= (le.Right.Eval() as DoubleLit).Value, le.Line, le.Column)
+                            : new BoolLit((le.Left.Eval() as DoubleLit).Value < (le.Right.Eval() as DoubleLit).Value, le.Line, le.Column);
                         return result;
                     }
 
-                    throw new ArgumentException($"Type \"{le.left.type.typeName}\" is incompatible with \"{le.right.type.typeName}\"");
+                    throw new ArgumentException($"Type \"{le.Left.Type.typeName}\" is incompatible with \"{le.Right.Type.typeName}\"");
                 default:
-                    throw new ArgumentException($"Unknown type \"{le.left.type.typeName}\"");
+                    throw new ArgumentException($"Unknown type \"{le.Left.Type.typeName}\"");
             }
         }
 
         static IAST EvalGreaterExpression(GreaterExpr ge)
         {
-            switch (ge.left.type)
+            switch (ge.Left.Type)
             {
                 case IntType i:
-                    if (ge.right.type is IntType)
+                    if (ge.Right.Type is IntType)
                     {
-                        IAST result = ge.equal
-                            ? new BoolLit((ge.left.Eval() as IntLit).n >= (ge.right.Eval() as IntLit).n, ge.line, ge.column)
-                            : new BoolLit((ge.left.Eval() as IntLit).n > (ge.right.Eval() as IntLit).n, ge.line, ge.column);
+                        IAST result = ge.Equal
+                            ? new BoolLit((ge.Left.Eval() as IntLit).Value >= (ge.Right.Eval() as IntLit).Value, ge.Line, ge.Column)
+                            : new BoolLit((ge.Left.Eval() as IntLit).Value > (ge.Right.Eval() as IntLit).Value, ge.Line, ge.Column);
                         return result;
                     }
 
-                    if (ge.right.type is DoubleType)
+                    if (ge.Right.Type is DoubleType)
                     {
-                        IAST result = ge.equal
-                            ? new BoolLit((ge.left.Eval() as IntLit).n >= (ge.right.Eval() as DoubleLit).n, ge.line, ge.column)
-                            : new BoolLit((ge.left.Eval() as IntLit).n > (ge.right.Eval() as DoubleLit).n, ge.line, ge.column);
+                        IAST result = ge.Equal
+                            ? new BoolLit((ge.Left.Eval() as IntLit).Value >= (ge.Right.Eval() as DoubleLit).Value, ge.Line, ge.Column)
+                            : new BoolLit((ge.Left.Eval() as IntLit).Value > (ge.Right.Eval() as DoubleLit).Value, ge.Line, ge.Column);
                         return result;
                     }
 
-                    throw new ArgumentException($"Type \"{ge.left.type.typeName}\" is incompatible with \"{ge.right.type.typeName}\"");
+                    throw new ArgumentException($"Type \"{ge.Left.Type.typeName}\" is incompatible with \"{ge.Right.Type.typeName}\"");
                 case DoubleType d:
-                    if (ge.right.type is IntType)
+                    if (ge.Right.Type is IntType)
                     {
-                        IAST result = ge.equal
-                            ? new BoolLit((ge.left.Eval() as IntLit).n >= (ge.right.Eval() as IntLit).n, ge.line, ge.column)
-                            : new BoolLit((ge.left.Eval() as IntLit).n > (ge.right.Eval() as IntLit).n, ge.line, ge.column);
+                        IAST result = ge.Equal
+                            ? new BoolLit((ge.Left.Eval() as IntLit).Value >= (ge.Right.Eval() as IntLit).Value, ge.Line, ge.Column)
+                            : new BoolLit((ge.Left.Eval() as IntLit).Value > (ge.Right.Eval() as IntLit).Value, ge.Line, ge.Column);
                         return result;
                     }
 
-                    if (ge.right.type is DoubleType)
+                    if (ge.Right.Type is DoubleType)
                     {
-                        IAST result = ge.equal
-                            ? new BoolLit((ge.left.Eval() as IntLit).n >= (ge.right.Eval() as DoubleLit).n, ge.line, ge.column)
-                            : new BoolLit((ge.left.Eval() as IntLit).n > (ge.right.Eval() as DoubleLit).n, ge.line, ge.column);
+                        IAST result = ge.Equal
+                            ? new BoolLit((ge.Left.Eval() as IntLit).Value >= (ge.Right.Eval() as DoubleLit).Value, ge.Line, ge.Column)
+                            : new BoolLit((ge.Left.Eval() as IntLit).Value > (ge.Right.Eval() as DoubleLit).Value, ge.Line, ge.Column);
                         return result;
                     }
 
-                    throw new ArgumentException($"Type \"{ge.left.type.typeName}\" is incompatible with \"{ge.right.type.typeName}\"");
+                    throw new ArgumentException($"Type \"{ge.Left.Type.typeName}\" is incompatible with \"{ge.Right.Type.typeName}\"");
                 default:
-                    throw new ArgumentException($"Unknown type \"{ge.left.type.typeName}\"");
+                    throw new ArgumentException($"Unknown type \"{ge.Left.Type.typeName}\"");
             }
         }
 
         static IAST EvalIncrementExpr(IncrementExpr increment)
         {
             IAST result;
-            IAST variable = EvalValueAccessExpression(increment.variable);
+            IAST variable = EvalValueAccessExpression(increment.Variable);
 
-            switch (increment.type)
+            switch (increment.Type)
             {
                 case IntType intType:
-                    result = new IntLit((variable as IntLit).n + 1, increment.line, increment.column);
+                    result = new IntLit((variable as IntLit).Value + 1, increment.Line, increment.Column);
                     break;
                 case DoubleType doubleType:
-                    result = new DoubleLit((variable as DoubleLit).n + 1, increment.line, increment.column);
+                    result = new DoubleLit((variable as DoubleLit).Value + 1, increment.Line, increment.Column);
                     break;
                 default:
-                    throw new ArgumentException($"Type \"{increment.type.typeName}\" not allowed for Increment");
+                    throw new ArgumentException($"Type \"{increment.Type.typeName}\" not allowed for Increment");
             }
 
-            switch (increment.variable)
+            switch (increment.Variable)
             {
                 case VarExpr varExpr:
-                    env[varExpr.name] = result;
+                    Env[varExpr.Name] = result;
                     break;
                 case ArrayIndexing arrayIndexing:
-                    var tmp = new AssignArrayField(arrayIndexing, result, arrayIndexing.line, arrayIndexing.column);
+                    var tmp = new AssignArrayField(arrayIndexing, result, arrayIndexing.Line, arrayIndexing.Column);
                     tmp.Eval();
                     break;
                 case StructPropertyAccess structProperty:
-                    var tmp2 = (structProperty.structRef.Eval()) as AST.Struct;
+                    var tmp2 = (structProperty.StructRef.Eval()) as AST.Struct;
 
-                    if (!(structProperty.prop is VarExpr))
+                    if (!(structProperty.Prop is VarExpr))
                         throw new ArgumentException("Accessed structproperty is not a variable");
 
-                    tmp2.propValues[(structProperty.prop as VarExpr).name] = result;
+                    tmp2.PropValues[(structProperty.Prop as VarExpr).Name] = result;
                     break;
             }
 
-            if (increment.post)
+            if (increment.Post)
                 return variable;
             else
                 return result;
@@ -497,39 +497,39 @@ namespace ll.AST
         {
 
             IAST result;
-            IAST variable = EvalValueAccessExpression(decrement.variable);
+            IAST variable = EvalValueAccessExpression(decrement.Variable);
 
-            switch (decrement.type)
+            switch (decrement.Type)
             {
                 case IntType intType:
-                    result = new IntLit((variable as IntLit).n - 1, decrement.line, decrement.column);
+                    result = new IntLit((variable as IntLit).Value - 1, decrement.Line, decrement.Column);
                     break;
                 case DoubleType doubleType:
-                    result = new DoubleLit((variable as DoubleLit).n - 1, decrement.line, decrement.column);
+                    result = new DoubleLit((variable as DoubleLit).Value - 1, decrement.Line, decrement.Column);
                     break;
                 default:
-                    throw new ArgumentException($"Type \"{decrement.type.typeName}\" not allowed for Increment");
+                    throw new ArgumentException($"Type \"{decrement.Type.typeName}\" not allowed for Increment");
             }
 
-            switch (decrement.variable)
+            switch (decrement.Variable)
             {
                 case VarExpr varExpr:
-                    env[varExpr.name] = result;
+                    Env[varExpr.Name] = result;
                     break;
                 case ArrayIndexing arrayIndexing:
-                    var tmp = new AssignArrayField(arrayIndexing, result, arrayIndexing.line, arrayIndexing.column);
+                    var tmp = new AssignArrayField(arrayIndexing, result, arrayIndexing.Line, arrayIndexing.Column);
                     tmp.Eval();
                     break;
                 case StructPropertyAccess structProperty:
-                    var tmp2 = (structProperty.structRef.Eval()) as AST.Struct;
+                    var tmp2 = (structProperty.StructRef.Eval()) as AST.Struct;
 
-                    if (!(structProperty.prop is VarExpr))
+                    if (!(structProperty.Prop is VarExpr))
                         throw new ArgumentException("Accessed property is not a variable");
-                    tmp2.propValues[(structProperty.prop as VarExpr).name] = result;
+                    tmp2.PropValues[(structProperty.Prop as VarExpr).Name] = result;
                     break;
             }
 
-            if (decrement.post)
+            if (decrement.Post)
                 return variable;
             else
                 return result;
@@ -539,16 +539,16 @@ namespace ll.AST
         {
             IAST variable;
 
-            switch (addAssign.left.type)
+            switch (addAssign.Left.Type)
             {
                 case IntType intType:
-                    variable = env[addAssign.left.name].Eval();
-                    return new IntLit((variable as IntLit).n + (addAssign.right.Eval() as IntLit).n, addAssign.line, addAssign.column);
+                    variable = Env[addAssign.Left.Name].Eval();
+                    return new IntLit((variable as IntLit).Value + (addAssign.Right.Eval() as IntLit).Value, addAssign.Line, addAssign.Column);
                 case DoubleType doubleType:
-                    variable = env[addAssign.left.name].Eval();
-                    return new DoubleLit((variable as DoubleLit).n + (addAssign.right.Eval() as DoubleLit).n, addAssign.line, addAssign.column);
+                    variable = Env[addAssign.Left.Name].Eval();
+                    return new DoubleLit((variable as DoubleLit).Value + (addAssign.Right.Eval() as DoubleLit).Value, addAssign.Line, addAssign.Column);
                 default:
-                    throw new ArgumentException($"Could not use type \"{addAssign.type.typeName}\" with AddAssignStatement");
+                    throw new ArgumentException($"Could not use type \"{addAssign.Type.typeName}\" with AddAssignStatement");
             }
         }
 
@@ -556,16 +556,16 @@ namespace ll.AST
         {
             IAST variable;
 
-            switch (subAssign.left.type)
+            switch (subAssign.Left.Type)
             {
                 case IntType intType:
-                    variable = env[subAssign.left.name].Eval();
-                    return new IntLit((variable as IntLit).n - (subAssign.right.Eval() as IntLit).n, subAssign.line, subAssign.column);
+                    variable = Env[subAssign.Left.Name].Eval();
+                    return new IntLit((variable as IntLit).Value - (subAssign.Right.Eval() as IntLit).Value, subAssign.Line, subAssign.Column);
                 case DoubleType doubleType:
-                    variable = env[subAssign.left.name].Eval();
-                    return new DoubleLit((variable as DoubleLit).n - (subAssign.right.Eval() as DoubleLit).n, subAssign.line, subAssign.column);
+                    variable = Env[subAssign.Left.Name].Eval();
+                    return new DoubleLit((variable as DoubleLit).Value - (subAssign.Right.Eval() as DoubleLit).Value, subAssign.Line, subAssign.Column);
                 default:
-                    throw new ArgumentException($"Could not use type \"{subAssign.type.typeName}\" with SubAssignStatement");
+                    throw new ArgumentException($"Could not use type \"{subAssign.Type.typeName}\" with SubAssignStatement");
             }
         }
 
@@ -573,16 +573,16 @@ namespace ll.AST
         {
             IAST variable;
 
-            switch (multAssign.left.type)
+            switch (multAssign.Left.Type)
             {
                 case IntType intType:
-                    variable = env[multAssign.left.name].Eval();
-                    return new IntLit((variable as IntLit).n * (multAssign.right.Eval() as IntLit).n, multAssign.line, multAssign.column);
+                    variable = Env[multAssign.Left.Name].Eval();
+                    return new IntLit((variable as IntLit).Value * (multAssign.Right.Eval() as IntLit).Value, multAssign.Line, multAssign.Column);
                 case DoubleType doubleType:
-                    variable = env[multAssign.left.name].Eval();
-                    return new DoubleLit((variable as DoubleLit).n * (multAssign.right.Eval() as DoubleLit).n, multAssign.line, multAssign.column);
+                    variable = Env[multAssign.Left.Name].Eval();
+                    return new DoubleLit((variable as DoubleLit).Value * (multAssign.Right.Eval() as DoubleLit).Value, multAssign.Line, multAssign.Column);
                 default:
-                    throw new ArgumentException($"Could not use type \"{multAssign.type.typeName}\" with MultAssignStatement");
+                    throw new ArgumentException($"Could not use type \"{multAssign.Type.typeName}\" with MultAssignStatement");
             }
         }
 
@@ -590,16 +590,16 @@ namespace ll.AST
         {
             IAST variable;
 
-            switch (divAssign.left.type)
+            switch (divAssign.Left.Type)
             {
                 case IntType intType:
-                    variable = env[divAssign.left.name].Eval();
-                    return new IntLit((variable as IntLit).n / (divAssign.right.Eval() as IntLit).n, divAssign.line, divAssign.column);
+                    variable = Env[divAssign.Left.Name].Eval();
+                    return new IntLit((variable as IntLit).Value / (divAssign.Right.Eval() as IntLit).Value, divAssign.Line, divAssign.Column);
                 case DoubleType doubleType:
-                    variable = env[divAssign.left.name].Eval();
-                    return new DoubleLit((variable as DoubleLit).n / (divAssign.right.Eval() as DoubleLit).n, divAssign.line, divAssign.column);
+                    variable = Env[divAssign.Left.Name].Eval();
+                    return new DoubleLit((variable as DoubleLit).Value / (divAssign.Right.Eval() as DoubleLit).Value, divAssign.Line, divAssign.Column);
                 default:
-                    throw new ArgumentException($"Could not use type \"{divAssign.type.typeName}\" with DivAssignStatement");
+                    throw new ArgumentException($"Could not use type \"{divAssign.Type.typeName}\" with DivAssignStatement");
             }
         }
 
@@ -609,79 +609,79 @@ namespace ll.AST
             IAST left = null;
             IAST right = null;
 
-            switch (notEqual.left.type)
+            switch (notEqual.Left.Type)
             {
                 case IntType i:
-                    if (notEqual.right.type is IntType)
-                        return new BoolLit((notEqual.left.Eval() as IntLit).n != (notEqual.right.Eval() as IntLit).n, notEqual.line, notEqual.column);
-                    if (notEqual.right.type is DoubleType)
-                        return new BoolLit((notEqual.left.Eval() as IntLit).n != (notEqual.right.Eval() as DoubleLit).n, notEqual.line, notEqual.column);
-                    throw new ArgumentException($"Type \"{notEqual.left.type.typeName}\" is incompatible with \"{notEqual.right.type.typeName}\"");
+                    if (notEqual.Right.Type is IntType)
+                        return new BoolLit((notEqual.Left.Eval() as IntLit).Value != (notEqual.Right.Eval() as IntLit).Value, notEqual.Line, notEqual.Column);
+                    if (notEqual.Right.Type is DoubleType)
+                        return new BoolLit((notEqual.Left.Eval() as IntLit).Value != (notEqual.Right.Eval() as DoubleLit).Value, notEqual.Line, notEqual.Column);
+                    throw new ArgumentException($"Type \"{notEqual.Left.Type.typeName}\" is incompatible with \"{notEqual.Right.Type.typeName}\"");
                 case DoubleType d:
-                    if (notEqual.right.type is IntType)
-                        return new BoolLit((notEqual.left.Eval() as DoubleLit).n != (notEqual.right.Eval() as IntLit).n, notEqual.line, notEqual.column);
-                    if (notEqual.right.type is DoubleType)
-                        return new BoolLit((notEqual.left.Eval() as DoubleLit).n != (notEqual.right.Eval() as DoubleLit).n, notEqual.line, notEqual.column);
-                    throw new ArgumentException($"Type \"{notEqual.left.type.typeName}\" is incompatible with \"{notEqual.right.type.typeName}\"");
+                    if (notEqual.Right.Type is IntType)
+                        return new BoolLit((notEqual.Left.Eval() as DoubleLit).Value != (notEqual.Right.Eval() as IntLit).Value, notEqual.Line, notEqual.Column);
+                    if (notEqual.Right.Type is DoubleType)
+                        return new BoolLit((notEqual.Left.Eval() as DoubleLit).Value != (notEqual.Right.Eval() as DoubleLit).Value, notEqual.Line, notEqual.Column);
+                    throw new ArgumentException($"Type \"{notEqual.Left.Type.typeName}\" is incompatible with \"{notEqual.Right.Type.typeName}\"");
                 case BooleanType b:
-                    if (!(notEqual.right.type is BooleanType))
-                        throw new ArgumentException($"Type \"{notEqual.left.type.typeName}\" is incompatible with \"{notEqual.right.type.typeName}\"");
-                    return new BoolLit((notEqual.left.Eval() as BoolLit).value != (notEqual.right.Eval() as BoolLit).value, notEqual.line, notEqual.column);
+                    if (!(notEqual.Right.Type is BooleanType))
+                        throw new ArgumentException($"Type \"{notEqual.Left.Type.typeName}\" is incompatible with \"{notEqual.Right.Type.typeName}\"");
+                    return new BoolLit((notEqual.Left.Eval() as BoolLit).Value != (notEqual.Right.Eval() as BoolLit).Value, notEqual.Line, notEqual.Column);
                 case NullType nullType:
                     tmp = false;
 
-                    if (!(notEqual.right.Eval().type is NullType))
+                    if (!(notEqual.Right.Eval().Type is NullType))
                         tmp = true;
 
-                    return new BoolLit(tmp, notEqual.line, notEqual.column);
+                    return new BoolLit(tmp, notEqual.Line, notEqual.Column);
                 case StructType structType:
                     tmp = false;
-                    left = notEqual.left.Eval();
-                    right = notEqual.right.Eval();
+                    left = notEqual.Left.Eval();
+                    right = notEqual.Right.Eval();
 
-                    if (!(left.type is NullType && right.type is NullType))
+                    if (!(left.Type is NullType && right.Type is NullType))
                         tmp = true;
 
                     if (!(left.Equals(right)))
                         tmp = true;
 
-                    return new BoolLit(tmp, notEqual.line, notEqual.column);
+                    return new BoolLit(tmp, notEqual.Line, notEqual.Column);
                 case ArrayType arrayType:
                     tmp = false;
-                    left = notEqual.left.Eval();
-                    right = notEqual.right.Eval();
+                    left = notEqual.Left.Eval();
+                    right = notEqual.Right.Eval();
 
-                    if (!(left.type is NullType && right.type is NullType))
+                    if (!(left.Type is NullType && right.Type is NullType))
                         tmp = true;
 
                     if (!left.Equals(right))
                         tmp = true;
 
-                    return new BoolLit(tmp, notEqual.line, notEqual.column);
+                    return new BoolLit(tmp, notEqual.Line, notEqual.Column);
                 default:
-                    throw new ArgumentException($"Unknown type \"{notEqual.left.type.typeName}\"");
+                    throw new ArgumentException($"Unknown type \"{notEqual.Left.Type.typeName}\"");
             }
         }
 
         static void EvalPrintStatement(PrintStatement print)
         {
             string result = "";
-            switch (print.value.type)
+            switch (print.Value.Type)
             {
                 case IntType it:
-                    var tmp = print.value.Eval() as IntLit;
-                    result = tmp.n.ToString() ?? "";
+                    var tmp = print.Value.Eval() as IntLit;
+                    result = tmp.Value.ToString() ?? "";
                     break;
                 case DoubleType dt:
-                    var tmp2 = print.value.Eval() as DoubleLit;
-                    result = tmp2.n.ToString() ?? "";
+                    var tmp2 = print.Value.Eval() as DoubleLit;
+                    result = tmp2.Value.ToString() ?? "";
                     break;
                 case BooleanType bt:
-                    var tmp3 = print.value.Eval() as BoolLit;
-                    result = tmp3.value.ToString() ?? "";
+                    var tmp3 = print.Value.Eval() as BoolLit;
+                    result = tmp3.Value.ToString() ?? "";
                     break;
                 default:
-                    throw new ArgumentException($"Print does not support type {print.value.type.typeName}");
+                    throw new ArgumentException($"Print does not support type {print.Value.Type.typeName}");
             }
 
             Console.WriteLine(result);
@@ -689,40 +689,40 @@ namespace ll.AST
 
         static IAST EvalRefTypeCreationStatement(RefTypeCreationStatement refType)
         {
-            if (refType.createdReftype is Array)
-                return CreateArray(refType.createdReftype as Array);
-            if (refType.createdReftype is Struct)
-                return CreateStruct(refType.createdReftype as Struct);
+            if (refType.CreatedReftype is Array)
+                return CreateArray(refType.CreatedReftype as Array);
+            if (refType.CreatedReftype is Struct)
+                return CreateStruct(refType.CreatedReftype as Struct);
 
-            throw new ArgumentException($"Unknown type for reference type creation: \"{refType.createdReftype.type}\"");
+            throw new ArgumentException($"Unknown type for reference type creation: \"{refType.CreatedReftype.Type}\"");
         }
 
         static IAST CreateArray(Array array)
         {
-            long size = (array.size.Eval() as IntLit).n ?? -1;
+            long size = (array.Size.Eval() as IntLit).Value ?? -1;
 
             if (size < 0)
                 throw new ArgumentException("The length of an array has to be positive");
 
-            array.values = new IAST[size];
+            array.Values = new IAST[size];
 
             return array;
         }
 
         static IAST CreateStruct(Struct @struct)
         {
-            @struct.propValues = new Dictionary<string, IAST>();
-            StructDefinition structDef = structs[@struct.name];
+            @struct.PropValues = new Dictionary<string, IAST>();
+            StructDefinition structDef = Structs[@struct.Name];
 
-            foreach (var prop in structDef.properties)
-                @struct.propValues[prop.name] = null;
+            foreach (var prop in structDef.Properties)
+                @struct.PropValues[prop.Name] = null;
 
             return @struct;
         }
 
         static IAST EvalIntArray(IntArray intArray)
         {
-            if (intArray.values == null)
+            if (intArray.Values == null)
                 throw new ArgumentException("Array is not initialized");
 
             return intArray;
@@ -730,7 +730,7 @@ namespace ll.AST
 
         static IAST EvalDoubleArray(DoubleArray doubleArray)
         {
-            if (doubleArray.values == null)
+            if (doubleArray.Values == null)
                 throw new ArgumentException("Array is not initialized");
 
             return doubleArray;
@@ -738,7 +738,7 @@ namespace ll.AST
 
         static IAST EvalBoolArray(BoolArray boolArray)
         {
-            if (boolArray.values == null)
+            if (boolArray.Values == null)
                 throw new ArgumentException("Array is not initialized");
 
             return boolArray;
@@ -746,9 +746,9 @@ namespace ll.AST
 
         static IAST EvalArrayIndexing(ArrayIndexing arrayIndexing)
         {
-            Array array = arrayIndexing.left.Eval() as Array;
-            long index = (arrayIndexing.right.Eval() as IntLit).n ?? -1;
-            long arraySize = (array.size.Eval() as IntLit).n ?? -1;
+            Array array = arrayIndexing.Left.Eval() as Array;
+            long index = (arrayIndexing.Right.Eval() as IntLit).Value ?? -1;
+            long arraySize = (array.Size.Eval() as IntLit).Value ?? -1;
 
             if (index < 0)
                 throw new ArgumentException("The index of an array must be initialized");
@@ -756,14 +756,14 @@ namespace ll.AST
             if (index >= arraySize)
                 throw new ArgumentException($"Index {index} out of range {(arraySize)}");
 
-            return array.values[index];
+            return array.Values[index];
         }
 
         static void EvalAssignArrayField(AssignArrayField assignArrayField)
         {
-            Array array = assignArrayField.arrayIndex.left.Eval() as Array;
-            long index = (assignArrayField.arrayIndex.right.Eval() as IntLit).n ?? -1;
-            long arraySize = (array.size.Eval() as IntLit).n ?? -1;
+            Array array = assignArrayField.ArrayIndex.Left.Eval() as Array;
+            long index = (assignArrayField.ArrayIndex.Right.Eval() as IntLit).Value ?? -1;
+            long arraySize = (array.Size.Eval() as IntLit).Value ?? -1;
 
             if (index < 0)
                 throw new ArgumentException("The index of an array must be initialized");
@@ -771,39 +771,39 @@ namespace ll.AST
             if (index >= arraySize)
                 throw new ArgumentException($"Index {index} out of range {arraySize}");
 
-            IAST value = assignArrayField.value.Eval();
+            IAST value = assignArrayField.Value.Eval();
 
-            array.values[index] = value;
+            array.Values[index] = value;
         }
 
         static IAST EvalStructPropertyAccess(StructPropertyAccess structPropertyAccess)
         {
-            Struct @struct = structPropertyAccess.structRef.Eval() as Struct;
-            structEnv = @struct.propValues;
-            var result = structPropertyAccess.prop.Eval();
+            Struct @struct = structPropertyAccess.StructRef.Eval() as Struct;
+            StructEnv = @struct.PropValues;
+            var result = structPropertyAccess.Prop.Eval();
 
-            structEnv = null;
+            StructEnv = null;
 
             return result;
         }
 
         static void EvalAssignStructProperty(AssignStructProperty assignStruct)
         {
-            StructPropertyAccess innerStruct = GetPropRef(assignStruct.structProp, out long index);
-            Struct @struct = innerStruct.structRef.Eval() as Struct;
+            StructPropertyAccess innerStruct = GetPropRef(assignStruct.StructProp, out long index);
+            Struct @struct = innerStruct.StructRef.Eval() as Struct;
             string propName = "";
 
             if (index >= 0)
-                propName = ((innerStruct.prop as ArrayIndexing).left as VarExpr).name;
+                propName = ((innerStruct.Prop as ArrayIndexing).Left as VarExpr).Name;
             else
-                propName = (innerStruct.prop as VarExpr).name;
+                propName = (innerStruct.Prop as VarExpr).Name;
 
-            structEnv = null;
+            StructEnv = null;
 
             if (index >= 0)
-                (@struct.propValues[propName] as Array).values[index] = assignStruct.val.Eval();
+                (@struct.PropValues[propName] as Array).Values[index] = assignStruct.Value.Eval();
             else
-                @struct.propValues[propName] = assignStruct.val.Eval();
+                @struct.PropValues[propName] = assignStruct.Value.Eval();
         }
 
         static IAST EvalValueAccessExpression(ValueAccessExpression valueAccess)
@@ -814,39 +814,39 @@ namespace ll.AST
                 case ArrayIndexing arrayIndexing: return arrayIndexing.Eval();
                 case StructPropertyAccess structProperty: return structProperty.Eval();
                 default:
-                    throw new ArgumentException($"Unknown valueAccessExpression; On line {valueAccess.line}:{valueAccess.column}");
+                    throw new ArgumentException($"Unknown valueAccessExpression; On line {valueAccess.Line}:{valueAccess.Column}");
             }
         }
 
         static IAST EvalModExpr(ModExpr modExpr)
         {
-            IntLit leftVal = modExpr.left.Eval() as IntLit;
-            IntLit rightVal = modExpr.right.Eval() as IntLit;
+            IntLit leftVal = modExpr.Left.Eval() as IntLit;
+            IntLit rightVal = modExpr.Right.Eval() as IntLit;
 
-            if (leftVal.n == null)
-                throw new ArgumentNullException($"Left operand is null; On line {modExpr.line}:{modExpr.column}");
+            if (leftVal.Value == null)
+                throw new ArgumentNullException($"Left operand is null; On line {modExpr.Line}:{modExpr.Column}");
 
             if (rightVal == null)
-                throw new ArgumentException($"Right operand is null; On line {modExpr.line}:{modExpr.column}");
+                throw new ArgumentException($"Right operand is null; On line {modExpr.Line}:{modExpr.Column}");
 
-            return new IntLit((leftVal.n ?? -1) % (rightVal.n ?? -1), modExpr.line, modExpr.column);
+            return new IntLit((leftVal.Value ?? -1) % (rightVal.Value ?? -1), modExpr.Line, modExpr.Column);
         }
 
         static StructPropertyAccess GetPropRef(StructPropertyAccess val, out long index)
         {
             index = -1;
-            if (val.prop is VarExpr)
+            if (val.Prop is VarExpr)
                 return val;
-            else if (val.prop is ArrayIndexing arrayIndexing)
+            else if (val.Prop is ArrayIndexing arrayIndexing)
             {
-                index = (arrayIndexing.right.Eval() as IntLit).n ?? -1;
+                index = (arrayIndexing.Right.Eval() as IntLit).Value ?? -1;
                 return val;
             }
             else
             {
-                structEnv = (val.structRef.Eval() as Struct).propValues;
+                StructEnv = (val.StructRef.Eval() as Struct).PropValues;
 
-                var result = GetPropRef(val.prop as StructPropertyAccess, out long i);
+                var result = GetPropRef(val.Prop as StructPropertyAccess, out long i);
                 index = i;
 
                 return result;

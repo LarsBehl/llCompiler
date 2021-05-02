@@ -1,21 +1,21 @@
 using System;
-using ll.type;
+using LL.Types;
 
-namespace ll.AST
+namespace LL.AST
 {
     public abstract class BinOp : IAST
     {
-        public IAST left { get; set; }
-        public IAST right { get; set; }
-        public string op { get; set; }
+        public IAST Left { get; set; }
+        public IAST Right { get; set; }
+        public string Op { get; set; }
 
-        public BinOp(IAST left, IAST right, string op, ll.type.Type type, int line, int column) : base(type, line, column)
+        public BinOp(IAST left, IAST right, string op, LL.Types.Type type, int line, int column) : base(type, line, column)
         {
             if (left is AssignStatement || right is AssignStatement)
                 throw new ArgumentException($"no assignExpression allowed in a binary operation; On line {line}:{column}");
-            this.left = left;
-            this.right = right;
-            this.op = op;
+            this.Left = left;
+            this.Right = right;
+            this.Op = op;
         }
 
     }

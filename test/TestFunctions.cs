@@ -1,10 +1,10 @@
 using NUnit.Framework;
 using Antlr4.Runtime;
-using ll.AST;
+using LL.AST;
 using System.IO;
 using System;
 
-namespace ll.test
+namespace LL.test
 {
     [TestFixture]
     public class TestFunctions
@@ -62,7 +62,7 @@ namespace ll.test
 
             parser = Setup(funCall);
             var tmp = visitor.Visit(parser.program()).Eval();
-            Assert.AreEqual(expected, (tmp as IntLit).n);
+            Assert.AreEqual(expected, (tmp as IntLit).Value);
         }
 
         [Test]

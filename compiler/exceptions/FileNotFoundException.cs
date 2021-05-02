@@ -1,4 +1,4 @@
-namespace ll.Exceptions
+namespace LL.Exceptions
 {
     public class FileNotFoundException : BaseCompilerException
     {

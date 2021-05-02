@@ -1,7 +1,7 @@
 using System;
-using ll.AST;
+using LL.AST;
 
-namespace ll
+namespace LL
 {
     public partial class BuildAstVisitor : llBaseVisitor<IAST>
     {
@@ -42,7 +42,7 @@ namespace ll
         {
             string name = context.WORD().GetText();
 
-            if (!IAST.structs.ContainsKey(name))
+            if (!IAST.Structs.ContainsKey(name))
                 throw new ArgumentException($"Unknown struct \"{name}\"; On line {context.Start.Line}:{context.Start.Column}");
 
             return new Struct(name, context.Start.Line, context.Start.Column);

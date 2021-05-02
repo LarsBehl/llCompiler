@@ -1,7 +1,7 @@
-using ll.type;
+using LL.Types;
 using System;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class DoubleArray : Array
     {
@@ -24,7 +24,7 @@ namespace ll.AST
         {
             string result = "[";
 
-            foreach (IAST node in this.values)
+            foreach (IAST node in this.Values)
             {
                 if (node != null)
                     result += node.Eval().ToString() + ", ";

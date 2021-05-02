@@ -1,16 +1,17 @@
-using ll.type;
+using LL.Types;
 using System.Collections.Generic;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class ProgramNode : IAST
     {
-        public List<IAST> funDefs { get; set; }
-        public List<IAST> structDefs { get; set; }
+        public List<IAST> FunDefs { get; set; }
+        public List<IAST> StructDefs { get; set; }
+
         public ProgramNode(List<IAST> funDefs, List<IAST> structDefs, int line, int column) : base(new ProgramType(), line, column)
         {
-            this.funDefs = funDefs;
-            this.structDefs = structDefs;
+            this.FunDefs = funDefs;
+            this.StructDefs = structDefs;
         }
     }
 }

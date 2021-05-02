@@ -1,18 +1,18 @@
-using ll.type;
+using LL.Types;
 using System;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class NotExpr : IAST
     {
-        public IAST value { get; set; }
+        public IAST Value { get; set; }
 
         public NotExpr(IAST value, int line, int column) : base(new BooleanType(), line, column)
         {
-            if (!(value.type is BooleanType))
+            if (!(value.Type is BooleanType))
                 throw new ArgumentException($"\"NotOperator\" only viable for BoolType; On line {line}:{column}");
 
-            this.value = value;
+            this.Value = value;
         }
     }
 }

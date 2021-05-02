@@ -1,30 +1,30 @@
 using System;
-using ll.type;
+using LL.Types;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class SubAssignStatement : IAST
     {
-        public VarExpr left { get; set; }
-        public IAST right { get; set; }
+        public VarExpr Left { get; set; }
+        public IAST Right { get; set; }
 
         public SubAssignStatement(VarExpr left, IAST right, int line, int column) : base(new SubAssignStatementType(), line, column)
         {
-            if (left.type != right.type)
+            if (left.Type != right.Type)
             {
-                if (left.type is DoubleType && right.type is IntType)
+                if (left.Type is DoubleType && right.Type is IntType)
                 {
-                    this.left = left;
-                    this.right = right;
+                    this.Left = left;
+                    this.Right = right;
                     return;
                 }
                 else
-                    throw new ArgumentException($"Type of variable \"{left.type.typeName}\" does not match \"{right.type.typeName}\"; On line {line}:{column}");
+                    throw new ArgumentException($"Type of variable \"{left.Type.typeName}\" does not match \"{right.Type.typeName}\"; On line {line}:{column}");
 
             }
 
-            this.left = left;
-            this.right = right;
+            this.Left = left;
+            this.Right = right;
         }
     }
 }

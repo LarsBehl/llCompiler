@@ -109,7 +109,7 @@ function generateCode() {
     printMessage -message "Generating code from grammar"
     Write-Host "cd $($compilerLocation)"
     Set-Location $compilerLocation
-    printAndRun -command "java -jar ../deps/antlr-4.9.1-complete.jar -Dlanguage=CSharp ll.g4 -no-listener -visitor  -package ll"
+    printAndRun -command "java -jar ../deps/antlr-4.9.1-complete.jar -Dlanguage=CSharp ll.g4 -no-listener -visitor  -package LL"
     Write-Host "cd ../"
     Set-Location "../"
 }

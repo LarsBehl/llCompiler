@@ -1,8 +1,8 @@
-using ll.AST;
+using LL.AST;
 using System;
 using System.Collections.Generic;
 
-namespace ll
+namespace LL
 {
     public class FunctionDefinitionVisitor : llBaseVisitor<IAST>
     {
@@ -10,7 +10,7 @@ namespace ll
         {
             var identifier = context.WORD();
 
-            if (IAST.funs.ContainsKey(identifier[0].GetText()))
+            if (IAST.Funs.ContainsKey(identifier[0].GetText()))
                 throw new ArgumentException($"Multiple definitions of \"{identifier[0].GetText()}\"; On line {context.Start.Line}:{context.Start.Column}");
 
             var types = context.typeDefinition();
@@ -21,13 +21,13 @@ namespace ll
             {
                 var tmpType = VisitTypeDefinition(types[i]);
                 tmpEnv[identifier[i + 1].GetText()] = tmpType;
-                args.Add(new InstantiationStatement(identifier[i + 1].GetText(), tmpType.type, tmpType.line, tmpType.column));
+                args.Add(new InstantiationStatement(identifier[i + 1].GetText(), tmpType.Type, tmpType.Line, tmpType.Column));
             }
 
             // BuildAstVisitor should add the function body
             // therefor it should check if the body is null, if not throw exception
-            FunctionDefinition func = new FunctionDefinition(identifier[0].GetText(), args, null, tmpEnv, Visit(types[types.Length - 1]).type, context.Start.Line, context.Start.Column);
-            IAST.funs[identifier[0].GetText()] = func;
+            FunctionDefinition func = new FunctionDefinition(identifier[0].GetText(), args, null, tmpEnv, Visit(types[types.Length - 1]).Type, context.Start.Line, context.Start.Column);
+            IAST.Funs[identifier[0].GetText()] = func;
             // unused; the llBaseVisitor expects a type
             return null;
         }
@@ -71,14 +71,14 @@ namespace ll
 
             try
             {
-                structDef = IAST.structs[context.WORD().GetText()];
+                structDef = IAST.Structs[context.WORD().GetText()];
             }
             catch (Exception)
             {
                 throw new ArgumentException($"Unknown struct reference \"{context.WORD().GetText()}\"; On line {context.Start.Line}:{context.Start.Column}");
             }
 
-            return new Struct(structDef.name, context.Start.Line, context.Start.Column);
+            return new Struct(structDef.Name, context.Start.Line, context.Start.Column);
         }
     }
 }

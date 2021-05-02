@@ -1,12 +1,12 @@
 using System;
 using System.Text;
 using System.Collections.Generic;
-using ll.AST;
-using ll.type;
+using LL.AST;
+using LL.Types;
 using System.Runtime.InteropServices;
 using System.IO;
 
-namespace ll.assembler
+namespace LL.CodeGeneration
 {
     public partial class AssemblerGenerator
     {
@@ -74,9 +74,9 @@ namespace ll.assembler
                 case FunctionCall funCall:
                     this.FunctionCallAsm(funCall); break;
                 case ProgramNode programNode:
-                    foreach (var structDef in programNode.structDefs)
+                    foreach (var structDef in programNode.StructDefs)
                         this.GetAssember(structDef);
-                    foreach (var fun in programNode.funDefs)
+                    foreach (var fun in programNode.FunDefs)
                         this.GetAssember(fun);
                     break;
                 case VarExpr varExpr:
@@ -187,12 +187,12 @@ namespace ll.assembler
         {
             FunctionAsm funAsm;
 
-            if (this.functionMap.ContainsKey(funDef.name))
-                funAsm = this.functionMap[funDef.name];
+            if (this.functionMap.ContainsKey(funDef.Name))
+                funAsm = this.functionMap[funDef.Name];
             else
             {
-                funAsm = new FunctionAsm(funDef.name);
-                this.functionMap.Add(funDef.name, funAsm);
+                funAsm = new FunctionAsm(funDef.Name);
+                this.functionMap.Add(funDef.Name, funAsm);
                 this.FillVariableMap(funAsm, funDef);
             }
 
@@ -202,11 +202,11 @@ namespace ll.assembler
 
             this.depth += 1;
 
-            this.WriteLine($".global {funDef.name}");
+            this.WriteLine($".global {funDef.Name}");
 
             this.depth -= 1;
 
-            this.WriteLine($"{funDef.name}:");
+            this.WriteLine($"{funDef.Name}:");
 
             this.depth += 1;
 
@@ -223,7 +223,7 @@ namespace ll.assembler
                 this.WriteLine($"addq ${offSet}, %rsp");
 
             // push all argument-registers onto the stack
-            this.ArgumentTypeCount(funDef.args, out int intArgCount, out int doubleArgCount);
+            this.ArgumentTypeCount(funDef.Args, out int intArgCount, out int doubleArgCount);
             int index = Math.Min(intArgCount, this.integerRegisters.Length);
             int lastFound = -1;
 
@@ -231,8 +231,8 @@ namespace ll.assembler
             {
                 this.WritePush(this.integerRegisters[i]);
                 offSet -= 8;
-                lastFound = this.GetNextIntArg(funDef.args, lastFound);
-                this.variableMap[funDef.args[lastFound].name] = offSet;
+                lastFound = this.GetNextIntArg(funDef.Args, lastFound);
+                this.variableMap[funDef.Args[lastFound].Name] = offSet;
             }
 
             index = Math.Min(doubleArgCount, this.doubleRegisters.Length);
@@ -243,12 +243,12 @@ namespace ll.assembler
                 this.WriteLine($"movq {this.doubleRegisters[i]}, %rax");
                 this.WritePush();
                 offSet -= 8;
-                lastFound = this.GetNextDoubleArg(funDef.args, lastFound);
-                this.variableMap[funDef.args[lastFound].name] = offSet;
+                lastFound = this.GetNextDoubleArg(funDef.Args, lastFound);
+                this.variableMap[funDef.Args[lastFound].Name] = offSet;
             }
 
 
-            if (funDef.name == "main")
+            if (funDef.Name == "main")
             {
                 this.InitializeRuntime();
 
@@ -266,13 +266,13 @@ namespace ll.assembler
                     this.WritePop("%rbx");
             }
 
-            this.GetAssember(funDef.body);
+            this.GetAssember(funDef.Body);
 
-            if(funDef.name == "main")
+            if(funDef.Name == "main")
                 this.CleanUpRuntime();
 
             // if the function is a void function, make sure the important registers are set to 0
-            if (funDef.returnType is VoidType)
+            if (funDef.ReturnType is VoidType)
             {
                 this.WriteLine("movq $0, %rax");
                 this.WriteLine("movl $0, %eax");
@@ -293,7 +293,7 @@ namespace ll.assembler
             while (this.structIdMap.ContainsValue(id))
                 id = random.Next();
 
-            this.structIdMap[structDef.name] = id;
+            this.structIdMap[structDef.Name] = id;
 
             this.structDefinitionBuilder.AppendLine($"{this.indent}movq ${id}, {this.integerRegisters[0]}");
             this.structDefinitionBuilder.AppendLine($"{this.indent}movq ${structDef.GetSize()}, {this.integerRegisters[1]}");
@@ -358,10 +358,10 @@ namespace ll.assembler
 
         private void WriteDoubleValue(DoubleLit doubleLit)
         {
-            if (doubleLit.n == null)
+            if (doubleLit.Value == null)
                 throw new ArgumentNullException();
 
-            if (doubleMap.ContainsKey(doubleLit.n ?? 0))
+            if (doubleMap.ContainsKey(doubleLit.Value ?? 0))
                 return;
 
             // generate new label for new double number
@@ -374,7 +374,7 @@ namespace ll.assembler
             this.doubleNumbers.Append($"{indent}.long {second}\n");
             this.doubleNumbers.Append($"{indent}.align 8\n");
             // remember which label corresponds to the given double value
-            this.doubleMap.Add(doubleLit.n ?? 0, this.doubleNumbersLabelCount);
+            this.doubleMap.Add(doubleLit.Value ?? 0, this.doubleNumbersLabelCount);
             this.doubleNumbersLabelCount += 1;
         }
 
@@ -384,7 +384,7 @@ namespace ll.assembler
             string stringVal = "";
             string type = "";
 
-            switch (value.type)
+            switch (value.Type)
             {
                 case IntType it:
                     stringVal = "%ld\\n";
@@ -399,7 +399,7 @@ namespace ll.assembler
                     type = "int";
                     break;
                 default:
-                    throw new ArgumentException($"Type {value.type.typeName} not supported for print operation");
+                    throw new ArgumentException($"Type {value.Type.typeName} not supported for print operation");
             }
             this.stringLabelMap[type] = this.stringLabelCount++;
             this.strings.Append($"{this.indent}.string \"{stringVal}\"\n");
@@ -407,11 +407,11 @@ namespace ll.assembler
 
         private void DoubleToAssemblerString(DoubleLit doubleLit, out string leftPart, out string rightPart)
         {
-            if (doubleLit.n == null)
+            if (doubleLit.Value == null)
                 throw new ArgumentNullException();
 
             // convert the double into ieee754 number 
-            var tmp = Convert.ToString(BitConverter.DoubleToInt64Bits((doubleLit.n ?? 0)), 2).PadLeft(64, '0');
+            var tmp = Convert.ToString(BitConverter.DoubleToInt64Bits((doubleLit.Value ?? 0)), 2).PadLeft(64, '0');
             leftPart = Convert.ToInt32(tmp.Substring(0, 32), 2).ToString();
             rightPart = Convert.ToInt32(tmp.Substring(32, 32), 2).ToString();
         }
@@ -432,7 +432,7 @@ namespace ll.assembler
 
             for (int i = 0; i < args.Count; i++)
             {
-                if (args[i].type is IntType || args[i].type is BooleanType || args[i].type is RefType)
+                if (args[i].Type is IntType || args[i].Type is BooleanType || args[i].Type is RefType)
                 {
                     usedInt += 1;
 
@@ -443,7 +443,7 @@ namespace ll.assembler
                     }
                 }
 
-                if (args[i].type is DoubleType)
+                if (args[i].Type is DoubleType)
                 {
                     usedDouble += 1;
 
@@ -468,7 +468,7 @@ namespace ll.assembler
 
             for (int i = 0; i < args.Count; i++)
             {
-                if (args[i].type is IntType || args[i].type is BooleanType || args[i].type is RefType)
+                if (args[i].Type is IntType || args[i].Type is BooleanType || args[i].Type is RefType)
                 {
                     usedInt += 1;
 
@@ -479,7 +479,7 @@ namespace ll.assembler
                     }
                 }
 
-                if (args[i].type is DoubleType)
+                if (args[i].Type is DoubleType)
                 {
                     usedDouble += 1;
 
@@ -497,7 +497,7 @@ namespace ll.assembler
         private void FillVariableMap(FunctionAsm functionAsm, FunctionDefinition functionDefinition)
         {
             bool doesOverflow = this.DoesOverflowRegistersFunDef(
-                functionDefinition.args,
+                functionDefinition.Args,
                 out int integerOverflowPosition,
                 out int doubleOverflowPosition
             );
@@ -509,14 +509,14 @@ namespace ll.assembler
                 int rbpOffset = +16;
 
                 // calculate the position of the overflown arguments on the stack
-                for (int i = functionDefinition.args.Count - 1; i >= min; i--)
+                for (int i = functionDefinition.Args.Count - 1; i >= min; i--)
                 {
-                    switch (functionDefinition.args[i].type)
+                    switch (functionDefinition.Args[i].Type)
                     {
                         case IntType intType:
                             if (i >= integerOverflowPosition)
                             {
-                                functionAsm.variableMap.Add(functionDefinition.args[i].name, rbpOffset);
+                                functionAsm.variableMap.Add(functionDefinition.Args[i].Name, rbpOffset);
                                 rbpOffset += 8;
                             }
 
@@ -524,7 +524,7 @@ namespace ll.assembler
                         case DoubleType doubleType:
                             if (i >= doubleOverflowPosition)
                             {
-                                functionAsm.variableMap.Add(functionDefinition.args[i].name, rbpOffset);
+                                functionAsm.variableMap.Add(functionDefinition.Args[i].Name, rbpOffset);
                                 rbpOffset += 8;
                             }
 
@@ -532,7 +532,7 @@ namespace ll.assembler
                         case BooleanType booleanType:
                             if (i >= integerOverflowPosition)
                             {
-                                functionAsm.variableMap.Add(functionDefinition.args[i].name, rbpOffset);
+                                functionAsm.variableMap.Add(functionDefinition.Args[i].Name, rbpOffset);
                                 rbpOffset += 8;
                             }
 
@@ -540,13 +540,13 @@ namespace ll.assembler
                         case RefType refType:
                             if (i >= integerOverflowPosition)
                             {
-                                functionAsm.variableMap.Add(functionDefinition.args[i].name, rbpOffset);
+                                functionAsm.variableMap.Add(functionDefinition.Args[i].Name, rbpOffset);
                                 rbpOffset += 8;
                             }
 
                             break;
                         default:
-                            throw new ArgumentException($"Unknown type {functionDefinition.args[i].type.typeName}");
+                            throw new ArgumentException($"Unknown type {functionDefinition.Args[i].Type.typeName}");
                     }
                 }
             }
@@ -559,10 +559,10 @@ namespace ll.assembler
 
             foreach (var arg in args)
             {
-                if (arg.type is DoubleType)
+                if (arg.Type is DoubleType)
                     doubleArgCount++;
 
-                if (arg.type is BooleanType || arg.type is IntType || arg.type is RefType)
+                if (arg.Type is BooleanType || arg.Type is IntType || arg.Type is RefType)
                     intArgCount++;
             }
         }
@@ -571,7 +571,7 @@ namespace ll.assembler
         {
             for (int i = startIndex + 1; i < args.Count; i++)
             {
-                if (args[i].type is IntType || args[i].type is BooleanType || args[i].type is RefType)
+                if (args[i].Type is IntType || args[i].Type is BooleanType || args[i].Type is RefType)
                     return i;
             }
 
@@ -582,7 +582,7 @@ namespace ll.assembler
         {
             for (int i = startIndex + 1; i < args.Count; i++)
             {
-                if (args[i].type is DoubleType)
+                if (args[i].Type is DoubleType)
                     return i;
             }
 
@@ -591,11 +591,11 @@ namespace ll.assembler
 
         private void LoadArrayField(ArrayIndexing arrayIndexing)
         {
-            this.GetAssember(arrayIndexing.left);
+            this.GetAssember(arrayIndexing.Left);
 
             this.WritePush();
 
-            this.GetAssember(arrayIndexing.right);
+            this.GetAssember(arrayIndexing.Right);
             this.WriteLine("imulq $8, %rax");
 
             this.WritePop("%rbx");
@@ -614,32 +614,32 @@ namespace ll.assembler
         */
         private void LoadStructProperty(StructPropertyAccess structProperty)
         {
-            StructType st = structProperty.structRef.type as StructType;
-            var structDef = IAST.structs[st.structName];
+            StructType st = structProperty.StructRef.Type as StructType;
+            var structDef = IAST.Structs[st.structName];
             string propName = "";
             bool hasInnerStruct = false;
             bool isArrayIndexing = false;
 
-            switch (structProperty.prop)
+            switch (structProperty.Prop)
             {
                 case VarExpr varExpr:
-                    propName = varExpr.name;
+                    propName = varExpr.Name;
                     break;
                 case ArrayIndexing arrayIndexing:
-                    propName = (arrayIndexing.left as VarExpr).name;
+                    propName = (arrayIndexing.Left as VarExpr).Name;
                     isArrayIndexing = true;
                     break;
                 case StructPropertyAccess propertyAccess:
-                    propName = propertyAccess.structRef.name;
+                    propName = propertyAccess.StructRef.Name;
                     hasInnerStruct = true;
                     break;
                 default:
                     throw new ArgumentException("Unknown property type");
             }
-            int propIndex = structDef.properties.FindIndex(sp => sp.name == propName);
+            int propIndex = structDef.Properties.FindIndex(sp => sp.Name == propName);
 
             if (!this.innerStruct)
-                this.GetAssember(structProperty.structRef);
+                this.GetAssember(structProperty.StructRef);
             this.WriteLine($"addq ${propIndex * 8}, %rax");
 
             if (isArrayIndexing)
@@ -647,7 +647,7 @@ namespace ll.assembler
                 // save the base address of the array
                 this.WritePush("(%rax)");
                 // calculate the offset
-                this.GetAssember((structProperty.prop as ArrayIndexing).right);
+                this.GetAssember((structProperty.Prop as ArrayIndexing).Right);
                 // load the base address of the array
                 this.WritePop("%rbx");
                 this.WriteLine("imulq $8, %rax");
@@ -661,7 +661,7 @@ namespace ll.assembler
                 // load the base address of the inner struct
                 this.WriteLine("movq (%rax), %rax");
                 // walk recursivly
-                this.LoadStructProperty(structProperty.prop as StructPropertyAccess);
+                this.LoadStructProperty(structProperty.Prop as StructPropertyAccess);
                 this.innerStruct = false;
             }
         }

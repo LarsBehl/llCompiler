@@ -1,6 +1,6 @@
-namespace ll.type
+namespace LL.Types
 {
-    public abstract class PrimitivType : ll.type.Type
+    public abstract class PrimitivType : LL.Types.Type
     {
         public PrimitivType(string typeName) : base(typeName)
         {

@@ -1,4 +1,4 @@
-namespace ll.type
+namespace LL.Types
 {
     public class DoubleArrayType : ArrayType
     {

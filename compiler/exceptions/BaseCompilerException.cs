@@ -1,6 +1,6 @@
 using System;
 
-namespace ll.Exceptions
+namespace LL.Exceptions
 {
     public abstract class BaseCompilerException : Exception
     {

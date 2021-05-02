@@ -1,7 +1,7 @@
 using System;
-using ll.AST;
+using LL.AST;
 
-namespace ll
+namespace LL
 {
     public partial class BuildAstVisitor : llBaseVisitor<IAST>
     {

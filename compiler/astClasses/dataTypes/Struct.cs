@@ -1,17 +1,17 @@
 using System.Collections.Generic;
-using ll.type;
+using LL.Types;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class Struct : IAST
     {
-        public string name { get; set; }
-        public Dictionary<string, IAST> propValues { get; set; }
+        public string Name { get; set; }
+        public Dictionary<string, IAST> PropValues { get; set; }
 
         public Struct(string name, Dictionary<string, IAST> propValues, int line, int column) : base(new StructType(name), line, column)
         {
-            this.name = name;
-            this.propValues = propValues;
+            this.Name = name;
+            this.PropValues = propValues;
         }
 
         public Struct(string name, int line, int column) : this(name, null, line, column)
@@ -26,9 +26,9 @@ namespace ll.AST
 
         public override string ToString()
         {
-            string result = this.name + " {\n";
+            string result = this.Name + " {\n";
 
-            foreach (var prop in propValues)
+            foreach (var prop in PropValues)
             {
                 result += $"\t{prop.Key}:";
 

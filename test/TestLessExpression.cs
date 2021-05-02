@@ -1,8 +1,8 @@
 using NUnit.Framework;
 using Antlr4.Runtime;
-using ll.AST;
+using LL.AST;
 
-namespace ll.test
+namespace LL.test
 {
     [TestFixture]
     public class TestLessExpression
@@ -30,7 +30,7 @@ namespace ll.test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(expected, (result.Eval() as BoolLit).value);
+            Assert.AreEqual(expected, (result.Eval() as BoolLit).Value);
         }
 
         public void TestLessExpression_2()

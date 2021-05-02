@@ -1,41 +1,41 @@
 using System;
-using ll.type;
+using LL.Types;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class WhileStatement : IAST
     {
-        public IAST condition { get; set; }
-        public IAST body { get; set; }
-        public bool doesFullyReturn { get; set; }
+        public IAST Condition { get; set; }
+        public IAST Body { get; set; }
+        public bool DoesFullyReturn { get; set; }
 
         public WhileStatement(IAST condition, IAST body, int line, int column) : base(GetType(body), line, column)
         {
-            if (!(condition.type is BooleanType))
-                throw new ArgumentException($"While-Condition type \"{condition.type.typeName}\" does not match boolean; On line {line}:{column}");
+            if (!(condition.Type is BooleanType))
+                throw new ArgumentException($"While-Condition type \"{condition.Type.typeName}\" does not match boolean; On line {line}:{column}");
 
-            this.condition = condition;
-            this.body = body;
+            this.Condition = condition;
+            this.Body = body;
 
-            this.doesFullyReturn = DoesFullyReturn();
+            this.DoesFullyReturn = IsFullyReturning();
         }
 
-        private static type.Type GetType(IAST body)
+        private static Types.Type GetType(IAST body)
         {
-            if (!(body.type is BlockStatementType))
-                return body.type;
+            if (!(body.Type is BlockStatementType))
+                return body.Type;
 
             return new WhileStatementType();
         }
 
-        private bool DoesFullyReturn()
+        private bool IsFullyReturning()
         {
-            if (this.condition is BoolLit)
+            if (this.Condition is BoolLit)
             {
-                var tmp = this.condition as BoolLit;
+                var tmp = this.Condition as BoolLit;
 
-                if (!(this.body.type is BlockStatementType))
-                    return tmp.value ?? false;
+                if (!(this.Body.Type is BlockStatementType))
+                    return tmp.Value ?? false;
             }
 
             return false;

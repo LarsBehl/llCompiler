@@ -1,8 +1,8 @@
 using NUnit.Framework;
 using Antlr4.Runtime;
-using ll.AST;
+using LL.AST;
 
-namespace ll.test
+namespace LL.test
 {
     [TestFixture]
     public class TestParenthesExpression
@@ -26,7 +26,7 @@ namespace ll.test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(expected, (result.Eval() as IntLit).n);
+            Assert.AreEqual(expected, (result.Eval() as IntLit).Value);
         }
 
         [TestCase("(0+1.0)/2", 0.5)]
@@ -37,7 +37,7 @@ namespace ll.test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(expected, (result.Eval() as DoubleLit).n);
+            Assert.AreEqual(expected, (result.Eval() as DoubleLit).Value);
         }
     }
 }

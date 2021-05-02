@@ -1,10 +1,10 @@
 using NUnit.Framework;
 using Antlr4.Runtime;
-using ll.AST;
+using LL.AST;
 using System;
 using System.Globalization;
 
-namespace ll.test
+namespace LL.test
 {
     [TestFixture]
     public class TestNumericExpression
@@ -29,7 +29,7 @@ namespace ll.test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(Int32.Parse(input), (result.Eval() as IntLit).n);
+            Assert.AreEqual(Int32.Parse(input), (result.Eval() as IntLit).Value);
         }
 
         [Test]
@@ -52,7 +52,7 @@ namespace ll.test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(Double.Parse(input, new CultureInfo("en-US").NumberFormat), (result.Eval() as DoubleLit).n);
+            Assert.AreEqual(Double.Parse(input, new CultureInfo("en-US").NumberFormat), (result.Eval() as DoubleLit).Value);
         }
 
         [Test]

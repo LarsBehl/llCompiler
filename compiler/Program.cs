@@ -1,10 +1,10 @@
 ﻿using System;
 using System.IO;
 using Antlr4.Runtime;
-using ll.AST;
-using ll.assembler;
+using LL.AST;
+using LL.CodeGeneration;
 
-namespace ll
+namespace LL
 {
     class Program
     {
@@ -27,15 +27,15 @@ namespace ll
 
                 if (text == ":fs")
                 {
-                    foreach (FunctionDefinition funDef in IAST.funs.Values)
-                        Console.WriteLine(funDef.name);
+                    foreach (FunctionDefinition funDef in IAST.Funs.Values)
+                        Console.WriteLine(funDef.Name);
                     continue;
                 }
 
                 if (text == ":sts")
                 {
-                    foreach (StructDefinition structDef in IAST.structs.Values)
-                        Console.WriteLine(structDef.name);
+                    foreach (StructDefinition structDef in IAST.Structs.Values)
+                        Console.WriteLine(structDef.Name);
                     continue;
                 }
 

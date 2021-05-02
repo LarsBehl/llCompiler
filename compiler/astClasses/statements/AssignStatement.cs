@@ -1,30 +1,30 @@
-using ll.type;
+using LL.Types;
 using System;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class AssignStatement : IAST
     {
-        public VarExpr variable { get; set; }
-        public IAST value { get; set; }
+        public VarExpr Variable { get; set; }
+        public IAST Value { get; set; }
 
         public AssignStatement(VarExpr variable, IAST value, int line, int column) : base(new AssignStatementType(), line, column)
         {
-            if (variable.type != value.type)
+            if (variable.Type != value.Type)
             {
-                if (variable.type is DoubleType && value.type is IntType)
+                if (variable.Type is DoubleType && value.Type is IntType)
                 {
-                    this.variable = variable;
-                    this.value = value;
+                    this.Variable = variable;
+                    this.Value = value;
                     return;
                 }
                 else
-                    throw new ArgumentException($"Variable type {value.type} does not match {variable.type}; On line {line}:{column}");
+                    throw new ArgumentException($"Variable type {value.Type} does not match {variable.Type}; On line {line}:{column}");
 
             }
 
-            this.variable = variable;
-            this.value = value;
+            this.Variable = variable;
+            this.Value = value;
         }
     }
 }

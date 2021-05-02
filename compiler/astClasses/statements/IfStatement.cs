@@ -1,53 +1,54 @@
 using System;
 using System.Collections.Generic;
-using ll.type;
+using LL.Types;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class IfStatement : IAST
     {
-        public IAST cond { get; set; }
-        public IAST ifBody { get; set; }
-        public IAST elseBody { get; set; }
-        public bool doesFullyReturn { get; set; }
+        public IAST Cond { get; set; }
+        public IAST IfBody { get; set; }
+        public IAST ElseBody { get; set; }
+        public bool DoesFullyReturn { get; set; }
+
         public IfStatement(IAST cond, IAST ifBody, IAST elseBody, int line, int column) : base(GetType(ifBody, elseBody, line, column), line, column)
         {
-            if (!(cond.type is BooleanType))
-                throw new ArgumentException($"If-Condition type \"{cond.type.typeName}\" does not match boolean; On line {line}:{column}");
+            if (!(cond.Type is BooleanType))
+                throw new ArgumentException($"If-Condition type \"{cond.Type.typeName}\" does not match boolean; On line {line}:{column}");
 
-            this.cond = cond;
-            this.ifBody = ifBody;
-            this.elseBody = elseBody;
+            this.Cond = cond;
+            this.IfBody = ifBody;
+            this.ElseBody = elseBody;
 
-            this.doesFullyReturn = this.DoesFullyReturn();
+            this.DoesFullyReturn = this.isFullyReturning();
         }
 
-        private static type.Type GetType(IAST ifBody, IAST elseBody, int line, int column)
+        private static Types.Type GetType(IAST ifBody, IAST elseBody, int line, int column)
         {
-            if (elseBody != null && !(ifBody.type is BlockStatementType) && !(elseBody.type is BlockStatementType) && elseBody.type != ifBody.type)
-                throw new ArgumentException($"Returntype missmatch in if-statement \"{ifBody.type.typeName}\" \"{elseBody.type.typeName}\"; On line {line}:{column}");
+            if (elseBody != null && !(ifBody.Type is BlockStatementType) && !(elseBody.Type is BlockStatementType) && elseBody.Type != ifBody.Type)
+                throw new ArgumentException($"Returntype missmatch in if-statement \"{ifBody.Type.typeName}\" \"{elseBody.Type.typeName}\"; On line {line}:{column}");
 
-            if (!(ifBody.type is BlockStatementType))
+            if (!(ifBody.Type is BlockStatementType))
             {
-                return ifBody.type;
+                return ifBody.Type;
             }
 
-            if (elseBody != null && !(elseBody.type is BlockStatementType))
-                return elseBody.type;
+            if (elseBody != null && !(elseBody.Type is BlockStatementType))
+                return elseBody.Type;
 
             return new IfStatementType();
         }
 
-        private bool DoesFullyReturn()
+        private bool isFullyReturning()
         {
-            if (elseBody != null && !(elseBody.type is BlockStatementType) && !(ifBody.type is BlockStatementType))
+            if (ElseBody != null && !(ElseBody.Type is BlockStatementType) && !(IfBody.Type is BlockStatementType))
                 return true;
 
-            if (cond is BoolLit)
+            if (Cond is BoolLit)
             {
-                var tmp = cond as BoolLit;
+                var tmp = Cond as BoolLit;
 
-                return tmp.value ?? false;
+                return tmp.Value ?? false;
             }
 
             return false;

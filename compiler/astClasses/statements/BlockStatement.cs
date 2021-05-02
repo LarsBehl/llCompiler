@@ -1,41 +1,41 @@
-using ll.type;
+using LL.Types;
 using System;
 using System.Collections.Generic;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class BlockStatement : IAST
     {
-        public List<IAST> body { get; set; }
-        public bool doesFullyReturn { get; set; }
+        public List<IAST> Body { get; set; }
+        public bool DoesFullyReturn { get; set; }
 
         public BlockStatement(List<IAST> body, int line, int column) : base(GetType(body), line, column)
         {
-            this.body = body;
-            this.doesFullyReturn = DoesFullyReturn();
+            this.Body = body;
+            this.DoesFullyReturn = isFullyReturning();
         }
 
-        private static ll.type.Type GetType(List<IAST> body)
+        private static LL.Types.Type GetType(List<IAST> body)
         {
-            ll.type.Type result = new BlockStatementType();
+            LL.Types.Type result = new BlockStatementType();
 
             foreach (var comp in body)
             {
                 if (comp is ReturnStatement)
                 {
-                    result = comp.type;
+                    result = comp.Type;
                     break;
                 }
 
-                if (comp is IfStatement && !(comp.type is IfStatementType))
+                if (comp is IfStatement && !(comp.Type is IfStatementType))
                 {
-                    result = comp.type;
+                    result = comp.Type;
                     break;
                 }
 
-                if (comp is WhileStatement && !(comp.type is WhileStatementType))
+                if (comp is WhileStatement && !(comp.Type is WhileStatementType))
                 {
-                    result = comp.type;
+                    result = comp.Type;
                     break;
                 }
             }
@@ -43,9 +43,9 @@ namespace ll.AST
             return result;
         }
 
-        private bool DoesFullyReturn()
+        private bool isFullyReturning()
         {
-            foreach (var comp in body)
+            foreach (var comp in Body)
             {
                 if (comp is ReturnStatement)
                     return true;
@@ -54,7 +54,7 @@ namespace ll.AST
                 {
                     var tmp = comp as IfStatement;
 
-                    if (tmp.doesFullyReturn)
+                    if (tmp.DoesFullyReturn)
                         return true;
                 }
 
@@ -62,7 +62,7 @@ namespace ll.AST
                 {
                     var tmp = comp as WhileStatement;
 
-                    if (tmp.doesFullyReturn)
+                    if (tmp.DoesFullyReturn)
                         return true;
                 }
             }

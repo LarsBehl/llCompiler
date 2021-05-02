@@ -19,7 +19,7 @@
 // Ambiguous reference in cref attribute
 #pragma warning disable 419
 
-namespace ll {
+namespace LL {
 #pragma warning disable 3021
 using System;
 using System.IO;

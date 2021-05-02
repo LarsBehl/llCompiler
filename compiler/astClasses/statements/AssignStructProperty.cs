@@ -1,21 +1,21 @@
-using ll.type;
+using LL.Types;
 using System;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class AssignStructProperty : IAST
     {
-        public StructPropertyAccess structProp { get; set; }
-        public IAST val { get; set; }
+        public StructPropertyAccess StructProp { get; set; }
+        public IAST Value { get; set; }
 
         public AssignStructProperty(StructPropertyAccess structProp, IAST val, int line, int column) : base(new AssignStructPropertyType(), line, column)
         {
-            if (structProp.type != val.type
-                && !(structProp.type is DoubleType && val.type is IntType))
-                throw new ArgumentException($"Type \"{structProp.type.typeName}\" is not compatible with \"{val.type.typeName}\"; On line {line}:{column}");
+            if (structProp.Type != val.Type
+                && !(structProp.Type is DoubleType && val.Type is IntType))
+                throw new ArgumentException($"Type \"{structProp.Type.typeName}\" is not compatible with \"{val.Type.typeName}\"; On line {line}:{column}");
 
-            this.structProp = structProp;
-            this.val = val;
+            this.StructProp = structProp;
+            this.Value = val;
         }
     }
 }

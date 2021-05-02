@@ -1,19 +1,19 @@
-using ll.type;
+using LL.Types;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class IntLit : IAST
     {
-        public long? n { get; set; }
+        public long? Value { get; set; }
 
         public IntLit(long? n, int line, int column) : base(new IntType(), line, column)
         {
-            this.n = n;
+            this.Value = n;
         }
 
         public override string ToString()
         {
-            return n.ToString();
+            return Value.ToString();
         }
     }
 }

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace ll.assembler
+namespace LL.CodeGeneration
 {
     public class FunctionAsm
     {

@@ -1,11 +1,11 @@
 using Antlr4.Runtime.Misc;
-using ll.AST;
+using LL.AST;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace ll
+namespace LL
 {
     public class StructDefinitionVisitor : llBaseVisitor<IAST>
     {
@@ -55,7 +55,7 @@ namespace ll
         {
             string name = context.WORD().GetText();
 
-            IAST.structs[name] = new StructDefinition(name, context.Start.Line, context.Start.Column);
+            IAST.Structs[name] = new StructDefinition(name, context.Start.Line, context.Start.Column);
 
             // unused value
             return null;

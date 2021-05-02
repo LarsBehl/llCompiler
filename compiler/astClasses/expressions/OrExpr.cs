@@ -1,13 +1,13 @@
-using ll.type;
+using LL.Types;
 using System;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class OrExpr : BinOp
     {
         public OrExpr(IAST left, IAST right, int line, int column) : base(left, right, "||", new BooleanType(), line, column)
         {
-            if (!(left.type is BooleanType) || !(right.type is BooleanType))
+            if (!(left.Type is BooleanType) || !(right.Type is BooleanType))
                 throw new ArgumentException($"Or operator only accepts bool values as operands; On line {line}:{column}");
         }
     }

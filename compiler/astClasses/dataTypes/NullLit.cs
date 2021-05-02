@@ -1,6 +1,6 @@
-using ll.type;
+using LL.Types;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class NullLit : IAST
     {

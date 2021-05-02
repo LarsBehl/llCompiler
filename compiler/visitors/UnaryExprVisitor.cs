@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using ll.AST;
-using ll.type;
+using LL.AST;
+using LL.Types;
 
-namespace ll
+namespace LL
 {
     public partial class BuildAstVisitor : llBaseVisitor<IAST>
     {
@@ -145,14 +145,14 @@ namespace ll
 
         public override IAST VisitVariableExpression(llParser.VariableExpressionContext context)
         {
-            type.Type type = null;
+            Types.Type type = null;
 
             if (sR != null)
             {
                 try
                 {
                     // search in the current struct for the accessed property and the assosiated type
-                    type = IAST.structs[(sR.type as StructType).structName].properties.Find(s => s.name == context.WORD().GetText()).type;
+                    type = IAST.Structs[(sR.Type as StructType).structName].Properties.Find(s => s.Name == context.WORD().GetText()).Type;
                 }
                 catch
                 {

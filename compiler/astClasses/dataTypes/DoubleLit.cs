@@ -1,19 +1,19 @@
-using ll.type;
+using LL.Types;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class DoubleLit : IAST
     {
-        public double? n { get; set; }
+        public double? Value { get; set; }
 
         public DoubleLit(double? n, int line, int column) : base(new DoubleType(), line, column)
         {
-            this.n = n;
+            this.Value = n;
         }
 
         public override string ToString()
         {
-            return n.ToString();
+            return Value.ToString();
         }
     }
 }

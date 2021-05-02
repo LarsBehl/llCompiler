@@ -1,14 +1,12 @@
-using ll.type;
-
-namespace ll.AST
+namespace LL.AST
 {
     public class RefTypeCreationStatement : IAST
     {
-        public IAST createdReftype { get; set; }
+        public IAST CreatedReftype { get; set; }
 
-        public RefTypeCreationStatement(IAST createdReftype, int line, int column) : base(createdReftype.type, line, column)
+        public RefTypeCreationStatement(IAST createdReftype, int line, int column) : base(createdReftype.Type, line, column)
         {
-            this.createdReftype = createdReftype;
+            this.CreatedReftype = createdReftype;
         }
     }
 }

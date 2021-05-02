@@ -1,8 +1,8 @@
 using NUnit.Framework;
 using Antlr4.Runtime;
-using ll.AST;
+using LL.AST;
 
-namespace ll.test
+namespace LL.test
 {
     [TestFixture]
     public class TestReturnStatement
@@ -28,7 +28,7 @@ namespace ll.test
 
             var result = visitor.Visit(parser.statement());
 
-            Assert.AreEqual(expected, (result.Eval() as IntLit).n);
+            Assert.AreEqual(expected, (result.Eval() as IntLit).Value);
         }
 
         [TestCase("return 1/2.0;", 0.5)]
@@ -38,7 +38,7 @@ namespace ll.test
 
             var result = visitor.Visit(parser.statement());
 
-            Assert.AreEqual(expected, (result.Eval() as DoubleLit).n);
+            Assert.AreEqual(expected, (result.Eval() as DoubleLit).Value);
         }
         
         [Test]

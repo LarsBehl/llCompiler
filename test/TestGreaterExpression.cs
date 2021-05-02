@@ -1,8 +1,8 @@
 using NUnit.Framework;
 using Antlr4.Runtime;
-using ll.AST;
+using LL.AST;
 
-namespace ll.test
+namespace LL.test
 {
     [TestFixture]
     public class TestGreaterExpression
@@ -30,7 +30,7 @@ namespace ll.test
 
             var reslt = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(expected, (reslt.Eval() as BoolLit).value);
+            Assert.AreEqual(expected, (reslt.Eval() as BoolLit).Value);
         }
 
         [Test]

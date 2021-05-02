@@ -34,7 +34,7 @@ compileTest: publishLinux
 generateCode:
 	@echo "\n\n\e[0;32mGenerating code from grammar...\n\e[0m"
 	cd ./compiler \
-	java -jar ../deps/antlr-4.9.1-complete.jar -Dlanguage=CSharp ll.g4 -no-listener -visitor  -package ll
+	java -jar ../deps/antlr-4.9.1-complete.jar -Dlanguage=CSharp ll.g4 -no-listener -visitor  -package LL
 
 publishWindows:
 	@echo "\n\n\e[0;32mPublishing Windows...\n\e[0m"

@@ -1,10 +1,10 @@
 using System;
 using System.Globalization;
 using System.Collections.Generic;
-using ll.AST;
-using ll.type;
+using LL.AST;
+using LL.Types;
 
-namespace ll
+namespace LL
 {
     public partial class BuildAstVisitor : llBaseVisitor<IAST>
     {
@@ -44,28 +44,28 @@ namespace ll
         public override IAST VisitFunctionDefinition(llParser.FunctionDefinitionContext context)
         {
             var identifier = context.WORD();
-            FunctionDefinition funDef = IAST.funs[identifier[0].GetText()];
-            IAST.env = funDef.functionEnv;
+            FunctionDefinition funDef = IAST.Funs[identifier[0].GetText()];
+            IAST.Env = funDef.FunctionEnv;
             // save the new function definition
-            if (funDef.body != null)
+            if (funDef.Body != null)
                 throw new ArgumentException($"Trying to override the body of function \"{identifier[0].GetText()}\"; On line {context.Start.Line}:{context.Start.Column}");
             var body = Visit(context.body) as BlockStatement;
 
-            if ((body.type != funDef.returnType || !body.doesFullyReturn)
-            && !(funDef.returnType is VoidType))
+            if ((body.Type != funDef.ReturnType || !body.DoesFullyReturn)
+            && !(funDef.ReturnType is VoidType))
             {
-                if (body.type is BlockStatementType || !body.doesFullyReturn)
-                    throw new ArgumentException($"Missing return statement in \"{funDef.name}\"; On line {context.Start.Line}:{context.Start.Column}");
-                throw new ArgumentException($"Return type \"{body.type.typeName}\" does not match \"{funDef.returnType.typeName}\"; On line {context.Start.Line}:{context.Start.Column}");
+                if (body.Type is BlockStatementType || !body.DoesFullyReturn)
+                    throw new ArgumentException($"Missing return statement in \"{funDef.Name}\"; On line {context.Start.Line}:{context.Start.Column}");
+                throw new ArgumentException($"Return type \"{body.Type.typeName}\" does not match \"{funDef.ReturnType.typeName}\"; On line {context.Start.Line}:{context.Start.Column}");
             }
 
-            if ((funDef.returnType is VoidType) && (!(body.type is VoidType) && !(body.type is BlockStatementType)))
-                throw new ArgumentException($"Could not return \"{body.type.typeName}\" in a void function; On line {context.Start.Line}:{context.Start.Column}");
-            if ((funDef.returnType is StructType ft && body.type is StructType bt) && ft.structName != bt.structName)
+            if ((funDef.ReturnType is VoidType) && (!(body.Type is VoidType) && !(body.Type is BlockStatementType)))
+                throw new ArgumentException($"Could not return \"{body.Type.typeName}\" in a void function; On line {context.Start.Line}:{context.Start.Column}");
+            if ((funDef.ReturnType is StructType ft && body.Type is StructType bt) && ft.structName != bt.structName)
                 throw new ArgumentException($"Return type \"{bt.structName}\" does not match \"{ft.structName}\"; On line {context.Start.Line}:{context.Start.Column}");
 
-            funDef.body = body;
-            IAST.funs[funDef.name] = funDef;
+            funDef.Body = body;
+            IAST.Funs[funDef.Name] = funDef;
 
             return funDef;
         }
@@ -98,12 +98,12 @@ namespace ll
         {
             string name = context.WORD().GetText();
 
-            if (!IAST.structs.ContainsKey(name))
+            if (!IAST.Structs.ContainsKey(name))
                 throw new ArgumentException($"Unknown struct \"{name}\"; On line {context.WORD().Symbol.Line}:{context.WORD().Symbol.Column}");
 
-            StructDefinition structDef = IAST.structs[name];
+            StructDefinition structDef = IAST.Structs[name];
 
-            if (structDef.properties != null)
+            if (structDef.Properties != null)
                 throw new ArgumentException($"Multiple definitions of struct \"{name}\"; On line {context.WORD().Symbol.Line}:{context.WORD().Symbol.Column}");
 
             var props = context.structProperties();
@@ -113,20 +113,20 @@ namespace ll
             {
                 var tmp = Visit(prop) as StructProperty;
 
-                if (properties.FindIndex(s => s.name == tmp.name) >= 0)
-                    throw new ArgumentException($"Multiple definitions of \"{tmp.name}\" in struct \"{name}\"; On line {context.Start.Line}:{context.Start.Column}");
+                if (properties.FindIndex(s => s.Name == tmp.Name) >= 0)
+                    throw new ArgumentException($"Multiple definitions of \"{tmp.Name}\" in struct \"{name}\"; On line {context.Start.Line}:{context.Start.Column}");
 
                 properties.Add(tmp);
             }
 
-            structDef.properties = properties;
+            structDef.Properties = properties;
 
             return structDef;
         }
 
         public override IAST VisitStructProperties(llParser.StructPropertiesContext context)
         {
-            return new StructProperty(context.WORD().GetText(), Visit(context.typeDefinition()).type, context.Start.Line, context.Start.Column);
+            return new StructProperty(context.WORD().GetText(), Visit(context.typeDefinition()).Type, context.Start.Line, context.Start.Column);
         }
     }
 }
