@@ -6,7 +6,7 @@ namespace LL.AST
 {
     public abstract class IAST
     {
-        public static Dictionary<string, IAST> Env;
+        public static Dictionary<string, IAST> Env = new Dictionary<string, IAST>();
         public static Dictionary<string, FunctionDefinition> Funs = new Dictionary<string, FunctionDefinition>();
         public static Dictionary<string, StructDefinition> Structs = new Dictionary<string, StructDefinition>();
         public static Dictionary<string, IAST> StructEnv = null;

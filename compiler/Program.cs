@@ -3,6 +3,7 @@ using System.IO;
 using Antlr4.Runtime;
 using LL.AST;
 using LL.CodeGeneration;
+using LL.Exceptions;
 
 namespace LL
 {
@@ -18,7 +19,7 @@ namespace LL
                 Console.Write("> ");
                 string text = Console.ReadLine();
 
-                if(text == "?")
+                if (text == "?")
                 {
                     Console.WriteLine("Available commands:");
                     Console.WriteLine("  \":fs\": Get all defined functions");
@@ -43,23 +44,34 @@ namespace LL
                 if (string.IsNullOrEmpty(text))
                     break;
 
-                var inputStream = new AntlrInputStream(text);
-                var lexer = new llLexer(inputStream);
-                var tokenStream = new CommonTokenStream(lexer);
-                var parser = new llParser(tokenStream);
-                var tmp = new StructDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
+                IAST ast;
+                try
+                {
+                    var inputStream = new AntlrInputStream(text);
+                    var lexer = new llLexer(inputStream);
+                    var tokenStream = new CommonTokenStream(lexer);
+                    var parser = new llParser(tokenStream);
+                    var tmp = new StructDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
 
-                inputStream = new AntlrInputStream(text);
-                lexer = new llLexer(inputStream);
-                tokenStream = new CommonTokenStream(lexer);
-                parser = new llParser(tokenStream);
-                tmp = new FunctionDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
+                    inputStream = new AntlrInputStream(text);
+                    lexer = new llLexer(inputStream);
+                    tokenStream = new CommonTokenStream(lexer);
+                    parser = new llParser(tokenStream);
+                    tmp = new FunctionDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
 
-                inputStream = new AntlrInputStream(text);
-                lexer = new llLexer(inputStream);
-                tokenStream = new CommonTokenStream(lexer);
-                parser = new llParser(tokenStream);
-                var ast = new BuildAstVisitor(file).VisitCompileUnit(parser.compileUnit());
+                    inputStream = new AntlrInputStream(text);
+                    lexer = new llLexer(inputStream);
+                    tokenStream = new CommonTokenStream(lexer);
+                    parser = new llParser(tokenStream);
+                    ast = new BuildAstVisitor(file).VisitCompileUnit(parser.compileUnit());
+                }
+                catch (BaseCompilerException e)
+                {
+                    PrintError(e.Message);
+                    Console.WriteLine();
+                    continue;
+                }
+
                 var value = ast.Eval();
 
                 if (value != null)
@@ -81,26 +93,34 @@ namespace LL
                 if (string.IsNullOrEmpty(text))
                     break;
 
-                var inputStream = new AntlrInputStream(text);
-                var lexer = new llLexer(inputStream);
-                var tokenStream = new CommonTokenStream(lexer);
-                var parser = new llParser(tokenStream);
-                var tmp = new StructDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
+                try
+                {
+                    var inputStream = new AntlrInputStream(text);
+                    var lexer = new llLexer(inputStream);
+                    var tokenStream = new CommonTokenStream(lexer);
+                    var parser = new llParser(tokenStream);
+                    var tmp = new StructDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
 
-                inputStream = new AntlrInputStream(text);
-                lexer = new llLexer(inputStream);
-                tokenStream = new CommonTokenStream(lexer);
-                parser = new llParser(tokenStream);
-                tmp = new FunctionDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
+                    inputStream = new AntlrInputStream(text);
+                    lexer = new llLexer(inputStream);
+                    tokenStream = new CommonTokenStream(lexer);
+                    parser = new llParser(tokenStream);
+                    tmp = new FunctionDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
 
-                inputStream = new AntlrInputStream(text);
-                lexer = new llLexer(inputStream);
-                tokenStream = new CommonTokenStream(lexer);
-                parser = new llParser(tokenStream);
-                var ast = new BuildAstVisitor(file).VisitCompileUnit(parser.compileUnit());
-                var assemblerGenerator = new AssemblerGenerator(file);
-                assemblerGenerator.GenerateAssember(ast);
-                assemblerGenerator.PrintAssember();
+                    inputStream = new AntlrInputStream(text);
+                    lexer = new llLexer(inputStream);
+                    tokenStream = new CommonTokenStream(lexer);
+                    parser = new llParser(tokenStream);
+                    var ast = new BuildAstVisitor(file).VisitCompileUnit(parser.compileUnit());
+                    var assemblerGenerator = new AssemblerGenerator(file);
+                    assemblerGenerator.GenerateAssember(ast);
+                    assemblerGenerator.PrintAssember();
+                }
+                catch (BaseCompilerException e)
+                {
+                    PrintError(e.Message);
+                    Console.WriteLine();
+                }
             }
         }
 
@@ -108,26 +128,34 @@ namespace LL
         {
             Console.WriteLine($"Compiling {inputFile}...");
 
-            var inputStream = new AntlrFileStream(inputFile);
-            var lexer = new llLexer(inputStream);
-            var tokenStream = new CommonTokenStream(lexer);
-            var parser = new llParser(tokenStream);
-            var tmp = new StructDefinitionVisitor(inputFile).VisitCompileUnit(parser.compileUnit());
+            try
+            {
+                var inputStream = new AntlrFileStream(inputFile);
+                var lexer = new llLexer(inputStream);
+                var tokenStream = new CommonTokenStream(lexer);
+                var parser = new llParser(tokenStream);
+                var tmp = new StructDefinitionVisitor(inputFile).VisitCompileUnit(parser.compileUnit());
 
-            inputStream = new AntlrFileStream(inputFile);
-            lexer = new llLexer(inputStream);
-            tokenStream = new CommonTokenStream(lexer);
-            parser = new llParser(tokenStream);
-            tmp = new FunctionDefinitionVisitor(inputFile).Visit(parser.compileUnit());
+                inputStream = new AntlrFileStream(inputFile);
+                lexer = new llLexer(inputStream);
+                tokenStream = new CommonTokenStream(lexer);
+                parser = new llParser(tokenStream);
+                tmp = new FunctionDefinitionVisitor(inputFile).Visit(parser.compileUnit());
 
-            inputStream = new AntlrFileStream(inputFile);
-            lexer = new llLexer(inputStream);
-            tokenStream = new CommonTokenStream(lexer);
-            parser = new llParser(tokenStream);
-            var ast = new BuildAstVisitor(inputFile).Visit(parser.compileUnit());
-            var assemblerGenerator = new AssemblerGenerator(inputFile);
+                inputStream = new AntlrFileStream(inputFile);
+                lexer = new llLexer(inputStream);
+                tokenStream = new CommonTokenStream(lexer);
+                parser = new llParser(tokenStream);
+                var ast = new BuildAstVisitor(inputFile).Visit(parser.compileUnit());
+                var assemblerGenerator = new AssemblerGenerator(inputFile);
+                assemblerGenerator.WriteToFile(inputFile, ast);
+            }
+            catch (BaseCompilerException e)
+            {
+                PrintError(e.Message);
+                Environment.Exit(-1);
+            }
 
-            assemblerGenerator.WriteToFile(inputFile, ast);
         }
 
         static void RTFM()
@@ -163,6 +191,13 @@ namespace LL
                 Program.RTFM();
 #endif
             }
+        }
+
+        private static void PrintError(string error)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(error);
+            Console.ForegroundColor = ConsoleColor.White;
         }
     }
 }

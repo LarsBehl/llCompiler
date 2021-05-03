@@ -74,6 +74,8 @@ namespace LL
         public override IAST VisitFunctionCall(llParser.FunctionCallContext context)
         {
             var tmp = context.expression();
+            if (!IAST.Funs.ContainsKey(context.name.Text))
+                throw new UnknownFunctionException(context.name.Text, this.CurrentFile, context.Start.Line, context.Start.Column);
             List<IAST> args = new List<IAST>();
 
             foreach (var arg in tmp)
@@ -153,23 +155,24 @@ namespace LL
         public override IAST VisitVariableExpression(llParser.VariableExpressionContext context)
         {
             Types.Type type = null;
-            string structName = (sR.Type as StructType).StructName;
             int line = context.Start.Line;
             int column = context.Start.Column;
             string variableName = context.WORD().GetText();
 
             if (sR != null)
             {
+                string structName = (sR.Type as StructType).StructName;
+
                 // search for the struct definition
                 bool success = IAST.Structs.TryGetValue(structName, out StructDefinition def);
-                if(!success)
+                if (!success)
                     throw new UnknownTypeException(structName, this.CurrentFile, line, column);
-                
+
                 // search for the property in the struct
                 IAST prop = def.Properties.Find(s => s.Name == variableName);
-                if(prop is null)
+                if (prop is null)
                     throw new UnknownVariableException($"{structName}.{variableName}", this.CurrentFile, line, column);
-                
+
                 type = prop.Type;
 
                 return new VarExpr(variableName, type, line, column);
