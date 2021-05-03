@@ -2,6 +2,7 @@ using System;
 
 using LL.AST;
 using LL.Types;
+using LL.Exceptions;
 
 namespace LL.CodeGeneration
 {
@@ -45,7 +46,7 @@ namespace LL.CodeGeneration
                     }
                     break;
                 default:
-                    throw new InvalidOperationException($"Could not perform addition on type {addExpr.Type.TypeName}");
+                    throw new TypeNotAllowedException(addExpr.Right.Type.ToString(), null, addExpr.Line, addExpr.Column);
             }
         }
 
@@ -87,7 +88,7 @@ namespace LL.CodeGeneration
                     }
                     break;
                 default:
-                    throw new InvalidOperationException($"Could not perform addition on type {subExpr.Type.TypeName}");
+                    throw new TypeNotAllowedException(subExpr.Right.Type.ToString(), null, subExpr.Line, subExpr.Column);
             }
         }
 
@@ -129,7 +130,7 @@ namespace LL.CodeGeneration
                     }
                     break;
                 default:
-                    throw new InvalidOperationException($"Could not perform addition on type {multExpr.Type.TypeName}");
+                    throw new TypeNotAllowedException(multExpr.Right.Type.ToString(), null, multExpr.Line, multExpr.Column);
             }
         }
 
@@ -174,7 +175,7 @@ namespace LL.CodeGeneration
                     }
                     break;
                 default:
-                    throw new InvalidOperationException($"Could not perform addition on type {divExpr.Type.TypeName}");
+                    throw new TypeNotAllowedException(divExpr.Right.Type.ToString(), null, divExpr.Line, divExpr.Column);
             }
         }
 
@@ -234,7 +235,7 @@ namespace LL.CodeGeneration
 
                     break;
                 default:
-                    throw new InvalidOperationException($"Can not use \"greater\" operator with {greaterExpr.Right.Type}");
+                    throw new TypeNotAllowedException(greaterExpr.Right.Type.ToString(), null, greaterExpr.Line, greaterExpr.Column);
             }
 
             this.WriteLine("movzbl %al, %rax");
@@ -301,7 +302,7 @@ namespace LL.CodeGeneration
 
                     break;
                 default:
-                    throw new InvalidOperationException($"Can not use \"less\" operator with {lessExpr.Right.Type}");
+                    throw new TypeNotAllowedException(lessExpr.Right.Type.ToString(), null, lessExpr.Line, lessExpr.Column);
             }
 
             this.WriteLine("movzbl %al, %rax");
@@ -391,7 +392,7 @@ namespace LL.CodeGeneration
 
                     break;
                 default:
-                    throw new InvalidOperationException($"Can not use \"equal\" operator with {equalityExpr.Right.Type}");
+                    throw new TypeNotAllowedException(equalityExpr.Right.Type.ToString(), null, equalityExpr.Line, equalityExpr.Column);
             }
 
             this.WriteLine("movzbl %al, %rax");
