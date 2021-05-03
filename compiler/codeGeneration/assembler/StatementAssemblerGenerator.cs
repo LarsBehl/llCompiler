@@ -2,6 +2,7 @@ using System;
 
 using LL.AST;
 using LL.Types;
+using LL.Exceptions;
 
 namespace LL.CodeGeneration
 {
@@ -28,7 +29,7 @@ namespace LL.CodeGeneration
             {
                 // and there are still more local variables in this function
                 if (++this.LocalVariablePointer > this.LocalVariableCount)
-                    throw new IndexOutOfRangeException("Tried to create more local variables than the detected amount");
+                    throw new OutOfRangeException(this.LocalVariablePointer, this.LocalVariableCount, null, assignStatement.Line, assignStatement.Column);
                 // map the next empty spot of the reserved stack to the given variable
                 this.VariableMap.Add(assignStatement.Variable.Name, this.LocalVariablePointer * (-8));
             }
@@ -151,7 +152,7 @@ namespace LL.CodeGeneration
                     this.WriteLine($"movq %xmm0, {this.VariableMap[addAssignStatement.Left.Name]}(%rbp)");
                     break;
                 default:
-                    throw new ArgumentException($"AddAssign Statement not compatible with type \"{addAssignStatement.Left.Type.TypeName}\"");
+                    throw new TypeNotAllowedException(addAssignStatement.Left.Type.ToString(), null, addAssignStatement.Left.Line, addAssignStatement.Left.Column);
             }
         }
 
@@ -174,7 +175,7 @@ namespace LL.CodeGeneration
                     this.WriteLine($"movq %xmm0, {this.VariableMap[subAssignStatement.Left.Name]}(%rbp)");
                     break;
                 default:
-                    throw new ArgumentException($"SubAssign Statement not compatible with type \"{subAssignStatement.Left.Type.TypeName}\"");
+                    throw new TypeNotAllowedException(subAssignStatement.Left.Type.ToString(), null, subAssignStatement.Left.Line, subAssignStatement.Left.Column);
             }
         }
 
@@ -197,7 +198,7 @@ namespace LL.CodeGeneration
                     this.WriteLine($"movq %xmm0, {this.VariableMap[multAssignStatement.Left.Name]}(%rbp)");
                     break;
                 default:
-                    throw new ArgumentException($"MultAssign Statment not compatible with type \"{multAssignStatement.Left.Type.TypeName}\"");
+                    throw new TypeNotAllowedException(multAssignStatement.Left.Type.ToString(), null, multAssignStatement.Left.Line, multAssignStatement.Left.Column);
             }
         }
 
@@ -225,7 +226,7 @@ namespace LL.CodeGeneration
                     this.WriteLine($"movq %xmm0, {this.VariableMap[divAssignStatement.Left.Name]}(%rbp)");
                     break;
                 default:
-                    throw new ArgumentException($"DivAssign Statement not compatible with type \"{divAssignStatement.Left.Type.TypeName}\"");
+                    throw new TypeNotAllowedException(divAssignStatement.Left.Type.ToString(), null, divAssignStatement.Left.Line, divAssignStatement.Left.Column);
             }
         }
 
@@ -284,7 +285,7 @@ namespace LL.CodeGeneration
                     this.WriteLine($"movq $0, %rsi");
                     break;
                 default:
-                    throw new NotImplementedException("Omega NASA");
+                    throw new TypeNotAllowedException(refTypeCreation.CreatedReftype.Type.ToString(), null, refTypeCreation.Line, refTypeCreation.Column);
             }
 
             bool aligned = this.AlignStack();

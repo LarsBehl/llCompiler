@@ -199,7 +199,7 @@ namespace LL.CodeGeneration
                 this.FillVariableMap(funAsm, funDef);
             }
 
-            this.VariableMap = funAsm.variableMap;
+            this.VariableMap = funAsm.VariableMap;
             this.LocalVariablePointer = 0;
             this.StackCounter = 0;
 
@@ -520,7 +520,7 @@ namespace LL.CodeGeneration
                         case IntType intType:
                             if (i >= integerOverflowPosition)
                             {
-                                functionAsm.variableMap.Add(arg.Name, rbpOffset);
+                                functionAsm.VariableMap.Add(arg.Name, rbpOffset);
                                 rbpOffset += 8;
                             }
 
@@ -528,7 +528,7 @@ namespace LL.CodeGeneration
                         case DoubleType doubleType:
                             if (i >= doubleOverflowPosition)
                             {
-                                functionAsm.variableMap.Add(arg.Name, rbpOffset);
+                                functionAsm.VariableMap.Add(arg.Name, rbpOffset);
                                 rbpOffset += 8;
                             }
 
@@ -536,7 +536,7 @@ namespace LL.CodeGeneration
                         case BooleanType booleanType:
                             if (i >= integerOverflowPosition)
                             {
-                                functionAsm.variableMap.Add(arg.Name, rbpOffset);
+                                functionAsm.VariableMap.Add(arg.Name, rbpOffset);
                                 rbpOffset += 8;
                             }
 
@@ -544,7 +544,7 @@ namespace LL.CodeGeneration
                         case RefType refType:
                             if (i >= integerOverflowPosition)
                             {
-                                functionAsm.variableMap.Add(arg.Name, rbpOffset);
+                                functionAsm.VariableMap.Add(arg.Name, rbpOffset);
                                 rbpOffset += 8;
                             }
 

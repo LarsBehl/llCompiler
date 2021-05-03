@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 using LL.AST;
 using LL.Types;
+using LL.Exceptions;
 
 namespace LL.CodeGeneration
 {
@@ -37,8 +38,8 @@ namespace LL.CodeGeneration
                 this.FunctionMap.Add(functionCall.FunctionName, functionAsm);
             }
 
-            functionAsm.usedDoubleRegisters = 0;
-            functionAsm.usedIntegerRegisters = 0;
+            functionAsm.UsedDoubleRegisters = 0;
+            functionAsm.UsedIntegerRegisters = 0;
 
             bool doesOverflow = this.DoesOverflowRegisters(
                 functionCall.Args,
@@ -55,12 +56,14 @@ namespace LL.CodeGeneration
                 // calculate the position of the overflown arguments on the stack
                 for (int i = funDef.Args.Count - 1; i >= min; i--)
                 {
+                    InstantiationStatement arg = funDef.Args[i];
+
                     switch (functionCall.Args[i].Type)
                     {
                         case IntType intType:
                             if (i >= integerOverflowPosition)
                             {
-                                functionAsm.variableMap[funDef.Args[i].Name] = rbpOffset;
+                                functionAsm.VariableMap[arg.Name] = rbpOffset;
                                 rbpOffset += 8;
                             }
 
@@ -68,7 +71,7 @@ namespace LL.CodeGeneration
                         case DoubleType doubleType:
                             if (i >= doubleOverflowPosition)
                             {
-                                functionAsm.variableMap[funDef.Args[i].Name] = rbpOffset;
+                                functionAsm.VariableMap[arg.Name] = rbpOffset;
                                 rbpOffset += 8;
                             }
 
@@ -76,7 +79,7 @@ namespace LL.CodeGeneration
                         case BooleanType booleanType:
                             if (i >= integerOverflowPosition)
                             {
-                                functionAsm.variableMap[funDef.Args[i].Name] = rbpOffset;
+                                functionAsm.VariableMap[arg.Name] = rbpOffset;
                                 rbpOffset += 8;
                             }
 
@@ -84,13 +87,13 @@ namespace LL.CodeGeneration
                         case RefType refType:
                             if (i >= integerOverflowPosition)
                             {
-                                functionAsm.variableMap[funDef.Args[i].Name] = rbpOffset;
+                                functionAsm.VariableMap[arg.Name] = rbpOffset;
                                 rbpOffset += 8;
                             }
 
                             break;
                         default:
-                            throw new ArgumentException($"Unknown type {functionCall.Args[i].Type.TypeName}");
+                            throw new UnknownTypeException(arg.Type.ToString(), null, arg.Line, arg.Column);
                     }
                 }
                 this.StackCounter += rbpOffset - 16;
@@ -113,8 +116,8 @@ namespace LL.CodeGeneration
                 {
                     this.GetAssember(functionCall.Args[i]);
 
-                    this.WriteLine($"movq %rax, {this.IntegerRegisters[functionAsm.usedIntegerRegisters]}");
-                    functionAsm.usedIntegerRegisters++;
+                    this.WriteLine($"movq %rax, {this.IntegerRegisters[functionAsm.UsedIntegerRegisters]}");
+                    functionAsm.UsedIntegerRegisters++;
                 }
             }
 
@@ -125,7 +128,7 @@ namespace LL.CodeGeneration
                 {
                     this.GetAssember(functionCall.Args[i]);
 
-                    this.WriteLine($"movq %rax, {functionAsm.variableMap[funDef.Args[i].Name] - 16}(%rsp)");
+                    this.WriteLine($"movq %rax, {functionAsm.VariableMap[funDef.Args[i].Name] - 16}(%rsp)");
                 }
             }
 
@@ -139,7 +142,7 @@ namespace LL.CodeGeneration
                     if (functionCall.Args[i].Type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
-                    this.WriteLine($"movq %xmm0, {functionAsm.variableMap[funDef.Args[i].Name] - 16}(%rsp)");
+                    this.WriteLine($"movq %xmm0, {functionAsm.VariableMap[funDef.Args[i].Name] - 16}(%rsp)");
                 }
             }
 
@@ -155,12 +158,12 @@ namespace LL.CodeGeneration
 
                     this.WriteLine($"movq %xmm0, %rax");
                     this.WritePush();
-                    functionAsm.usedDoubleRegisters++;
+                    functionAsm.UsedDoubleRegisters++;
                 }
             }
 
             // move the previously pushed double arguments into the double registers
-            for (int i = 0; i < functionAsm.usedDoubleRegisters; i++)
+            for (int i = 0; i < functionAsm.UsedDoubleRegisters; i++)
             {
                 this.WritePop();
                 this.WriteLine($"movq %rax, {DoubleRegisters[i]}");
