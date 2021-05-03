@@ -39,7 +39,7 @@ namespace LL.test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual("ll.AST.IntLit", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.IntLit", result.GetType().ToString());
         }
 
         [TestCase("0.5")]
@@ -62,7 +62,7 @@ namespace LL.test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual("ll.AST.DoubleLit", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.DoubleLit", result.GetType().ToString());
         }
     }
 }

@@ -39,7 +39,7 @@ namespace LL.test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual("ll.AST.LessExpr", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.LessExpr", result.GetType().ToString());
         }
     }
 }

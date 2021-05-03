@@ -52,7 +52,7 @@ namespace test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual("ll.AST.AddExpr", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.AddExpr", result.GetType().ToString());
         }
 
         [TestCase("(5==3)+2")]
@@ -94,7 +94,7 @@ namespace test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual("ll.AST.SubExpr", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.SubExpr", result.GetType().ToString());
         }
 
         [TestCase("(5==3)-2")]

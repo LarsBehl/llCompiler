@@ -48,7 +48,7 @@ namespace LL.test
 
             var result = visitor.Visit(parser.statement());
 
-            Assert.AreEqual("ll.AST.ReturnStatement", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.ReturnStatement", result.GetType().ToString());
         }
         
     }

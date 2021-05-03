@@ -3,6 +3,7 @@ using Antlr4.Runtime;
 using LL.AST;
 using System.IO;
 using System;
+using LL.Exceptions;
 
 namespace LL.test
 {
@@ -78,7 +79,7 @@ namespace LL.test
                 funDefVisitor.Visit(parser.program());
 
                 parser = Setup(input);
-                Assert.Throws<ArgumentException>(() => visitor.Visit(parser.program()));
+                Assert.Throws<MissingReturnStatementException>(() => visitor.Visit(parser.program()));
             }
             catch (IOException e)
             {

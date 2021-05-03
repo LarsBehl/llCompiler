@@ -53,7 +53,7 @@ namespace LL.test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual("ll.AST.MultExpr", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.MultExpr", result.GetType().ToString());
         }
 
         [TestCase("6/3", 2)]
@@ -88,7 +88,7 @@ namespace LL.test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual("ll.AST.DivExpr", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.DivExpr", result.GetType().ToString());
         }
     }
 }

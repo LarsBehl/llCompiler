@@ -40,7 +40,7 @@ namespace LL.test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual("ll.AST.EqualityExpr", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.EqualityExpr", result.GetType().ToString());
         }
 
         [TestCase("(2>1)==5")]

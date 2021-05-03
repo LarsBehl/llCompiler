@@ -40,7 +40,7 @@ namespace LL.test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual("ll.AST.GreaterExpr", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.GreaterExpr", result.GetType().ToString());
         }
     }
 }
