@@ -16,7 +16,7 @@ namespace LL.CodeGeneration
         private void DoubleLitAsm(DoubleLit doubleLit)
         {
             this.WriteDoubleValue(doubleLit);
-            this.WriteLine($"movq .LD{this.doubleMap[doubleLit.Value ?? 0]}(%rip), %xmm0");
+            this.WriteLine($"movq .LD{this.DoubleMap[doubleLit.Value ?? 0]}(%rip), %xmm0");
         }
 
         private void BoolLitAsm(BoolLit boolLit)
@@ -29,12 +29,12 @@ namespace LL.CodeGeneration
             FunctionDefinition funDef = IAST.Funs.GetValueOrDefault(functionCall.FunctionName);
             FunctionAsm functionAsm;
 
-            if (this.functionMap.ContainsKey(functionCall.FunctionName))
-                functionAsm = this.functionMap[functionCall.FunctionName];
+            if (this.FunctionMap.ContainsKey(functionCall.FunctionName))
+                functionAsm = this.FunctionMap[functionCall.FunctionName];
             else
             {
                 functionAsm = new FunctionAsm(functionCall.FunctionName);
-                this.functionMap.Add(functionCall.FunctionName, functionAsm);
+                this.FunctionMap.Add(functionCall.FunctionName, functionAsm);
             }
 
             functionAsm.usedDoubleRegisters = 0;
@@ -93,12 +93,12 @@ namespace LL.CodeGeneration
                             throw new ArgumentException($"Unknown type {functionCall.Args[i].Type.TypeName}");
                     }
                 }
-                this.stackCounter += rbpOffset - 16;
+                this.StackCounter += rbpOffset - 16;
 
                 // align the stack if needed
-                if (this.stackCounter % 16 == 0)
+                if (this.StackCounter % 16 == 0)
                 {
-                    this.stackCounter += 8;
+                    this.StackCounter += 8;
                     rbpOffset += 8;
                 }
 
@@ -113,7 +113,7 @@ namespace LL.CodeGeneration
                 {
                     this.GetAssember(functionCall.Args[i]);
 
-                    this.WriteLine($"movq %rax, {this.integerRegisters[functionAsm.usedIntegerRegisters]}");
+                    this.WriteLine($"movq %rax, {this.IntegerRegisters[functionAsm.usedIntegerRegisters]}");
                     functionAsm.usedIntegerRegisters++;
                 }
             }
@@ -163,7 +163,7 @@ namespace LL.CodeGeneration
             for (int i = 0; i < functionAsm.usedDoubleRegisters; i++)
             {
                 this.WritePop();
-                this.WriteLine($"movq %rax, {doubleRegisters[i]}");
+                this.WriteLine($"movq %rax, {DoubleRegisters[i]}");
             }
 
             // this should only happen if the registers do not overflow and the stack is not aligned
@@ -179,7 +179,7 @@ namespace LL.CodeGeneration
         {
             // move the variables value from the stack into the type specific registers
             if (varExpr.Type is DoubleType)
-                this.WriteLine($"movq {this.variableMap[varExpr.Name]}(%rbp), %xmm0");
+                this.WriteLine($"movq {this.VariableMap[varExpr.Name]}(%rbp), %xmm0");
 
             if (varExpr.Type is BooleanType
             || varExpr.Type is IntType
@@ -187,7 +187,7 @@ namespace LL.CodeGeneration
             || varExpr.Type is DoubleArrayType
             || varExpr.Type is BoolArrayType
             || varExpr.Type is StructType)
-                this.WriteLine($"movq {this.variableMap[varExpr.Name]}(%rbp), %rax");
+                this.WriteLine($"movq {this.VariableMap[varExpr.Name]}(%rbp), %rax");
         }
 
         private void IncrementAsm(IncrementExpr increment)
@@ -230,7 +230,7 @@ namespace LL.CodeGeneration
             switch (increment.Variable)
             {
                 case VarExpr varExpr:
-                    this.WriteLine($"movq {register}, {this.variableMap[varExpr.Name]}(%rbp)");
+                    this.WriteLine($"movq {register}, {this.VariableMap[varExpr.Name]}(%rbp)");
                     if (varExpr.Type is DoubleType)
                         this.WriteLine("movq %xmm0, %rax");
                     break;
@@ -323,7 +323,7 @@ namespace LL.CodeGeneration
             switch (decrement.Variable)
             {
                 case VarExpr varExpr:
-                    this.WriteLine($"movq {register}, {variableMap[varExpr.Name]}(%rbp)");
+                    this.WriteLine($"movq {register}, {VariableMap[varExpr.Name]}(%rbp)");
 
                     if (varExpr.Type is DoubleType)
                         this.WriteLine("movq %xmm0, %rax");

@@ -9,36 +9,38 @@ using System.IO;
 
 namespace LL.CodeGeneration
 {
+    // TODO change casing of attributes
+    // TODO add current file to generator
     public partial class AssemblerGenerator
     {
-        private string indent = "    ";
-        private int depth = 0;
-        private StringBuilder sb = new StringBuilder();
-        private StringBuilder doubleNumbers = new StringBuilder();
-        private StringBuilder strings = new StringBuilder();
-        private StringBuilder structDefinitionBuilder = new StringBuilder();
-        private int labelCount = 0;
-        private int doubleNumbersLabelCount = 0;
-        private int stringLabelCount = 0;
-        private string[] integerRegisters = { "%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9" };
-        private string[] doubleRegisters = { "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7" };
-        private Dictionary<string, FunctionAsm> functionMap = new Dictionary<string, FunctionAsm>();
-        private Dictionary<double, int> doubleMap = new Dictionary<double, int>();
-        private Dictionary<string, int> variableMap;
-        private Dictionary<string, int> stringLabelMap = new Dictionary<string, int>();
-        private Dictionary<string, int> structIdMap = new Dictionary<string, int>();
-        private int localVariablePointer = 0;
-        private int localVariableCount = 0;
-        private int stackCounter = 0;
-        private bool innerStruct = false;
+        private string Indent = "    ";
+        private int Depth = 0;
+        private StringBuilder Sb = new StringBuilder();
+        private StringBuilder DoubleNumbers = new StringBuilder();
+        private StringBuilder Strings = new StringBuilder();
+        private StringBuilder StructDefinitionBuilder = new StringBuilder();
+        private int LabelCount = 0;
+        private int DoubleNumbersLabelCount = 0;
+        private int StringLabelCount = 0;
+        private string[] IntegerRegisters = { "%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9" };
+        private string[] DoubleRegisters = { "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7" };
+        private Dictionary<string, FunctionAsm> FunctionMap = new Dictionary<string, FunctionAsm>();
+        private Dictionary<double, int> DoubleMap = new Dictionary<double, int>();
+        private Dictionary<string, int> VariableMap;
+        private Dictionary<string, int> StringLabelMap = new Dictionary<string, int>();
+        private Dictionary<string, int> StructIdMap = new Dictionary<string, int>();
+        private int LocalVariablePointer = 0;
+        private int LocalVariableCount = 0;
+        private int StackCounter = 0;
+        private bool InnerStruct = false;
 
         public void PrintAssember()
         {
-            Console.WriteLine(this.sb.ToString());
-            if (this.doubleNumbers.Length > 0)
-                Console.WriteLine(this.doubleNumbers.ToString());
-            if (this.strings.Length > 0)
-                Console.WriteLine(this.strings.ToString());
+            Console.WriteLine(this.Sb.ToString());
+            if (this.DoubleNumbers.Length > 0)
+                Console.WriteLine(this.DoubleNumbers.ToString());
+            if (this.Strings.Length > 0)
+                Console.WriteLine(this.Strings.ToString());
         }
 
         /// <summary>Get the assembler code of the given AST node</summary>
@@ -143,12 +145,12 @@ namespace LL.CodeGeneration
 
         private void InitializeFile(string fileName)
         {
-            this.depth += 1;
+            this.Depth += 1;
 
             this.WriteLine($".file \"{fileName}\"");
             this.WriteLine(".text");
 
-            this.depth -= 1;
+            this.Depth -= 1;
         }
 
         public void WriteToFile(string filePath, IAST astNode)
@@ -169,12 +171,12 @@ namespace LL.CodeGeneration
 
             this.GetAssember(astNode);
 
-            string fileContent = this.sb.ToString();
+            string fileContent = this.Sb.ToString();
 
-            if (this.doubleNumbers.Length > 0)
-                fileContent = fileContent + this.doubleNumbers.ToString();
-            if (this.strings.Length > 0)
-                fileContent = fileContent + this.strings.ToString();
+            if (this.DoubleNumbers.Length > 0)
+                fileContent = fileContent + this.DoubleNumbers.ToString();
+            if (this.Strings.Length > 0)
+                fileContent = fileContent + this.Strings.ToString();
 
             fileName = filePath.Substring(0, filePath.IndexOf(".ll")) + ".S";
 
@@ -188,64 +190,64 @@ namespace LL.CodeGeneration
         {
             FunctionAsm funAsm;
 
-            if (this.functionMap.ContainsKey(funDef.Name))
-                funAsm = this.functionMap[funDef.Name];
+            if (this.FunctionMap.ContainsKey(funDef.Name))
+                funAsm = this.FunctionMap[funDef.Name];
             else
             {
                 funAsm = new FunctionAsm(funDef.Name);
-                this.functionMap.Add(funDef.Name, funAsm);
+                this.FunctionMap.Add(funDef.Name, funAsm);
                 this.FillVariableMap(funAsm, funDef);
             }
 
-            this.variableMap = funAsm.variableMap;
-            this.localVariablePointer = 0;
-            this.stackCounter = 0;
+            this.VariableMap = funAsm.variableMap;
+            this.LocalVariablePointer = 0;
+            this.StackCounter = 0;
 
-            this.depth += 1;
+            this.Depth += 1;
 
             this.WriteLine($".global {funDef.Name}");
 
-            this.depth -= 1;
+            this.Depth -= 1;
 
             this.WriteLine($"{funDef.Name}:");
 
-            this.depth += 1;
+            this.Depth += 1;
 
             // save previous basepointer
             this.WritePush("%rbp");
             // set the new basepointer
             this.WriteLine("movq %rsp, %rbp");
 
-            this.localVariableCount = funDef.GetLocalVariables();
-            int offSet = this.localVariableCount * -8;
-            this.stackCounter -= offSet;
+            this.LocalVariableCount = funDef.GetLocalVariables();
+            int offSet = this.LocalVariableCount * -8;
+            this.StackCounter -= offSet;
 
             if (offSet < 0)
                 this.WriteLine($"addq ${offSet}, %rsp");
 
             // push all argument-registers onto the stack
             this.ArgumentTypeCount(funDef.Args, out int intArgCount, out int doubleArgCount);
-            int index = Math.Min(intArgCount, this.integerRegisters.Length);
+            int index = Math.Min(intArgCount, this.IntegerRegisters.Length);
             int lastFound = -1;
 
             for (int i = 0; i < index; i++)
             {
-                this.WritePush(this.integerRegisters[i]);
+                this.WritePush(this.IntegerRegisters[i]);
                 offSet -= 8;
                 lastFound = this.GetNextIntArg(funDef.Args, lastFound);
-                this.variableMap[funDef.Args[lastFound].Name] = offSet;
+                this.VariableMap[funDef.Args[lastFound].Name] = offSet;
             }
 
-            index = Math.Min(doubleArgCount, this.doubleRegisters.Length);
+            index = Math.Min(doubleArgCount, this.DoubleRegisters.Length);
             lastFound = -1;
 
             for (int i = 0; i < index; i++)
             {
-                this.WriteLine($"movq {this.doubleRegisters[i]}, %rax");
+                this.WriteLine($"movq {this.DoubleRegisters[i]}, %rax");
                 this.WritePush();
                 offSet -= 8;
                 lastFound = this.GetNextDoubleArg(funDef.Args, lastFound);
-                this.variableMap[funDef.Args[lastFound].Name] = offSet;
+                this.VariableMap[funDef.Args[lastFound].Name] = offSet;
             }
 
 
@@ -254,14 +256,14 @@ namespace LL.CodeGeneration
                 this.InitializeRuntime();
 
                 bool aligned = false;
-                
-                if (this.stackCounter % 16 == 0)
+
+                if (this.StackCounter % 16 == 0)
                 {
                     aligned = true;
                     this.WritePush("$0");
                 }
 
-                this.WriteLine(this.structDefinitionBuilder.ToString());
+                this.WriteLine(this.StructDefinitionBuilder.ToString());
 
                 if (aligned)
                     this.WritePop("%rbx");
@@ -269,7 +271,7 @@ namespace LL.CodeGeneration
 
             this.GetAssember(funDef.Body);
 
-            if(funDef.Name == "main")
+            if (funDef.Name == "main")
                 this.CleanUpRuntime();
 
             // if the function is a void function, make sure the important registers are set to 0
@@ -283,7 +285,7 @@ namespace LL.CodeGeneration
                 this.WriteLine("ret");
             }
 
-            this.depth -= 1;
+            this.Depth -= 1;
         }
 
         private void StructDefinitionAsm(StructDefinition structDef)
@@ -291,15 +293,15 @@ namespace LL.CodeGeneration
             Random random = new Random();
             int id = random.Next();
 
-            while (this.structIdMap.ContainsValue(id))
+            while (this.StructIdMap.ContainsValue(id))
                 id = random.Next();
 
-            this.structIdMap[structDef.Name] = id;
+            this.StructIdMap[structDef.Name] = id;
 
-            this.structDefinitionBuilder.AppendLine($"{this.indent}movq ${id}, {this.integerRegisters[0]}");
-            this.structDefinitionBuilder.AppendLine($"{this.indent}movq ${structDef.GetSize()}, {this.integerRegisters[1]}");
+            this.StructDefinitionBuilder.AppendLine($"{this.Indent}movq ${id}, {this.IntegerRegisters[0]}");
+            this.StructDefinitionBuilder.AppendLine($"{this.Indent}movq ${structDef.GetSize()}, {this.IntegerRegisters[1]}");
 
-            this.structDefinitionBuilder.AppendLine($"{this.indent}call registerClass@PLT");
+            this.StructDefinitionBuilder.AppendLine($"{this.Indent}call registerClass@PLT");
         }
 
         private void InitializeRuntime()
@@ -318,14 +320,14 @@ namespace LL.CodeGeneration
 
             this.WriteLine("call cleanUpRuntime@PLT");
 
-            if(aligned)
+            if (aligned)
                 this.WritePop("%rbx");
         }
 
         private void WriteLine(string op)
         {
-            for (int i = 0; i < this.depth; i++)
-                this.sb.Append(this.indent);
+            for (int i = 0; i < this.Depth; i++)
+                this.Sb.Append(this.Indent);
 
             var indexOfSpace = op.IndexOf(' ');
 
@@ -334,54 +336,54 @@ namespace LL.CodeGeneration
                 var first = op.Substring(0, indexOfSpace);
                 first = first.PadRight(7, ' ');
 
-                this.sb.Append(first);
-                this.sb.Append(op.Substring(indexOfSpace));
+                this.Sb.Append(first);
+                this.Sb.Append(op.Substring(indexOfSpace));
             }
             else
             {
-                this.sb.Append(op);
+                this.Sb.Append(op);
             }
 
-            this.sb.Append("\n");
+            this.Sb.Append("\n");
         }
 
         private void WritePush(string register = "%rax")
         {
             this.WriteLine($"pushq {register}");
-            this.stackCounter += 8;
+            this.StackCounter += 8;
         }
 
         private void WritePop(string register = "%rax")
         {
             this.WriteLine($"popq {register}");
-            this.stackCounter -= 8;
+            this.StackCounter -= 8;
         }
 
         private void WriteDoubleValue(DoubleLit doubleLit)
         {
             if (doubleLit.Value == null)
-                throw new ArgumentNullException();
+                throw new UnexpectedErrorException(null, doubleLit.Line, doubleLit.Column);
 
-            if (doubleMap.ContainsKey(doubleLit.Value ?? 0))
+            if (DoubleMap.ContainsKey(doubleLit.Value ?? 0))
                 return;
 
             // generate new label for new double number
-            this.doubleNumbers.Append($".LD{this.doubleNumbersLabelCount}:\n");
+            this.DoubleNumbers.Append($".LD{this.DoubleNumbersLabelCount}:\n");
             // convert the double into two integer strings
             // where each of them represents 32bit of the IEEE754 representation
             this.DoubleToAssemblerString(doubleLit, out string second, out string first);
             // write the two values
-            this.doubleNumbers.Append($"{indent}.long {first}\n");
-            this.doubleNumbers.Append($"{indent}.long {second}\n");
-            this.doubleNumbers.Append($"{indent}.align 8\n");
+            this.DoubleNumbers.Append($"{Indent}.long {first}\n");
+            this.DoubleNumbers.Append($"{Indent}.long {second}\n");
+            this.DoubleNumbers.Append($"{Indent}.align 8\n");
             // remember which label corresponds to the given double value
-            this.doubleMap.Add(doubleLit.Value ?? 0, this.doubleNumbersLabelCount);
-            this.doubleNumbersLabelCount += 1;
+            this.DoubleMap.Add(doubleLit.Value ?? 0, this.DoubleNumbersLabelCount);
+            this.DoubleNumbersLabelCount += 1;
         }
 
         private void WriteString(IAST value)
         {
-            this.strings.Append($".LS{this.stringLabelCount}:\n");
+            this.Strings.Append($".LS{this.StringLabelCount}:\n");
             string stringVal = "";
             string type = "";
 
@@ -400,16 +402,16 @@ namespace LL.CodeGeneration
                     type = "int";
                     break;
                 default:
-                    throw new ArgumentException($"Type {value.Type.TypeName} not supported for print operation");
+                    throw new TypeNotAllowedException(value.Type.ToString(), null, value.Line, value.Column);
             }
-            this.stringLabelMap[type] = this.stringLabelCount++;
-            this.strings.Append($"{this.indent}.string \"{stringVal}\"\n");
+            this.StringLabelMap[type] = this.StringLabelCount++;
+            this.Strings.Append($"{this.Indent}.string \"{stringVal}\"\n");
         }
 
         private void DoubleToAssemblerString(DoubleLit doubleLit, out string leftPart, out string rightPart)
         {
             if (doubleLit.Value == null)
-                throw new ArgumentNullException();
+                throw new UnexpectedErrorException(null, doubleLit.Line, doubleLit.Column);
 
             // convert the double into ieee754 number 
             var tmp = Convert.ToString(BitConverter.DoubleToInt64Bits((doubleLit.Value ?? 0)), 2).PadLeft(64, '0');
@@ -437,7 +439,7 @@ namespace LL.CodeGeneration
                 {
                     usedInt += 1;
 
-                    if (usedInt > this.integerRegisters.Length)
+                    if (usedInt > this.IntegerRegisters.Length)
                     {
                         result = true;
                         integerOverflowPosition = integerOverflowPosition == Int32.MaxValue ? i : integerOverflowPosition;
@@ -448,7 +450,7 @@ namespace LL.CodeGeneration
                 {
                     usedDouble += 1;
 
-                    if (usedDouble > this.doubleRegisters.Length)
+                    if (usedDouble > this.DoubleRegisters.Length)
                     {
                         result = true;
                         doubleOverflowPosition = doubleOverflowPosition == Int32.MaxValue ? i : doubleOverflowPosition;
@@ -473,7 +475,7 @@ namespace LL.CodeGeneration
                 {
                     usedInt += 1;
 
-                    if (usedInt > this.integerRegisters.Length)
+                    if (usedInt > this.IntegerRegisters.Length)
                     {
                         result = true;
                         integerOverflowPosition = integerOverflowPosition != Int32.MaxValue ? integerOverflowPosition : i;
@@ -484,7 +486,7 @@ namespace LL.CodeGeneration
                 {
                     usedDouble += 1;
 
-                    if (usedDouble > this.doubleRegisters.Length)
+                    if (usedDouble > this.DoubleRegisters.Length)
                     {
                         result = true;
                         doubleOverflowPosition = doubleOverflowPosition != Int32.MaxValue ? doubleOverflowPosition : i;
@@ -512,12 +514,13 @@ namespace LL.CodeGeneration
                 // calculate the position of the overflown arguments on the stack
                 for (int i = functionDefinition.Args.Count - 1; i >= min; i--)
                 {
+                    InstantiationStatement arg = functionDefinition.Args[i];
                     switch (functionDefinition.Args[i].Type)
                     {
                         case IntType intType:
                             if (i >= integerOverflowPosition)
                             {
-                                functionAsm.variableMap.Add(functionDefinition.Args[i].Name, rbpOffset);
+                                functionAsm.variableMap.Add(arg.Name, rbpOffset);
                                 rbpOffset += 8;
                             }
 
@@ -525,7 +528,7 @@ namespace LL.CodeGeneration
                         case DoubleType doubleType:
                             if (i >= doubleOverflowPosition)
                             {
-                                functionAsm.variableMap.Add(functionDefinition.Args[i].Name, rbpOffset);
+                                functionAsm.variableMap.Add(arg.Name, rbpOffset);
                                 rbpOffset += 8;
                             }
 
@@ -533,7 +536,7 @@ namespace LL.CodeGeneration
                         case BooleanType booleanType:
                             if (i >= integerOverflowPosition)
                             {
-                                functionAsm.variableMap.Add(functionDefinition.Args[i].Name, rbpOffset);
+                                functionAsm.variableMap.Add(arg.Name, rbpOffset);
                                 rbpOffset += 8;
                             }
 
@@ -541,13 +544,13 @@ namespace LL.CodeGeneration
                         case RefType refType:
                             if (i >= integerOverflowPosition)
                             {
-                                functionAsm.variableMap.Add(functionDefinition.Args[i].Name, rbpOffset);
+                                functionAsm.variableMap.Add(arg.Name, rbpOffset);
                                 rbpOffset += 8;
                             }
 
                             break;
                         default:
-                            throw new ArgumentException($"Unknown type {functionDefinition.Args[i].Type.TypeName}");
+                            throw new UnknownTypeException(arg.Type.ToString(), null, arg.Line, arg.Column);
                     }
                 }
             }
@@ -570,24 +573,26 @@ namespace LL.CodeGeneration
 
         private int GetNextIntArg(List<InstantiationStatement> args, int startIndex)
         {
-            for (int i = startIndex + 1; i < args.Count; i++)
+            int i;
+            for (i = startIndex + 1; i < args.Count; i++)
             {
                 if (args[i].Type is IntType || args[i].Type is BooleanType || args[i].Type is RefType)
                     return i;
             }
 
-            throw new ArgumentOutOfRangeException("Expected to find more integer arguments");
+            throw new ArgumentCountException("integer", null, args[i - 1].Line, args[i - 1].Column);
         }
 
         private int GetNextDoubleArg(List<InstantiationStatement> args, int startIndex)
         {
-            for (int i = startIndex + 1; i < args.Count; i++)
+            int i;
+            for (i = startIndex + 1; i < args.Count; i++)
             {
                 if (args[i].Type is DoubleType)
                     return i;
             }
 
-            throw new ArgumentOutOfRangeException("Expected to find more double arguments");
+            throw new ArgumentCountException("double", null, args[i - 1].Line, args[i - 1].Column);
         }
 
         private void LoadArrayField(ArrayIndexing arrayIndexing)
@@ -635,11 +640,11 @@ namespace LL.CodeGeneration
                     hasInnerStruct = true;
                     break;
                 default:
-                    throw new ArgumentException("Unknown property type");
+                    throw new UnknownTypeException(structProperty.Prop.Type.ToString(), null, structProperty.Prop.Line, structProperty.Prop.Column);
             }
             int propIndex = structDef.Properties.FindIndex(sp => sp.Name == propName);
 
-            if (!this.innerStruct)
+            if (!this.InnerStruct)
                 this.GetAssember(structProperty.StructRef);
             this.WriteLine($"addq ${propIndex * 8}, %rax");
 
@@ -658,12 +663,12 @@ namespace LL.CodeGeneration
 
             if (hasInnerStruct)
             {
-                this.innerStruct = true;
+                this.InnerStruct = true;
                 // load the base address of the inner struct
                 this.WriteLine("movq (%rax), %rax");
                 // walk recursivly
                 this.LoadStructProperty(structProperty.Prop as StructPropertyAccess);
-                this.innerStruct = false;
+                this.InnerStruct = false;
             }
         }
 
@@ -671,7 +676,7 @@ namespace LL.CodeGeneration
         {
             bool result = false;
 
-            if (this.stackCounter % 16 == 0)
+            if (this.StackCounter % 16 == 0)
             {
                 this.WritePush("$0");
                 result = true;

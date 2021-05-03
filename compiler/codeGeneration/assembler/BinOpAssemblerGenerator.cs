@@ -399,8 +399,8 @@ namespace LL.CodeGeneration
 
         private void AndExprAsm(AndExpr andExpr)
         {
-            int nextLabel = this.labelCount;
-            this.labelCount += 2;
+            int nextLabel = this.LabelCount;
+            this.LabelCount += 2;
 
             this.GetAssember(andExpr.Left);
 
@@ -414,19 +414,19 @@ namespace LL.CodeGeneration
             this.WriteLine("movq $1, %rax");
             this.WriteLine($"jmp .L{nextLabel + 1}");
 
-            this.depth -= 1;
+            this.Depth -= 1;
             this.WriteLine($".L{nextLabel++}:");
-            this.depth += 1;
+            this.Depth += 1;
             this.WriteLine("movq $0, %rax");
-            this.depth -= 1;
+            this.Depth -= 1;
             this.WriteLine($".L{nextLabel++}:");
-            this.depth += 1;
+            this.Depth += 1;
         }
 
         private void OrExprAsm(OrExpr orExpr)
         {
-            int nextLabel = this.labelCount;
-            this.labelCount += 2;
+            int nextLabel = this.LabelCount;
+            this.LabelCount += 2;
 
             this.GetAssember(orExpr.Left);
 
@@ -439,14 +439,14 @@ namespace LL.CodeGeneration
             this.WriteLine("movq $0, %rax");
             this.WriteLine($"jmp .L{nextLabel + 1}");
 
-            this.depth -= 1;
+            this.Depth -= 1;
             this.WriteLine($".L{nextLabel++}:");
-            this.depth += 1;
+            this.Depth += 1;
             this.WriteLine("movq $1, %rax");
 
-            this.depth -= 1;
+            this.Depth -= 1;
             this.WriteLine($".L{nextLabel++}:");
-            this.depth += 1;
+            this.Depth += 1;
         }
 
         private void NotEqualExprAsm(NotEqualExpr notEqualExpr)
