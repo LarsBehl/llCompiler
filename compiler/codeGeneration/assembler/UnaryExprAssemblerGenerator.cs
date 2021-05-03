@@ -93,7 +93,7 @@ namespace LL.CodeGeneration
 
                             break;
                         default:
-                            throw new UnknownTypeException(arg.Type.ToString(), null, arg.Line, arg.Column);
+                            throw new UnknownTypeException(arg.Type.ToString(), this.CurrentFile, arg.Line, arg.Column);
                     }
                 }
                 this.StackCounter += rbpOffset - 16;

@@ -46,7 +46,7 @@ namespace LL.CodeGeneration
                     }
                     break;
                 default:
-                    throw new TypeNotAllowedException(addExpr.Right.Type.ToString(), null, addExpr.Line, addExpr.Column);
+                    throw new TypeNotAllowedException(addExpr.Right.Type.ToString(), this.CurrentFile, addExpr.Line, addExpr.Column);
             }
         }
 
@@ -88,7 +88,7 @@ namespace LL.CodeGeneration
                     }
                     break;
                 default:
-                    throw new TypeNotAllowedException(subExpr.Right.Type.ToString(), null, subExpr.Line, subExpr.Column);
+                    throw new TypeNotAllowedException(subExpr.Right.Type.ToString(), this.CurrentFile, subExpr.Line, subExpr.Column);
             }
         }
 
@@ -130,7 +130,7 @@ namespace LL.CodeGeneration
                     }
                     break;
                 default:
-                    throw new TypeNotAllowedException(multExpr.Right.Type.ToString(), null, multExpr.Line, multExpr.Column);
+                    throw new TypeNotAllowedException(multExpr.Right.Type.ToString(), this.CurrentFile, multExpr.Line, multExpr.Column);
             }
         }
 
@@ -175,7 +175,7 @@ namespace LL.CodeGeneration
                     }
                     break;
                 default:
-                    throw new TypeNotAllowedException(divExpr.Right.Type.ToString(), null, divExpr.Line, divExpr.Column);
+                    throw new TypeNotAllowedException(divExpr.Right.Type.ToString(), this.CurrentFile, divExpr.Line, divExpr.Column);
             }
         }
 
@@ -235,7 +235,7 @@ namespace LL.CodeGeneration
 
                     break;
                 default:
-                    throw new TypeNotAllowedException(greaterExpr.Right.Type.ToString(), null, greaterExpr.Line, greaterExpr.Column);
+                    throw new TypeNotAllowedException(greaterExpr.Right.Type.ToString(), this.CurrentFile, greaterExpr.Line, greaterExpr.Column);
             }
 
             this.WriteLine("movzbl %al, %rax");
@@ -302,7 +302,7 @@ namespace LL.CodeGeneration
 
                     break;
                 default:
-                    throw new TypeNotAllowedException(lessExpr.Right.Type.ToString(), null, lessExpr.Line, lessExpr.Column);
+                    throw new TypeNotAllowedException(lessExpr.Right.Type.ToString(), this.CurrentFile, lessExpr.Line, lessExpr.Column);
             }
 
             this.WriteLine("movzbl %al, %rax");
@@ -392,7 +392,7 @@ namespace LL.CodeGeneration
 
                     break;
                 default:
-                    throw new TypeNotAllowedException(equalityExpr.Right.Type.ToString(), null, equalityExpr.Line, equalityExpr.Column);
+                    throw new TypeNotAllowedException(equalityExpr.Right.Type.ToString(), this.CurrentFile, equalityExpr.Line, equalityExpr.Column);
             }
 
             this.WriteLine("movzbl %al, %rax");

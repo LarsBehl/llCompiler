@@ -33,6 +33,12 @@ namespace LL.CodeGeneration
         private int LocalVariableCount = 0;
         private int StackCounter = 0;
         private bool InnerStruct = false;
+        private string CurrentFile;
+
+        public AssemblerGenerator(string currentFile)
+        {
+            this.CurrentFile = currentFile;
+        }
 
         public void PrintAssember()
         {
@@ -134,7 +140,7 @@ namespace LL.CodeGeneration
                 case ModExpr modExpr:
                     this.ModExprAsm(modExpr); break;
                 default:
-                    throw new CodeGenerationNotImplementedException(astNode.ToString(), null, astNode.Line, astNode.Column);
+                    throw new CodeGenerationNotImplementedException(astNode.ToString(), this.CurrentFile, astNode.Line, astNode.Column);
             }
         }
 
@@ -362,7 +368,7 @@ namespace LL.CodeGeneration
         private void WriteDoubleValue(DoubleLit doubleLit)
         {
             if (doubleLit.Value == null)
-                throw new UnexpectedErrorException(null, doubleLit.Line, doubleLit.Column);
+                throw new UnexpectedErrorException(this.CurrentFile, doubleLit.Line, doubleLit.Column);
 
             if (DoubleMap.ContainsKey(doubleLit.Value ?? 0))
                 return;
@@ -402,7 +408,7 @@ namespace LL.CodeGeneration
                     type = "int";
                     break;
                 default:
-                    throw new TypeNotAllowedException(value.Type.ToString(), null, value.Line, value.Column);
+                    throw new TypeNotAllowedException(value.Type.ToString(), this.CurrentFile, value.Line, value.Column);
             }
             this.StringLabelMap[type] = this.StringLabelCount++;
             this.Strings.Append($"{this.Indent}.string \"{stringVal}\"\n");
@@ -411,7 +417,7 @@ namespace LL.CodeGeneration
         private void DoubleToAssemblerString(DoubleLit doubleLit, out string leftPart, out string rightPart)
         {
             if (doubleLit.Value == null)
-                throw new UnexpectedErrorException(null, doubleLit.Line, doubleLit.Column);
+                throw new UnexpectedErrorException(this.CurrentFile, doubleLit.Line, doubleLit.Column);
 
             // convert the double into ieee754 number 
             var tmp = Convert.ToString(BitConverter.DoubleToInt64Bits((doubleLit.Value ?? 0)), 2).PadLeft(64, '0');
@@ -550,7 +556,7 @@ namespace LL.CodeGeneration
 
                             break;
                         default:
-                            throw new UnknownTypeException(arg.Type.ToString(), null, arg.Line, arg.Column);
+                            throw new UnknownTypeException(arg.Type.ToString(), this.CurrentFile, arg.Line, arg.Column);
                     }
                 }
             }
@@ -580,7 +586,7 @@ namespace LL.CodeGeneration
                     return i;
             }
 
-            throw new ArgumentCountException("integer", null, args[i - 1].Line, args[i - 1].Column);
+            throw new ArgumentCountException("integer", this.CurrentFile, args[i - 1].Line, args[i - 1].Column);
         }
 
         private int GetNextDoubleArg(List<InstantiationStatement> args, int startIndex)
@@ -592,7 +598,7 @@ namespace LL.CodeGeneration
                     return i;
             }
 
-            throw new ArgumentCountException("double", null, args[i - 1].Line, args[i - 1].Column);
+            throw new ArgumentCountException("double", this.CurrentFile, args[i - 1].Line, args[i - 1].Column);
         }
 
         private void LoadArrayField(ArrayIndexing arrayIndexing)
@@ -640,7 +646,7 @@ namespace LL.CodeGeneration
                     hasInnerStruct = true;
                     break;
                 default:
-                    throw new UnknownTypeException(structProperty.Prop.Type.ToString(), null, structProperty.Prop.Line, structProperty.Prop.Column);
+                    throw new UnknownTypeException(structProperty.Prop.Type.ToString(), this.CurrentFile, structProperty.Prop.Line, structProperty.Prop.Column);
             }
             int propIndex = structDef.Properties.FindIndex(sp => sp.Name == propName);
 

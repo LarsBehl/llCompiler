@@ -29,7 +29,7 @@ namespace LL.CodeGeneration
             {
                 // and there are still more local variables in this function
                 if (++this.LocalVariablePointer > this.LocalVariableCount)
-                    throw new OutOfRangeException(this.LocalVariablePointer, this.LocalVariableCount, null, assignStatement.Line, assignStatement.Column);
+                    throw new OutOfRangeException(this.LocalVariablePointer, this.LocalVariableCount, this.CurrentFile, assignStatement.Line, assignStatement.Column);
                 // map the next empty spot of the reserved stack to the given variable
                 this.VariableMap.Add(assignStatement.Variable.Name, this.LocalVariablePointer * (-8));
             }
@@ -152,7 +152,7 @@ namespace LL.CodeGeneration
                     this.WriteLine($"movq %xmm0, {this.VariableMap[addAssignStatement.Left.Name]}(%rbp)");
                     break;
                 default:
-                    throw new TypeNotAllowedException(addAssignStatement.Left.Type.ToString(), null, addAssignStatement.Left.Line, addAssignStatement.Left.Column);
+                    throw new TypeNotAllowedException(addAssignStatement.Left.Type.ToString(), this.CurrentFile, addAssignStatement.Left.Line, addAssignStatement.Left.Column);
             }
         }
 
@@ -175,7 +175,7 @@ namespace LL.CodeGeneration
                     this.WriteLine($"movq %xmm0, {this.VariableMap[subAssignStatement.Left.Name]}(%rbp)");
                     break;
                 default:
-                    throw new TypeNotAllowedException(subAssignStatement.Left.Type.ToString(), null, subAssignStatement.Left.Line, subAssignStatement.Left.Column);
+                    throw new TypeNotAllowedException(subAssignStatement.Left.Type.ToString(), this.CurrentFile, subAssignStatement.Left.Line, subAssignStatement.Left.Column);
             }
         }
 
@@ -198,7 +198,7 @@ namespace LL.CodeGeneration
                     this.WriteLine($"movq %xmm0, {this.VariableMap[multAssignStatement.Left.Name]}(%rbp)");
                     break;
                 default:
-                    throw new TypeNotAllowedException(multAssignStatement.Left.Type.ToString(), null, multAssignStatement.Left.Line, multAssignStatement.Left.Column);
+                    throw new TypeNotAllowedException(multAssignStatement.Left.Type.ToString(), this.CurrentFile, multAssignStatement.Left.Line, multAssignStatement.Left.Column);
             }
         }
 
@@ -226,7 +226,7 @@ namespace LL.CodeGeneration
                     this.WriteLine($"movq %xmm0, {this.VariableMap[divAssignStatement.Left.Name]}(%rbp)");
                     break;
                 default:
-                    throw new TypeNotAllowedException(divAssignStatement.Left.Type.ToString(), null, divAssignStatement.Left.Line, divAssignStatement.Left.Column);
+                    throw new TypeNotAllowedException(divAssignStatement.Left.Type.ToString(), this.CurrentFile, divAssignStatement.Left.Line, divAssignStatement.Left.Column);
             }
         }
 
@@ -285,7 +285,7 @@ namespace LL.CodeGeneration
                     this.WriteLine($"movq $0, %rsi");
                     break;
                 default:
-                    throw new TypeNotAllowedException(refTypeCreation.CreatedReftype.Type.ToString(), null, refTypeCreation.Line, refTypeCreation.Column);
+                    throw new TypeNotAllowedException(refTypeCreation.CreatedReftype.Type.ToString(), this.CurrentFile, refTypeCreation.Line, refTypeCreation.Column);
             }
 
             bool aligned = this.AlignStack();
