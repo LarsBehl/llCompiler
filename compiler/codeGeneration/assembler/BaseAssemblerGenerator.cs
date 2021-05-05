@@ -9,8 +9,6 @@ using System.IO;
 
 namespace LL.CodeGeneration
 {
-    // TODO change casing of attributes
-    // TODO add current file to generator
     public partial class AssemblerGenerator
     {
         private string Indent = "    ";
@@ -34,6 +32,7 @@ namespace LL.CodeGeneration
         private int StackCounter = 0;
         private bool InnerStruct = false;
         private string CurrentFile;
+        private ProgramNode RootProg;
 
         public AssemblerGenerator(string currentFile)
         {
@@ -83,6 +82,7 @@ namespace LL.CodeGeneration
                 case FunctionCall funCall:
                     this.FunctionCallAsm(funCall); break;
                 case ProgramNode programNode:
+                    this.RootProg = programNode;
                     foreach (var structDef in programNode.StructDefs)
                         this.GetAssember(structDef.Value);
                     foreach (var fun in programNode.FunDefs)
@@ -627,7 +627,7 @@ namespace LL.CodeGeneration
         private void LoadStructProperty(StructPropertyAccess structProperty)
         {
             StructType st = structProperty.StructRef.Type as StructType;
-            var structDef = IAST.Structs[st.StructName];
+            var structDef = this.RootProg.StructDefs[st.StructName];
             string propName = "";
             bool hasInnerStruct = false;
             bool isArrayIndexing = false;

@@ -9,11 +9,12 @@ namespace LL.AST
         public string FunctionName { get; set; }
         public List<IAST> Args { get; set; }
 
-        public FunctionCall(string name, List<IAST> args, int line, int column) : base(IAST.Funs[name].ReturnType, line, column)
+        // TODO add exception handling
+        public FunctionCall(FunctionDefinition funDef, string name, List<IAST> args, int line, int column) : base(funDef.ReturnType, line, column)
         {
-            if (IAST.Funs[name].Args.Count != args.Count)
-                throw new ArgumentException($"Argument count of functioncall \"{name}\" {args.Count} not equal to function definition {IAST.Funs[name].Args.Count}; On line {line}:{column}");
-            var tmp = IAST.Funs[name].Args;
+            if (funDef.Args.Count != args.Count)
+                throw new ArgumentException($"Argument count of functioncall \"{name}\" {args.Count} not equal to function definition {funDef.Args.Count}; On line {line}:{column}");
+            var tmp = funDef.Args;
             for (int i = 0; i < tmp.Count; i++)
             {
                 if (args[i].Type != tmp[i].Type)

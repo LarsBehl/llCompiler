@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Collections.Generic;
 using Antlr4.Runtime;
 using LL.AST;
 using LL.CodeGeneration;
@@ -13,6 +14,8 @@ namespace LL
         {
             Console.WriteLine("Running in Interpreter Mode\n");
             string file = "InterpreterMode";
+            Dictionary<string, FunctionDefinition> funs = new Dictionary<string, FunctionDefinition>();
+            Dictionary<string, StructDefinition> structs = new Dictionary<string, StructDefinition>();
 
             while (true)
             {
@@ -29,14 +32,14 @@ namespace LL
 
                 if (text == ":fs")
                 {
-                    foreach (FunctionDefinition funDef in IAST.Funs.Values)
+                    foreach (FunctionDefinition funDef in funs.Values)
                         Console.WriteLine(funDef.Name);
                     continue;
                 }
 
                 if (text == ":sts")
                 {
-                    foreach (StructDefinition structDef in IAST.Structs.Values)
+                    foreach (StructDefinition structDef in structs.Values)
                         Console.WriteLine(structDef.Name);
                     continue;
                 }
@@ -44,37 +47,54 @@ namespace LL
                 if (string.IsNullOrEmpty(text))
                     break;
 
-                IAST ast;
-                try
-                {
-                    // setup the needed environment
-                    llParser parser = new llParser(new CommonTokenStream(new llLexer(new AntlrInputStream(text))));
-                    parser.RemoveErrorListeners();
-                    parser.AddErrorListener(new ErrorListener());
+                IAST ast = CompileContent(text, file);
 
-                    // parse the struct definitions and the load statements
-                    new StructDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
-
-                    // parse the function definitions
-                    parser.Reset();
-                    new FunctionDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
-
-                    // parse the complete program
-                    parser.Reset();
-                    ast = new BuildAstVisitor(file).VisitCompileUnit(parser.compileUnit());
-                }
-                catch (BaseCompilerException e)
-                {
-                    PrintError(e.Message);
-                    Console.WriteLine();
+                if(ast is null)
                     continue;
+
+                // if it is a programNode all defined functions and structs need to be stored
+                if(ast is ProgramNode pn)
+                {
+                    bool doContinue = false;
+                    foreach(var structDef in pn.StructDefs)
+                    {
+                        if(structs.ContainsKey(structDef.Key))
+                        {
+                            PrintError(new StructAlreadyDefinedException(structDef.Key, file, structDef.Value.Line, structDef.Value.Column));
+                            doContinue = true;
+                            break;
+                        }
+
+                        structs.Add(structDef.Key, structDef.Value);
+                    }
+
+                    foreach(var funDef in pn.FunDefs)
+                    {
+                        if(funs.ContainsKey(funDef.Key))
+                        {
+                            PrintError(new FunctionAlreadyDefinedException(funDef.Key, file, funDef.Value.Line, funDef.Value.Column));
+                            doContinue = true;
+                            break;
+                        }
+
+                        funs.Add(funDef.Key, funDef.Value);
+                    }
+
+                    if(doContinue)
+                        continue;
+                    
+                }
+                else
+                {
+                    IAST.Funs = funs;
+                    IAST.Structs = structs;
                 }
 
                 var value = ast.Eval();
 
-                if (value != null)
-                    Console.WriteLine("= {0}", value.ToString());
-
+                if(value is not null)
+                    Console.WriteLine($"= {value.ToString()}");
+                
                 Console.WriteLine();
             }
         }
@@ -91,32 +111,16 @@ namespace LL
                 if (string.IsNullOrEmpty(text))
                     break;
 
-                try
-                {
-                    // setup the needed environment
-                    llParser parser = new llParser(new CommonTokenStream(new llLexer(new AntlrInputStream(text))));
-                    parser.RemoveErrorListeners();
-                    parser.AddErrorListener(new ErrorListener());
 
-                    // parse the struct definitions and the load statements
-                    new StructDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
+                IAST ast = CompileContent(text, file);
 
-                    // parse the function definitions
-                    parser.Reset();
-                    new FunctionDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
+                // prevent nullpointer
+                if (ast is null)
+                    continue;
 
-                    // parse the complete program
-                    parser.Reset();
-                    IAST ast = new BuildAstVisitor(file).VisitCompileUnit(parser.compileUnit());
-                    var assemblerGenerator = new AssemblerGenerator(file);
-                    assemblerGenerator.GenerateAssember(ast);
-                    assemblerGenerator.PrintAssember();
-                }
-                catch (BaseCompilerException e)
-                {
-                    PrintError(e.Message);
-                    Console.WriteLine();
-                }
+                var assemblerGenerator = new AssemblerGenerator(file);
+                assemblerGenerator.GenerateAssember(ast);
+                assemblerGenerator.PrintAssember();
             }
         }
 
@@ -124,32 +128,58 @@ namespace LL
         {
             Console.WriteLine($"Compiling {inputFile}...");
 
+            string content = null;
+            try
+            {
+                using (StreamReader reader = new StreamReader(new FileStream(inputFile, FileMode.Open)))
+                {
+                    content = reader.ReadToEnd();
+                }
+            }
+            catch (System.IO.FileNotFoundException)
+            {
+                var notFoundException = new LL.Exceptions.FileNotFoundException(inputFile, null, 0, 0);
+                PrintError(notFoundException);
+                Environment.Exit(-1);
+            }
+
+            IAST ast = CompileContent(content, inputFile);
+            // prevent nullpointer
+            if (ast is null)
+                Environment.Exit(-1);
+
+            var assemblerGenerator = new AssemblerGenerator(inputFile);
+            assemblerGenerator.WriteToFile(inputFile, ast);
+        }
+
+        private static IAST CompileContent(string content, string fileName)
+        {
+            IAST ast = null;
             try
             {
                 // setup the needed environment
-                llParser parser = new llParser(new CommonTokenStream(new llLexer(new AntlrFileStream(inputFile))));
+                llParser parser = new llParser(new CommonTokenStream(new llLexer(new AntlrInputStream(content))));
                 parser.RemoveErrorListeners();
                 parser.AddErrorListener(new ErrorListener());
 
                 // parse the struct definitions and the load statements
-                new StructDefinitionVisitor(inputFile).VisitCompileUnit(parser.compileUnit());
+                ProgramNode prog = new StructDefinitionVisitor(fileName).VisitCompileUnit(parser.compileUnit()) as ProgramNode;
 
                 // parse the function definitions
                 parser.Reset();
-                new FunctionDefinitionVisitor(inputFile).VisitCompileUnit(parser.compileUnit());
+                prog = new FunctionDefinitionVisitor(fileName, prog).VisitCompileUnit(parser.compileUnit()) as ProgramNode;
 
                 // parse the complete program
                 parser.Reset();
-                IAST ast = new BuildAstVisitor(inputFile).VisitCompileUnit(parser.compileUnit());
-                var assemblerGenerator = new AssemblerGenerator(inputFile);
-                assemblerGenerator.WriteToFile(inputFile, ast);
+                ast = new BuildAstVisitor(fileName, prog).VisitCompileUnit(parser.compileUnit());
             }
             catch (BaseCompilerException e)
             {
-                PrintError(e.Message);
-                Environment.Exit(-1);
+                PrintError(e);
+                Console.WriteLine();
             }
 
+            return ast;
         }
 
         static void RTFM()
@@ -187,10 +217,10 @@ namespace LL
             }
         }
 
-        private static void PrintError(string error)
+        private static void PrintError(BaseCompilerException e)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(error);
+            Console.WriteLine(e.Message);
             Console.ForegroundColor = ConsoleColor.White;
         }
     }

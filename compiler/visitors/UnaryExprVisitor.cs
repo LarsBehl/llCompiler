@@ -73,9 +73,12 @@ namespace LL
 
         public override IAST VisitFunctionCall(llParser.FunctionCallContext context)
         {
+            string name = context.name.Text;
+            int line = context.Start.Line;
+            int column = context.Start.Column;
             var tmp = context.expression();
-            if (!IAST.Funs.ContainsKey(context.name.Text))
-                throw new UnknownFunctionException(context.name.Text, this.CurrentFile, context.Start.Line, context.Start.Column);
+            if (!this.RootProgram.FunDefs.ContainsKey(context.name.Text))
+                throw new UnknownFunctionException(name, this.CurrentFile, line, column);
             List<IAST> args = new List<IAST>();
 
             foreach (var arg in tmp)
@@ -83,7 +86,7 @@ namespace LL
                 args.Add(Visit(arg));
             }
 
-            return new FunctionCall(context.name.Text, args, context.Start.Line, context.Start.Column);
+            return new FunctionCall(this.RootProgram.FunDefs[name], name, args, line, column);
         }
 
         public override IAST VisitIncrementPostExpression(llParser.IncrementPostExpressionContext context)
@@ -164,7 +167,7 @@ namespace LL
                 string structName = (sR.Type as StructType).StructName;
 
                 // search for the struct definition
-                bool success = IAST.Structs.TryGetValue(structName, out StructDefinition def);
+                bool success = this.RootProgram.StructDefs.TryGetValue(structName, out StructDefinition def);
                 if (!success)
                     throw new UnknownTypeException(structName, this.CurrentFile, line, column);
 

@@ -7,18 +7,27 @@ using LL.Exceptions;
 
 namespace LL
 {
-    // TODO add constructor that takes ProgramNode as argument
     public partial class BuildAstVisitor : llBaseVisitor<IAST>
     {
         private string CurrentFile;
         static VarExpr sR = null;
+        private ProgramNode RootProgram;
         
         private BuildAstVisitor(): base()
         {
 
         }
 
-        public BuildAstVisitor(string currentFile): this() => this.CurrentFile = currentFile;
+        public BuildAstVisitor(string currentFile): this(currentFile, new ProgramNode(-1, -1))
+        {
+
+        }
+
+        public BuildAstVisitor(string currentFile, ProgramNode rootProgram): this()
+        {
+            this.CurrentFile = currentFile;
+            this.RootProgram = rootProgram;
+        }
 
         public override IAST VisitCompileUnit(llParser.CompileUnitContext context)
         {
@@ -51,13 +60,14 @@ namespace LL
             return Visit(context.expression());
         }
 
-        // TODO reimplement
-        // TODO add overload that takes a FunctionDefinition as an argument
+        // this method should NEVER get called
         public override IAST VisitFunctionDefinition(llParser.FunctionDefinitionContext context)
         {
-            // TODO add FatalErrorException as this method should never get called
-            var identifier = context.WORD();
-            FunctionDefinition funDef = IAST.Funs[identifier[0].GetText()];
+            throw new UnexpectedErrorException(this.CurrentFile, context.Start.Line, context.Start.Column);
+        }
+
+        private IAST VisitFunctionDefinition(llParser.FunctionDefinitionContext context, FunctionDefinition funDef)
+        {
             IAST.Env = funDef.FunctionEnv;
             int line = context.Start.Line;
             int column = context.Start.Column;
@@ -77,54 +87,41 @@ namespace LL
                 throw new TypeMissmatchException(funDef.ReturnType.ToString(), body.Type.ToString(), this.CurrentFile, line, column);
 
             funDef.Body = body;
-            IAST.Funs[funDef.Name] = funDef;
 
             return funDef;
         }
 
-        // TODO reimplement
         public override IAST VisitProgram(llParser.ProgramContext context)
         {
-            // List<IAST> funDefs = new List<IAST>();
-            // List<StructDefinition> structDefs = new List<StructDefinition>();
-            // var structs = context.structDefinition();
-            // var funs = context.functionDefinition();
-            // int line = context.Start.Line;
-            // int column = context.Start.Column;
+            var structs = context.structDefinition();
+            var funs = context.functionDefinition();
 
-            // if (funs?.Length > 0 || structs?.Length > 0)
-            // {
-            //     foreach (var structDef in context.structDefinition())
-            //         structDefs.Add(Visit(structDef) as StructDefinition);
+            if(structs?.Length > 0)
+            {
+                foreach(var structDef in structs)
+                    this.VisitStructDefinition(structDef, this.RootProgram.StructDefs[structDef.WORD().GetText()]);
+            }
 
-            //     foreach (var funDef in funs)
-            //         funDefs.Add(Visit(funDef));
+            if(funs?.Length > 0)
+            {
+                foreach(var fun in funs)
+                    this.VisitFunctionDefinition(fun, this.RootProgram.FunDefs[fun.name.Text]);
+            }
 
-            //     return new ProgramNode(funDefs, structDefs, line, column);
-            // }
-
-            // if (context.compositUnit() != null)
-            //     return Visit(context.compositUnit());
-
-            // throw new NodeNotImplementedException(context.GetText(), this.CurrentFile, line, column);
-
-            throw new NotImplementedException();
+            if(context.compositUnit() != null)
+                return Visit(context.compositUnit());
+            
+            return this.RootProgram;
         }
 
-        // TODO reimplement
-        // TODO overload method so it takes a StructDefinition as an Argument
+        // this method should NEVER get called
         public override IAST VisitStructDefinition(llParser.StructDefinitionContext context)
         {
-            // TODO add FatalErrorException as this method should never get called
-            string name = context.WORD().GetText();
-            int line = context.WORD().Symbol.Line;
-            int column = context.WORD().Symbol.Column;
+            throw new UnexpectedErrorException(this.CurrentFile, context.Start.Line, context.Start.Column);
+        }
 
-            if (!IAST.Structs.ContainsKey(name))
-                throw new UnknownTypeException(name, this.CurrentFile, line, column);
-
-            StructDefinition structDef = IAST.Structs[name];
-
+        private IAST VisitStructDefinition(llParser.StructDefinitionContext context, StructDefinition structDefinition)
+        {
             var props = context.structProperties();
             List<StructProperty> properties = new List<StructProperty>();
 
@@ -133,14 +130,14 @@ namespace LL
                 var tmp = Visit(prop) as StructProperty;
 
                 if (properties.FindIndex(s => s.Name == tmp.Name) >= 0)
-                    throw new PropertyAlreadyDefinedException(tmp.Name, name, this.CurrentFile, line, column);
+                    throw new PropertyAlreadyDefinedException(tmp.Name, context.WORD().GetText(), this.CurrentFile, tmp.Line, tmp.Column);
 
                 properties.Add(tmp);
             }
 
-            structDef.Properties = properties;
+            structDefinition.Properties = properties;
 
-            return structDef;
+            return structDefinition;
         }
 
         public override IAST VisitStructProperties(llParser.StructPropertiesContext context)

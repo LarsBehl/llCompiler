@@ -27,7 +27,7 @@ namespace LL.CodeGeneration
 
         private void FunctionCallAsm(FunctionCall functionCall)
         {
-            FunctionDefinition funDef = IAST.Funs.GetValueOrDefault(functionCall.FunctionName);
+            FunctionDefinition funDef = this.RootProg.FunDefs.GetValueOrDefault(functionCall.FunctionName);
             FunctionAsm functionAsm;
 
             if (this.FunctionMap.ContainsKey(functionCall.FunctionName))

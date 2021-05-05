@@ -16,56 +16,52 @@ namespace LL
         private string CurrentFile;
 
         // hide the default constructor
-        private StructDefinitionVisitor(): base()
+        private StructDefinitionVisitor() : base()
         {
 
         }
 
-        public StructDefinitionVisitor(string fileName): this()
+        public StructDefinitionVisitor(string fileName) : this()
         {
             this.CurrentFile = fileName;
         }
 
+        public override IAST VisitCompileUnit([NotNull] llParser.CompileUnitContext context)
+        {
+            return this.Visit(context.program());
+        }
+
         public override IAST VisitProgram([NotNull] llParser.ProgramContext context)
         {
-            var structDefs = context.structDefinition();
             ProgramNode result = new ProgramNode(context.Start.Line, context.Start.Column);
-
-            if (structDefs is null || structDefs.Length <= 0)
-                return result;
-            
-            Dictionary<string, StructDefinition> structDefinitions = new Dictionary<string, StructDefinition>();
-
-            // casting here is safe, as we are explicitly processing struct definitions
-            foreach(var structDef in structDefs)
-            {
-                StructDefinition def = this.Visit(structDef) as StructDefinition;
-                bool success = structDefinitions.TryAdd(def.Name, def);
-
-                if(!success)
-                    throw new StructAlreadyDefinedException(def.Name, this.CurrentFile, def.Line, def.Column);
-            }
-            
-            result.StructDefs = structDefinitions;
             var loadStatements = context.loadStatement();
-
-            if(loadStatements is null || loadStatements.Length <= 0)
-                return result;
-            
-            Dictionary<string, ProgramNode> dependencies = new Dictionary<string, ProgramNode>();
 
             // this should be fine for now, but when loading something like header files
             // this could be a problem
-            foreach(var loadStatement in loadStatements)
+            foreach (var loadStatement in loadStatements)
             {
                 string progName = loadStatement.WORD().GetText();
 
-                if(dependencies.ContainsKey(progName))
+                if (result.Dependencies.ContainsKey(progName))
                     continue;
-                dependencies.Add(progName, this.Visit(loadStatement) as ProgramNode);
+                result.Dependencies.Add(progName, this.Visit(loadStatement) as ProgramNode);
             }
-            
-            result.Dependencies = dependencies;
+
+            var structDefs = context.structDefinition();
+
+            if (structDefs is null || structDefs.Length <= 0)
+                return result;
+
+            // casting here is safe, as we are explicitly processing struct definitions
+            foreach (var structDef in structDefs)
+            {
+                StructDefinition def = this.Visit(structDef) as StructDefinition;
+                // TODO add recursive search
+                bool success = result.StructDefs.TryAdd(def.Name, def);
+
+                if (!success)
+                    throw new StructAlreadyDefinedException(def.Name, this.CurrentFile, def.Line, def.Column);
+            }
 
             return result;
         }
@@ -91,7 +87,7 @@ namespace LL
 
             string fileToFind = context.fileName.Text;
 
-            if(!IsFilePresent(fileToFind))
+            if (!IsFilePresent(fileToFind))
                 throw new Exceptions.FileNotFoundException(fileToFind, CurrentFile, context.Start.Line, context.Start.Column);
 
             throw new NotImplementedException();
@@ -108,7 +104,7 @@ namespace LL
 
         private bool IsFilePresent(string fileName)
         {
-            if(IsFileInList(Files, fileName))
+            if (IsFileInList(Files, fileName))
                 return true;
 
             while (Directories.TryDequeue(out string currentDir))
@@ -119,13 +115,13 @@ namespace LL
                 Files.AddRange(files);
                 // get the directories in the directory
                 string[] dirs = Directory.GetDirectories(currentDir);
-                
+
                 // store them for later use
-                foreach(string dir in dirs)
+                foreach (string dir in dirs)
                     Directories.Append(dir);
-                
+
                 // check whether the file is in the list or not
-                if(IsFileInList(files, fileName))
+                if (IsFileInList(files, fileName))
                     return true;
             }
 
@@ -137,7 +133,7 @@ namespace LL
             return Files.Find(filePath =>
             {
                 int lastSlash = filePath.LastIndexOf(Path.DirectorySeparatorChar);
-                string fName = filePath.Substring(lastSlash+1);
+                string fName = filePath.Substring(lastSlash + 1);
                 string[] parts = fName.Split('.', StringSplitOptions.RemoveEmptyEntries);
 
                 return parts[0] == fileName && parts[1] == FILE_ENDING;

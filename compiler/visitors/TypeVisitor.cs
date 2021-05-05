@@ -27,7 +27,6 @@ namespace LL
             throw new UnknownTypeException(context.GetText(), this.CurrentFile, line, column);
         }
 
-        // TODO rework arrays so it is possible to create arrays of reference types
         public override IAST VisitIntArrayType(llParser.IntArrayTypeContext context)
         {
             return new IntArray(context.Start.Line, context.Start.Column);
@@ -49,7 +48,7 @@ namespace LL
             int line = context.Start.Line;
             int column = context.Start.Column;
 
-            if (!IAST.Structs.ContainsKey(name))
+            if (!this.RootProgram.StructDefs.ContainsKey(name))
                 throw new UnknownTypeException(name, this.CurrentFile, line, column);
 
             return new Struct(name, line, column);

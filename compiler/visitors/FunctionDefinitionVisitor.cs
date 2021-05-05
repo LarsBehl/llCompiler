@@ -1,3 +1,4 @@
+using Antlr4.Runtime.Misc;
 using LL.AST;
 using LL.Exceptions;
 using System;
@@ -5,30 +6,51 @@ using System.Collections.Generic;
 
 namespace LL
 {
-    // TODO add constructor which takes ProgramNode as argument
     public class FunctionDefinitionVisitor : llBaseVisitor<IAST>
     {
         private string CurrentFile;
+        private ProgramNode RootProg;
 
         private FunctionDefinitionVisitor(): base()
         {
 
         }
 
-        public FunctionDefinitionVisitor(string currentFile): this()
+        public FunctionDefinitionVisitor(string currentFile): this(currentFile, new ProgramNode(-1, -1))
         {
-            this.CurrentFile = currentFile;
+
         }
 
-        // TODO reimplement
+        public FunctionDefinitionVisitor(string currentFile, ProgramNode rootProg): this()
+        {
+            this.CurrentFile = currentFile;
+            this.RootProg = rootProg;
+        }
+
+        public override IAST VisitCompileUnit([NotNull] llParser.CompileUnitContext context)
+        {
+            return this.Visit(context.program());
+        }
+
+        public override IAST VisitProgram([NotNull] llParser.ProgramContext context)
+        {
+            var funs = context.functionDefinition();
+            foreach(var fun in funs)
+                this.Visit(fun);
+
+            return this.RootProg;
+        }
+
         public override IAST VisitFunctionDefinition(llParser.FunctionDefinitionContext context)
         {
             var identifier = context.WORD();
             int line = context.Start.Line;
             int column = context.Start.Column;
+            string functionName = identifier[0].GetText();
 
-            if (IAST.Funs.ContainsKey(identifier[0].GetText()))
-                throw new FunctionAlreadyDefinedException(identifier[0].GetText(), this.CurrentFile, line, column);
+            // TODO implement recursive search
+            if(this.RootProg.FunDefs.ContainsKey(functionName))
+                throw new FunctionAlreadyDefinedException(functionName, this.CurrentFile, line, column);
 
             var types = context.typeDefinition();
             List<InstantiationStatement> args = new List<InstantiationStatement>();
@@ -41,11 +63,11 @@ namespace LL
                 args.Add(new InstantiationStatement(identifier[i + 1].GetText(), tmpType.Type, tmpType.Line, tmpType.Column));
             }
 
-            // BuildAstVisitor should add the function body
-            // therefor it should check if the body is null, if not throw exception
-            FunctionDefinition func = new FunctionDefinition(identifier[0].GetText(), args, null, tmpEnv, Visit(types[types.Length - 1]).Type, line, column);
-            IAST.Funs[identifier[0].GetText()] = func;
-            // unused; the llBaseVisitor expects a type
+            // // BuildAstVisitor should add the function body
+            // // therefor it should check if the body is null, if not throw exception
+            this.RootProg.FunDefs.Add(functionName, new FunctionDefinition(identifier[0].GetText(), args, null, tmpEnv, Visit(types[types.Length - 1]).Type, line, column));
+
+            // unused value
             return null;
         }
 
@@ -87,19 +109,14 @@ namespace LL
 
         public override IAST VisitStructName(llParser.StructNameContext context)
         {
-            StructDefinition structDef;
             string structName = context.WORD().GetText();
             int line = context.Start.Line;
             int column = context.Start.Column;
 
-            try
-            {
-                structDef = IAST.Structs[structName];
-            }
-            catch (Exception)
-            {
+            bool success = this.RootProg.StructDefs.TryGetValue(structName, out StructDefinition structDef);
+
+            if(!success)
                 throw new UnknownTypeException(structName, this.CurrentFile, line, column);
-            }
 
             return new Struct(structDef.Name, line, column);
         }
