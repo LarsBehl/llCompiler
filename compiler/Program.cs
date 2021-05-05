@@ -47,22 +47,20 @@ namespace LL
                 IAST ast;
                 try
                 {
-                    var inputStream = new AntlrInputStream(text);
-                    var lexer = new llLexer(inputStream);
-                    var tokenStream = new CommonTokenStream(lexer);
-                    var parser = new llParser(tokenStream);
-                    var tmp = new StructDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
+                    // setup the needed environment
+                    llParser parser = new llParser(new CommonTokenStream(new llLexer(new AntlrInputStream(text))));
+                    parser.RemoveErrorListeners();
+                    parser.AddErrorListener(new ErrorListener());
 
-                    inputStream = new AntlrInputStream(text);
-                    lexer = new llLexer(inputStream);
-                    tokenStream = new CommonTokenStream(lexer);
-                    parser = new llParser(tokenStream);
-                    tmp = new FunctionDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
+                    // parse the struct definitions and the load statements
+                    new StructDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
 
-                    inputStream = new AntlrInputStream(text);
-                    lexer = new llLexer(inputStream);
-                    tokenStream = new CommonTokenStream(lexer);
-                    parser = new llParser(tokenStream);
+                    // parse the function definitions
+                    parser.Reset();
+                    new FunctionDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
+
+                    // parse the complete program
+                    parser.Reset();
                     ast = new BuildAstVisitor(file).VisitCompileUnit(parser.compileUnit());
                 }
                 catch (BaseCompilerException e)
@@ -95,23 +93,21 @@ namespace LL
 
                 try
                 {
-                    var inputStream = new AntlrInputStream(text);
-                    var lexer = new llLexer(inputStream);
-                    var tokenStream = new CommonTokenStream(lexer);
-                    var parser = new llParser(tokenStream);
-                    var tmp = new StructDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
+                    // setup the needed environment
+                    llParser parser = new llParser(new CommonTokenStream(new llLexer(new AntlrInputStream(text))));
+                    parser.RemoveErrorListeners();
+                    parser.AddErrorListener(new ErrorListener());
 
-                    inputStream = new AntlrInputStream(text);
-                    lexer = new llLexer(inputStream);
-                    tokenStream = new CommonTokenStream(lexer);
-                    parser = new llParser(tokenStream);
-                    tmp = new FunctionDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
+                    // parse the struct definitions and the load statements
+                    new StructDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
 
-                    inputStream = new AntlrInputStream(text);
-                    lexer = new llLexer(inputStream);
-                    tokenStream = new CommonTokenStream(lexer);
-                    parser = new llParser(tokenStream);
-                    var ast = new BuildAstVisitor(file).VisitCompileUnit(parser.compileUnit());
+                    // parse the function definitions
+                    parser.Reset();
+                    new FunctionDefinitionVisitor(file).VisitCompileUnit(parser.compileUnit());
+
+                    // parse the complete program
+                    parser.Reset();
+                    IAST ast = new BuildAstVisitor(file).VisitCompileUnit(parser.compileUnit());
                     var assemblerGenerator = new AssemblerGenerator(file);
                     assemblerGenerator.GenerateAssember(ast);
                     assemblerGenerator.PrintAssember();
@@ -130,23 +126,21 @@ namespace LL
 
             try
             {
-                var inputStream = new AntlrFileStream(inputFile);
-                var lexer = new llLexer(inputStream);
-                var tokenStream = new CommonTokenStream(lexer);
-                var parser = new llParser(tokenStream);
-                var tmp = new StructDefinitionVisitor(inputFile).VisitCompileUnit(parser.compileUnit());
+                // setup the needed environment
+                llParser parser = new llParser(new CommonTokenStream(new llLexer(new AntlrFileStream(inputFile))));
+                parser.RemoveErrorListeners();
+                parser.AddErrorListener(new ErrorListener());
 
-                inputStream = new AntlrFileStream(inputFile);
-                lexer = new llLexer(inputStream);
-                tokenStream = new CommonTokenStream(lexer);
-                parser = new llParser(tokenStream);
-                tmp = new FunctionDefinitionVisitor(inputFile).Visit(parser.compileUnit());
+                // parse the struct definitions and the load statements
+                new StructDefinitionVisitor(inputFile).VisitCompileUnit(parser.compileUnit());
 
-                inputStream = new AntlrFileStream(inputFile);
-                lexer = new llLexer(inputStream);
-                tokenStream = new CommonTokenStream(lexer);
-                parser = new llParser(tokenStream);
-                var ast = new BuildAstVisitor(inputFile).Visit(parser.compileUnit());
+                // parse the function definitions
+                parser.Reset();
+                new FunctionDefinitionVisitor(inputFile).VisitCompileUnit(parser.compileUnit());
+
+                // parse the complete program
+                parser.Reset();
+                IAST ast = new BuildAstVisitor(inputFile).VisitCompileUnit(parser.compileUnit());
                 var assemblerGenerator = new AssemblerGenerator(inputFile);
                 assemblerGenerator.WriteToFile(inputFile, ast);
             }
