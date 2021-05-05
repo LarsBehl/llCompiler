@@ -7,6 +7,7 @@ using LL.Exceptions;
 
 namespace LL
 {
+    // TODO add constructor that takes ProgramNode as argument
     public partial class BuildAstVisitor : llBaseVisitor<IAST>
     {
         private string CurrentFile;
@@ -50,8 +51,11 @@ namespace LL
             return Visit(context.expression());
         }
 
+        // TODO reimplement
+        // TODO add overload that takes a FunctionDefinition as an argument
         public override IAST VisitFunctionDefinition(llParser.FunctionDefinitionContext context)
         {
+            // TODO add FatalErrorException as this method should never get called
             var identifier = context.WORD();
             FunctionDefinition funDef = IAST.Funs[identifier[0].GetText()];
             IAST.Env = funDef.FunctionEnv;
@@ -78,34 +82,40 @@ namespace LL
             return funDef;
         }
 
+        // TODO reimplement
         public override IAST VisitProgram(llParser.ProgramContext context)
         {
-            List<IAST> funDefs = new List<IAST>();
-            List<IAST> structDefs = new List<IAST>();
-            var structs = context.structDefinition();
-            var funs = context.functionDefinition();
-            int line = context.Start.Line;
-            int column = context.Start.Column;
+            // List<IAST> funDefs = new List<IAST>();
+            // List<StructDefinition> structDefs = new List<StructDefinition>();
+            // var structs = context.structDefinition();
+            // var funs = context.functionDefinition();
+            // int line = context.Start.Line;
+            // int column = context.Start.Column;
 
-            if (funs?.Length > 0 || structs?.Length > 0)
-            {
-                foreach (var structDef in context.structDefinition())
-                    structDefs.Add(Visit(structDef));
+            // if (funs?.Length > 0 || structs?.Length > 0)
+            // {
+            //     foreach (var structDef in context.structDefinition())
+            //         structDefs.Add(Visit(structDef) as StructDefinition);
 
-                foreach (var funDef in funs)
-                    funDefs.Add(Visit(funDef));
+            //     foreach (var funDef in funs)
+            //         funDefs.Add(Visit(funDef));
 
-                return new ProgramNode(funDefs, structDefs, line, column);
-            }
+            //     return new ProgramNode(funDefs, structDefs, line, column);
+            // }
 
-            if (context.compositUnit() != null)
-                return Visit(context.compositUnit());
+            // if (context.compositUnit() != null)
+            //     return Visit(context.compositUnit());
 
-            throw new NodeNotImplementedException(context.GetText(), this.CurrentFile, line, column);
+            // throw new NodeNotImplementedException(context.GetText(), this.CurrentFile, line, column);
+
+            throw new NotImplementedException();
         }
 
+        // TODO reimplement
+        // TODO overload method so it takes a StructDefinition as an Argument
         public override IAST VisitStructDefinition(llParser.StructDefinitionContext context)
         {
+            // TODO add FatalErrorException as this method should never get called
             string name = context.WORD().GetText();
             int line = context.WORD().Symbol.Line;
             int column = context.WORD().Symbol.Column;

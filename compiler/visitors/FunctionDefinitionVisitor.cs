@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 namespace LL
 {
+    // TODO add constructor which takes ProgramNode as argument
     public class FunctionDefinitionVisitor : llBaseVisitor<IAST>
     {
         private string CurrentFile;
@@ -19,6 +20,7 @@ namespace LL
             this.CurrentFile = currentFile;
         }
 
+        // TODO reimplement
         public override IAST VisitFunctionDefinition(llParser.FunctionDefinitionContext context)
         {
             var identifier = context.WORD();

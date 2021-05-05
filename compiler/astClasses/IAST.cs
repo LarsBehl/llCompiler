@@ -6,6 +6,7 @@ namespace LL.AST
 {
     public abstract class IAST
     {
+        // TODO refactor, probably a lot is no more needed
         public static Dictionary<string, IAST> Env = new Dictionary<string, IAST>();
         public static Dictionary<string, FunctionDefinition> Funs = new Dictionary<string, FunctionDefinition>();
         public static Dictionary<string, StructDefinition> Structs = new Dictionary<string, StructDefinition>();
@@ -178,7 +179,7 @@ namespace LL.AST
                 case ProgramNode programNode:
                     foreach (var f in programNode.FunDefs)
                     {
-                        f.Eval();
+                        f.Value.Eval();
                     }
                     return null;
                 case PrintStatement printStatement:

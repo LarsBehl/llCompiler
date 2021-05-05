@@ -26,6 +26,51 @@ namespace LL
             this.CurrentFile = fileName;
         }
 
+        public override IAST VisitProgram([NotNull] llParser.ProgramContext context)
+        {
+            var structDefs = context.structDefinition();
+            ProgramNode result = new ProgramNode(context.Start.Line, context.Start.Column);
+
+            if (structDefs is null || structDefs.Length <= 0)
+                return result;
+            
+            Dictionary<string, StructDefinition> structDefinitions = new Dictionary<string, StructDefinition>();
+
+            // casting here is safe, as we are explicitly processing struct definitions
+            foreach(var structDef in structDefs)
+            {
+                StructDefinition def = this.Visit(structDef) as StructDefinition;
+                bool success = structDefinitions.TryAdd(def.Name, def);
+
+                if(!success)
+                    throw new StructAlreadyDefinedException(def.Name, this.CurrentFile, def.Line, def.Column);
+            }
+            
+            result.StructDefs = structDefinitions;
+            var loadStatements = context.loadStatement();
+
+            if(loadStatements is null || loadStatements.Length <= 0)
+                return result;
+            
+            Dictionary<string, ProgramNode> dependencies = new Dictionary<string, ProgramNode>();
+
+            // this should be fine for now, but when loading something like header files
+            // this could be a problem
+            foreach(var loadStatement in loadStatements)
+            {
+                string progName = loadStatement.WORD().GetText();
+
+                if(dependencies.ContainsKey(progName))
+                    continue;
+                dependencies.Add(progName, this.Visit(loadStatement) as ProgramNode);
+            }
+            
+            result.Dependencies = dependencies;
+
+            return result;
+        }
+
+        // TODO implement
         public override IAST VisitLoadStatement([NotNull] llParser.LoadStatementContext context)
         {
             if (Directories == null)
@@ -58,13 +103,7 @@ namespace LL
             int line = context.Start.Line;
             int column = context.Start.Column;
 
-            if(IAST.Structs.ContainsKey(name))
-                throw new StructAlreadyDefinedException(name, this.CurrentFile, line, column);
-
-            IAST.Structs[name] = new StructDefinition(name, line, column);
-
-            // unused value
-            return null;
+            return new StructDefinition(name, line, column);
         }
 
         private bool IsFilePresent(string fileName)

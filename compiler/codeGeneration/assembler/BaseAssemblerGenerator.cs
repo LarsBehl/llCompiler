@@ -84,9 +84,9 @@ namespace LL.CodeGeneration
                     this.FunctionCallAsm(funCall); break;
                 case ProgramNode programNode:
                     foreach (var structDef in programNode.StructDefs)
-                        this.GetAssember(structDef);
+                        this.GetAssember(structDef.Value);
                     foreach (var fun in programNode.FunDefs)
-                        this.GetAssember(fun);
+                        this.GetAssember(fun.Value);
                     break;
                 case VarExpr varExpr:
                     this.VariableAsm(varExpr); break;
