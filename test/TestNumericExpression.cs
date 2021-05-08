@@ -37,9 +37,9 @@ namespace LL.test
         {
             llParser parser = Setup("10");
 
-            var result = visitor.Visit(parser.compileUnit());
+            var result = visitor.Visit(parser.compileUnit()) as ProgramNode;
 
-            Assert.AreEqual("LL.AST.IntLit", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.IntLit", result.CompositUnit.GetType().ToString());
         }
 
         [TestCase("0.5")]
@@ -60,9 +60,9 @@ namespace LL.test
         {
             llParser parser = Setup("10.0");
 
-            var result = visitor.Visit(parser.compileUnit());
+            var result = visitor.Visit(parser.compileUnit()) as ProgramNode;
 
-            Assert.AreEqual("LL.AST.DoubleLit", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.DoubleLit", result.CompositUnit.GetType().ToString());
         }
     }
 }

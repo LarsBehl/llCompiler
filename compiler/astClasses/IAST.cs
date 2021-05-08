@@ -10,6 +10,8 @@ namespace LL.AST
         public int Line { get; set; }
         public int Column { get; set; }
 
+        public static string CurrentFile;
+
         // needed for evaluation
         private static Dictionary<string, FunctionDefinition> Funs;
         private static Dictionary<string, StructDefinition> Structs;

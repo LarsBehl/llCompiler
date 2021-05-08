@@ -26,6 +26,7 @@ namespace LL
         public BuildAstVisitor(ProgramNode rootProgram): this()
         {
             this.RootProgram = rootProgram;
+            IAST.CurrentFile = rootProgram.FileName;
         }
 
         public override IAST VisitCompileUnit(llParser.CompileUnitContext context)

@@ -38,9 +38,9 @@ namespace LL.test
         {
             llParser parser = Setup("2==2");
 
-            var result = visitor.Visit(parser.compileUnit());
+            var result = visitor.Visit(parser.compileUnit()) as ProgramNode;
 
-            Assert.AreEqual("LL.AST.EqualityExpr", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.EqualityExpr", result.CompositUnit.GetType().ToString());
         }
 
         [TestCase("(2>1)==5")]

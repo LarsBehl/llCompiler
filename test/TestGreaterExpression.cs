@@ -38,9 +38,9 @@ namespace LL.test
         {
             llParser parser = Setup("3 > 0");
 
-            var result = visitor.Visit(parser.compileUnit());
+            var result = visitor.Visit(parser.compileUnit()) as ProgramNode;
 
-            Assert.AreEqual("LL.AST.GreaterExpr", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.GreaterExpr", result.CompositUnit.GetType().ToString());
         }
     }
 }

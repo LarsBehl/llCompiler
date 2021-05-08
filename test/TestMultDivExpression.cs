@@ -51,9 +51,9 @@ namespace LL.test
         {
             llParser parser = Setup("2*2");
 
-            var result = visitor.Visit(parser.compileUnit());
+            var result = visitor.Visit(parser.compileUnit()) as ProgramNode;
 
-            Assert.AreEqual("LL.AST.MultExpr", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.MultExpr", result.CompositUnit.GetType().ToString());
         }
 
         [TestCase("6/3", 2)]
@@ -86,9 +86,9 @@ namespace LL.test
         {
             llParser parser = Setup("2/2");
 
-            var result = visitor.Visit(parser.compileUnit());
+            var result = visitor.Visit(parser.compileUnit()) as ProgramNode;
 
-            Assert.AreEqual("LL.AST.DivExpr", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.DivExpr", result.CompositUnit.GetType().ToString());
         }
     }
 }

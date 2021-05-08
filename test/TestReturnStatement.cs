@@ -46,9 +46,9 @@ namespace LL.test
         {
             llParser parser = Setup("return 2;");
 
-            var result = visitor.Visit(parser.statement());
+            var result = visitor.Visit(parser.program()) as ProgramNode;
 
-            Assert.AreEqual("LL.AST.ReturnStatement", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.ReturnStatement", result.CompositUnit.GetType().ToString());
         }
         
     }

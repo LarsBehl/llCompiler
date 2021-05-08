@@ -50,9 +50,9 @@ namespace test
         {
             llParser parser = Setup("1+1");
 
-            var result = visitor.Visit(parser.compileUnit());
+            var result = visitor.Visit(parser.compileUnit()) as ProgramNode;
 
-            Assert.AreEqual("LL.AST.AddExpr", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.AddExpr", result.CompositUnit.GetType().ToString());
         }
 
         [TestCase("(5==3)+2")]
@@ -92,9 +92,9 @@ namespace test
         {
             llParser parser = Setup("1-1");
 
-            var result = visitor.Visit(parser.compileUnit());
+            var result = visitor.Visit(parser.compileUnit()) as ProgramNode;
 
-            Assert.AreEqual("LL.AST.SubExpr", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.SubExpr", result.CompositUnit.GetType().ToString());
         }
 
         [TestCase("(5==3)-2")]
