@@ -33,7 +33,7 @@ namespace LL
 
         public override IAST VisitProgram([NotNull] llParser.ProgramContext context)
         {
-            ProgramNode result = this.RootProgram ?? new ProgramNode(context.Start.Line, context.Start.Column);
+            ProgramNode result = this.RootProgram ?? new ProgramNode(this.CurrentFile, context.Start.Line, context.Start.Column);
             var loadStatements = context.loadStatement();
 
             // this should be fine for now, but when loading something like header files

@@ -16,7 +16,7 @@ namespace LL
             int column = context.Start.Column;
 
             if (!this.Env.ContainsKey(name))
-                throw new UnknownVariableException(name, this.CurrentFile, line, column);
+                throw new UnknownVariableException(name, this.RootProgram.FileName, line, column);
 
             // check if righthand side of the assignment is an array or an expression
             if (context.expression() != null)
@@ -61,7 +61,7 @@ namespace LL
             string name = context.left.Text;
 
             if (variable.Type is VoidType)
-                throw new TypeNotAllowedException(variable.Type.ToString(), this.CurrentFile, variable.Line, variable.Column);
+                throw new TypeNotAllowedException(variable.Type.ToString(), this.RootProgram.FileName, variable.Line, variable.Column);
 
             this.Env[name] = variable;
 
@@ -74,7 +74,7 @@ namespace LL
             if (variable.Type != val.Type)
             {
                 if (variable.Type is not DoubleType || val.Type is not IntType)
-                    throw new TypeMissmatchException(variable.Type.ToString(), val.Type.ToString(), this.CurrentFile, line, column);
+                    throw new TypeMissmatchException(variable.Type.ToString(), val.Type.ToString(), this.RootProgram.FileName, line, column);
             }
 
             return new AssignStatement(new VarExpr(name, variable.Type, context.left.Line, context.left.StartIndex), val, line, column);
@@ -88,10 +88,10 @@ namespace LL
             int column = context.Start.Column;
 
             if (variable.Type is VoidType)
-                throw new TypeNotAllowedException(variable.Type.ToString(), this.CurrentFile, variable.Line, variable.Column);
+                throw new TypeNotAllowedException(variable.Type.ToString(), this.RootProgram.FileName, variable.Line, variable.Column);
 
             if (this.Env.ContainsKey(variableName))
-                throw new VariableAlreadyDefinedException(variableName, this.CurrentFile, line, column);
+                throw new VariableAlreadyDefinedException(variableName, this.RootProgram.FileName, line, column);
 
             this.Env[variableName] = variable;
 
@@ -126,7 +126,7 @@ namespace LL
             int column = context.Start.Column;
 
             if (!this.Env.ContainsKey(variableName))
-                throw new UnknownVariableException(variableName, this.CurrentFile, line, column);
+                throw new UnknownVariableException(variableName, this.RootProgram.FileName, line, column);
 
             return new AddAssignStatement(new VarExpr(variableName, this.TryGetType(variableName, line, column), context.left.Line, context.left.Column), Visit(context.right), line, column);
         }
@@ -138,7 +138,7 @@ namespace LL
             int column = context.Start.Column;
 
             if (!this.Env.ContainsKey(variableName))
-                throw new UnknownVariableException(variableName, this.CurrentFile, line, column);
+                throw new UnknownVariableException(variableName, this.RootProgram.FileName, line, column);
 
             return new SubAssignStatement(new VarExpr(variableName, this.TryGetType(variableName, line, column), context.left.Line, context.left.Column), Visit(context.right), line, column);
         }
@@ -150,7 +150,7 @@ namespace LL
             int column = context.Start.Column;
 
             if (!this.Env.ContainsKey(variableName))
-                throw new UnknownVariableException(variableName, this.CurrentFile, line, column);
+                throw new UnknownVariableException(variableName, this.RootProgram.FileName, line, column);
 
             return new MultAssignStatement(new VarExpr(variableName, this.TryGetType(variableName, line, column), context.left.Line, context.left.Column), Visit(context.right), line, column);
         }
@@ -162,7 +162,7 @@ namespace LL
             int column = context.Start.Column;
 
             if (!this.Env.ContainsKey(variableName))
-                throw new UnknownVariableException(variableName, this.CurrentFile, line, column);
+                throw new UnknownVariableException(variableName, this.RootProgram.FileName, line, column);
 
             return new DivAssignStatement(new VarExpr(variableName, this.TryGetType(variableName, line, column), context.left.Line, context.left.Column), Visit(context.right), line, column);
         }
@@ -197,7 +197,7 @@ namespace LL
             if (context.structCreation() != null)
                 return new RefTypeCreationStatement(Visit(context.structCreation()), context.Start.Line, context.Start.Column);
 
-            throw new UnknownTypeException(context.GetText(), this.CurrentFile, line, column);
+            throw new UnknownTypeException(context.GetText(), this.RootProgram.FileName, line, column);
         }
 
         public override IAST VisitAssignArrayField(llParser.AssignArrayFieldContext context)

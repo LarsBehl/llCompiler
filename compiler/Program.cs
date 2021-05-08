@@ -138,7 +138,7 @@ namespace LL
 
                 // parse the complete program
                 parser.Reset();
-                ast = new BuildAstVisitor(fileName, prog).VisitCompileUnit(parser.compileUnit());
+                ast = new BuildAstVisitor(prog).VisitCompileUnit(parser.compileUnit());
             }
             catch (BaseCompilerException e)
             {

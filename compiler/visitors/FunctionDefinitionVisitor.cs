@@ -16,7 +16,7 @@ namespace LL
 
         }
 
-        public FunctionDefinitionVisitor(string currentFile): this(currentFile, new ProgramNode(-1, -1))
+        public FunctionDefinitionVisitor(string currentFile): this(currentFile, new ProgramNode(currentFile, -1, -1))
         {
 
         }

@@ -24,7 +24,7 @@ namespace LL
             if (context.structName() != null)
                 return Visit(context.structName());
             
-            throw new UnknownTypeException(context.GetText(), this.CurrentFile, line, column);
+            throw new UnknownTypeException(context.GetText(), this.RootProgram.FileName, line, column);
         }
 
         public override IAST VisitIntArrayType(llParser.IntArrayTypeContext context)
@@ -49,7 +49,7 @@ namespace LL
             int column = context.Start.Column;
 
             if (!this.RootProgram.StructDefs.ContainsKey(name))
-                throw new UnknownTypeException(name, this.CurrentFile, line, column);
+                throw new UnknownTypeException(name, this.RootProgram.FileName, line, column);
 
             return new Struct(name, line, column);
         }

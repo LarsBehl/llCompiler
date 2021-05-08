@@ -9,7 +9,6 @@ namespace LL
 {
     public partial class BuildAstVisitor : llBaseVisitor<IAST>
     {
-        private string CurrentFile;
         static VarExpr sR = null;
         private ProgramNode RootProgram;
         private Dictionary<string, IAST> Env;
@@ -19,14 +18,13 @@ namespace LL
 
         }
 
-        public BuildAstVisitor(string currentFile): this(currentFile, new ProgramNode(-1, -1))
+        public BuildAstVisitor(string currentFile): this(new ProgramNode(currentFile, -1, -1))
         {
 
         }
 
-        public BuildAstVisitor(string currentFile, ProgramNode rootProgram): this()
+        public BuildAstVisitor(ProgramNode rootProgram): this()
         {
-            this.CurrentFile = currentFile;
             this.RootProgram = rootProgram;
         }
 
@@ -42,7 +40,7 @@ namespace LL
             if (context.statement() != null)
                 return Visit(context.statement());
             
-            throw new NodeNotImplementedException(context.GetText(), this.CurrentFile, context.Start.Line, context.Start.Column);
+            throw new NodeNotImplementedException(context.GetText(), this.RootProgram.FileName, context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitCompositUnit(llParser.CompositUnitContext context)
@@ -53,7 +51,7 @@ namespace LL
             if (context.expression() != null)
                 return Visit(context.expression());
 
-            throw new NodeNotImplementedException(context.GetText(), this.CurrentFile, context.Start.Line, context.Start.Column);
+            throw new NodeNotImplementedException(context.GetText(), this.RootProgram.FileName, context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitParenthes(llParser.ParenthesContext context)
@@ -64,7 +62,7 @@ namespace LL
         // this method should NEVER get called
         public override IAST VisitFunctionDefinition(llParser.FunctionDefinitionContext context)
         {
-            throw new UnexpectedErrorException(this.CurrentFile, context.Start.Line, context.Start.Column);
+            throw new UnexpectedErrorException(this.RootProgram.FileName, context.Start.Line, context.Start.Column);
         }
 
         private IAST VisitFunctionDefinition(llParser.FunctionDefinitionContext context, FunctionDefinition funDef)
@@ -80,12 +78,12 @@ namespace LL
             && !(funDef.ReturnType is VoidType))
             {
                 if (body.Type is BlockStatementType || !body.DoesFullyReturn)
-                    throw new MissingReturnStatementException(funDef.Name, funDef.ReturnType.ToString(), this.CurrentFile, line, column);
-                throw new TypeMissmatchException(funDef.ReturnType.ToString(), body.Type.ToString(), this.CurrentFile, line, column);
+                    throw new MissingReturnStatementException(funDef.Name, funDef.ReturnType.ToString(), this.RootProgram.FileName, line, column);
+                throw new TypeMissmatchException(funDef.ReturnType.ToString(), body.Type.ToString(), this.RootProgram.FileName, line, column);
             }
 
             if ((funDef.ReturnType is VoidType) && (!(body.Type is VoidType) && !(body.Type is BlockStatementType)))
-                throw new TypeMissmatchException(funDef.ReturnType.ToString(), body.Type.ToString(), this.CurrentFile, line, column);
+                throw new TypeMissmatchException(funDef.ReturnType.ToString(), body.Type.ToString(), this.RootProgram.FileName, line, column);
 
             funDef.Body = body;
 
@@ -121,7 +119,7 @@ namespace LL
         // this method should NEVER get called
         public override IAST VisitStructDefinition(llParser.StructDefinitionContext context)
         {
-            throw new UnexpectedErrorException(this.CurrentFile, context.Start.Line, context.Start.Column);
+            throw new UnexpectedErrorException(this.RootProgram.FileName, context.Start.Line, context.Start.Column);
         }
 
         private IAST VisitStructDefinition(llParser.StructDefinitionContext context, StructDefinition structDefinition)
@@ -134,7 +132,7 @@ namespace LL
                 var tmp = Visit(prop) as StructProperty;
 
                 if (properties.FindIndex(s => s.Name == tmp.Name) >= 0)
-                    throw new PropertyAlreadyDefinedException(tmp.Name, context.WORD().GetText(), this.CurrentFile, tmp.Line, tmp.Column);
+                    throw new PropertyAlreadyDefinedException(tmp.Name, context.WORD().GetText(), this.RootProgram.FileName, tmp.Line, tmp.Column);
 
                 properties.Add(tmp);
             }

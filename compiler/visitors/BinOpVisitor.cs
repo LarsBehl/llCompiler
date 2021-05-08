@@ -17,7 +17,7 @@ namespace LL
                 case "+": return new AddExpr(Visit(context.left), Visit(context.right), line, column);
                 case "-": return new SubExpr(Visit(context.left), Visit(context.right), line, column);
                 default:
-                    throw new UnknownOperatorException(op, this.CurrentFile, line, column);
+                    throw new UnknownOperatorException(op, this.RootProgram.FileName, line, column);
             }
         }
 
@@ -32,7 +32,7 @@ namespace LL
                 case "*": return new MultExpr(Visit(context.left), Visit(context.right), line, column);
                 case "/": return new DivExpr(Visit(context.left), Visit(context.right), line, column);
                 default:
-                    throw new UnknownOperatorException(op, this.CurrentFile, line, column);
+                    throw new UnknownOperatorException(op, this.RootProgram.FileName, line, column);
             }
         }
 

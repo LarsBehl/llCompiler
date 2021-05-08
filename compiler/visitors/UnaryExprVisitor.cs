@@ -39,7 +39,7 @@ namespace LL
             if (context.structPropertyAccess() != null)
                 return Visit(context.structPropertyAccess());
 
-            throw new NodeNotImplementedException(context.GetText(), this.CurrentFile, line, column);
+            throw new NodeNotImplementedException(context.GetText(), this.RootProgram.FileName, line, column);
         }
 
         public override IAST VisitIntegerAtomExpression(llParser.IntegerAtomExpressionContext context)
@@ -68,7 +68,7 @@ namespace LL
             if (context.BOOL_TRUE() != null)
                 return new BoolLit(true, line, column);
 
-            throw new NodeNotImplementedException(context.GetText(), this.CurrentFile, line, column);
+            throw new NodeNotImplementedException(context.GetText(), this.RootProgram.FileName, line, column);
         }
 
         public override IAST VisitFunctionCall(llParser.FunctionCallContext context)
@@ -78,7 +78,7 @@ namespace LL
             int column = context.Start.Column;
             var tmp = context.expression();
             if (!this.RootProgram.FunDefs.ContainsKey(context.name.Text))
-                throw new UnknownFunctionException(name, this.CurrentFile, line, column);
+                throw new UnknownFunctionException(name, this.RootProgram.FileName, line, column);
             List<IAST> args = new List<IAST>();
 
             foreach (var arg in tmp)
@@ -147,7 +147,7 @@ namespace LL
             if (context.structPropertyAccess() != null)
                 return Visit(context.structPropertyAccess());
 
-            throw new NodeNotImplementedException(context.GetText(), this.CurrentFile, context.Start.Line, context.Start.Column);
+            throw new NodeNotImplementedException(context.GetText(), this.RootProgram.FileName, context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitNotExpression(llParser.NotExpressionContext context)
@@ -169,12 +169,12 @@ namespace LL
                 // search for the struct definition
                 bool success = this.RootProgram.StructDefs.TryGetValue(structName, out StructDefinition def);
                 if (!success)
-                    throw new UnknownTypeException(structName, this.CurrentFile, line, column);
+                    throw new UnknownTypeException(structName, this.RootProgram.FileName, line, column);
 
                 // search for the property in the struct
                 IAST prop = def.Properties.Find(s => s.Name == variableName);
                 if (prop is null)
-                    throw new UnknownVariableException($"{structName}.{variableName}", this.CurrentFile, line, column);
+                    throw new UnknownVariableException($"{structName}.{variableName}", this.RootProgram.FileName, line, column);
 
                 type = prop.Type;
 
