@@ -44,8 +44,10 @@ namespace LL
 
                 if (result.Dependencies.ContainsKey(progName))
                     continue;
-                result.Dependencies.Add(progName, this.Visit(loadStatement) as ProgramNode);
+                result.Dependencies.Add(progName, this.Visit(loadStatement) as LoadStatement);
             }
+
+            // TODO start compilation of the dependencies
 
             var structDefs = context.structDefinition();
 
@@ -66,31 +68,32 @@ namespace LL
             return result;
         }
 
-        // TODO implement
         public override IAST VisitLoadStatement([NotNull] llParser.LoadStatementContext context)
         {
-            if (Directories == null)
+            int line = context.Start.Line;
+            int column = context.Start.Column;
+            if (this.Directories == null)
             {
-                Directories = new Queue<string>();
-                Files = new List<string>();
+                this.Directories = new Queue<string>();
+                this.Files = new List<string>();
 
                 // get all directories on the current level
                 string[] dirs = Directory.GetDirectories(Environment.CurrentDirectory);
 
                 // safe them on the stack, maybe they are needed later on
                 foreach (string dir in dirs)
-                    Directories.Append(dir);
+                    this.Directories.Append(dir);
 
                 // add all files in the current directory to the list of files
-                Files.AddRange(Directory.GetFiles(Environment.CurrentDirectory));
+                this.Files.AddRange(Directory.GetFiles(Environment.CurrentDirectory));
             }
 
             string fileToFind = context.fileName.Text;
 
-            if (!IsFilePresent(fileToFind))
-                throw new Exceptions.FileNotFoundException(fileToFind, CurrentFile, context.Start.Line, context.Start.Column);
+            if (!IsFilePresent(fileToFind, out string location))
+                throw new Exceptions.FileNotFoundException(fileToFind, this.CurrentFile, line, column);
 
-            throw new NotImplementedException();
+            return new LoadStatement(fileToFind, location, line, column);
         }
 
         public override IAST VisitStructDefinition(llParser.StructDefinitionContext context)
@@ -102,12 +105,14 @@ namespace LL
             return new StructDefinition(name, line, column);
         }
 
-        private bool IsFilePresent(string fileName)
+        // todo pass location
+        private bool IsFilePresent(string fileName, out string location)
         {
-            if (IsFileInList(Files, fileName))
+            location = FindFile(this.Files, fileName);
+            if (location is not null)
                 return true;
 
-            while (Directories.TryDequeue(out string currentDir))
+            while (this.Directories.TryDequeue(out string currentDir))
             {
                 // get all files in the directory
                 List<string> files = new List<string>(Directory.GetFiles(currentDir));
@@ -121,23 +126,24 @@ namespace LL
                     Directories.Append(dir);
 
                 // check whether the file is in the list or not
-                if (IsFileInList(files, fileName))
+                location = FindFile(files, fileName);
+                if (location is not null)
                     return true;
             }
 
             return false;
         }
 
-        private bool IsFileInList(List<string> files, string fileName)
+        private string FindFile(List<string> files, string fileName)
         {
-            return Files.Find(filePath =>
+            return this.Files.Find(filePath =>
             {
                 int lastSlash = filePath.LastIndexOf(Path.DirectorySeparatorChar);
                 string fName = filePath.Substring(lastSlash + 1);
                 string[] parts = fName.Split('.', StringSplitOptions.RemoveEmptyEntries);
 
                 return parts[0] == fileName && parts[1] == FILE_ENDING;
-            }) is not null;
+            });
         }
     }
 }

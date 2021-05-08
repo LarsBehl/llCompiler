@@ -7,7 +7,7 @@ namespace LL.AST
     {
         public Dictionary<string, FunctionDefinition> FunDefs { get; set; }
         public Dictionary<string, StructDefinition> StructDefs { get; set; }
-        public Dictionary<string, ProgramNode> Dependencies { get; set; }
+        public Dictionary<string, LoadStatement> Dependencies { get; set; }
         public IAST CompositUnit { get; set; }
         public Dictionary<string, IAST> Env { get; set; }
         public string FileName { get; set; }
@@ -40,7 +40,7 @@ namespace LL.AST
         {
             this.FunDefs = funDefs;
             this.StructDefs = structDefs;
-            this.Dependencies = new Dictionary<string, ProgramNode>();
+            this.Dependencies = new Dictionary<string, LoadStatement>();
             this.CompositUnit = null;
             this.Env = new Dictionary<string, IAST>();
             this.FileName = fileName;
