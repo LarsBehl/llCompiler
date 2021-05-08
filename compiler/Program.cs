@@ -14,8 +14,7 @@ namespace LL
         {
             Console.WriteLine("Running in Interpreter Mode\n");
             string file = "InterpreterMode";
-            Dictionary<string, FunctionDefinition> funs = new Dictionary<string, FunctionDefinition>();
-            Dictionary<string, StructDefinition> structs = new Dictionary<string, StructDefinition>();
+            ProgramNode rootProg = null;
 
             while (true)
             {
@@ -32,14 +31,14 @@ namespace LL
 
                 if (text == ":fs")
                 {
-                    foreach (FunctionDefinition funDef in funs.Values)
+                    foreach (FunctionDefinition funDef in rootProg?.FunDefs.Values)
                         Console.WriteLine(funDef.Name);
                     continue;
                 }
 
                 if (text == ":sts")
                 {
-                    foreach (StructDefinition structDef in structs.Values)
+                    foreach (StructDefinition structDef in rootProg?.StructDefs.Values)
                         Console.WriteLine(structDef.Name);
                     continue;
                 }
@@ -47,54 +46,19 @@ namespace LL
                 if (string.IsNullOrEmpty(text))
                     break;
 
-                IAST ast = CompileContent(text, file);
+                rootProg = CompileContent(text, file, rootProg) as ProgramNode;
 
-                if(ast is null)
+                if (rootProg is null)
                     continue;
 
-                // if it is a programNode all defined functions and structs need to be stored
-                if(ast is ProgramNode pn)
+                var value = rootProg.Eval();
+
+                if (value is not null)
                 {
-                    bool doContinue = false;
-                    foreach(var structDef in pn.StructDefs)
-                    {
-                        if(structs.ContainsKey(structDef.Key))
-                        {
-                            PrintError(new StructAlreadyDefinedException(structDef.Key, file, structDef.Value.Line, structDef.Value.Column));
-                            doContinue = true;
-                            break;
-                        }
-
-                        structs.Add(structDef.Key, structDef.Value);
-                    }
-
-                    foreach(var funDef in pn.FunDefs)
-                    {
-                        if(funs.ContainsKey(funDef.Key))
-                        {
-                            PrintError(new FunctionAlreadyDefinedException(funDef.Key, file, funDef.Value.Line, funDef.Value.Column));
-                            doContinue = true;
-                            break;
-                        }
-
-                        funs.Add(funDef.Key, funDef.Value);
-                    }
-
-                    if(doContinue)
-                        continue;
-                    
-                }
-                else
-                {
-                    IAST.Funs = funs;
-                    IAST.Structs = structs;
-                }
-
-                var value = ast.Eval();
-
-                if(value is not null)
                     Console.WriteLine($"= {value.ToString()}");
-                
+                    rootProg.CompositUnit = null;
+                }
+
                 Console.WriteLine();
             }
         }
@@ -154,6 +118,11 @@ namespace LL
 
         private static IAST CompileContent(string content, string fileName)
         {
+            return CompileContent(content, fileName, null);
+        }
+
+        private static IAST CompileContent(string content, string fileName, ProgramNode rootProgram)
+        {
             IAST ast = null;
             try
             {
@@ -163,7 +132,7 @@ namespace LL
                 parser.AddErrorListener(new ErrorListener());
 
                 // parse the struct definitions and the load statements
-                ProgramNode prog = new StructDefinitionVisitor(fileName).VisitCompileUnit(parser.compileUnit()) as ProgramNode;
+                ProgramNode prog = new StructDefinitionVisitor(fileName, rootProgram).VisitCompileUnit(parser.compileUnit()) as ProgramNode;
 
                 // parse the function definitions
                 parser.Reset();
@@ -177,6 +146,8 @@ namespace LL
             {
                 PrintError(e);
                 Console.WriteLine();
+
+                return rootProgram;
             }
 
             return ast;

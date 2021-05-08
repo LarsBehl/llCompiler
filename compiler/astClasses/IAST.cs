@@ -6,14 +6,15 @@ namespace LL.AST
 {
     public abstract class IAST
     {
-        // TODO refactor, probably a lot is no more needed
         public static Dictionary<string, IAST> Env = new Dictionary<string, IAST>();
-        public static Dictionary<string, FunctionDefinition> Funs = new Dictionary<string, FunctionDefinition>();
-        public static Dictionary<string, StructDefinition> Structs = new Dictionary<string, StructDefinition>();
-        public static Dictionary<string, IAST> StructEnv = null;
         public LL.Types.Type Type { get; set; }
         public int Line { get; set; }
         public int Column { get; set; }
+
+        // needed for evaluation
+        private static Dictionary<string, FunctionDefinition> Funs;
+        private static Dictionary<string, StructDefinition> Structs;
+        private static Dictionary<string, IAST> StructEnv;
 
         public IAST(LL.Types.Type type, int line, int column)
         {
@@ -178,10 +179,16 @@ namespace LL.AST
                     return EvalNotEqualExpression(notEqualExpr);
                 case ProgramNode programNode:
                     foreach (var f in programNode.FunDefs)
-                    {
                         f.Value.Eval();
-                    }
-                    return null;
+                    
+                    Funs = programNode.FunDefs;
+
+                    foreach(var s in programNode.StructDefs)
+                        s.Value.Eval();
+
+                    Structs = programNode.StructDefs;
+
+                    return programNode.CompositUnit?.Eval() ?? null;
                 case PrintStatement printStatement:
                     EvalPrintStatement(printStatement);
                     return null;
@@ -218,7 +225,7 @@ namespace LL.AST
             }
         }
 
-        static IAST EvalMultExpression(MultExpr me)
+        private IAST EvalMultExpression(MultExpr me)
         {
             switch (me.Left.Type)
             {
@@ -239,7 +246,7 @@ namespace LL.AST
             }
         }
 
-        static IAST EvalDivExpression(DivExpr div)
+        private IAST EvalDivExpression(DivExpr div)
         {
             switch (div.Left.Type)
             {
@@ -260,7 +267,7 @@ namespace LL.AST
             }
         }
 
-        static IAST EvalAddExpression(AddExpr add)
+        private IAST EvalAddExpression(AddExpr add)
         {
             switch (add.Left.Type)
             {
@@ -281,7 +288,7 @@ namespace LL.AST
             }
         }
 
-        static IAST EvalSubExpression(SubExpr sub)
+        private IAST EvalSubExpression(SubExpr sub)
         {
             switch (sub.Left.Type)
             {
@@ -302,7 +309,7 @@ namespace LL.AST
             }
         }
 
-        static IAST EvalEqualityExpression(EqualityExpr eq)
+        private IAST EvalEqualityExpression(EqualityExpr eq)
         {
             bool tmp = false;
             IAST left = null;
@@ -362,7 +369,7 @@ namespace LL.AST
             }
         }
 
-        static IAST EvalLessExpression(LessExpr le)
+        private IAST EvalLessExpression(LessExpr le)
         {
             switch (le.Left.Type)
             {
@@ -407,7 +414,7 @@ namespace LL.AST
             }
         }
 
-        static IAST EvalGreaterExpression(GreaterExpr ge)
+        private IAST EvalGreaterExpression(GreaterExpr ge)
         {
             switch (ge.Left.Type)
             {
@@ -452,7 +459,7 @@ namespace LL.AST
             }
         }
 
-        static IAST EvalIncrementExpr(IncrementExpr increment)
+        private IAST EvalIncrementExpr(IncrementExpr increment)
         {
             IAST result;
             IAST variable = EvalValueAccessExpression(increment.Variable);
@@ -494,7 +501,7 @@ namespace LL.AST
                 return result;
         }
 
-        static IAST EvalDecrementExpr(DecrementExpr decrement)
+        private IAST EvalDecrementExpr(DecrementExpr decrement)
         {
 
             IAST result;
@@ -536,7 +543,7 @@ namespace LL.AST
                 return result;
         }
 
-        static IAST EvalAddAssign(AddAssignStatement addAssign)
+        private IAST EvalAddAssign(AddAssignStatement addAssign)
         {
             IAST variable;
 
@@ -553,7 +560,7 @@ namespace LL.AST
             }
         }
 
-        static IAST EvalSubAssign(SubAssignStatement subAssign)
+        private IAST EvalSubAssign(SubAssignStatement subAssign)
         {
             IAST variable;
 
@@ -570,7 +577,7 @@ namespace LL.AST
             }
         }
 
-        static IAST EvalMultAssign(MultAssignStatement multAssign)
+        private IAST EvalMultAssign(MultAssignStatement multAssign)
         {
             IAST variable;
 
@@ -587,7 +594,7 @@ namespace LL.AST
             }
         }
 
-        static IAST EvalDivAssign(DivAssignStatement divAssign)
+        private IAST EvalDivAssign(DivAssignStatement divAssign)
         {
             IAST variable;
 
@@ -604,7 +611,7 @@ namespace LL.AST
             }
         }
 
-        static IAST EvalNotEqualExpression(NotEqualExpr notEqual)
+        private IAST EvalNotEqualExpression(NotEqualExpr notEqual)
         {
             bool tmp = false;
             IAST left = null;
@@ -664,7 +671,7 @@ namespace LL.AST
             }
         }
 
-        static void EvalPrintStatement(PrintStatement print)
+        private void EvalPrintStatement(PrintStatement print)
         {
             string result = "";
             switch (print.Value.Type)
@@ -688,7 +695,7 @@ namespace LL.AST
             Console.WriteLine(result);
         }
 
-        static IAST EvalRefTypeCreationStatement(RefTypeCreationStatement refType)
+        private IAST EvalRefTypeCreationStatement(RefTypeCreationStatement refType)
         {
             if (refType.CreatedReftype is Array)
                 return CreateArray(refType.CreatedReftype as Array);
@@ -698,7 +705,7 @@ namespace LL.AST
             throw new ArgumentException($"Unknown type for reference type creation: \"{refType.CreatedReftype.Type}\"");
         }
 
-        static IAST CreateArray(Array array)
+        private IAST CreateArray(Array array)
         {
             long size = (array.Size.Eval() as IntLit).Value ?? -1;
 
@@ -710,7 +717,7 @@ namespace LL.AST
             return array;
         }
 
-        static IAST CreateStruct(Struct @struct)
+        private IAST CreateStruct(Struct @struct)
         {
             @struct.PropValues = new Dictionary<string, IAST>();
             StructDefinition structDef = Structs[@struct.Name];
@@ -721,7 +728,7 @@ namespace LL.AST
             return @struct;
         }
 
-        static IAST EvalIntArray(IntArray intArray)
+        private IAST EvalIntArray(IntArray intArray)
         {
             if (intArray.Values == null)
                 throw new ArgumentException("Array is not initialized");
@@ -729,7 +736,7 @@ namespace LL.AST
             return intArray;
         }
 
-        static IAST EvalDoubleArray(DoubleArray doubleArray)
+        private IAST EvalDoubleArray(DoubleArray doubleArray)
         {
             if (doubleArray.Values == null)
                 throw new ArgumentException("Array is not initialized");
@@ -737,7 +744,7 @@ namespace LL.AST
             return doubleArray;
         }
 
-        static IAST EvalBoolArray(BoolArray boolArray)
+        private IAST EvalBoolArray(BoolArray boolArray)
         {
             if (boolArray.Values == null)
                 throw new ArgumentException("Array is not initialized");
@@ -745,7 +752,7 @@ namespace LL.AST
             return boolArray;
         }
 
-        static IAST EvalArrayIndexing(ArrayIndexing arrayIndexing)
+        private IAST EvalArrayIndexing(ArrayIndexing arrayIndexing)
         {
             Array array = arrayIndexing.Left.Eval() as Array;
             long index = (arrayIndexing.Right.Eval() as IntLit).Value ?? -1;
@@ -760,7 +767,7 @@ namespace LL.AST
             return array.Values[index];
         }
 
-        static void EvalAssignArrayField(AssignArrayField assignArrayField)
+        private void EvalAssignArrayField(AssignArrayField assignArrayField)
         {
             Array array = assignArrayField.ArrayIndex.Left.Eval() as Array;
             long index = (assignArrayField.ArrayIndex.Right.Eval() as IntLit).Value ?? -1;
@@ -777,7 +784,7 @@ namespace LL.AST
             array.Values[index] = value;
         }
 
-        static IAST EvalStructPropertyAccess(StructPropertyAccess structPropertyAccess)
+        private IAST EvalStructPropertyAccess(StructPropertyAccess structPropertyAccess)
         {
             Struct @struct = structPropertyAccess.StructRef.Eval() as Struct;
             StructEnv = @struct.PropValues;
@@ -788,7 +795,7 @@ namespace LL.AST
             return result;
         }
 
-        static void EvalAssignStructProperty(AssignStructProperty assignStruct)
+        private void EvalAssignStructProperty(AssignStructProperty assignStruct)
         {
             StructPropertyAccess innerStruct = GetPropRef(assignStruct.StructProp, out long index);
             Struct @struct = innerStruct.StructRef.Eval() as Struct;
@@ -807,7 +814,7 @@ namespace LL.AST
                 @struct.PropValues[propName] = assignStruct.Value.Eval();
         }
 
-        static IAST EvalValueAccessExpression(ValueAccessExpression valueAccess)
+        private IAST EvalValueAccessExpression(ValueAccessExpression valueAccess)
         {
             switch (valueAccess)
             {
@@ -819,7 +826,7 @@ namespace LL.AST
             }
         }
 
-        static IAST EvalModExpr(ModExpr modExpr)
+        private IAST EvalModExpr(ModExpr modExpr)
         {
             IntLit leftVal = modExpr.Left.Eval() as IntLit;
             IntLit rightVal = modExpr.Right.Eval() as IntLit;
@@ -833,7 +840,7 @@ namespace LL.AST
             return new IntLit((leftVal.Value ?? -1) % (rightVal.Value ?? -1), modExpr.Line, modExpr.Column);
         }
 
-        static StructPropertyAccess GetPropRef(StructPropertyAccess val, out long index)
+        private StructPropertyAccess GetPropRef(StructPropertyAccess val, out long index)
         {
             index = -1;
             if (val.Prop is VarExpr)

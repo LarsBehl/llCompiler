@@ -14,6 +14,7 @@ namespace LL
         private List<string> Files;
         private static readonly string FILE_ENDING = "ll";
         private string CurrentFile;
+        public ProgramNode RootProgram { get; set; }
 
         // hide the default constructor
         private StructDefinitionVisitor() : base()
@@ -21,10 +22,9 @@ namespace LL
 
         }
 
-        public StructDefinitionVisitor(string fileName) : this()
-        {
-            this.CurrentFile = fileName;
-        }
+        public StructDefinitionVisitor(string fileName) : this() => this.CurrentFile = fileName;
+
+        public StructDefinitionVisitor(string fileName, ProgramNode rootProgram) : this(fileName) => this.RootProgram = rootProgram;
 
         public override IAST VisitCompileUnit([NotNull] llParser.CompileUnitContext context)
         {
@@ -33,7 +33,7 @@ namespace LL
 
         public override IAST VisitProgram([NotNull] llParser.ProgramContext context)
         {
-            ProgramNode result = new ProgramNode(context.Start.Line, context.Start.Column);
+            ProgramNode result = this.RootProgram ?? new ProgramNode(context.Start.Line, context.Start.Column);
             var loadStatements = context.loadStatement();
 
             // this should be fine for now, but when loading something like header files

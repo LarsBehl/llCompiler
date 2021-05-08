@@ -109,8 +109,8 @@ namespace LL
             }
 
             if(context.compositUnit() != null)
-                return Visit(context.compositUnit());
-            
+                this.RootProgram.CompositUnit = Visit(context.compositUnit());;
+
             return this.RootProgram;
         }
 
