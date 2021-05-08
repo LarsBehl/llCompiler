@@ -9,7 +9,6 @@ namespace LL.AST
         public string FunctionName { get; set; }
         public List<IAST> Args { get; set; }
 
-        // TODO add exception handling
         public FunctionCall(FunctionDefinition funDef, string name, List<IAST> args, int line, int column) : base(funDef.ReturnType, line, column)
         {
             if (funDef.Args.Count != args.Count)

@@ -19,7 +19,7 @@ namespace LL.test
         {
             llParser parser = new llParser(new CommonTokenStream(new llLexer(new AntlrInputStream(text))));
             parser.RemoveParseListeners();
-            parser.AddErrorListener(new ErrorListener());
+            parser.AddErrorListener(new ErrorListener(PROGRAM_PATH));
             
             this.Prog = this.BuildAstVisitor.VisitCompileUnit(parser.compileUnit()) as ProgramNode;
         }
@@ -35,7 +35,7 @@ namespace LL.test
 
             llParser parser = new llParser(new CommonTokenStream(new llLexer(new AntlrInputStream(content))));
             parser.RemoveErrorListeners();
-            parser.AddErrorListener(new ErrorListener());
+            parser.AddErrorListener(new ErrorListener(PROGRAM_PATH));
 
             this.Prog = new FunctionDefinitionVisitor(PROGRAM_PATH).VisitCompileUnit(parser.compileUnit()) as ProgramNode;
             parser.Reset();

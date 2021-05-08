@@ -127,7 +127,7 @@ namespace LL
                 // setup the needed environment
                 llParser parser = new llParser(new CommonTokenStream(new llLexer(new AntlrInputStream(content))));
                 parser.RemoveErrorListeners();
-                parser.AddErrorListener(new ErrorListener());
+                parser.AddErrorListener(new ErrorListener(fileName));
 
                 // parse the struct definitions and the load statements
                 ProgramNode prog = new StructDefinitionVisitor(fileName, rootProgram).VisitCompileUnit(parser.compileUnit()) as ProgramNode;
