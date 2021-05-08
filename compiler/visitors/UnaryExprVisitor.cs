@@ -181,7 +181,7 @@ namespace LL
                 return new VarExpr(variableName, type, line, column);
             }
 
-            return new VarExpr(variableName, line, column);
+            return new VarExpr(variableName, this.TryGetType(variableName, line, column), line, column);
         }
     }
 }

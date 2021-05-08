@@ -9,6 +9,7 @@ namespace LL.AST
         public Dictionary<string, StructDefinition> StructDefs { get; set; }
         public Dictionary<string, ProgramNode> Dependencies { get; set; }
         public IAST CompositUnit { get; set; }
+        public Dictionary<string, IAST> Env { get; set; }
 
         public ProgramNode(int line, int column) : this(new Dictionary<string, FunctionDefinition>(), new Dictionary<string, StructDefinition>(), line, column)
         {
@@ -21,6 +22,7 @@ namespace LL.AST
             this.StructDefs = structDefs;
             this.Dependencies = new Dictionary<string, ProgramNode>();
             this.CompositUnit = null;
+            this.Env = new Dictionary<string, IAST>();
         }
     }
 }

@@ -12,6 +12,7 @@ namespace LL
         private string CurrentFile;
         static VarExpr sR = null;
         private ProgramNode RootProgram;
+        private Dictionary<string, IAST> Env;
         
         private BuildAstVisitor(): base()
         {
@@ -68,7 +69,7 @@ namespace LL
 
         private IAST VisitFunctionDefinition(llParser.FunctionDefinitionContext context, FunctionDefinition funDef)
         {
-            IAST.Env = funDef.FunctionEnv;
+            this.Env = funDef.FunctionEnv;
             int line = context.Start.Line;
             int column = context.Start.Column;
 
@@ -109,7 +110,10 @@ namespace LL
             }
 
             if(context.compositUnit() != null)
+            {
+                this.Env = this.RootProgram.Env;
                 this.RootProgram.CompositUnit = Visit(context.compositUnit());;
+            }
 
             return this.RootProgram;
         }

@@ -6,7 +6,6 @@ namespace LL.AST
 {
     public abstract class IAST
     {
-        public static Dictionary<string, IAST> Env = new Dictionary<string, IAST>();
         public LL.Types.Type Type { get; set; }
         public int Line { get; set; }
         public int Column { get; set; }
@@ -15,6 +14,7 @@ namespace LL.AST
         private static Dictionary<string, FunctionDefinition> Funs;
         private static Dictionary<string, StructDefinition> Structs;
         private static Dictionary<string, IAST> StructEnv;
+        private static Dictionary<string, IAST> Env = new Dictionary<string, IAST>();
 
         public IAST(LL.Types.Type type, int line, int column)
         {
@@ -188,7 +188,13 @@ namespace LL.AST
 
                     Structs = programNode.StructDefs;
 
-                    return programNode.CompositUnit?.Eval() ?? null;
+                    if(programNode.CompositUnit is not null)
+                    {
+                        Env = programNode.Env;
+                        return programNode.CompositUnit.Eval();
+                    }
+
+                    return null;
                 case PrintStatement printStatement:
                     EvalPrintStatement(printStatement);
                     return null;

@@ -54,11 +54,9 @@ namespace LL
                 var value = rootProg.Eval();
 
                 if (value is not null)
-                {
                     Console.WriteLine($"= {value.ToString()}");
-                    rootProg.CompositUnit = null;
-                }
 
+                rootProg.CompositUnit = null;
                 Console.WriteLine();
             }
         }
