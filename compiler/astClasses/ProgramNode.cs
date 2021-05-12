@@ -78,5 +78,23 @@ namespace LL.AST
 
             return false;
         }
+
+        public bool ContainsFunction(string functionName)
+        {
+            bool result = this.FunDefs.ContainsKey(functionName);
+
+            if(result)
+                return result;
+            
+            foreach(LoadStatement dep in this.Dependencies.Values)
+            {
+                result = dep.Program.ContainsFunction(functionName);
+
+                if(result)
+                    return result;
+            }
+
+            return false;
+        }
     }
 }

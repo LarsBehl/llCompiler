@@ -1,8 +1,9 @@
+using System.Collections.Generic;
+
 using Antlr4.Runtime.Misc;
+
 using LL.AST;
 using LL.Exceptions;
-using System;
-using System.Collections.Generic;
 
 namespace LL
 {
@@ -48,8 +49,7 @@ namespace LL
             int column = context.Start.Column;
             string functionName = identifier[0].GetText();
 
-            // TODO implement recursive search
-            if(this.RootProg.FunDefs.ContainsKey(functionName))
+            if(this.RootProg.ContainsFunction(functionName))
                 throw new FunctionAlreadyDefinedException(functionName, this.CurrentFile, line, column);
 
             var types = context.typeDefinition();
@@ -113,12 +113,12 @@ namespace LL
             int line = context.Start.Line;
             int column = context.Start.Column;
 
-            bool success = this.RootProg.StructDefs.TryGetValue(structName, out StructDefinition structDef);
+            bool success = this.RootProg.ContainsStruct(structName);
 
             if(!success)
                 throw new UnknownTypeException(structName, this.CurrentFile, line, column);
 
-            return new Struct(structDef.Name, line, column);
+            return new Struct(structName, line, column);
         }
     }
 }
