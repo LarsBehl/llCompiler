@@ -1,6 +1,6 @@
-using System;
 using System.Collections.Generic;
 
+using LL.Exceptions;
 using LL.Types;
 
 namespace LL.AST
@@ -52,12 +52,12 @@ namespace LL.AST
         {
             bool result = false;
 
-            if(!this.ContainsStruct(structDef.Name))
+            if (!this.ContainsStruct(structDef.Name))
             {
                 this.StructDefs[structDef.Name] = structDef;
                 result = true;
             }
-            
+
             return result;
         }
 
@@ -65,36 +65,90 @@ namespace LL.AST
         {
             bool result = this.StructDefs.ContainsKey(structName);
 
-            if(result)
+            if (result)
                 return result;
-            
-            foreach(LoadStatement dep in this.Dependencies.Values)
+
+            foreach (LoadStatement dep in this.Dependencies.Values)
             {
                 result = dep.Program.ContainsStruct(structName);
 
-                if(result)
+                if (result)
                     return result;
             }
 
             return false;
         }
 
-        public bool ContainsFunction(string functionName)
+        public bool IsFunctionDefined(string functionName)
         {
             bool result = this.FunDefs.ContainsKey(functionName);
 
-            if(result)
+            if (result)
                 return result;
-            
-            foreach(LoadStatement dep in this.Dependencies.Values)
-            {
-                result = dep.Program.ContainsFunction(functionName);
 
-                if(result)
+            foreach (LoadStatement dep in this.Dependencies.Values)
+            {
+                result = dep.Program.IsFunctionDefined(functionName);
+
+                if (result)
                     return result;
             }
 
             return false;
+        }
+
+        public bool IsFunctionCallable(string functionName)
+        {
+            bool result = this.FunDefs.ContainsKey(functionName);
+
+            if (result)
+                return result;
+
+            foreach (LoadStatement dep in this.Dependencies.Values)
+            {
+                result = dep.Program.FunDefs.ContainsKey(functionName);
+
+                if (result)
+                    return result;
+            }
+
+            return false;
+        }
+
+        public FunctionDefinition GetFunctionDefinition(string functionName)
+        {
+            bool success = this.FunDefs.TryGetValue(functionName, out FunctionDefinition result);
+
+            if(success)
+                return result;
+            
+            foreach(LoadStatement dep in this.Dependencies.Values)
+            {
+                success = dep.Program.FunDefs.TryGetValue(functionName, out result);
+
+                if(success)
+                    return result;
+            }
+        
+            throw new UnexpectedErrorException(FileName);
+        }
+
+        public StructDefinition GetStructDefinition(string structName)
+        {
+            bool success = this.StructDefs.TryGetValue(structName, out StructDefinition result);
+
+            if(success)
+                return result;
+            
+            foreach(LoadStatement dep in this.Dependencies.Values)
+            {
+                result = dep.Program.GetStructDefinition(structName);
+
+                if(result is not null)
+                    return result;
+            }
+
+            return null;
         }
     }
 }

@@ -49,7 +49,7 @@ namespace LL
             int column = context.Start.Column;
             string functionName = identifier[0].GetText();
 
-            if(this.RootProg.ContainsFunction(functionName))
+            if(this.RootProg.IsFunctionDefined(functionName))
                 throw new FunctionAlreadyDefinedException(functionName, this.CurrentFile, line, column);
 
             var types = context.typeDefinition();

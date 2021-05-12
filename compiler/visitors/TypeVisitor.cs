@@ -48,7 +48,7 @@ namespace LL
             int line = context.Start.Line;
             int column = context.Start.Column;
 
-            if (!this.RootProgram.StructDefs.ContainsKey(name))
+            if (!this.RootProgram.ContainsStruct(name))
                 throw new UnknownTypeException(name, this.RootProgram.FileName, line, column);
 
             return new Struct(name, line, column);

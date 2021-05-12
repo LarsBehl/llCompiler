@@ -77,8 +77,10 @@ namespace LL
             int line = context.Start.Line;
             int column = context.Start.Column;
             var tmp = context.expression();
-            if (!this.RootProgram.FunDefs.ContainsKey(context.name.Text))
+
+            if (!this.RootProgram.IsFunctionCallable(name))
                 throw new UnknownFunctionException(name, this.RootProgram.FileName, line, column);
+
             List<IAST> args = new List<IAST>();
 
             foreach (var arg in tmp)
@@ -86,7 +88,7 @@ namespace LL
                 args.Add(Visit(arg));
             }
 
-            return new FunctionCall(this.RootProgram.FunDefs[name], name, args, line, column);
+            return new FunctionCall(this.RootProgram.GetFunctionDefinition(name), name, args, line, column);
         }
 
         public override IAST VisitIncrementPostExpression(llParser.IncrementPostExpressionContext context)
@@ -167,12 +169,12 @@ namespace LL
                 string structName = (sR.Type as StructType).StructName;
 
                 // search for the struct definition
-                bool success = this.RootProgram.StructDefs.TryGetValue(structName, out StructDefinition def);
-                if (!success)
+                StructDefinition definition = this.RootProgram.GetStructDefinition(structName);
+                if(definition is null)
                     throw new UnknownTypeException(structName, this.RootProgram.FileName, line, column);
 
                 // search for the property in the struct
-                IAST prop = def.Properties.Find(s => s.Name == variableName);
+                IAST prop = definition.Properties.Find(s => s.Name == variableName);
                 if (prop is null)
                     throw new UnknownVariableException($"{structName}.{variableName}", this.RootProgram.FileName, line, column);
 
