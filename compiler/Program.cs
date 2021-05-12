@@ -1,10 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Collections.Generic;
+
 using Antlr4.Runtime;
+
 using LL.AST;
 using LL.CodeGeneration;
 using LL.Exceptions;
+using LL.Helper;
 
 namespace LL
 {
@@ -64,6 +67,7 @@ namespace LL
         static void InteractiveCompilerMode()
         {
             string file = "InteractiveCompilerMode";
+            
             Console.WriteLine("Running in interactive Compilermode\n");
             while (true)
             {
@@ -74,7 +78,7 @@ namespace LL
                     break;
 
 
-                IAST ast = CompileContent(text, file);
+                ProgramNode ast = CompilationHelper.CompileContent(text);
 
                 // prevent nullpointer
                 if (ast is null)
@@ -90,33 +94,13 @@ namespace LL
         {
             Console.WriteLine($"Compiling {inputFile}...");
 
-            string content = null;
-            try
-            {
-                using (StreamReader reader = new StreamReader(new FileStream(inputFile, FileMode.Open)))
-                {
-                    content = reader.ReadToEnd();
-                }
-            }
-            catch (System.IO.FileNotFoundException)
-            {
-                var notFoundException = new LL.Exceptions.FileNotFoundException(inputFile, null, 0, 0);
-                PrintError(notFoundException);
-                Environment.Exit(-1);
-            }
-
-            IAST ast = CompileContent(content, inputFile);
+            ProgramNode ast = CompilationHelper.CompileFile(inputFile);
             // prevent nullpointer
             if (ast is null)
                 Environment.Exit(-1);
 
             var assemblerGenerator = new AssemblerGenerator(inputFile);
             assemblerGenerator.WriteToFile(inputFile, ast);
-        }
-
-        private static IAST CompileContent(string content, string fileName)
-        {
-            return CompileContent(content, fileName, null);
         }
 
         private static IAST CompileContent(string content, string fileName, ProgramNode rootProgram)
@@ -142,7 +126,7 @@ namespace LL
             }
             catch (BaseCompilerException e)
             {
-                PrintError(e);
+                CompilationHelper.PrintError(e);
                 Console.WriteLine();
 
                 return rootProgram;
@@ -184,13 +168,6 @@ namespace LL
                 Program.RTFM();
 #endif
             }
-        }
-
-        private static void PrintError(BaseCompilerException e)
-        {
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(e.Message);
-            Console.ForegroundColor = ConsoleColor.White;
         }
     }
 }

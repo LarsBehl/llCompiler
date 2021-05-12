@@ -1,5 +1,7 @@
-using LL.Types;
+using System;
 using System.Collections.Generic;
+
+using LL.Types;
 
 namespace LL.AST
 {
@@ -44,6 +46,37 @@ namespace LL.AST
             this.CompositUnit = null;
             this.Env = new Dictionary<string, IAST>();
             this.FileName = fileName;
+        }
+
+        public bool TryAddStructDefinition(StructDefinition structDef)
+        {
+            bool result = false;
+
+            if(!this.ContainsStruct(structDef.Name))
+            {
+                this.StructDefs[structDef.Name] = structDef;
+                result = true;
+            }
+            
+            return result;
+        }
+
+        public bool ContainsStruct(string structName)
+        {
+            bool result = this.StructDefs.ContainsKey(structName);
+
+            if(result)
+                return result;
+            
+            foreach(LoadStatement dep in this.Dependencies.Values)
+            {
+                result = dep.Program.ContainsStruct(structName);
+
+                if(result)
+                    return result;
+            }
+
+            return false;
         }
     }
 }

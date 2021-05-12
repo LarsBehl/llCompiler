@@ -1,10 +1,14 @@
-using Antlr4.Runtime.Misc;
-using LL.AST;
-using LL.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+
+using Antlr4.Runtime.Misc;
+
+using LL.AST;
+using LL.Exceptions;
+using LL.Helper;
+
 
 namespace LL
 {
@@ -47,7 +51,8 @@ namespace LL
                 result.Dependencies.Add(progName, this.Visit(loadStatement) as LoadStatement);
             }
 
-            // TODO start compilation of the dependencies
+            foreach(var dependency in result.Dependencies.Values)
+                CompileDependency(dependency);
 
             var structDefs = context.structDefinition();
 
@@ -58,8 +63,7 @@ namespace LL
             foreach (var structDef in structDefs)
             {
                 StructDefinition def = this.Visit(structDef) as StructDefinition;
-                // TODO add recursive search
-                bool success = result.StructDefs.TryAdd(def.Name, def);
+                bool success = result.TryAddStructDefinition(def);
 
                 if (!success)
                     throw new StructAlreadyDefinedException(def.Name, this.CurrentFile, def.Line, def.Column);
@@ -105,7 +109,6 @@ namespace LL
             return new StructDefinition(name, line, column);
         }
 
-        // todo pass location
         private bool IsFilePresent(string fileName, out string location)
         {
             location = FindFile(this.Files, fileName);
@@ -144,6 +147,11 @@ namespace LL
 
                 return parts[0] == fileName && parts[1] == FILE_ENDING;
             });
+        }
+
+        private void CompileDependency(LoadStatement loadStatement)
+        {
+            loadStatement.Program = CompilationHelper.CompileFile(loadStatement.Location);
         }
     }
 }
