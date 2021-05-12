@@ -34,6 +34,8 @@ namespace LL.CodeGeneration
         private string CurrentFile;
         private ProgramNode RootProg;
 
+        private static List<string> CompiledPrograms = new List<string>();
+
         public AssemblerGenerator(string currentFile)
         {
             this.CurrentFile = currentFile;
@@ -83,6 +85,9 @@ namespace LL.CodeGeneration
                     this.FunctionCallAsm(funCall); break;
                 case ProgramNode programNode:
                     this.RootProg = programNode;
+                    if (CompiledPrograms.Contains(this.RootProg.FileName))
+                        throw new CodeAlreadyGeneratedException(this.RootProg.FileName);
+                    CompiledPrograms.Add(this.RootProg.FileName);
                     foreach (var structDef in programNode.StructDefs)
                         this.GetAssember(structDef.Value);
                     foreach (var fun in programNode.FunDefs)
@@ -175,7 +180,14 @@ namespace LL.CodeGeneration
                 fileName = filePath.Substring(indexOfSlash + 1, filePath.Length - (indexOfSlash + 1));
             this.InitializeFile(fileName);
 
-            this.GetAssember(astNode);
+            try
+            {
+                this.GetAssember(astNode);
+            }
+            catch(CodeAlreadyGeneratedException) // no need to do anything
+            {
+                return;
+            }
 
             string fileContent = this.Sb.ToString();
 
@@ -627,7 +639,7 @@ namespace LL.CodeGeneration
         private void LoadStructProperty(StructPropertyAccess structProperty)
         {
             StructType st = structProperty.StructRef.Type as StructType;
-            var structDef = this.RootProg.StructDefs[st.StructName];
+            var structDef = this.RootProg.GetStructDefinition(st.StructName);
             string propName = "";
             bool hasInnerStruct = false;
             bool isArrayIndexing = false;
