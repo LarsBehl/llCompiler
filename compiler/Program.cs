@@ -99,8 +99,18 @@ namespace LL
             if (ast is null)
                 Environment.Exit(-1);
 
-            var assemblerGenerator = new AssemblerGenerator(inputFile);
-            assemblerGenerator.WriteToFile(inputFile, ast);
+            RunCodeGeneration(ast, inputFile);
+        }
+
+        private static void RunCodeGeneration(ProgramNode prog, string filePath)
+        {
+            AssemblerGenerator generator = new AssemblerGenerator(filePath);
+            generator.WriteToFile(filePath, prog);
+
+            foreach(LoadStatement dep in prog.Dependencies?.Values)
+            {
+                RunCodeGeneration(dep.Program, dep.Location);
+            }
         }
 
         private static IAST CompileContent(string content, string fileName, ProgramNode rootProgram)
