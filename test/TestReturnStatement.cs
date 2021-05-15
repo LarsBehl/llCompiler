@@ -1,13 +1,13 @@
 using NUnit.Framework;
 using Antlr4.Runtime;
-using ll.AST;
+using LL.AST;
 
-namespace ll.test
+namespace LL.Test
 {
     [TestFixture]
     public class TestReturnStatement
     {
-        BuildAstVisitor visitor = new BuildAstVisitor();
+        BuildAstVisitor visitor = new BuildAstVisitor("UnitTests");
 
         public llParser Setup(string text)
         {
@@ -28,7 +28,7 @@ namespace ll.test
 
             var result = visitor.Visit(parser.statement());
 
-            Assert.AreEqual(expected, (result.Eval() as IntLit).n);
+            Assert.AreEqual(expected, (result.Eval() as IntLit).Value);
         }
 
         [TestCase("return 1/2.0;", 0.5)]
@@ -38,7 +38,7 @@ namespace ll.test
 
             var result = visitor.Visit(parser.statement());
 
-            Assert.AreEqual(expected, (result.Eval() as DoubleLit).n);
+            Assert.AreEqual(expected, (result.Eval() as DoubleLit).Value);
         }
         
         [Test]
@@ -46,9 +46,9 @@ namespace ll.test
         {
             llParser parser = Setup("return 2;");
 
-            var result = visitor.Visit(parser.statement());
+            var result = visitor.Visit(parser.program()) as ProgramNode;
 
-            Assert.AreEqual("ll.AST.ReturnStatement", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.ReturnStatement", result.CompositUnit.GetType().ToString());
         }
         
     }

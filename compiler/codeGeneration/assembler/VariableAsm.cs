@@ -1,10 +1,10 @@
-using ll.type;
+using LL.Types;
 
-namespace ll.assembler
+namespace LL.CodeGeneration
 {
     public class VariableAsm
     {
-        public int offSet { get; set; }
-        public ll.type.Type type { get; set; }
+        public int OffSet { get; set; }
+        public LL.Types.Type Type { get; set; }
     }
 }

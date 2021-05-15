@@ -1,6 +1,6 @@
-namespace ll.type
+namespace LL.Types
 {
-    public abstract class ComplexType : ll.type.Type
+    public abstract class ComplexType : LL.Types.Type
     {
         public ComplexType(string typeName) : base(typeName)
         {

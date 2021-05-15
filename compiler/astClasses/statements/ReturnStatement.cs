@@ -1,19 +1,19 @@
-using ll.type;
+using LL.Types;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class ReturnStatement : IAST
     {
-        public IAST returnValue { get; set; }
+        public IAST ReturnValue { get; set; }
 
         public ReturnStatement(int line, int column) : base(new VoidType(), line, column)
         {
 
         }
 
-        public ReturnStatement(IAST returnValue, int line, int column) : base(returnValue.type, line, column)
+        public ReturnStatement(IAST returnValue, int line, int column) : base(returnValue.Type, line, column)
         {
-            this.returnValue = returnValue;
+            this.ReturnValue = returnValue;
         }
     }
 }

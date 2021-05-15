@@ -1,17 +1,22 @@
-namespace ll.type
+namespace LL.Types
 {
     public abstract class Type
     {
-        public string typeName { get; set; }
+        public string TypeName { get; set; }
 
         public Type(string typeName)
         {
-            this.typeName = typeName;
+            this.TypeName = typeName;
         }
 
         public virtual bool IsPrimitivType()
         {
             return false;
+        }
+
+        public override string ToString()
+        {
+            return this.TypeName;
         }
 
         public override bool Equals(object obj)

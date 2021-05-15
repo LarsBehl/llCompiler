@@ -1,13 +1,13 @@
 using NUnit.Framework;
 using Antlr4.Runtime;
-using ll.AST;
+using LL.AST;
 
-namespace ll.test
+namespace LL.Test
 {
     [TestFixture]
     public class TestGreaterExpression
     {
-        BuildAstVisitor visitor = new BuildAstVisitor();
+        BuildAstVisitor visitor = new BuildAstVisitor("UnitTests");
 
         public llParser Setup(string text)
         {
@@ -30,7 +30,7 @@ namespace ll.test
 
             var reslt = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(expected, (reslt.Eval() as BoolLit).value);
+            Assert.AreEqual(expected, (reslt.Eval() as BoolLit).Value);
         }
 
         [Test]
@@ -38,9 +38,9 @@ namespace ll.test
         {
             llParser parser = Setup("3 > 0");
 
-            var result = visitor.Visit(parser.compileUnit());
+            var result = visitor.Visit(parser.compileUnit()) as ProgramNode;
 
-            Assert.AreEqual("ll.AST.GreaterExpr", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.GreaterExpr", result.CompositUnit.GetType().ToString());
         }
     }
 }

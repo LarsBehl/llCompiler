@@ -1,24 +1,20 @@
-using ll.AST;
+using LL.Types;
+using LL.Exceptions;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class VarExpr : ValueAccessExpression
     {
-        public string name { get; set; }
+        public string Name { get; set; }
 
-        public VarExpr(string name, int line, int column) : base(IAST.env[name].type, line, column)
+        public VarExpr(string name, LL.Types.Type type, int line, int column): base(type, line, column)
         {
-            this.name = name;
-        }
-
-        public VarExpr(string name, ll.type.Type type, int line, int column): base(type, line, column)
-        {
-            this.name = name;
+            this.Name = name;
         }
 
         public override string ToString()
         {
-            return this.name;
+            return this.Name;
         }
     }
 }

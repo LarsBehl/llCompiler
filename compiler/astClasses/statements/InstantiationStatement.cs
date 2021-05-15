@@ -1,14 +1,12 @@
-using ll.type;
-
-namespace ll.AST
+namespace LL.AST
 {
     public class InstantiationStatement : IAST
     {
-        public string name { get; set; }
+        public string Name { get; set; }
 
-        public InstantiationStatement(string name, type.Type type, int line, int column) : base(type, line, column)
+        public InstantiationStatement(string name, Types.Type type, int line, int column) : base(type, line, column)
         {
-            this.name = name;
+            this.Name = name;
         }
     }
 }

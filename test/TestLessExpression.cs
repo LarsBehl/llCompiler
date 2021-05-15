@@ -1,13 +1,13 @@
 using NUnit.Framework;
 using Antlr4.Runtime;
-using ll.AST;
+using LL.AST;
 
-namespace ll.test
+namespace LL.Test
 {
     [TestFixture]
     public class TestLessExpression
     {
-        BuildAstVisitor visitor = new BuildAstVisitor();
+        BuildAstVisitor visitor = new BuildAstVisitor("UnitTests");
 
         public llParser Setup(string text)
         {
@@ -30,16 +30,16 @@ namespace ll.test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(expected, (result.Eval() as BoolLit).value);
+            Assert.AreEqual(expected, (result.Eval() as BoolLit).Value);
         }
 
         public void TestLessExpression_2()
         {
             llParser parser = Setup("2 < 3");
 
-            var result = visitor.Visit(parser.compileUnit());
+            var result = visitor.Visit(parser.compileUnit()) as ProgramNode;
 
-            Assert.AreEqual("ll.AST.LessExpr", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.LessExpr", result.CompositUnit.GetType().ToString());
         }
     }
 }

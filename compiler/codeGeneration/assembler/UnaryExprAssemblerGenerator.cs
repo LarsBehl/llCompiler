@@ -1,47 +1,48 @@
 using System;
 using System.Collections.Generic;
 
-using ll.AST;
-using ll.type;
+using LL.AST;
+using LL.Types;
+using LL.Exceptions;
 
-namespace ll.assembler
+namespace LL.CodeGeneration
 {
     public partial class AssemblerGenerator
     {
         private void IntLitAsm(IntLit intLit)
         {
-            this.WriteLine($"movq ${intLit.n}, %rax");
+            this.WriteLine($"movq ${intLit.Value}, %rax");
         }
 
         private void DoubleLitAsm(DoubleLit doubleLit)
         {
             this.WriteDoubleValue(doubleLit);
-            this.WriteLine($"movq .LD{this.doubleMap[doubleLit.n ?? 0]}(%rip), %xmm0");
+            this.WriteLine($"movq .LD{this.DoubleMap[doubleLit.Value ?? 0]}(%rip), %xmm0");
         }
 
         private void BoolLitAsm(BoolLit boolLit)
         {
-            this.WriteLine($"movq ${((boolLit.value ?? false) ? 1 : 0)}, %rax");
+            this.WriteLine($"movq ${((boolLit.Value ?? false) ? 1 : 0)}, %rax");
         }
 
         private void FunctionCallAsm(FunctionCall functionCall)
         {
-            FunctionDefinition funDef = IAST.funs.GetValueOrDefault(functionCall.name);
+            FunctionDefinition funDef = this.RootProg.GetFunctionDefinition(functionCall.FunctionName);
             FunctionAsm functionAsm;
 
-            if (this.functionMap.ContainsKey(functionCall.name))
-                functionAsm = this.functionMap[functionCall.name];
+            if (this.FunctionMap.ContainsKey(functionCall.FunctionName))
+                functionAsm = this.FunctionMap[functionCall.FunctionName];
             else
             {
-                functionAsm = new FunctionAsm(functionCall.name);
-                this.functionMap.Add(functionCall.name, functionAsm);
+                functionAsm = new FunctionAsm(functionCall.FunctionName);
+                this.FunctionMap.Add(functionCall.FunctionName, functionAsm);
             }
 
-            functionAsm.usedDoubleRegisters = 0;
-            functionAsm.usedIntegerRegisters = 0;
+            functionAsm.UsedDoubleRegisters = 0;
+            functionAsm.UsedIntegerRegisters = 0;
 
             bool doesOverflow = this.DoesOverflowRegisters(
-                functionCall.args,
+                functionCall.Args,
                 out int integerOverflowPosition,
                 out int doubleOverflowPosition
             );
@@ -53,14 +54,16 @@ namespace ll.assembler
                 int rbpOffset = +16;
 
                 // calculate the position of the overflown arguments on the stack
-                for (int i = funDef.args.Count - 1; i >= min; i--)
+                for (int i = funDef.Args.Count - 1; i >= min; i--)
                 {
-                    switch (functionCall.args[i].type)
+                    InstantiationStatement arg = funDef.Args[i];
+
+                    switch (functionCall.Args[i].Type)
                     {
                         case IntType intType:
                             if (i >= integerOverflowPosition)
                             {
-                                functionAsm.variableMap[funDef.args[i].name] = rbpOffset;
+                                functionAsm.VariableMap[arg.Name] = rbpOffset;
                                 rbpOffset += 8;
                             }
 
@@ -68,7 +71,7 @@ namespace ll.assembler
                         case DoubleType doubleType:
                             if (i >= doubleOverflowPosition)
                             {
-                                functionAsm.variableMap[funDef.args[i].name] = rbpOffset;
+                                functionAsm.VariableMap[arg.Name] = rbpOffset;
                                 rbpOffset += 8;
                             }
 
@@ -76,7 +79,7 @@ namespace ll.assembler
                         case BooleanType booleanType:
                             if (i >= integerOverflowPosition)
                             {
-                                functionAsm.variableMap[funDef.args[i].name] = rbpOffset;
+                                functionAsm.VariableMap[arg.Name] = rbpOffset;
                                 rbpOffset += 8;
                             }
 
@@ -84,92 +87,92 @@ namespace ll.assembler
                         case RefType refType:
                             if (i >= integerOverflowPosition)
                             {
-                                functionAsm.variableMap[funDef.args[i].name] = rbpOffset;
+                                functionAsm.VariableMap[arg.Name] = rbpOffset;
                                 rbpOffset += 8;
                             }
 
                             break;
                         default:
-                            throw new ArgumentException($"Unknown type {functionCall.args[i].type.typeName}");
+                            throw new UnknownTypeException(arg.Type.ToString(), this.CurrentFile, arg.Line, arg.Column);
                     }
                 }
-                this.stackCounter += rbpOffset - 16;
+                this.StackCounter += rbpOffset - 16;
 
                 // align the stack if needed
-                if (this.stackCounter % 16 == 0)
+                if (this.StackCounter % 16 == 0)
                 {
-                    this.stackCounter += 8;
+                    this.StackCounter += 8;
                     rbpOffset += 8;
                 }
 
                 this.WriteLine($"subq ${rbpOffset - 16}, %rsp");
             }
 
-            int index = Math.Min(functionCall.args.Count, integerOverflowPosition);
+            int index = Math.Min(functionCall.Args.Count, integerOverflowPosition);
             // move integer/boolean arguments into registers until they are full
             for (int i = 0; i < index; i++)
             {
-                if (funDef.args[i].type is IntType || funDef.args[i].type is BooleanType || funDef.args[i].type is RefType)
+                if (funDef.Args[i].Type is IntType || funDef.Args[i].Type is BooleanType || funDef.Args[i].Type is RefType)
                 {
-                    this.GetAssember(functionCall.args[i]);
+                    this.GetAssember(functionCall.Args[i]);
 
-                    this.WriteLine($"movq %rax, {this.integerRegisters[functionAsm.usedIntegerRegisters]}");
-                    functionAsm.usedIntegerRegisters++;
+                    this.WriteLine($"movq %rax, {this.IntegerRegisters[functionAsm.UsedIntegerRegisters]}");
+                    functionAsm.UsedIntegerRegisters++;
                 }
             }
 
             // move integer/boolean arguments that overflew on stack
-            for (int i = functionCall.args.Count - 1; i >= integerOverflowPosition; i--)
+            for (int i = functionCall.Args.Count - 1; i >= integerOverflowPosition; i--)
             {
-                if (funDef.args[i].type is IntType || funDef.args[i].type is BooleanType || funDef.args[i].type is RefType)
+                if (funDef.Args[i].Type is IntType || funDef.Args[i].Type is BooleanType || funDef.Args[i].Type is RefType)
                 {
-                    this.GetAssember(functionCall.args[i]);
+                    this.GetAssember(functionCall.Args[i]);
 
-                    this.WriteLine($"movq %rax, {functionAsm.variableMap[funDef.args[i].name] - 16}(%rsp)");
+                    this.WriteLine($"movq %rax, {functionAsm.VariableMap[funDef.Args[i].Name] - 16}(%rsp)");
                 }
             }
 
             // move double arguments that overflew on the stack
-            for (int i = functionCall.args.Count - 1; i >= doubleOverflowPosition; i--)
+            for (int i = functionCall.Args.Count - 1; i >= doubleOverflowPosition; i--)
             {
-                if (funDef.args[i].type is DoubleType)
+                if (funDef.Args[i].Type is DoubleType)
                 {
-                    this.GetAssember(functionCall.args[i]);
+                    this.GetAssember(functionCall.Args[i]);
 
-                    if (functionCall.args[i].type is IntType)
+                    if (functionCall.Args[i].Type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
-                    this.WriteLine($"movq %xmm0, {functionAsm.variableMap[funDef.args[i].name] - 16}(%rsp)");
+                    this.WriteLine($"movq %xmm0, {functionAsm.VariableMap[funDef.Args[i].Name] - 16}(%rsp)");
                 }
             }
 
             // calculate the rest of the double arguments and push them on the stack
-            for (int i = Math.Min(functionCall.args.Count - 1, doubleOverflowPosition - 1); i >= 0; i--)
+            for (int i = Math.Min(functionCall.Args.Count - 1, doubleOverflowPosition - 1); i >= 0; i--)
             {
-                if (funDef.args[i].type is DoubleType)
+                if (funDef.Args[i].Type is DoubleType)
                 {
-                    this.GetAssember(functionCall.args[i]);
+                    this.GetAssember(functionCall.Args[i]);
 
-                    if (functionCall.args[i].type is IntType)
+                    if (functionCall.Args[i].Type is IntType)
                         this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
                     this.WriteLine($"movq %xmm0, %rax");
                     this.WritePush();
-                    functionAsm.usedDoubleRegisters++;
+                    functionAsm.UsedDoubleRegisters++;
                 }
             }
 
             // move the previously pushed double arguments into the double registers
-            for (int i = 0; i < functionAsm.usedDoubleRegisters; i++)
+            for (int i = 0; i < functionAsm.UsedDoubleRegisters; i++)
             {
                 this.WritePop();
-                this.WriteLine($"movq %rax, {doubleRegisters[i]}");
+                this.WriteLine($"movq %rax, {DoubleRegisters[i]}");
             }
 
             // this should only happen if the registers do not overflow and the stack is not aligned
             bool aligned = this.AlignStack();
 
-            this.WriteLine($"call {functionCall.name}");
+            this.WriteLine($"call {functionCall.FunctionName}");
 
             if(aligned)
                 this.WritePop("%rbx");
@@ -178,26 +181,26 @@ namespace ll.assembler
         private void VariableAsm(VarExpr varExpr)
         {
             // move the variables value from the stack into the type specific registers
-            if (varExpr.type is DoubleType)
-                this.WriteLine($"movq {this.variableMap[varExpr.name]}(%rbp), %xmm0");
+            if (varExpr.Type is DoubleType)
+                this.WriteLine($"movq {this.VariableMap[varExpr.Name]}(%rbp), %xmm0");
 
-            if (varExpr.type is BooleanType
-            || varExpr.type is IntType
-            || varExpr.type is IntArrayType
-            || varExpr.type is DoubleArrayType
-            || varExpr.type is BoolArrayType
-            || varExpr.type is StructType)
-                this.WriteLine($"movq {this.variableMap[varExpr.name]}(%rbp), %rax");
+            if (varExpr.Type is BooleanType
+            || varExpr.Type is IntType
+            || varExpr.Type is IntArrayType
+            || varExpr.Type is DoubleArrayType
+            || varExpr.Type is BoolArrayType
+            || varExpr.Type is StructType)
+                this.WriteLine($"movq {this.VariableMap[varExpr.Name]}(%rbp), %rax");
         }
 
         private void IncrementAsm(IncrementExpr increment)
         {
-            this.GetAssember(increment.variable);
+            this.GetAssember(increment.Variable);
             string register = null;
 
-            if (!increment.post)
+            if (!increment.Post)
             {
-                if (increment.type is IntType)
+                if (increment.Type is IntType)
                 {
                     this.WriteLine("incq %rax");
                     register = "%rax";
@@ -212,7 +215,7 @@ namespace ll.assembler
             }
             else
             {
-                if (increment.type is IntType)
+                if (increment.Type is IntType)
                 {
                     this.WriteLine("movq %rax, %rbx");
                     this.WriteLine("incq %rbx");
@@ -227,17 +230,17 @@ namespace ll.assembler
                 }
             }
 
-            switch (increment.variable)
+            switch (increment.Variable)
             {
                 case VarExpr varExpr:
-                    this.WriteLine($"movq {register}, {this.variableMap[varExpr.name]}(%rbp)");
-                    if (varExpr.type is DoubleType)
+                    this.WriteLine($"movq {register}, {this.VariableMap[varExpr.Name]}(%rbp)");
+                    if (varExpr.Type is DoubleType)
                         this.WriteLine("movq %xmm0, %rax");
                     break;
                 case ArrayIndexing arrayIndexing:
-                    if (increment.post)
+                    if (increment.Post)
                     {
-                        if (arrayIndexing.type is DoubleType)
+                        if (arrayIndexing.Type is DoubleType)
                             this.WriteLine("movq %xmm0, %rax");
 
                         this.WritePush();
@@ -253,13 +256,13 @@ namespace ll.assembler
                     this.WriteLine("movq %rbx, (%rax)");
                     this.WriteLine("movq %rbx, %rax");
 
-                    if (increment.post)
+                    if (increment.Post)
                         this.WritePop();
                     break;
                 case StructPropertyAccess propertyAccess:
-                    if (increment.post)
+                    if (increment.Post)
                     {
-                        if (propertyAccess.type is DoubleType)
+                        if (propertyAccess.Type is DoubleType)
                             this.WriteLine("movq %xmm0, %rax");
 
                         this.WritePush();
@@ -274,23 +277,23 @@ namespace ll.assembler
                     this.WriteLine("movq %rbx, (%rax)");
                     this.WriteLine("movq %rbx, %rax");
 
-                    if (increment.post)
+                    if (increment.Post)
                         this.WritePop();
                     break;
             }
 
-            if (increment.type is DoubleType)
+            if (increment.Type is DoubleType)
                 this.WriteLine("movq %rax, %xmm0");
         }
 
         private void DecrementAsm(DecrementExpr decrement)
         {
-            this.GetAssember(decrement.variable);
+            this.GetAssember(decrement.Variable);
             string register = null;
 
-            if (!decrement.post)
+            if (!decrement.Post)
             {
-                if (decrement.type is IntType)
+                if (decrement.Type is IntType)
                 {
                     this.WriteLine("decq %rax");
                     register = "%rax";
@@ -305,7 +308,7 @@ namespace ll.assembler
             }
             else
             {
-                if (decrement.type is IntType)
+                if (decrement.Type is IntType)
                 {
                     this.WriteLine("movq %rax, %rbx");
                     this.WriteLine("decq %rbx");
@@ -320,18 +323,18 @@ namespace ll.assembler
                 }
             }
 
-            switch (decrement.variable)
+            switch (decrement.Variable)
             {
                 case VarExpr varExpr:
-                    this.WriteLine($"movq {register}, {variableMap[varExpr.name]}(%rbp)");
+                    this.WriteLine($"movq {register}, {VariableMap[varExpr.Name]}(%rbp)");
 
-                    if (varExpr.type is DoubleType)
+                    if (varExpr.Type is DoubleType)
                         this.WriteLine("movq %xmm0, %rax");
                     break;
                 case ArrayIndexing arrayIndexing:
-                    if (decrement.post)
+                    if (decrement.Post)
                     {
-                        if (arrayIndexing.type is DoubleType)
+                        if (arrayIndexing.Type is DoubleType)
                             this.WriteLine("movq %xmm0, %rax");
 
                         this.WritePush();
@@ -346,13 +349,13 @@ namespace ll.assembler
                     this.WriteLine("movq %rbx, (%rax)");
                     this.WriteLine("movq %rbx, %rax");
 
-                    if (decrement.post)
+                    if (decrement.Post)
                         this.WritePop();
                     break;
                 case StructPropertyAccess propertyAccess:
-                    if (decrement.post)
+                    if (decrement.Post)
                     {
-                        if (propertyAccess.type is DoubleType)
+                        if (propertyAccess.Type is DoubleType)
                             this.WriteLine("movq %xmm0, %rax");
 
                         this.WritePush();
@@ -367,18 +370,18 @@ namespace ll.assembler
                     this.WriteLine("movq %rbx, (%rax)");
                     this.WriteLine("movq %rbx, %rax");
 
-                    if (decrement.post)
+                    if (decrement.Post)
                         this.WritePop();
                     break;
             }
 
-            if (decrement.type is DoubleType)
+            if (decrement.Type is DoubleType)
                 this.WriteLine("movq %rax, %xmm0");
         }
 
         private void NotExprAsm(NotExpr notExpr)
         {
-            this.GetAssember(notExpr.value);
+            this.GetAssember(notExpr.Value);
             this.WriteLine("cmpq $0, %rax");
             this.WriteLine("sete %al");
             this.WriteLine("movzbl %al, %rax");
@@ -392,7 +395,7 @@ namespace ll.assembler
         private void ArrayIndexingAsm(ArrayIndexing arrayIndexing)
         {
             this.LoadArrayField(arrayIndexing);
-            if (arrayIndexing.type is DoubleType)
+            if (arrayIndexing.Type is DoubleType)
                 this.WriteLine("movq (%rax), %xmm0");
             else
                 this.WriteLine("movq (%rax), %rax");
@@ -402,7 +405,7 @@ namespace ll.assembler
         {
             this.LoadStructProperty(structPropertyAccess);
             // write the value in the correct register
-            if (structPropertyAccess.type is DoubleType)
+            if (structPropertyAccess.Type is DoubleType)
                 this.WriteLine("movq (%rax), %xmm0");
             else
                 this.WriteLine("movq (%rax), %rax");

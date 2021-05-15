@@ -5,11 +5,12 @@ test: linkTest
 linkTest: compileAssembler
 	@echo "\n\n\e[0;32mLinking tests...\n\e[0m"
 	cp ./runtime/bin/libLL.a ./testGeneratedCode/bin/
-	gcc -o ./testGeneratedCode/bin/testCodeGen ./testGeneratedCode/bin/testCodeGenV1Prog.o -LtestGeneratedCode/bin -lLL
+	gcc -o ./testGeneratedCode/bin/testCodeGen ./testGeneratedCode/bin/testCodeGenV1Prog.o ./testGeneratedCode/bin/testBinOps.o -LtestGeneratedCode/bin -lLL
 
 compileAssembler: packageRuntime
 	@echo "\n\n\e[0;32mCompiling tests...\n\e[0m"
 	gcc -c -g ./testGeneratedCode/bin/testCodeGenV1Prog.S -o ./testGeneratedCode/bin/testCodeGenV1Prog.o
+	gcc -c -g ./testGeneratedCode/bin/testBinOps.S -o ./testGeneratedCode/bin/testBinOps.o
 
 packageRuntime: compileRuntime
 	@echo "\n\n\e[0;32mPackaging runtime lib...\n\e[0m"
@@ -29,12 +30,12 @@ compileTest: publishLinux
 	cp ./compiler/bin/linux/llCompiler ./testGeneratedCode
 	./testGeneratedCode/llCompiler -c ./testGeneratedCode/programs/testCodeGenV1Prog.ll
 	mkdir -p ./testGeneratedCode/bin
-	mv ./testGeneratedCode/programs/testCodeGenV1Prog.S ./testGeneratedCode/bin/
+	mv ./testGeneratedCode/programs/*.S ./testGeneratedCode/bin/
 
 generateCode:
 	@echo "\n\n\e[0;32mGenerating code from grammar...\n\e[0m"
 	cd ./compiler \
-	java -jar ../deps/antlr-4.9.1-complete.jar -Dlanguage=CSharp ll.g4 -no-listener -visitor  -package ll
+	java -jar ../deps/antlr-4.9.1-complete.jar -Dlanguage=CSharp ll.g4 -no-listener -visitor  -package LL
 
 publishWindows:
 	@echo "\n\n\e[0;32mPublishing Windows...\n\e[0m"

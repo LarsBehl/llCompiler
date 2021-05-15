@@ -1,17 +1,56 @@
-using ll.AST;
-using System;
 using System.Collections.Generic;
 
-namespace ll
+using Antlr4.Runtime.Misc;
+
+using LL.AST;
+using LL.Exceptions;
+
+namespace LL
 {
     public class FunctionDefinitionVisitor : llBaseVisitor<IAST>
     {
+        private string CurrentFile;
+        private ProgramNode RootProg;
+
+        private FunctionDefinitionVisitor(): base()
+        {
+
+        }
+
+        public FunctionDefinitionVisitor(string currentFile): this(currentFile, new ProgramNode(currentFile, -1, -1))
+        {
+
+        }
+
+        public FunctionDefinitionVisitor(string currentFile, ProgramNode rootProg): this()
+        {
+            this.CurrentFile = currentFile;
+            this.RootProg = rootProg;
+        }
+
+        public override IAST VisitCompileUnit([NotNull] llParser.CompileUnitContext context)
+        {
+            return this.Visit(context.program());
+        }
+
+        public override IAST VisitProgram([NotNull] llParser.ProgramContext context)
+        {
+            var funs = context.functionDefinition();
+            foreach(var fun in funs)
+                this.Visit(fun);
+
+            return this.RootProg;
+        }
+
         public override IAST VisitFunctionDefinition(llParser.FunctionDefinitionContext context)
         {
             var identifier = context.WORD();
+            int line = context.Start.Line;
+            int column = context.Start.Column;
+            string functionName = identifier[0].GetText();
 
-            if (IAST.funs.ContainsKey(identifier[0].GetText()))
-                throw new ArgumentException($"Multiple definitions of \"{identifier[0].GetText()}\"; On line {context.Start.Line}:{context.Start.Column}");
+            if(this.RootProg.IsFunctionDefined(functionName))
+                throw new FunctionAlreadyDefinedException(functionName, this.CurrentFile, line, column);
 
             var types = context.typeDefinition();
             List<InstantiationStatement> args = new List<InstantiationStatement>();
@@ -21,33 +60,36 @@ namespace ll
             {
                 var tmpType = VisitTypeDefinition(types[i]);
                 tmpEnv[identifier[i + 1].GetText()] = tmpType;
-                args.Add(new InstantiationStatement(identifier[i + 1].GetText(), tmpType.type, tmpType.line, tmpType.column));
+                args.Add(new InstantiationStatement(identifier[i + 1].GetText(), tmpType.Type, tmpType.Line, tmpType.Column));
             }
 
-            // BuildAstVisitor should add the function body
-            // therefor it should check if the body is null, if not throw exception
-            FunctionDefinition func = new FunctionDefinition(identifier[0].GetText(), args, null, tmpEnv, Visit(types[types.Length - 1]).type, context.Start.Line, context.Start.Column);
-            IAST.funs[identifier[0].GetText()] = func;
-            // unused; the llBaseVisitor expects a type
+            // // BuildAstVisitor should add the function body
+            // // therefor it should check if the body is null, if not throw exception
+            this.RootProg.FunDefs.Add(functionName, new FunctionDefinition(identifier[0].GetText(), args, null, tmpEnv, Visit(types[types.Length - 1]).Type, line, column));
+
+            // unused value
             return null;
         }
 
         public override IAST VisitTypeDefinition(llParser.TypeDefinitionContext context)
         {
+            int line = context.Start.Line;
+            int column = context.Start.Column;
+            
             if (context.INT_TYPE() != null)
-                return new IntLit(null, context.Start.Line, context.Start.Column);
+                return new IntLit(null, line, column);
             if (context.DOUBLE_TYPE() != null)
-                return new DoubleLit(null, context.Start.Line, context.Start.Column);
+                return new DoubleLit(null, line, column);
             if (context.BOOL_TYPE() != null)
-                return new BoolLit(null, context.Start.Line, context.Start.Column);
+                return new BoolLit(null, line, column);
             if (context.VOID_TYPE() != null)
-                return new VoidLit(context.Start.Line, context.Start.Column);
+                return new VoidLit(line, column);
             if (context.arrayTypes() != null)
                 return Visit(context.arrayTypes());
             if (context.structName() != null)
                 return Visit(context.structName());
 
-            throw new ArgumentException($"Unsupported type; On line {context.Start.Line}:{context.Start.Column}");
+            throw new UnknownTypeException(context.GetText(), this.CurrentFile, line, column);
         }
 
         public override IAST VisitIntArrayType(llParser.IntArrayTypeContext context)
@@ -67,18 +109,16 @@ namespace ll
 
         public override IAST VisitStructName(llParser.StructNameContext context)
         {
-            StructDefinition structDef;
+            string structName = context.WORD().GetText();
+            int line = context.Start.Line;
+            int column = context.Start.Column;
 
-            try
-            {
-                structDef = IAST.structs[context.WORD().GetText()];
-            }
-            catch (Exception)
-            {
-                throw new ArgumentException($"Unknown struct reference \"{context.WORD().GetText()}\"; On line {context.Start.Line}:{context.Start.Column}");
-            }
+            bool success = this.RootProg.ContainsStruct(structName);
 
-            return new Struct(structDef.name, context.Start.Line, context.Start.Column);
+            if(!success)
+                throw new UnknownTypeException(structName, this.CurrentFile, line, column);
+
+            return new Struct(structName, line, column);
         }
     }
 }

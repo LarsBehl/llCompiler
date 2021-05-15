@@ -1,7 +1,7 @@
 using System;
-using ll.type;
+using LL.Types;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class EqualityExpr : BinOp
     {
@@ -12,10 +12,10 @@ namespace ll.AST
 
         private void CheckType()
         {
-            if(left.type != right.type)
+            if(Left.Type != Right.Type)
             {
-                if((left.type is not DoubleType || right.type is not IntType) && (left.type is not IntType || right.type is not DoubleType))
-                    throw new ArgumentException($"Could not compare {this.left.type.typeName} with {this.right.type.typeName}; On line {this.line}:{this.column}");
+                if((Left.Type is not DoubleType || Right.Type is not IntType) && (Left.Type is not IntType || Right.Type is not DoubleType))
+                    throw new ArgumentException($"Could not compare {this.Left.Type.TypeName} with {this.Right.Type.TypeName}; On line {this.Line}:{this.Column}");
             }
         }
     }

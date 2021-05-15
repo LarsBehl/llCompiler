@@ -1,29 +1,29 @@
 using System.Collections.Generic;
 using System;
-using ll.type;
+using LL.Types;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class FunctionCall : IAST
     {
-        public string name { get; set; }
-        public List<IAST> args { get; set; }
+        public string FunctionName { get; set; }
+        public List<IAST> Args { get; set; }
 
-        public FunctionCall(string name, List<IAST> args, int line, int column) : base(IAST.funs[name].returnType, line, column)
+        public FunctionCall(FunctionDefinition funDef, string name, List<IAST> args, int line, int column) : base(funDef.ReturnType, line, column)
         {
-            if (IAST.funs[name].args.Count != args.Count)
-                throw new ArgumentException($"Argument count of functioncall \"{name}\" {args.Count} not equal to function definition {IAST.funs[name].args.Count}; On line {line}:{column}");
-            var tmp = IAST.funs[name].args;
+            if (funDef.Args.Count != args.Count)
+                throw new ArgumentException($"Argument count of functioncall \"{name}\" {args.Count} not equal to function definition {funDef.Args.Count}; On line {line}:{column}");
+            var tmp = funDef.Args;
             for (int i = 0; i < tmp.Count; i++)
             {
-                if (args[i].type != tmp[i].type)
+                if (args[i].Type != tmp[i].Type)
                 {
-                    if(tmp[i].type is not DoubleType || args[i].type is not IntType)
-                        throw new ArgumentException($"Type missmatch for \"{tmp[0]}\" \"{args[i].type.typeName}\" \"{tmp[i].type.typeName}\"; On line {line}:{column}");
+                    if(tmp[i].Type is not DoubleType || args[i].Type is not IntType)
+                        throw new ArgumentException($"Type missmatch for \"{tmp[0]}\" \"{args[i].Type.TypeName}\" \"{tmp[i].Type.TypeName}\"; On line {line}:{column}");
                 }
             }
-            this.name = name;
-            this.args = args;
+            this.FunctionName = name;
+            this.Args = args;
         }
     }
 }

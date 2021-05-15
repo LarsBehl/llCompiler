@@ -8,7 +8,7 @@ void *createHeapObject(long size, bool isArray)
 {
     if(!isArray)
     {
-        size = getById_ClassDataList(size, classDataList);
+        size = getById_ClassDataList(size, classDataList)->size;
     }
     
     void *tmp = malloc(size);

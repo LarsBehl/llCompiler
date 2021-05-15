@@ -1,14 +1,14 @@
 using NUnit.Framework;
 using Antlr4.Runtime;
-using ll.AST;
+using LL.AST;
 using System;
 
-namespace ll.test
+namespace LL.Test
 {
     [TestFixture]
     public class TestEqualityExpression
     {
-        BuildAstVisitor visitor = new BuildAstVisitor();
+        BuildAstVisitor visitor = new BuildAstVisitor("UnitTests");
 
         public llParser Setup(string text)
         {
@@ -30,7 +30,7 @@ namespace ll.test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(expected, (result.Eval() as BoolLit).value);
+            Assert.AreEqual(expected, (result.Eval() as BoolLit).Value);
         }
 
         [Test]
@@ -38,9 +38,9 @@ namespace ll.test
         {
             llParser parser = Setup("2==2");
 
-            var result = visitor.Visit(parser.compileUnit());
+            var result = visitor.Visit(parser.compileUnit()) as ProgramNode;
 
-            Assert.AreEqual("ll.AST.EqualityExpr", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.EqualityExpr", result.CompositUnit.GetType().ToString());
         }
 
         [TestCase("(2>1)==5")]

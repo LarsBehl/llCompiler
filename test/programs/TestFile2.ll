@@ -1,9 +1,6 @@
-f(x: int): void
-{
-    print(x);
-}
+load akdhjkashda;
 
 main(): void
 {
-    f(42);
+    print(42);
 }

@@ -1,15 +1,15 @@
 using NUnit.Framework;
 using Antlr4.Runtime;
-using ll.AST;
+using LL.AST;
 using System;
 using System.Globalization;
 
-namespace ll.test
+namespace LL.Test
 {
     [TestFixture]
     public class TestNumericExpression
     {
-        BuildAstVisitor visitor = new BuildAstVisitor();
+        BuildAstVisitor visitor = new BuildAstVisitor("UnitTests");
 
         public llParser Setup(string text)
         {
@@ -29,7 +29,7 @@ namespace ll.test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(Int32.Parse(input), (result.Eval() as IntLit).n);
+            Assert.AreEqual(Int32.Parse(input), (result.Eval() as IntLit).Value);
         }
 
         [Test]
@@ -37,9 +37,9 @@ namespace ll.test
         {
             llParser parser = Setup("10");
 
-            var result = visitor.Visit(parser.compileUnit());
+            var result = visitor.Visit(parser.compileUnit()) as ProgramNode;
 
-            Assert.AreEqual("ll.AST.IntLit", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.IntLit", result.CompositUnit.GetType().ToString());
         }
 
         [TestCase("0.5")]
@@ -52,7 +52,7 @@ namespace ll.test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(Double.Parse(input, new CultureInfo("en-US").NumberFormat), (result.Eval() as DoubleLit).n);
+            Assert.AreEqual(Double.Parse(input, new CultureInfo("en-US").NumberFormat), (result.Eval() as DoubleLit).Value);
         }
 
         [Test]
@@ -60,9 +60,9 @@ namespace ll.test
         {
             llParser parser = Setup("10.0");
 
-            var result = visitor.Visit(parser.compileUnit());
+            var result = visitor.Visit(parser.compileUnit()) as ProgramNode;
 
-            Assert.AreEqual("ll.AST.DoubleLit", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.DoubleLit", result.CompositUnit.GetType().ToString());
         }
     }
 }

@@ -1,8 +1,8 @@
-namespace ll.AST
+namespace LL.AST
 {
     public class ValueAccessExpression : IAST
     {
-        public ValueAccessExpression(type.Type type, int line, int column) : base(type, line, column)
+        public ValueAccessExpression(Types.Type type, int line, int column) : base(type, line, column)
         {
 
         }

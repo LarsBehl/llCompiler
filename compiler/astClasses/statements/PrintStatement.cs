@@ -1,13 +1,14 @@
-using ll.type;
+using LL.Types;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class PrintStatement : IAST
     {
-        public IAST value { get; set; }
+        public IAST Value { get; set; }
+
         public PrintStatement(IAST value, int line, int column) : base(new PrintStatementType(), line, column)
         {
-            this.value = value;
+            this.Value = value;
         }
     }
 }

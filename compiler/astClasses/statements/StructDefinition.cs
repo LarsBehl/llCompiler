@@ -1,17 +1,17 @@
 using System.Collections.Generic;
-using ll.type;
+using LL.Types;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class StructDefinition : IAST
     {
-        public List<StructProperty> properties { get; set; }
-        public string name { get; set; }
+        public List<StructProperty> Properties { get; set; }
+        public string Name { get; set; }
 
         public StructDefinition(string name, List<StructProperty> properties, int line, int column) : base(new StructDefinitionType(), line, column)
         {
-            this.name = name;
-            this.properties = properties;
+            this.Name = name;
+            this.Properties = properties;
         }
 
         public StructDefinition(string name, int line, int column) : this(name, null, line, column)
@@ -25,7 +25,7 @@ namespace ll.AST
         {
             int result = 0;
 
-            foreach (StructProperty structProperty in properties)
+            foreach (StructProperty structProperty in Properties)
                 result += 8;
 
             return result;

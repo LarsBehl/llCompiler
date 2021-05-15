@@ -1,30 +1,31 @@
 using System;
-using ll.type;
+using LL.Types;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class GreaterExpr : BinOp
     {
-        public bool equal { get; set; }
+        public bool Equal { get; set; }
+
         public GreaterExpr(IAST left, IAST right, bool equal, int line, int column) : base(left, right, ">", GetType(left, right, line, column), line, column)
         {
-            this.equal = equal;
+            this.Equal = equal;
         }
 
-        static ll.type.Type GetType(IAST left, IAST right, int line, int column)
+        static LL.Types.Type GetType(IAST left, IAST right, int line, int column)
         {
-            switch (left.type)
+            switch (left.Type)
             {
                 case IntType i:
-                    if (right.type is IntType || right.type is DoubleType)
+                    if (right.Type is IntType || right.Type is DoubleType)
                         return new BooleanType();
-                    throw new ArgumentException($"Can not compare {left.type} to {right.type}; On line {line}:{column}");
+                    throw new ArgumentException($"Can not compare {left.Type} to {right.Type}; On line {line}:{column}");
                 case DoubleType d:
-                    if (right.type is IntType || right.type is DoubleType)
+                    if (right.Type is IntType || right.Type is DoubleType)
                         return new BooleanType();
-                    throw new ArgumentException($"Can not compare {left.type} to {right.type}; On line {line}:{column}");
+                    throw new ArgumentException($"Can not compare {left.Type} to {right.Type}; On line {line}:{column}");
                 default:
-                    throw new ArgumentException($"Can not compare {left.type} to {right.type}; On line {line}:{column}");
+                    throw new ArgumentException($"Can not compare {left.Type} to {right.Type}; On line {line}:{column}");
             }
         }
     }

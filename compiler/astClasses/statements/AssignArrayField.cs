@@ -1,23 +1,23 @@
 using System;
-using ll.type;
+using LL.Types;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class AssignArrayField : IAST
     {
-        public ArrayIndexing arrayIndex { get; set; }
-        public IAST value { get; set; }
+        public ArrayIndexing ArrayIndex { get; set; }
+        public IAST Value { get; set; }
 
-        public AssignArrayField(ArrayIndexing arrayIndexing, IAST value, int line, int column) : base(arrayIndexing.type, line, column)
+        public AssignArrayField(ArrayIndexing arrayIndexing, IAST value, int line, int column) : base(arrayIndexing.Type, line, column)
         {
-            if (arrayIndexing.type != value.type)
+            if (arrayIndexing.Type != value.Type)
             {
-                if(arrayIndexing.type is not DoubleType || value.type is not IntType)
-                    throw new ArgumentException($"Could not assign \"{value.type.typeName}\" to an \"{arrayIndexing.type.typeName}\" array; On line {line}:{column}");
+                if(arrayIndexing.Type is not DoubleType || value.Type is not IntType)
+                    throw new ArgumentException($"Could not assign \"{value.Type.TypeName}\" to an \"{arrayIndexing.Type.TypeName}\" array; On line {line}:{column}");
             }
 
-            this.arrayIndex = arrayIndexing;
-            this.value = value;
+            this.ArrayIndex = arrayIndexing;
+            this.Value = value;
         }
     }
 }

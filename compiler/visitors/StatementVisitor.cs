@@ -1,18 +1,22 @@
 using System;
 using System.Collections.Generic;
-using ll.AST;
-using ll.type;
+using LL.AST;
+using LL.Types;
+using LL.Exceptions;
 
-namespace ll
+namespace LL
 {
     public partial class BuildAstVisitor : llBaseVisitor<IAST>
     {
         public override IAST VisitAssignStatement(llParser.AssignStatementContext context)
         {
             IAST right;
+            string name = context.left.Text;
+            int line = context.Start.Line;
+            int column = context.Start.Column;
 
-            if (!IAST.env.ContainsKey(context.left.Text))
-                throw new ArgumentException($"Unknown variable \"{context.left.Text}\"; On line {context.left.Line}:{context.left.Column}");
+            if (!this.Env.ContainsKey(name))
+                throw new UnknownVariableException(name, this.RootProgram.FileName, line, column);
 
             // check if righthand side of the assignment is an array or an expression
             if (context.expression() != null)
@@ -20,7 +24,7 @@ namespace ll
             else
                 right = Visit(context.refTypeCreation());
 
-            return new AssignStatement(new VarExpr(context.left.Text, context.Start.Line, context.left.StartIndex), right, context.Start.Line, context.Start.Column);
+            return new AssignStatement(new VarExpr(name, this.TryGetType(name, line, column), line, column), right, line, context.Start.Column);
         }
 
         public override IAST VisitBlockStatement(llParser.BlockStatementContext context)
@@ -52,11 +56,14 @@ namespace ll
         public override IAST VisitInitializationStatement(llParser.InitializationStatementContext context)
         {
             IAST variable = Visit(context.type);
+            int line = context.Start.Line;
+            int column = context.Start.Column;
+            string name = context.left.Text;
 
-            if (variable.type is VoidType)
-                throw new ArgumentException($"Type \"{variable.type.typeName}\" not allowed for variables; On line {variable.line}:{variable.column}");
+            if (variable.Type is VoidType)
+                throw new TypeNotAllowedException(variable.Type.ToString(), this.RootProgram.FileName, variable.Line, variable.Column);
 
-            IAST.env[context.left.Text] = variable;
+            this.Env[name] = variable;
 
             IAST val;
             if (context.expression() != null)
@@ -64,25 +71,31 @@ namespace ll
             else
                 val = Visit(context.refTypeCreation());
 
-            if (variable.type != val.type)
+            if (variable.Type != val.Type)
             {
-                if (variable.type is not DoubleType || val.type is not IntType)
-                    throw new ArgumentException($"Type \"{val.type.typeName}\" does not match \"{variable.type.typeName}\"; On line {context.Start.Line}:{context.Start.Column}");
+                if (variable.Type is not DoubleType || val.Type is not IntType)
+                    throw new TypeMissmatchException(variable.Type.ToString(), val.Type.ToString(), this.RootProgram.FileName, line, column);
             }
 
-            return new AssignStatement(new VarExpr(context.left.Text, context.Start.Line, context.left.StartIndex), val, context.Start.Line, context.Start.Column);
+            return new AssignStatement(new VarExpr(name, variable.Type, context.left.Line, context.left.StartIndex), val, line, column);
         }
 
         public override IAST VisitInstantiationStatement(llParser.InstantiationStatementContext context)
         {
             IAST variable = Visit(context.type);
+            string variableName = context.left.Text;
+            int line = context.Start.Line;
+            int column = context.Start.Column;
 
-            if (variable.type is VoidType)
-                throw new ArgumentException($"Type \"{variable.type.typeName}\" is not allowed for variables; On line {variable.line}:{variable.column}");
+            if (variable.Type is VoidType)
+                throw new TypeNotAllowedException(variable.Type.ToString(), this.RootProgram.FileName, variable.Line, variable.Column);
 
-            IAST.env[context.left.Text] = variable;
+            if (this.Env.ContainsKey(variableName))
+                throw new VariableAlreadyDefinedException(variableName, this.RootProgram.FileName, line, column);
 
-            return new InstantiationStatement(context.WORD().GetText(), variable.type, context.Start.Line, context.Start.Column);
+            this.Env[variableName] = variable;
+
+            return new InstantiationStatement(context.WORD().GetText(), variable.Type, line, column);
         }
 
         public override IAST VisitIfStatement(llParser.IfStatementContext context)
@@ -108,34 +121,50 @@ namespace ll
 
         public override IAST VisitAddAssignStatement(llParser.AddAssignStatementContext context)
         {
-            if (!IAST.env.ContainsKey(context.left.Text))
-                throw new ArgumentException($"Unknown variable \"{context.left.Text}\"; On line {context.Start.Line}:{context.Start.Column}");
+            string variableName = context.left.Text;
+            int line = context.Start.Line;
+            int column = context.Start.Column;
 
-            return new AddAssignStatement(new VarExpr(context.left.Text, context.left.Line, context.left.Column), Visit(context.right), context.Start.Line, context.Start.Column);
+            if (!this.Env.ContainsKey(variableName))
+                throw new UnknownVariableException(variableName, this.RootProgram.FileName, line, column);
+
+            return new AddAssignStatement(new VarExpr(variableName, this.TryGetType(variableName, line, column), context.left.Line, context.left.Column), Visit(context.right), line, column);
         }
 
         public override IAST VisitSubAssignStatement(llParser.SubAssignStatementContext context)
         {
-            if (!IAST.env.ContainsKey(context.left.Text))
-                throw new ArgumentException($"Unknown variable \"{context.left.Text}\"; On line {context.Start.Line}:{context.Start.Column}");
+            string variableName = context.left.Text;
+            int line = context.Start.Line;
+            int column = context.Start.Column;
 
-            return new SubAssignStatement(new VarExpr(context.left.Text, context.left.Line, context.left.Column), Visit(context.right), context.Start.Line, context.Start.Column);
+            if (!this.Env.ContainsKey(variableName))
+                throw new UnknownVariableException(variableName, this.RootProgram.FileName, line, column);
+
+            return new SubAssignStatement(new VarExpr(variableName, this.TryGetType(variableName, line, column), context.left.Line, context.left.Column), Visit(context.right), line, column);
         }
 
         public override IAST VisitMultAssignStatement(llParser.MultAssignStatementContext context)
         {
-            if (!IAST.env.ContainsKey(context.left.Text))
-                throw new ArgumentException($"Unknown variable {context.left.Text}; On line {context.Start.Line}:{context.Start.Column}");
+            string variableName = context.left.Text;
+            int line = context.Start.Line;
+            int column = context.Start.Column;
 
-            return new MultAssignStatement(new VarExpr(context.left.Text, context.left.Line, context.left.Column), Visit(context.right), context.Start.Line, context.Start.Column);
+            if (!this.Env.ContainsKey(variableName))
+                throw new UnknownVariableException(variableName, this.RootProgram.FileName, line, column);
+
+            return new MultAssignStatement(new VarExpr(variableName, this.TryGetType(variableName, line, column), context.left.Line, context.left.Column), Visit(context.right), line, column);
         }
 
         public override IAST VisitDivAssignStatement(llParser.DivAssignStatementContext context)
         {
-            if (!IAST.env.ContainsKey(context.left.Text))
-                throw new ArgumentException($"Unknown variable {context.left.Text}; On line {context.Start.Line}:{context.Start.Column}");
+            string variableName = context.left.Text;
+            int line = context.Start.Line;
+            int column = context.Start.Column;
 
-            return new DivAssignStatement(new VarExpr(context.left.Text, context.left.Line, context.left.Column), Visit(context.right), context.Start.Line, context.Start.Column);
+            if (!this.Env.ContainsKey(variableName))
+                throw new UnknownVariableException(variableName, this.RootProgram.FileName, line, column);
+
+            return new DivAssignStatement(new VarExpr(variableName, this.TryGetType(variableName, line, column), context.left.Line, context.left.Column), Visit(context.right), line, column);
         }
 
         public override IAST VisitPrintStatement(llParser.PrintStatementContext context)
@@ -160,12 +189,15 @@ namespace ll
 
         public override IAST VisitRefTypeCreation(llParser.RefTypeCreationContext context)
         {
+            int line = context.Start.Line;
+            int column = context.Start.Column;
+
             if (context.arrayCreation() != null)
                 return new RefTypeCreationStatement(Visit(context.arrayCreation()), context.Start.Line, context.Start.Column);
             if (context.structCreation() != null)
                 return new RefTypeCreationStatement(Visit(context.structCreation()), context.Start.Line, context.Start.Column);
 
-            throw new ArgumentException($"Invalid type for reference type creation; On line {context.Start.Line}:{context.Start.Column}");
+            throw new UnknownTypeException(context.GetText(), this.RootProgram.FileName, line, column);
         }
 
         public override IAST VisitAssignArrayField(llParser.AssignArrayFieldContext context)
@@ -201,6 +233,16 @@ namespace ll
                 val = Visit(context.refTypeCreation());
 
             return new AssignStructProperty(structPropAccess, val, context.Start.Line, context.Start.Column);
+        }
+
+        private LL.Types.Type TryGetType(string varName, int line, int column)
+        {
+            bool success = this.Env.TryGetValue(varName, out IAST @var);
+
+            if (!success)
+                throw new UnknownVariableException(varName, null, line, column);
+
+            return @var.Type;
         }
     }
 }

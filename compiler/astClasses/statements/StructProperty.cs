@@ -1,12 +1,12 @@
-namespace ll.AST
+namespace LL.AST
 {
     public class StructProperty : IAST
     {
-        public string name { get; set; }
+        public string Name { get; set; }
 
-        public StructProperty(string name, ll.type.Type type, int line, int column) : base(type, line, column)
+        public StructProperty(string name, LL.Types.Type type, int line, int column) : base(type, line, column)
         {
-            this.name = name;
+            this.Name = name;
         }
     }
 }

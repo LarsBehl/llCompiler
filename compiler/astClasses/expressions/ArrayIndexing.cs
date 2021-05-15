@@ -1,24 +1,24 @@
 using System;
-using ll.type;
+using LL.Types;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class ArrayIndexing : ValueAccessExpression
     {
-        public IAST left { get; set; }
-        public IAST right { get; set; }
+        public IAST Left { get; set; }
+        public IAST Right { get; set; }
         public ArrayIndexing(IAST array, IAST index, int line, int column) : base(GetType(array, line, column), line, column)
         {
-            if (!(index.type is IntType))
-                throw new ArgumentException($"The index of an array has to be an int; received: {index.type.typeName}; On line {line}:{column}");
+            if (!(index.Type is IntType))
+                throw new ArgumentException($"The index of an array has to be an int; received: {index.Type.TypeName}; On line {line}:{column}");
 
-            this.left = array;
-            this.right = index;
+            this.Left = array;
+            this.Right = index;
         }
 
-        static ll.type.PrimitivType GetType(IAST array, int line, int column)
+        static LL.Types.PrimitivType GetType(IAST array, int line, int column)
         {
-            switch (array.type)
+            switch (array.Type)
             {
                 case IntArrayType iat:
                     return new IntType();
@@ -27,7 +27,7 @@ namespace ll.AST
                 case BoolArrayType bat:
                     return new BooleanType();
                 default:
-                    throw new ArgumentException($"Given object is not an array: {array.type.typeName}; On line {line}:{column}");
+                    throw new ArgumentException($"Given object is not an array: {array.Type.TypeName}; On line {line}:{column}");
             }
         }
     }

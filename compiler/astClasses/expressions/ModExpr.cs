@@ -1,17 +1,17 @@
-using ll.type;
+using LL.Types;
 using System;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class ModExpr : BinOp
     {
         public ModExpr(IAST left, IAST right, int line, int column) : base(left, right, "%", new IntType(), line, column)
         {
-            if (!(left.type is IntType))
-                throw new ArgumentException($"Could not use \"{left.type.typeName}\" with modulo; On line {this.line}:{this.column}");
+            if (!(left.Type is IntType))
+                throw new ArgumentException($"Could not use \"{left.Type.TypeName}\" with modulo; On line {this.Line}:{this.Column}");
 
-            if (!(right.type is IntType))
-                throw new ArgumentException($"Could not use \"{left.type.typeName}\" with modulo; On line {this.line}:{this.column}");
+            if (!(right.Type is IntType))
+                throw new ArgumentException($"Could not use \"{left.Type.TypeName}\" with modulo; On line {this.Line}:{this.Column}");
         }
     }
 }

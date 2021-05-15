@@ -1,28 +1,47 @@
 using NUnit.Framework;
 using Antlr4.Runtime;
-using ll.AST;
+using LL.AST;
 using System.IO;
 using System;
+using LL.Exceptions;
 
-namespace ll.test
+namespace LL.Test
 {
     [TestFixture]
     public class TestFunctions
     {
-        BuildAstVisitor visitor = new BuildAstVisitor();
-        FunctionDefinitionVisitor funDefVisitor = new FunctionDefinitionVisitor();
+        private BuildAstVisitor BuildAstVisitor;
+        private static readonly string PROGRAM_PATH = "./programs/TestFile1.ll";
         bool once = false;
-        bool t3 = false;
+        ProgramNode Prog;
 
-        public llParser Setup(string text)
+        public void Execute(string text)
         {
-            AntlrInputStream inputStream = new AntlrInputStream(text);
-            llLexer lexer = new llLexer(inputStream);
-            CommonTokenStream stream = new CommonTokenStream(lexer);
-
-            return new llParser(stream);
+            llParser parser = new llParser(new CommonTokenStream(new llLexer(new AntlrInputStream(text))));
+            parser.RemoveParseListeners();
+            parser.AddErrorListener(new ErrorListener(PROGRAM_PATH));
+            
+            this.Prog = this.BuildAstVisitor.VisitCompileUnit(parser.compileUnit()) as ProgramNode;
         }
 
+        private void LoadProg()
+        {
+            string content;
+
+            using (StreamReader sr = new StreamReader(PROGRAM_PATH))
+            {
+                content = sr.ReadToEnd();
+            }
+
+            llParser parser = new llParser(new CommonTokenStream(new llLexer(new AntlrInputStream(content))));
+            parser.RemoveErrorListeners();
+            parser.AddErrorListener(new ErrorListener(PROGRAM_PATH));
+
+            this.Prog = new FunctionDefinitionVisitor(PROGRAM_PATH).VisitCompileUnit(parser.compileUnit()) as ProgramNode;
+            parser.Reset();
+            this.BuildAstVisitor = new BuildAstVisitor(this.Prog);
+            this.Prog = this.BuildAstVisitor.VisitCompileUnit(parser.compileUnit()) as ProgramNode;
+        }
 
         [TestCase("aCallsB(3)", 5)]
         [TestCase("id(5)", 5)]
@@ -39,51 +58,34 @@ namespace ll.test
         [TestCase("notEqualsNullArrayNull()", 42)]
         public void TestFunctions_1(string funCall, int expected)
         {
-            llParser parser;
-            if (!once)
+            if(!this.once)
             {
                 this.once = true;
-                StreamReader reader = new StreamReader("../../../programs/TestFile1.ll");
-                try
-                {
-                    string input = reader.ReadToEnd();
-
-                    parser = Setup(input);
-                    funDefVisitor.Visit(parser.program());
-
-                    parser = Setup(input);
-                    visitor.Visit(parser.program());
-                }
-                catch (IOException e)
-                {
-                    Console.WriteLine(e);
-                }
+                this.LoadProg();
             }
 
-            parser = Setup(funCall);
-            var tmp = visitor.Visit(parser.program()).Eval();
-            Assert.AreEqual(expected, (tmp as IntLit).n);
+            this.Execute(funCall);
+            var value = this.Prog.Eval();
+
+            Assert.AreEqual(expected, (value as IntLit).Value);
         }
 
         [Test]
         public void TestFunctions_2()
         {
-            llParser parser;
-            StreamReader reader = new StreamReader("../../../programs/TestFile3.ll");
-            try
+            string filePath = "./programs/TestFile3.ll";
+            string content;
+            using(StreamReader sr = new StreamReader(filePath))
             {
-                string input = reader.ReadToEnd();
-
-                parser = Setup(input);
-                funDefVisitor.Visit(parser.program());
-
-                parser = Setup(input);
-                Assert.Throws<ArgumentException>(() => visitor.Visit(parser.program()));
+                content = sr.ReadToEnd();
             }
-            catch (IOException e)
-            {
-                Console.WriteLine(e);
-            }
+
+            llParser parser = new llParser(new CommonTokenStream(new llLexer(new AntlrInputStream(content))));
+            ProgramNode prog = new FunctionDefinitionVisitor(filePath).VisitCompileUnit(parser.compileUnit()) as ProgramNode;
+            parser.Reset();
+            BuildAstVisitor visitor = new BuildAstVisitor(prog);
+
+            Assert.Throws<MissingReturnStatementException>(() => visitor.Visit(parser.program()));
         }
     }
 }

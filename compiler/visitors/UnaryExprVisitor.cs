@@ -1,15 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using ll.AST;
-using ll.type;
+using LL.AST;
+using LL.Types;
+using LL.Exceptions;
 
-namespace ll
+namespace LL
 {
     public partial class BuildAstVisitor : llBaseVisitor<IAST>
     {
         public override IAST VisitUnaryExpression(llParser.UnaryExpressionContext context)
         {
+            int line = context.Start.Line;
+            int column = context.Start.Column;
+
             if (context.boolExpression() != null)
                 return Visit(context.boolExpression());
             if (context.numericExpression() != null)
@@ -31,11 +35,11 @@ namespace ll
             if (context.arrayIndexing() != null)
                 return Visit(context.arrayIndexing());
             if (context.NULL() != null)
-                return new NullLit(context.Start.Line, context.Start.Column);
+                return new NullLit(line, column);
             if (context.structPropertyAccess() != null)
                 return Visit(context.structPropertyAccess());
 
-            throw new ArgumentException($"Unknown unary type; On line {context.Start.Line}:{context.Start.Column}");
+            throw new NodeNotImplementedException(context.GetText(), this.RootProgram.FileName, line, column);
         }
 
         public override IAST VisitIntegerAtomExpression(llParser.IntegerAtomExpressionContext context)
@@ -56,17 +60,27 @@ namespace ll
 
         public override IAST VisitBoolExpression(llParser.BoolExpressionContext context)
         {
-            if (context.BOOL_FALSE() != null)
-                return new BoolLit(false, context.Start.Line, context.Start.Column);
-            if (context.BOOL_TRUE() != null)
-                return new BoolLit(true, context.Start.Line, context.Start.Column);
+            int line = context.Start.Line;
+            int column = context.Start.Column;
 
-            throw new ArgumentException($"Unsupportet value for bool; On line {context.Start.Line}:{context.Start.Column}");
+            if (context.BOOL_FALSE() != null)
+                return new BoolLit(false, line, column);
+            if (context.BOOL_TRUE() != null)
+                return new BoolLit(true, line, column);
+
+            throw new NodeNotImplementedException(context.GetText(), this.RootProgram.FileName, line, column);
         }
 
         public override IAST VisitFunctionCall(llParser.FunctionCallContext context)
         {
+            string name = context.name.Text;
+            int line = context.Start.Line;
+            int column = context.Start.Column;
             var tmp = context.expression();
+
+            if (!this.RootProgram.IsFunctionCallable(name))
+                throw new UnknownFunctionException(name, this.RootProgram.FileName, line, column);
+
             List<IAST> args = new List<IAST>();
 
             foreach (var arg in tmp)
@@ -74,7 +88,7 @@ namespace ll
                 args.Add(Visit(arg));
             }
 
-            return new FunctionCall(context.name.Text, args, context.Start.Line, context.Start.Column);
+            return new FunctionCall(this.RootProgram.GetFunctionDefinition(name), name, args, line, column);
         }
 
         public override IAST VisitIncrementPostExpression(llParser.IncrementPostExpressionContext context)
@@ -135,7 +149,7 @@ namespace ll
             if (context.structPropertyAccess() != null)
                 return Visit(context.structPropertyAccess());
 
-            throw new ArgumentException($"Unknown value access; On line {context.Start.Line}:{context.Start.Column}");
+            throw new NodeNotImplementedException(context.GetText(), this.RootProgram.FileName, context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitNotExpression(llParser.NotExpressionContext context)
@@ -145,24 +159,31 @@ namespace ll
 
         public override IAST VisitVariableExpression(llParser.VariableExpressionContext context)
         {
-            type.Type type = null;
+            Types.Type type = null;
+            int line = context.Start.Line;
+            int column = context.Start.Column;
+            string variableName = context.WORD().GetText();
 
             if (sR != null)
             {
-                try
-                {
-                    // search in the current struct for the accessed property and the assosiated type
-                    type = IAST.structs[(sR.type as StructType).structName].properties.Find(s => s.name == context.WORD().GetText()).type;
-                }
-                catch
-                {
-                    throw new ArgumentException($"Unknown struct property {context.WORD().GetText()}; On line {context.Start.Line}:{context.Start.Column}");
-                }
+                string structName = (sR.Type as StructType).StructName;
 
-                return new VarExpr(context.WORD().GetText(), type, context.Start.Line, context.Start.Column);
+                // search for the struct definition
+                StructDefinition definition = this.RootProgram.GetStructDefinition(structName);
+                if(definition is null)
+                    throw new UnknownTypeException(structName, this.RootProgram.FileName, line, column);
+
+                // search for the property in the struct
+                IAST prop = definition.Properties.Find(s => s.Name == variableName);
+                if (prop is null)
+                    throw new UnknownVariableException($"{structName}.{variableName}", this.RootProgram.FileName, line, column);
+
+                type = prop.Type;
+
+                return new VarExpr(variableName, type, line, column);
             }
 
-            return new VarExpr(context.WORD().GetText(), context.Start.Line, context.Start.Column);
+            return new VarExpr(variableName, this.TryGetType(variableName, line, column), line, column);
         }
     }
 }

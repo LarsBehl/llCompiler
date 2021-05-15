@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using Antlr4.Runtime;
-using ll;
-using ll.AST;
+using LL;
+using LL.AST;
 using System;
 
 namespace test
@@ -9,7 +9,7 @@ namespace test
     [TestFixture]
     public class TestAddSubExpression
     {
-        BuildAstVisitor visitor = new BuildAstVisitor();
+        BuildAstVisitor visitor = new BuildAstVisitor("UnitTests");
 
         public llParser Setup(string text)
         {
@@ -29,7 +29,7 @@ namespace test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(expected, (result.Eval() as IntLit).n);
+            Assert.AreEqual(expected, (result.Eval() as IntLit).Value);
         }
 
         [TestCase("1.0+1.0", 2.0)]
@@ -42,7 +42,7 @@ namespace test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(expected, (result.Eval() as DoubleLit).n);
+            Assert.AreEqual(expected, (result.Eval() as DoubleLit).Value);
         }
 
         [Test]
@@ -50,9 +50,9 @@ namespace test
         {
             llParser parser = Setup("1+1");
 
-            var result = visitor.Visit(parser.compileUnit());
+            var result = visitor.Visit(parser.compileUnit()) as ProgramNode;
 
-            Assert.AreEqual("ll.AST.AddExpr", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.AddExpr", result.CompositUnit.GetType().ToString());
         }
 
         [TestCase("(5==3)+2")]
@@ -74,7 +74,7 @@ namespace test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(expected, (result.Eval() as IntLit).n);
+            Assert.AreEqual(expected, (result.Eval() as IntLit).Value);
         }
 
         [TestCase("1.0-1.0", 0.0)]
@@ -84,7 +84,7 @@ namespace test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(expected, (result.Eval() as DoubleLit).n);
+            Assert.AreEqual(expected, (result.Eval() as DoubleLit).Value);
         }
 
         [Test]
@@ -92,9 +92,9 @@ namespace test
         {
             llParser parser = Setup("1-1");
 
-            var result = visitor.Visit(parser.compileUnit());
+            var result = visitor.Visit(parser.compileUnit()) as ProgramNode;
 
-            Assert.AreEqual("ll.AST.SubExpr", result.GetType().ToString());
+            Assert.AreEqual("LL.AST.SubExpr", result.CompositUnit.GetType().ToString());
         }
 
         [TestCase("(5==3)-2")]

@@ -1,7 +1,7 @@
 using NUnit.Framework;
 using Antlr4.Runtime;
-using ll;
-using ll.AST;
+using LL;
+using LL.AST;
 using System;
 
 namespace test
@@ -9,7 +9,7 @@ namespace test
     [TestFixture]
     public class TestModExpr
     {
-        BuildAstVisitor visitor = new BuildAstVisitor();
+        BuildAstVisitor visitor = new BuildAstVisitor("UnitTests");
 
         public llParser Setup(string text)
         {
@@ -28,7 +28,7 @@ namespace test
 
             var result = visitor.Visit(parser.compileUnit());
 
-            Assert.AreEqual(expected, (result.Eval() as IntLit).n);
+            Assert.AreEqual(expected, (result.Eval() as IntLit).Value);
         }
     }
 }

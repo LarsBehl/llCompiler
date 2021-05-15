@@ -1,23 +1,30 @@
 ﻿using System;
 using System.IO;
-using Antlr4.Runtime;
-using ll.AST;
-using ll.assembler;
+using System.Collections.Generic;
 
-namespace ll
+using Antlr4.Runtime;
+
+using LL.AST;
+using LL.CodeGeneration;
+using LL.Exceptions;
+using LL.Helper;
+
+namespace LL
 {
     class Program
     {
         static void InterpreterMode()
         {
             Console.WriteLine("Running in Interpreter Mode\n");
+            string file = "InterpreterMode";
+            ProgramNode rootProg = null;
 
             while (true)
             {
                 Console.Write("> ");
                 string text = Console.ReadLine();
 
-                if(text == "?")
+                if (text == "?")
                 {
                     Console.WriteLine("Available commands:");
                     Console.WriteLine("  \":fs\": Get all defined functions");
@@ -27,49 +34,40 @@ namespace ll
 
                 if (text == ":fs")
                 {
-                    foreach (FunctionDefinition funDef in IAST.funs.Values)
-                        Console.WriteLine(funDef.name);
+                    foreach (FunctionDefinition funDef in rootProg?.FunDefs.Values)
+                        Console.WriteLine(funDef.Name);
                     continue;
                 }
 
                 if (text == ":sts")
                 {
-                    foreach (StructDefinition structDef in IAST.structs.Values)
-                        Console.WriteLine(structDef.name);
+                    foreach (StructDefinition structDef in rootProg?.StructDefs.Values)
+                        Console.WriteLine(structDef.Name);
                     continue;
                 }
 
                 if (string.IsNullOrEmpty(text))
                     break;
 
-                var inputStream = new AntlrInputStream(text);
-                var lexer = new llLexer(inputStream);
-                var tokenStream = new CommonTokenStream(lexer);
-                var parser = new llParser(tokenStream);
-                var tmp = new StructDefinitionVisitor().VisitCompileUnit(parser.compileUnit());
+                rootProg = CompileContent(text, file, rootProg) as ProgramNode;
 
-                inputStream = new AntlrInputStream(text);
-                lexer = new llLexer(inputStream);
-                tokenStream = new CommonTokenStream(lexer);
-                parser = new llParser(tokenStream);
-                tmp = new FunctionDefinitionVisitor().VisitCompileUnit(parser.compileUnit());
+                if (rootProg is null)
+                    continue;
 
-                inputStream = new AntlrInputStream(text);
-                lexer = new llLexer(inputStream);
-                tokenStream = new CommonTokenStream(lexer);
-                parser = new llParser(tokenStream);
-                var ast = new BuildAstVisitor().VisitCompileUnit(parser.compileUnit());
-                var value = ast.Eval();
+                var value = rootProg.Eval();
 
-                if (value != null)
-                    Console.WriteLine("= {0}", value.ToString());
+                if (value is not null)
+                    Console.WriteLine($"= {value.ToString()}");
 
+                rootProg.CompositUnit = null;
                 Console.WriteLine();
             }
         }
 
         static void InteractiveCompilerMode()
         {
+            string file = "InteractiveCompilerMode";
+            
             Console.WriteLine("Running in interactive Compilermode\n");
             while (true)
             {
@@ -79,24 +77,14 @@ namespace ll
                 if (string.IsNullOrEmpty(text))
                     break;
 
-                var inputStream = new AntlrInputStream(text);
-                var lexer = new llLexer(inputStream);
-                var tokenStream = new CommonTokenStream(lexer);
-                var parser = new llParser(tokenStream);
-                var tmp = new StructDefinitionVisitor().VisitCompileUnit(parser.compileUnit());
 
-                inputStream = new AntlrInputStream(text);
-                lexer = new llLexer(inputStream);
-                tokenStream = new CommonTokenStream(lexer);
-                parser = new llParser(tokenStream);
-                tmp = new FunctionDefinitionVisitor().VisitCompileUnit(parser.compileUnit());
+                ProgramNode ast = CompilationHelper.CompileContent(text);
 
-                inputStream = new AntlrInputStream(text);
-                lexer = new llLexer(inputStream);
-                tokenStream = new CommonTokenStream(lexer);
-                parser = new llParser(tokenStream);
-                var ast = new BuildAstVisitor().VisitCompileUnit(parser.compileUnit());
-                var assemblerGenerator = new AssemblerGenerator();
+                // prevent nullpointer
+                if (ast is null)
+                    continue;
+
+                var assemblerGenerator = new AssemblerGenerator(file);
                 assemblerGenerator.GenerateAssember(ast);
                 assemblerGenerator.PrintAssember();
             }
@@ -106,26 +94,55 @@ namespace ll
         {
             Console.WriteLine($"Compiling {inputFile}...");
 
-            var inputStream = new AntlrFileStream(inputFile);
-            var lexer = new llLexer(inputStream);
-            var tokenStream = new CommonTokenStream(lexer);
-            var parser = new llParser(tokenStream);
-            var tmp = new StructDefinitionVisitor().VisitCompileUnit(parser.compileUnit());
+            ProgramNode ast = CompilationHelper.CompileFile(inputFile);
+            // prevent nullpointer
+            if (ast is null)
+                Environment.Exit(-1);
 
-            inputStream = new AntlrFileStream(inputFile);
-            lexer = new llLexer(inputStream);
-            tokenStream = new CommonTokenStream(lexer);
-            parser = new llParser(tokenStream);
-            tmp = new FunctionDefinitionVisitor().Visit(parser.compileUnit());
+            RunCodeGeneration(ast, inputFile);
+        }
 
-            inputStream = new AntlrFileStream(inputFile);
-            lexer = new llLexer(inputStream);
-            tokenStream = new CommonTokenStream(lexer);
-            parser = new llParser(tokenStream);
-            var ast = new BuildAstVisitor().Visit(parser.compileUnit());
-            var assemblerGenerator = new AssemblerGenerator();
+        private static void RunCodeGeneration(ProgramNode prog, string filePath)
+        {
+            AssemblerGenerator generator = new AssemblerGenerator(filePath);
+            generator.WriteToFile(filePath, prog);
 
-            assemblerGenerator.WriteToFile(inputFile, ast);
+            foreach(LoadStatement dep in prog.Dependencies?.Values)
+            {
+                RunCodeGeneration(dep.Program, dep.Location);
+            }
+        }
+
+        private static IAST CompileContent(string content, string fileName, ProgramNode rootProgram)
+        {
+            IAST ast = null;
+            try
+            {
+                // setup the needed environment
+                llParser parser = new llParser(new CommonTokenStream(new llLexer(new AntlrInputStream(content))));
+                parser.RemoveErrorListeners();
+                parser.AddErrorListener(new ErrorListener(fileName));
+
+                // parse the struct definitions and the load statements
+                ProgramNode prog = new StructDefinitionVisitor(fileName, rootProgram).VisitCompileUnit(parser.compileUnit()) as ProgramNode;
+
+                // parse the function definitions
+                parser.Reset();
+                prog = new FunctionDefinitionVisitor(fileName, prog).VisitCompileUnit(parser.compileUnit()) as ProgramNode;
+
+                // parse the complete program
+                parser.Reset();
+                ast = new BuildAstVisitor(prog).VisitCompileUnit(parser.compileUnit());
+            }
+            catch (BaseCompilerException e)
+            {
+                CompilationHelper.PrintError(e);
+                Console.WriteLine();
+
+                return rootProgram;
+            }
+
+            return ast;
         }
 
         static void RTFM()

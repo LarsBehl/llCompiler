@@ -1,19 +1,19 @@
-using ll.type;
+using LL.Types;
 
-namespace ll.AST
+namespace LL.AST
 {
     public class BoolLit : IAST
     {
-        public bool? value { get; set; }
+        public bool? Value { get; set; }
 
         public BoolLit(bool? value, int line, int column) : base(new BooleanType(), line, column)
         {
-            this.value = value;
+            this.Value = value;
         }
 
         public override string ToString()
         {
-            return value.ToString();
+            return Value.ToString();
         }
     }
 }
