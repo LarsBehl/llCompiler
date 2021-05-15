@@ -126,7 +126,7 @@ namespace LL
 
                 // store them for later use
                 foreach (string dir in dirs)
-                    Directories.Append(dir);
+                    Directories.Enqueue(dir);
 
                 // check whether the file is in the list or not
                 location = FindFile(files, fileName);

@@ -56,12 +56,13 @@ function linkTest() {
     printMessage -message "Linking tests"
     Write-Host "cp $($runtimeLocation)/bin/libLL.a $($testLocation)/bin/"
     Copy-Item "$($runtimeLocation)/bin/libLL.a" -Destination "$($testLocation)/bin/"
-    printAndRun -command "wsl gcc -o $($testLocation)/bin/testCodeGen $($testLocation)/bin/testCodeGenV1Prog.o -LtestGeneratedCode/bin -lLL"
+    printAndRun -command "wsl gcc -o $($testLocation)/bin/testCodeGen $($testLocation)/bin/testCodeGenV1Prog.o $($testLocation)/bin/testBinOps.o -LtestGeneratedCode/bin -lLL"
 }
 
 function compileAssember() {
     printMessage -message "Compiling tests"
     printAndRun -command "wsl gcc -c -g $($testLocation)/bin/testCodeGenV1Prog.S -o $($testLocation)/bin/testCodeGenV1Prog.o"
+    printAndRun -command "wsl gcc -c -g $($testLocation)/bin/testBinOps.S -o $($testLocation)/bin/testBinOps.o" 
 }
 
 function packageRuntime() {
@@ -91,7 +92,7 @@ function compileTest() {
     }
 
     printAndRun -command "$($testLocation)/llCompiler.exe -c $($testLocation)/programs/testCodeGenV1Prog.ll"
-    Move-Item "$($testLocation)/programs/testCodeGenV1Prog.S" -Destination "$($testLocation)/bin/testCodeGenV1Prog.S" -Force
+    Move-Item "$($testLocation)/programs/*.S" -Destination "$($testLocation)/bin/" -Force
 }
 
 function test() {
