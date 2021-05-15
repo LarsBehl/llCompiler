@@ -86,7 +86,7 @@ namespace LL
 
                 // safe them on the stack, maybe they are needed later on
                 foreach (string dir in dirs)
-                    this.Directories.Append(dir);
+                    this.Directories.Enqueue(dir);
 
                 // add all files in the current directory to the list of files
                 this.Files.AddRange(Directory.GetFiles(Environment.CurrentDirectory));

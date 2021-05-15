@@ -17,4 +17,7 @@
     <ProjectReference Include="..\compiler\llCompiler.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="./programs/*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

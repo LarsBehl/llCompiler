@@ -11,7 +11,7 @@ namespace LL.Test
     public class TestFunctions
     {
         private BuildAstVisitor BuildAstVisitor;
-        private static readonly string PROGRAM_PATH = "../../../programs/TestFile1.ll";
+        private static readonly string PROGRAM_PATH = "./programs/TestFile1.ll";
         bool once = false;
         ProgramNode Prog;
 
@@ -73,7 +73,7 @@ namespace LL.Test
         [Test]
         public void TestFunctions_2()
         {
-            string filePath = "../../../programs/TestFile3.ll";
+            string filePath = "./programs/TestFile3.ll";
             string content;
             using(StreamReader sr = new StreamReader(filePath))
             {

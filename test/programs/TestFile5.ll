@@ -1,4 +1,4 @@
-load akdhjkashda;
+load TestFile4;
 
 main(): void
 {
