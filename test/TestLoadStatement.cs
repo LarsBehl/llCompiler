@@ -15,6 +15,8 @@ namespace LL.Test
         private static readonly string FUNCTION_CONFLICT = "./programs/TestFile5.ll";
         private static readonly string STRUCT_CONFLICT = "./programs/TestFile6.ll";
         private static readonly string DEEP_DEPENDENCY = "./programs/TestFile7.ll";
+        private static readonly string FUNCTION_NOT_REACHABLE = "./programs/TestFile8.ll";
+        private static readonly string STRUCT_DEEP = "./programs/TestFile9.ll";
 
         private llParser Setup(string filePath)
         {
@@ -94,6 +96,38 @@ namespace LL.Test
             
             foreach(LoadStatement dep in prog.Dependencies.Values)
                 Assert.NotNull(dep.Program);
+        }
+
+        [Test]
+        public void TestLoadStatement6()
+        {
+            llParser parser = this.Setup(FUNCTION_NOT_REACHABLE);
+            ProgramNode prog = new StructDefinitionVisitor(FUNCTION_NOT_REACHABLE).VisitCompileUnit(parser.compileUnit()) as ProgramNode;
+            
+            parser.Reset();
+            prog = new FunctionDefinitionVisitor(FUNCTION_NOT_REACHABLE, prog).VisitCompileUnit(parser.compileUnit()) as ProgramNode;
+
+            parser.Reset();
+            BuildAstVisitor visitor = new BuildAstVisitor(prog);
+
+            Assert.Throws<UnknownFunctionException>(() => visitor.VisitCompileUnit(parser.compileUnit()));
+        }
+
+        [Test]
+        public void TestLoadStatement7()
+        {
+            llParser parser = this.Setup(STRUCT_DEEP);
+            ProgramNode prog = new StructDefinitionVisitor(STRUCT_DEEP).VisitCompileUnit(parser.compileUnit()) as ProgramNode;
+
+            parser.Reset();
+            prog = new FunctionDefinitionVisitor(STRUCT_DEEP, prog).VisitCompileUnit(parser.compileUnit()) as ProgramNode;
+
+            parser.Reset();
+            prog = new BuildAstVisitor(prog).VisitCompileUnit(parser.compileUnit()) as ProgramNode;
+
+            Assert.NotNull(prog);
+            Assert.NotNull(prog.FunDefs);
+            Assert.IsEmpty(prog.StructDefs);
         }
     }
 }
