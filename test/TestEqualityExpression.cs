@@ -3,7 +3,7 @@ using Antlr4.Runtime;
 using LL.AST;
 using System;
 
-namespace LL.test
+namespace LL.Test
 {
     [TestFixture]
     public class TestEqualityExpression

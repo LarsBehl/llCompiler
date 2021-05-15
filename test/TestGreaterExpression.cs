@@ -2,7 +2,7 @@ using NUnit.Framework;
 using Antlr4.Runtime;
 using LL.AST;
 
-namespace LL.test
+namespace LL.Test
 {
     [TestFixture]
     public class TestGreaterExpression

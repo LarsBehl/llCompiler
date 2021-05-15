@@ -5,7 +5,7 @@ using System.IO;
 using System;
 using LL.Exceptions;
 
-namespace LL.test
+namespace LL.Test
 {
     [TestFixture]
     public class TestFunctions

@@ -4,7 +4,7 @@ using LL.AST;
 using System;
 using System.Globalization;
 
-namespace LL.test
+namespace LL.Test
 {
     [TestFixture]
     public class TestNumericExpression
