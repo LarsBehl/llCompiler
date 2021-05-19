@@ -15,7 +15,6 @@ namespace LL.AST
         public FunctionDefinition(
             string name,
             List<InstantiationStatement> args,
-            IAST body,
             Dictionary<string, IAST> functionEnv,
             Types.Type returnType,
             int line,
@@ -24,7 +23,7 @@ namespace LL.AST
         {
             this.Name = name;
             this.Args = args;
-            this.Body = body;
+            this.Body = null;
             this.FunctionEnv = functionEnv;
             this.ReturnType = returnType;
 
