@@ -2,7 +2,7 @@ namespace LL.Types
 {
     public class BoolArrayType : ArrayType
     {
-        public BoolArrayType() : base("boolArrayType")
+        public BoolArrayType() : base("bool")
         {
 
         }

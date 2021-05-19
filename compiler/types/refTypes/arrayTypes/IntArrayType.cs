@@ -2,7 +2,7 @@ namespace LL.Types
 {
     public class IntArrayType : ArrayType
     {
-        public IntArrayType() : base("IntArrayType")
+        public IntArrayType() : base("int")
         {
 
         }

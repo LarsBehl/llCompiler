@@ -2,7 +2,7 @@ namespace LL.Types
 {
     public class VoidType : PrimitivType
     {
-        public VoidType(): base("VoidType")
+        public VoidType(): base("void")
         {
             
         }
