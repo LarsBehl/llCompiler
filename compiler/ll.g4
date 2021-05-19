@@ -5,7 +5,7 @@ grammar ll;
 
 compileUnit: program EOF;
 
-program: (loadStatement* (functionDefinition | structDefinition)+)
+program: (loadStatement* functionPrototype* (functionDefinition | structDefinition)+)
 	| compositUnit;
 
 compositUnit: statement | expression;
@@ -128,6 +128,13 @@ structCreation: structName PAR_L PAR_R;
 structPropertyAccess: variableExpression DOT valueAccess;
 
 loadStatement: LOAD fileName = WORD SEMCOL;
+
+functionPrototype:
+	name = WORD PAR_L (
+		WORD COLON typeDefinition (
+			COMMA WORD COLON typeDefinition
+		)*
+	)? PAR_R COLON typeDefinition SEMCOL;
 
 valueAccess:
 	variableExpression
