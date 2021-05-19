@@ -35,5 +35,14 @@ namespace LL.AST
         {
             return FunctionEnv.Count - Args.Count;
         }
+
+        /// <summary>
+        /// Checks whether or not the function definition is only a prototype
+        /// </summary>
+        /// <return>True if the definition is a prototype, false otherwise</return>
+        public bool isPrototype()
+        {
+            return this.Body is null;
+        }
     }
 }

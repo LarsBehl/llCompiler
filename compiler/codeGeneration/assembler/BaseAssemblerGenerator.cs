@@ -206,6 +206,9 @@ namespace LL.CodeGeneration
 
         private void FunctionDefinitionAsm(FunctionDefinition funDef)
         {
+            // if FunctionDefinition is only prototype, nothing todo -> return
+            if(funDef.isPrototype())
+                return;
             FunctionAsm funAsm;
 
             if (this.FunctionMap.ContainsKey(funDef.Name))
@@ -437,12 +440,12 @@ namespace LL.CodeGeneration
             rightPart = Convert.ToInt32(tmp.Substring(32, 32), 2).ToString();
         }
 
-        /**
-        * <summary> Calulates wether there are enought registers for the parameters, or not.
-        * If there are not enought registers of one of the two types (integer/boolean, double),
-        * the position in the parameter list where the overflow happend is returned in the
-        * coresponding integer argument </summary> 
-        */
+        /// <summary>
+        /// Calulates wether there are enought registers for the parameters, or not.
+        /// If there are not enought registers of one of the two types (integer/boolean, double),
+        /// the position in the parameter list where the overflow happend is returned in the
+        /// coresponding integer argument
+        /// </summary>
         private bool DoesOverflowRegisters(List<IAST> args, out int integerOverflowPosition, out int doubleOverflowPosition)
         {
             bool result = false;
