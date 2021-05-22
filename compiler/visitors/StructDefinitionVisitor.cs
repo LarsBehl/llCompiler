@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 using Antlr4.Runtime.Misc;
 
@@ -16,7 +15,6 @@ namespace LL
     {
         private Queue<string> Directories;
         private List<string> Files;
-        private static readonly string FILE_ENDING = "ll";
         private string CurrentFile;
         public ProgramNode RootProgram { get; set; }
 
@@ -145,7 +143,7 @@ namespace LL
                 string fName = filePath.Substring(lastSlash + 1);
                 string[] parts = fName.Split('.', StringSplitOptions.RemoveEmptyEntries);
 
-                return parts[0] == fileName && parts[1] == FILE_ENDING;
+                return parts[0] == fileName && (parts[1] == Constants.SOURCE_FILE_ENDING || parts[1] == Constants.HEADER_FILE_ENDING);
             });
         }
 

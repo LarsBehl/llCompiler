@@ -1,17 +1,18 @@
 using System;
+using System.IO;
 using System.Text;
 using System.Collections.Generic;
-using LL.AST;
-using LL.Types;
-using LL.Exceptions;
 using System.Runtime.InteropServices;
-using System.IO;
+
+using LL.AST;
+using LL.Exceptions;
+using LL.Helper;
+using LL.Types;
 
 namespace LL.CodeGeneration
 {
     public partial class AssemblerGenerator
     {
-        private string Indent = "    ";
         private int Depth = 0;
         private StringBuilder Sb = new StringBuilder();
         private StringBuilder DoubleNumbers = new StringBuilder();
@@ -196,7 +197,7 @@ namespace LL.CodeGeneration
             if (this.Strings.Length > 0)
                 fileContent = fileContent + this.Strings.ToString();
 
-            fileName = filePath.Substring(0, filePath.IndexOf(".ll")) + ".S";
+            fileName = filePath.Substring(0, filePath.IndexOf($".{Constants.SOURCE_FILE_ENDING}")) + ".S";
 
             using (StreamWriter sw = File.CreateText(fileName))
             {
@@ -319,10 +320,10 @@ namespace LL.CodeGeneration
 
             this.StructIdMap[structDef.Name] = id;
 
-            this.StructDefinitionBuilder.AppendLine($"{this.Indent}movq ${id}, {this.IntegerRegisters[0]}");
-            this.StructDefinitionBuilder.AppendLine($"{this.Indent}movq ${structDef.GetSize()}, {this.IntegerRegisters[1]}");
+            this.StructDefinitionBuilder.AppendLine($"{Constants.INDENTATION}movq ${id}, {this.IntegerRegisters[0]}");
+            this.StructDefinitionBuilder.AppendLine($"{Constants.INDENTATION}movq ${structDef.GetSize()}, {this.IntegerRegisters[1]}");
 
-            this.StructDefinitionBuilder.AppendLine($"{this.Indent}call registerClass@PLT");
+            this.StructDefinitionBuilder.AppendLine($"{Constants.INDENTATION}call registerClass@PLT");
         }
 
         private void InitializeRuntime()
@@ -348,7 +349,7 @@ namespace LL.CodeGeneration
         private void WriteLine(string op)
         {
             for (int i = 0; i < this.Depth; i++)
-                this.Sb.Append(this.Indent);
+                this.Sb.Append(Constants.INDENTATION);
 
             var indexOfSpace = op.IndexOf(' ');
 
@@ -394,9 +395,9 @@ namespace LL.CodeGeneration
             // where each of them represents 32bit of the IEEE754 representation
             this.DoubleToAssemblerString(doubleLit, out string second, out string first);
             // write the two values
-            this.DoubleNumbers.Append($"{Indent}.long {first}\n");
-            this.DoubleNumbers.Append($"{Indent}.long {second}\n");
-            this.DoubleNumbers.Append($"{Indent}.align 8\n");
+            this.DoubleNumbers.Append($"{Constants.INDENTATION}.long {first}\n");
+            this.DoubleNumbers.Append($"{Constants.INDENTATION}.long {second}\n");
+            this.DoubleNumbers.Append($"{Constants.INDENTATION}.align 8\n");
             // remember which label corresponds to the given double value
             this.DoubleMap.Add(doubleLit.Value ?? 0, this.DoubleNumbersLabelCount);
             this.DoubleNumbersLabelCount += 1;
@@ -426,7 +427,7 @@ namespace LL.CodeGeneration
                     throw new TypeNotAllowedException(value.Type.ToString(), this.CurrentFile, value.Line, value.Column);
             }
             this.StringLabelMap[type] = this.StringLabelCount++;
-            this.Strings.Append($"{this.Indent}.string \"{stringVal}\"\n");
+            this.Strings.Append($"{Constants.INDENTATION}.string \"{stringVal}\"\n");
         }
 
         private void DoubleToAssemblerString(DoubleLit doubleLit, out string leftPart, out string rightPart)
