@@ -111,6 +111,7 @@ namespace LL
             RunHeaderGeneration(ast);
         }
 
+        // TODO change order -> struct definitions need to be passed to the runtime
         private static void RunCodeGeneration(ProgramNode prog, string filePath)
         {
             AssemblerGenerator generator = new AssemblerGenerator(filePath);

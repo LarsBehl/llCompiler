@@ -13,6 +13,7 @@ namespace LL.CodeGeneration
 {
     public partial class AssemblerGenerator
     {
+        // TODO change properties so that struct definitions declared in other files also get passed to the runtime
         private int Depth = 0;
         private StringBuilder Sb = new StringBuilder();
         private StringBuilder DoubleNumbers = new StringBuilder();

@@ -91,6 +91,13 @@ function compileTest() {
         New-Item -ItemType Directory -Force -Path "$($testLocation)/bin"
     }
 
+    if(!(Test-Path "$($testLocation)/bin/testId.o")) {
+        printAndRun -command "$($testLocation)/llCompiler.exe -c $($testLocation)/programs/testId.ll"
+        Move-Item "$($testLocation)/programs/testId.S" -Destination "$($testLocation)/bin/" -Force
+        printAndRun -command "$($testLocation)/llCompiler.exe -h $($testLocation)/programs/testId.ll"
+        Move-Item "$($testLocation)/programs/testId.ll" -Destination "$($testLocation)/programs/testId.bak"
+    }
+
     printAndRun -command "$($testLocation)/llCompiler.exe -c $($testLocation)/programs/testCodeGenV1Prog.ll"
     Move-Item "$($testLocation)/programs/*.S" -Destination "$($testLocation)/bin/" -Force
 }

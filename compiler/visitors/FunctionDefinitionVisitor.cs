@@ -8,6 +8,7 @@ using LL.Exceptions;
 
 namespace LL
 {
+    // TODO protect the user from declaring a 'main()' function as prototype
     public class FunctionDefinitionVisitor : llBaseVisitor<IAST>
     {
         private string CurrentFile;
