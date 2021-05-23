@@ -1,32 +1,31 @@
 using System;
+using System.IO;
 using System.Text;
 using System.Collections.Generic;
-using LL.AST;
-using LL.Types;
-using LL.Exceptions;
 using System.Runtime.InteropServices;
-using System.IO;
+
+using LL.AST;
+using LL.Exceptions;
+using LL.Helper;
+using LL.Types;
 
 namespace LL.CodeGeneration
 {
     public partial class AssemblerGenerator
     {
-        private string Indent = "    ";
         private int Depth = 0;
         private StringBuilder Sb = new StringBuilder();
         private StringBuilder DoubleNumbers = new StringBuilder();
         private StringBuilder Strings = new StringBuilder();
-        private StringBuilder StructDefinitionBuilder = new StringBuilder();
+        private static StringBuilder StructDefinitionBuilder = new StringBuilder();
         private int LabelCount = 0;
         private int DoubleNumbersLabelCount = 0;
         private int StringLabelCount = 0;
-        private string[] IntegerRegisters = { "%rdi", "%rsi", "%rdx", "%rcx", "%r8", "%r9" };
-        private string[] DoubleRegisters = { "%xmm0", "%xmm1", "%xmm2", "%xmm3", "%xmm4", "%xmm5", "%xmm6", "%xmm7" };
         private Dictionary<string, FunctionAsm> FunctionMap = new Dictionary<string, FunctionAsm>();
         private Dictionary<double, int> DoubleMap = new Dictionary<double, int>();
         private Dictionary<string, int> VariableMap;
         private Dictionary<string, int> StringLabelMap = new Dictionary<string, int>();
-        private Dictionary<string, int> StructIdMap = new Dictionary<string, int>();
+        private static Dictionary<string, int> StructIdMap = new Dictionary<string, int>();
         private int LocalVariablePointer = 0;
         private int LocalVariableCount = 0;
         private int StackCounter = 0;
@@ -166,46 +165,56 @@ namespace LL.CodeGeneration
 
         public void WriteToFile(string filePath, IAST astNode)
         {
+            this.RootProg = astNode as ProgramNode;
             int indexOfSlash;
             string fileName;
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                indexOfSlash = filePath.LastIndexOf('\\');
-            else
-                indexOfSlash = filePath.LastIndexOf('/');
+            if (!this.RootProg.IsHeader)
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    indexOfSlash = filePath.LastIndexOf('\\');
+                else
+                    indexOfSlash = filePath.LastIndexOf('/');
 
-            if (indexOfSlash == -1)
-                fileName = filePath;
-            else
-                fileName = filePath.Substring(indexOfSlash + 1, filePath.Length - (indexOfSlash + 1));
-            this.InitializeFile(fileName);
+                if (indexOfSlash == -1)
+                    fileName = filePath;
+                else
+                    fileName = filePath.Substring(indexOfSlash + 1, filePath.Length - (indexOfSlash + 1));
+                this.InitializeFile(fileName);
+            }
 
             try
             {
                 this.GetAssember(astNode);
             }
-            catch(CodeAlreadyGeneratedException) // no need to do anything
+            catch (CodeAlreadyGeneratedException) // no need to do anything
             {
                 return;
             }
 
-            string fileContent = this.Sb.ToString();
-
-            if (this.DoubleNumbers.Length > 0)
-                fileContent = fileContent + this.DoubleNumbers.ToString();
-            if (this.Strings.Length > 0)
-                fileContent = fileContent + this.Strings.ToString();
-
-            fileName = filePath.Substring(0, filePath.IndexOf(".ll")) + ".S";
-
-            using (StreamWriter sw = File.CreateText(fileName))
+            if (!this.RootProg.IsHeader)
             {
-                sw.Write(fileContent);
+                string fileContent = this.Sb.ToString();
+
+                if (this.DoubleNumbers.Length > 0)
+                    fileContent = fileContent + this.DoubleNumbers.ToString();
+                if (this.Strings.Length > 0)
+                    fileContent = fileContent + this.Strings.ToString();
+
+                fileName = filePath.Substring(0, filePath.IndexOf($".{Constants.SOURCE_FILE_ENDING}")) + ".S";
+
+                using (StreamWriter sw = File.CreateText(fileName))
+                {
+                    sw.Write(fileContent);
+                }
             }
         }
 
         private void FunctionDefinitionAsm(FunctionDefinition funDef)
         {
+            // if FunctionDefinition is only prototype, nothing todo -> return
+            if (funDef.isPrototype())
+                return;
             FunctionAsm funAsm;
 
             if (this.FunctionMap.ContainsKey(funDef.Name))
@@ -245,23 +254,23 @@ namespace LL.CodeGeneration
 
             // push all argument-registers onto the stack
             this.ArgumentTypeCount(funDef.Args, out int intArgCount, out int doubleArgCount);
-            int index = Math.Min(intArgCount, this.IntegerRegisters.Length);
+            int index = Math.Min(intArgCount, Constants.IntegerRegisters.Length);
             int lastFound = -1;
 
             for (int i = 0; i < index; i++)
             {
-                this.WritePush(this.IntegerRegisters[i]);
+                this.WritePush(Constants.IntegerRegisters[i]);
                 offSet -= 8;
                 lastFound = this.GetNextIntArg(funDef.Args, lastFound);
                 this.VariableMap[funDef.Args[lastFound].Name] = offSet;
             }
 
-            index = Math.Min(doubleArgCount, this.DoubleRegisters.Length);
+            index = Math.Min(doubleArgCount, Constants.DoubleRegisters.Length);
             lastFound = -1;
 
             for (int i = 0; i < index; i++)
             {
-                this.WriteLine($"movq {this.DoubleRegisters[i]}, %rax");
+                this.WriteLine($"movq {Constants.DoubleRegisters[i]}, %rax");
                 this.WritePush();
                 offSet -= 8;
                 lastFound = this.GetNextDoubleArg(funDef.Args, lastFound);
@@ -281,7 +290,7 @@ namespace LL.CodeGeneration
                     this.WritePush("$0");
                 }
 
-                this.WriteLine(this.StructDefinitionBuilder.ToString());
+                this.WriteLine(StructDefinitionBuilder.ToString());
 
                 if (aligned)
                     this.WritePop("%rbx");
@@ -311,15 +320,15 @@ namespace LL.CodeGeneration
             Random random = new Random();
             int id = random.Next();
 
-            while (this.StructIdMap.ContainsValue(id))
+            while (StructIdMap.ContainsValue(id))
                 id = random.Next();
 
-            this.StructIdMap[structDef.Name] = id;
+            StructIdMap[structDef.Name] = id;
 
-            this.StructDefinitionBuilder.AppendLine($"{this.Indent}movq ${id}, {this.IntegerRegisters[0]}");
-            this.StructDefinitionBuilder.AppendLine($"{this.Indent}movq ${structDef.GetSize()}, {this.IntegerRegisters[1]}");
+            StructDefinitionBuilder.AppendLine($"{Constants.INDENTATION}movq ${id}, {Constants.IntegerRegisters[0]}");
+            StructDefinitionBuilder.AppendLine($"{Constants.INDENTATION}movq ${structDef.GetSize()}, {Constants.IntegerRegisters[1]}");
 
-            this.StructDefinitionBuilder.AppendLine($"{this.Indent}call registerClass@PLT");
+            StructDefinitionBuilder.AppendLine($"{Constants.INDENTATION}call registerClass@PLT");
         }
 
         private void InitializeRuntime()
@@ -345,7 +354,7 @@ namespace LL.CodeGeneration
         private void WriteLine(string op)
         {
             for (int i = 0; i < this.Depth; i++)
-                this.Sb.Append(this.Indent);
+                this.Sb.Append(Constants.INDENTATION);
 
             var indexOfSpace = op.IndexOf(' ');
 
@@ -391,9 +400,9 @@ namespace LL.CodeGeneration
             // where each of them represents 32bit of the IEEE754 representation
             this.DoubleToAssemblerString(doubleLit, out string second, out string first);
             // write the two values
-            this.DoubleNumbers.Append($"{Indent}.long {first}\n");
-            this.DoubleNumbers.Append($"{Indent}.long {second}\n");
-            this.DoubleNumbers.Append($"{Indent}.align 8\n");
+            this.DoubleNumbers.Append($"{Constants.INDENTATION}.long {first}\n");
+            this.DoubleNumbers.Append($"{Constants.INDENTATION}.long {second}\n");
+            this.DoubleNumbers.Append($"{Constants.INDENTATION}.align 8\n");
             // remember which label corresponds to the given double value
             this.DoubleMap.Add(doubleLit.Value ?? 0, this.DoubleNumbersLabelCount);
             this.DoubleNumbersLabelCount += 1;
@@ -423,7 +432,7 @@ namespace LL.CodeGeneration
                     throw new TypeNotAllowedException(value.Type.ToString(), this.CurrentFile, value.Line, value.Column);
             }
             this.StringLabelMap[type] = this.StringLabelCount++;
-            this.Strings.Append($"{this.Indent}.string \"{stringVal}\"\n");
+            this.Strings.Append($"{Constants.INDENTATION}.string \"{stringVal}\"\n");
         }
 
         private void DoubleToAssemblerString(DoubleLit doubleLit, out string leftPart, out string rightPart)
@@ -437,12 +446,12 @@ namespace LL.CodeGeneration
             rightPart = Convert.ToInt32(tmp.Substring(32, 32), 2).ToString();
         }
 
-        /**
-        * <summary> Calulates wether there are enought registers for the parameters, or not.
-        * If there are not enought registers of one of the two types (integer/boolean, double),
-        * the position in the parameter list where the overflow happend is returned in the
-        * coresponding integer argument </summary> 
-        */
+        /// <summary>
+        /// Calulates wether there are enought registers for the parameters, or not.
+        /// If there are not enought registers of one of the two types (integer/boolean, double),
+        /// the position in the parameter list where the overflow happend is returned in the
+        /// coresponding integer argument
+        /// </summary>
         private bool DoesOverflowRegisters(List<IAST> args, out int integerOverflowPosition, out int doubleOverflowPosition)
         {
             bool result = false;
@@ -457,7 +466,7 @@ namespace LL.CodeGeneration
                 {
                     usedInt += 1;
 
-                    if (usedInt > this.IntegerRegisters.Length)
+                    if (usedInt > Constants.IntegerRegisters.Length)
                     {
                         result = true;
                         integerOverflowPosition = integerOverflowPosition == Int32.MaxValue ? i : integerOverflowPosition;
@@ -468,7 +477,7 @@ namespace LL.CodeGeneration
                 {
                     usedDouble += 1;
 
-                    if (usedDouble > this.DoubleRegisters.Length)
+                    if (usedDouble > Constants.DoubleRegisters.Length)
                     {
                         result = true;
                         doubleOverflowPosition = doubleOverflowPosition == Int32.MaxValue ? i : doubleOverflowPosition;
@@ -493,7 +502,7 @@ namespace LL.CodeGeneration
                 {
                     usedInt += 1;
 
-                    if (usedInt > this.IntegerRegisters.Length)
+                    if (usedInt > Constants.IntegerRegisters.Length)
                     {
                         result = true;
                         integerOverflowPosition = integerOverflowPosition != Int32.MaxValue ? integerOverflowPosition : i;
@@ -504,7 +513,7 @@ namespace LL.CodeGeneration
                 {
                     usedDouble += 1;
 
-                    if (usedDouble > this.DoubleRegisters.Length)
+                    if (usedDouble > Constants.DoubleRegisters.Length)
                     {
                         result = true;
                         doubleOverflowPosition = doubleOverflowPosition != Int32.MaxValue ? doubleOverflowPosition : i;

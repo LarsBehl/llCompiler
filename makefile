@@ -5,12 +5,18 @@ test: linkTest
 linkTest: compileAssembler
 	@echo "\n\n\e[0;32mLinking tests...\n\e[0m"
 	cp ./runtime/bin/libLL.a ./testGeneratedCode/bin/
-	gcc -o ./testGeneratedCode/bin/testCodeGen ./testGeneratedCode/bin/testCodeGenV1Prog.o ./testGeneratedCode/bin/testBinOps.o -LtestGeneratedCode/bin -lLL
+	gcc -o ./testGeneratedCode/bin/testCodeGen ./testGeneratedCode/bin/testCodeGenV1Prog.o ./testGeneratedCode/bin/testBinOps.o ./testGeneratedCode/bin/testId.o ./testGeneratedCode/bin/testUnary.o ./testGeneratedCode/bin/testAssign.o ./testGeneratedCode/bin/testStructs.o ./testGeneratedCode/bin/testWhile.o ./testGeneratedCode/bin/testIf.o -LtestGeneratedCode/bin -lLL
 
 compileAssembler: packageRuntime
 	@echo "\n\n\e[0;32mCompiling tests...\n\e[0m"
 	gcc -c -g ./testGeneratedCode/bin/testCodeGenV1Prog.S -o ./testGeneratedCode/bin/testCodeGenV1Prog.o
 	gcc -c -g ./testGeneratedCode/bin/testBinOps.S -o ./testGeneratedCode/bin/testBinOps.o
+	gcc -c -g ./testGeneratedCode/bin/testId.S -o ./testGeneratedCode/bin/testId.o
+	gcc -c -g ./testGeneratedCode/bin/testUnary.S -o ./testGeneratedCode/bin/testUnary.o
+	gcc -c -g ./testGeneratedCode/bin/testAssign.S -o ./testGeneratedCode/bin/testAssign.o
+	gcc -c -g ./testGeneratedCode/bin/testStructs.S -o ./testGeneratedCode/bin/testStructs.o
+	gcc -c -g ./testGeneratedCode/bin/testWhile.S -o ./testGeneratedCode/bin/testWhile.o
+	gcc -c -g ./testGeneratedCode/bin/testIf.S -o ./testGeneratedCode/bin/testIf.o
 
 packageRuntime: compileRuntime
 	@echo "\n\n\e[0;32mPackaging runtime lib...\n\e[0m"
@@ -28,8 +34,16 @@ compileRuntime: compileTest
 compileTest: publishLinux
 	@echo "\n\n\e[0;32mCompiling ll code...\n\e[0m"
 	cp ./compiler/bin/linux/llCompiler ./testGeneratedCode
-	./testGeneratedCode/llCompiler -c ./testGeneratedCode/programs/testCodeGenV1Prog.ll
+ifeq (,$(wildcard ./testGeneratedCode/bin))
 	mkdir -p ./testGeneratedCode/bin
+endif
+ifeq (,$(wildcard ./testGeneratedCode/bin/testId.o))
+	./testGeneratedCode/llCompiler -c ./testGeneratedCode/programs/testId.ll
+	mv ./testGeneratedCode/programs/testId.S ./testGeneratedCode/bin/testId.S
+	./testGeneratedCode/llCompiler -h ./testGeneratedCode/programs/testId.ll
+	mv ./testGeneratedCode/programs/testId.ll ./testGeneratedCode/programs/testId.bak
+endif
+	./testGeneratedCode/llCompiler -c ./testGeneratedCode/programs/testCodeGenV1Prog.ll
 	mv ./testGeneratedCode/programs/*.S ./testGeneratedCode/bin/
 
 generateCode:
@@ -57,6 +71,13 @@ clean:
 	rm -r -f ./runtime/bin
 	rm -r -f ./testGeneratedCode/bin
 	rm -f ./testGeneratedCode/llCompiler
+ifneq (,$(wildcard ./testGeneratedCode/programs/testId.bak))
+	mv ./testGeneratedCode/programs/testId.bak ./testGeneratedCode/programs/testId.ll
+endif
+
+ifneq (,$(wildcard ./testGeneratedCode/programs/testId.llh))
+	rm -f ./testGeneratedCode/programs/testId.llh
+endif
 
 restore:
 	@echo "\n\n\e[0;32mRestoring...\n\e[0m"

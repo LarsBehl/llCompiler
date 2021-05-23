@@ -2,7 +2,7 @@ namespace LL.Types
 {
     public class DoubleArrayType : ArrayType
     {
-        public DoubleArrayType() : base("doubleArrayType")
+        public DoubleArrayType() : base("double")
         {
 
         }

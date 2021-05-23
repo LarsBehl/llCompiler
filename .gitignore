@@ -3,11 +3,11 @@ obj/
 .vscode/
 .vs/
 .VSCodeCounter/
+testGeneratedCode/programs/*.llh
 demo/llCompiler
 demo/*.S
 demo/*.o
 demo/al
-TestFile2.ll
 testGeneratedCode/*.o
 testGeneratedCode/*.S
 testGeneratedCode/*.dll

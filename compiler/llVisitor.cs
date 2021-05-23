@@ -415,10 +415,16 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitLoadStatement([NotNull] llParser.LoadStatementContext context);
 	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.functionPrototype"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitFunctionPrototype([NotNull] llParser.FunctionPrototypeContext context);
+	/// <summary>
 	/// Visit a parse tree produced by <see cref="llParser.valueAccess"/>.
 	/// </summary>
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitValueAccess([NotNull] llParser.ValueAccessContext context);
 }
-} // namespace ll
+} // namespace LL

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 
 using LL.Exceptions;
+using LL.Helper;
 using LL.Types;
 
 namespace LL.AST
@@ -13,6 +14,7 @@ namespace LL.AST
         public IAST CompositUnit { get; set; }
         public Dictionary<string, IAST> Env { get; set; }
         public string FileName { get; set; }
+        public bool IsHeader { get; set; }
 
         public ProgramNode(
             string fileName,
@@ -46,6 +48,7 @@ namespace LL.AST
             this.CompositUnit = null;
             this.Env = new Dictionary<string, IAST>();
             this.FileName = fileName;
+            this.IsHeader = this.FileName.EndsWith(Constants.HEADER_FILE_ENDING);
         }
 
         public bool TryAddStructDefinition(StructDefinition structDef)

@@ -15,7 +15,6 @@ namespace LL.AST
         public FunctionDefinition(
             string name,
             List<InstantiationStatement> args,
-            IAST body,
             Dictionary<string, IAST> functionEnv,
             Types.Type returnType,
             int line,
@@ -24,7 +23,7 @@ namespace LL.AST
         {
             this.Name = name;
             this.Args = args;
-            this.Body = body;
+            this.Body = null;
             this.FunctionEnv = functionEnv;
             this.ReturnType = returnType;
 
@@ -35,6 +34,15 @@ namespace LL.AST
         public int GetLocalVariables()
         {
             return FunctionEnv.Count - Args.Count;
+        }
+
+        /// <summary>
+        /// Checks whether or not the function definition is only a prototype
+        /// </summary>
+        /// <return>True if the definition is a prototype, false otherwise</return>
+        public bool isPrototype()
+        {
+            return this.Body is null;
         }
     }
 }

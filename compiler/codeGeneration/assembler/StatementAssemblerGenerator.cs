@@ -279,7 +279,7 @@ namespace LL.CodeGeneration
                     this.WriteLine("movq $1, %rsi");
                     break;
                 case Struct @struct:
-                    int structId = this.StructIdMap[@struct.Name];
+                    int structId = StructIdMap[@struct.Name];
 
                     this.WriteLine($"movq ${structId}, %rdi");
                     this.WriteLine($"movq $0, %rsi");

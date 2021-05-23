@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 
 using Antlr4.Runtime.Misc;
+using Antlr4.Runtime.Tree;
 
 using LL.AST;
 using LL.Exceptions;
@@ -12,20 +13,25 @@ namespace LL
         private string CurrentFile;
         private ProgramNode RootProg;
 
-        private FunctionDefinitionVisitor(): base()
+        private FunctionDefinitionVisitor() : base()
         {
 
         }
 
-        public FunctionDefinitionVisitor(string currentFile): this(currentFile, new ProgramNode(currentFile, -1, -1))
+        public FunctionDefinitionVisitor(string currentFile) : this(currentFile, new ProgramNode(currentFile, -1, -1))
         {
 
         }
 
-        public FunctionDefinitionVisitor(string currentFile, ProgramNode rootProg): this()
+        public FunctionDefinitionVisitor(string currentFile, ProgramNode rootProg) : this()
         {
             this.CurrentFile = currentFile;
             this.RootProg = rootProg;
+        }
+
+        public FunctionDefinitionVisitor(ProgramNode rootProg) : this(rootProg.FileName, rootProg)
+        {
+
         }
 
         public override IAST VisitCompileUnit([NotNull] llParser.CompileUnitContext context)
@@ -36,36 +42,47 @@ namespace LL
         public override IAST VisitProgram([NotNull] llParser.ProgramContext context)
         {
             var funs = context.functionDefinition();
-            foreach(var fun in funs)
+            foreach (var fun in funs)
                 this.Visit(fun);
+
+            var funProtos = context.functionPrototype();
+            foreach (var funProto in funProtos)
+                this.Visit(funProto);
 
             return this.RootProg;
         }
 
         public override IAST VisitFunctionDefinition(llParser.FunctionDefinitionContext context)
         {
-            var identifier = context.WORD();
             int line = context.Start.Line;
             int column = context.Start.Column;
-            string functionName = identifier[0].GetText();
+            string functionName = context.name.Text;
 
-            if(this.RootProg.IsFunctionDefined(functionName))
-                throw new FunctionAlreadyDefinedException(functionName, this.CurrentFile, line, column);
+            // defining functions in header files is not allowed
+            if (this.RootProg.IsHeader)
+                throw new IllegalOperationException("Definition of function in header file", this.CurrentFile, line, column);
 
-            var types = context.typeDefinition();
-            List<InstantiationStatement> args = new List<InstantiationStatement>();
-            var tmpEnv = new Dictionary<string, IAST>();
+            this.AddFunctionDefinition(functionName, context.typeDefinition(), context.WORD(), line, column);
 
-            for (int i = 0; i < types.Length - 1; i++)
-            {
-                var tmpType = VisitTypeDefinition(types[i]);
-                tmpEnv[identifier[i + 1].GetText()] = tmpType;
-                args.Add(new InstantiationStatement(identifier[i + 1].GetText(), tmpType.Type, tmpType.Line, tmpType.Column));
-            }
+            // unused value
+            return null;
+        }
 
-            // // BuildAstVisitor should add the function body
-            // // therefor it should check if the body is null, if not throw exception
-            this.RootProg.FunDefs.Add(functionName, new FunctionDefinition(identifier[0].GetText(), args, null, tmpEnv, Visit(types[types.Length - 1]).Type, line, column));
+        public override IAST VisitFunctionPrototype([NotNull] llParser.FunctionPrototypeContext context)
+        {
+            int line = context.Start.Line;
+            int column = context.Start.Column;
+            string functionName = context.name.Text;
+
+            // definition of prototypes is not allowed in source code files
+            if (!this.RootProg.IsHeader)
+                throw new IllegalOperationException("Definition of prototypes in source file", this.CurrentFile, line, column);
+
+            // prototyping main methods is not allowed
+            if (functionName == "main")
+                throw new IllegalOperationException("Main function as prototype", this.CurrentFile, line, column);
+
+            this.AddFunctionDefinition(functionName, context.typeDefinition(), context.WORD(), context.Start.Line, context.Start.Column);
 
             // unused value
             return null;
@@ -75,7 +92,7 @@ namespace LL
         {
             int line = context.Start.Line;
             int column = context.Start.Column;
-            
+
             if (context.INT_TYPE() != null)
                 return new IntLit(null, line, column);
             if (context.DOUBLE_TYPE() != null)
@@ -115,10 +132,29 @@ namespace LL
 
             bool success = this.RootProg.ContainsStruct(structName);
 
-            if(!success)
+            if (!success)
                 throw new UnknownTypeException(structName, this.CurrentFile, line, column);
 
             return new Struct(structName, line, column);
+        }
+
+        private void AddFunctionDefinition(string functionName, llParser.TypeDefinitionContext[] types, ITerminalNode[] identifiers, int line, int column)
+        {
+            if (this.RootProg.IsFunctionDefined(functionName))
+                throw new FunctionAlreadyDefinedException(functionName, this.CurrentFile, line, column);
+
+            List<InstantiationStatement> args = new List<InstantiationStatement>();
+            Dictionary<string, IAST> tmpEnv = new Dictionary<string, IAST>();
+
+            for (int i = 0; i < types.Length - 1; i++)
+            {
+                IAST tmpType = VisitTypeDefinition(types[i]);
+                string argName = identifiers[i + 1].GetText();
+                tmpEnv[argName] = tmpType;
+                args.Add(new InstantiationStatement(argName, tmpType.Type, tmpType.Line, tmpType.Column));
+            }
+
+            this.RootProg.FunDefs.Add(functionName, new FunctionDefinition(functionName, args, tmpEnv, Visit(types[types.Length - 1]).Type, line, column));
         }
     }
 }

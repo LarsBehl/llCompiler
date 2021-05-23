@@ -1,9 +1,9 @@
 using System;
-using System.Collections.Generic;
 
 using LL.AST;
-using LL.Types;
 using LL.Exceptions;
+using LL.Helper;
+using LL.Types;
 
 namespace LL.CodeGeneration
 {
@@ -116,7 +116,7 @@ namespace LL.CodeGeneration
                 {
                     this.GetAssember(functionCall.Args[i]);
 
-                    this.WriteLine($"movq %rax, {this.IntegerRegisters[functionAsm.UsedIntegerRegisters]}");
+                    this.WriteLine($"movq %rax, {Constants.IntegerRegisters[functionAsm.UsedIntegerRegisters]}");
                     functionAsm.UsedIntegerRegisters++;
                 }
             }
@@ -166,7 +166,7 @@ namespace LL.CodeGeneration
             for (int i = 0; i < functionAsm.UsedDoubleRegisters; i++)
             {
                 this.WritePop();
-                this.WriteLine($"movq %rax, {DoubleRegisters[i]}");
+                this.WriteLine($"movq %rax, {Constants.DoubleRegisters[i]}");
             }
 
             // this should only happen if the registers do not overflow and the stack is not aligned
