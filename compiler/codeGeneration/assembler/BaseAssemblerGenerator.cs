@@ -25,7 +25,7 @@ namespace LL.CodeGeneration
         private Dictionary<double, int> DoubleMap = new Dictionary<double, int>();
         private Dictionary<string, int> VariableMap;
         private Dictionary<string, int> StringLabelMap = new Dictionary<string, int>();
-        private Dictionary<string, int> StructIdMap = new Dictionary<string, int>();
+        private static Dictionary<string, int> StructIdMap = new Dictionary<string, int>();
         private int LocalVariablePointer = 0;
         private int LocalVariableCount = 0;
         private int StackCounter = 0;
@@ -320,10 +320,10 @@ namespace LL.CodeGeneration
             Random random = new Random();
             int id = random.Next();
 
-            while (this.StructIdMap.ContainsValue(id))
+            while (StructIdMap.ContainsValue(id))
                 id = random.Next();
 
-            this.StructIdMap[structDef.Name] = id;
+            StructIdMap[structDef.Name] = id;
 
             StructDefinitionBuilder.AppendLine($"{Constants.INDENTATION}movq ${id}, {Constants.IntegerRegisters[0]}");
             StructDefinitionBuilder.AppendLine($"{Constants.INDENTATION}movq ${structDef.GetSize()}, {Constants.IntegerRegisters[1]}");

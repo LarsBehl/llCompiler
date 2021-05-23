@@ -64,7 +64,7 @@ function linkTest() {
     printMessage -message "Linking tests"
     Write-Host "cp $($runtimeLocation)/bin/libLL.a $($testLocation)/bin/"
     Copy-Item "$($runtimeLocation)/bin/libLL.a" -Destination "$($testLocation)/bin/"
-    printAndRun -command "wsl gcc -o $($testLocation)/bin/testCodeGen $($testLocation)/bin/testCodeGenV1Prog.o $($testLocation)/bin/testBinOps.o $($testLocation)/bin/testId.o -LtestGeneratedCode/bin -lLL"
+    printAndRun -command "wsl gcc -o $($testLocation)/bin/testCodeGen $($testLocation)/bin/testCodeGenV1Prog.o $($testLocation)/bin/testBinOps.o $($testLocation)/bin/testId.o $($testLocation)/bin/testUnary.o $($testLocation)/bin/testAssign.o $($testLocation)/bin/testStructs.o $($testLocation)/bin/testWhile.o $($testLocation)/bin/testIf.o -LtestGeneratedCode/bin -lLL"
 }
 
 function compileAssember() {
@@ -72,6 +72,11 @@ function compileAssember() {
     printAndRun -command "wsl gcc -c -g $($testLocation)/bin/testCodeGenV1Prog.S -o $($testLocation)/bin/testCodeGenV1Prog.o"
     printAndRun -command "wsl gcc -c -g $($testLocation)/bin/testBinOps.S -o $($testLocation)/bin/testBinOps.o"
     printAndRun -command "wsl gcc -c -g $($testLocation)/bin/testId.S -o $($testLocation)/bin/testId.o"
+    printAndRun -command "wsl gcc -c -g $($testLocation)/bin/testUnary.S -o $($testLocation)/bin/testUnary.o"
+    printAndRun -command "wsl gcc -c -g $($testLocation)/bin/testAssign.S -o $($testLocation)/bin/testAssign.o"
+    printAndRun -command "wsl gcc -c -g $($testLocation)/bin/testStructs.S -o $($testLocation)/bin/testStructs.o"
+    printAndRun -command "wsl gcc -c -g $($testLocation)/bin/testWhile.S -o $($testLocation)/bin/testWhile.o"
+    printAndRun -command "wsl gcc -c -g $($testLocation)/bin/testIf.S -o $($testLocation)/bin/testIf.o"
 }
 
 function packageRuntime() {

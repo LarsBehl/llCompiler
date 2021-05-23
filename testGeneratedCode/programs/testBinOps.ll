@@ -159,3 +159,60 @@ equalNullArrayNull(): bool
 
     return null == x;
 }
+
+andOperator(x:bool, y:bool): bool
+{
+    return x && y;
+}
+
+orOperator(x:bool, y:bool): bool
+{
+    return x || y;
+}
+
+notEqualIntInt(x:int, y:int): bool
+{
+    return x != y;
+}
+
+notEqualIntDouble(x:int, y:double): bool
+{
+    return x != y;
+}
+
+notEqualDoubleInt(x:double, y:int): bool
+{
+    return x != y;
+}
+
+notEqualDoubleDouble(x:double, y:double): bool
+{
+    return x != y;
+}
+
+notEqualBoolBool(x:bool, y:bool): bool
+{
+    return x != y;
+}
+
+notEqualArrayArray(): bool
+{
+    x: int[] = new int[5];
+    y: int[] = new int[10];
+
+    return x != y;
+}
+
+notEqualArrayNull(): bool
+{
+    x: int[] = new int[5];
+
+    return x != null;
+}
+
+notEqualNullArrayNull(): bool
+{
+    x: int[] = null;
+
+    return null != x;
+}
