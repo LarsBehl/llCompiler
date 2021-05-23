@@ -8,7 +8,6 @@ using LL.Exceptions;
 
 namespace LL
 {
-    // TODO protect the user from declaring a 'main()' function as prototype
     public class FunctionDefinitionVisitor : llBaseVisitor<IAST>
     {
         private string CurrentFile;
@@ -55,7 +54,15 @@ namespace LL
 
         public override IAST VisitFunctionDefinition(llParser.FunctionDefinitionContext context)
         {
-            this.AddFunctionDefinition(context.name.Text, context.typeDefinition(), context.WORD(), context.Start.Line, context.Start.Column);
+            int line = context.Start.Line;
+            int column = context.Start.Column;
+            string functionName = context.name.Text;
+
+            // defining functions in header files is not allowed
+            if (this.RootProg.IsHeader)
+                throw new IllegalOperationException("Definition of function in header file", this.CurrentFile, line, column);
+
+            this.AddFunctionDefinition(functionName, context.typeDefinition(), context.WORD(), line, column);
 
             // unused value
             return null;
@@ -63,7 +70,19 @@ namespace LL
 
         public override IAST VisitFunctionPrototype([NotNull] llParser.FunctionPrototypeContext context)
         {
-            this.AddFunctionDefinition(context.name.Text, context.typeDefinition(), context.WORD(), context.Start.Line, context.Start.Column);
+            int line = context.Start.Line;
+            int column = context.Start.Column;
+            string functionName = context.name.Text;
+
+            // definition of prototypes is not allowed in source code files
+            if (!this.RootProg.IsHeader)
+                throw new IllegalOperationException("Definition of prototypes in source file", this.CurrentFile, line, column);
+
+            // prototyping main methods is not allowed
+            if (functionName == "main")
+                throw new IllegalOperationException("Main function as prototype", this.CurrentFile, line, column);
+
+            this.AddFunctionDefinition(functionName, context.typeDefinition(), context.WORD(), context.Start.Line, context.Start.Column);
 
             // unused value
             return null;

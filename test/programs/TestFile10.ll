@@ -1,4 +1,4 @@
-id(x:int):int;
+load TestHeader1;
 
 main(): void
 {

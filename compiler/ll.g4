@@ -5,7 +5,7 @@ grammar ll;
 
 compileUnit: program EOF;
 
-program: (loadStatement* functionPrototype* (functionDefinition | structDefinition)+)
+program: (loadStatement* (functionDefinition | structDefinition | functionPrototype)+)
 	| compositUnit;
 
 compositUnit: statement | expression;
