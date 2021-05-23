@@ -165,19 +165,23 @@ namespace LL.CodeGeneration
 
         public void WriteToFile(string filePath, IAST astNode)
         {
+            this.RootProg = astNode as ProgramNode;
             int indexOfSlash;
             string fileName;
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                indexOfSlash = filePath.LastIndexOf('\\');
-            else
-                indexOfSlash = filePath.LastIndexOf('/');
+            if (!this.RootProg.IsHeader)
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    indexOfSlash = filePath.LastIndexOf('\\');
+                else
+                    indexOfSlash = filePath.LastIndexOf('/');
 
-            if (indexOfSlash == -1)
-                fileName = filePath;
-            else
-                fileName = filePath.Substring(indexOfSlash + 1, filePath.Length - (indexOfSlash + 1));
-            this.InitializeFile(fileName);
+                if (indexOfSlash == -1)
+                    fileName = filePath;
+                else
+                    fileName = filePath.Substring(indexOfSlash + 1, filePath.Length - (indexOfSlash + 1));
+                this.InitializeFile(fileName);
+            }
 
             try
             {
@@ -188,18 +192,21 @@ namespace LL.CodeGeneration
                 return;
             }
 
-            string fileContent = this.Sb.ToString();
-
-            if (this.DoubleNumbers.Length > 0)
-                fileContent = fileContent + this.DoubleNumbers.ToString();
-            if (this.Strings.Length > 0)
-                fileContent = fileContent + this.Strings.ToString();
-
-            fileName = filePath.Substring(0, filePath.IndexOf($".{Constants.SOURCE_FILE_ENDING}")) + ".S";
-
-            using (StreamWriter sw = File.CreateText(fileName))
+            if (!this.RootProg.IsHeader)
             {
-                sw.Write(fileContent);
+                string fileContent = this.Sb.ToString();
+
+                if (this.DoubleNumbers.Length > 0)
+                    fileContent = fileContent + this.DoubleNumbers.ToString();
+                if (this.Strings.Length > 0)
+                    fileContent = fileContent + this.Strings.ToString();
+
+                fileName = filePath.Substring(0, filePath.IndexOf($".{Constants.SOURCE_FILE_ENDING}")) + ".S";
+
+                using (StreamWriter sw = File.CreateText(fileName))
+                {
+                    sw.Write(fileContent);
+                }
             }
         }
 

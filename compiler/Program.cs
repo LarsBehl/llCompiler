@@ -1,6 +1,4 @@
 ﻿using System;
-using System.IO;
-using System.Collections.Generic;
 
 using Antlr4.Runtime;
 
@@ -111,14 +109,13 @@ namespace LL
             RunHeaderGeneration(ast);
         }
 
-        // TODO change order -> struct definitions need to be passed to the runtime
         private static void RunCodeGeneration(ProgramNode prog, string filePath)
         {
-            AssemblerGenerator generator = new AssemblerGenerator(filePath);
-            generator.WriteToFile(filePath, prog);
-
             foreach (LoadStatement dep in prog.Dependencies?.Values)
                 RunCodeGeneration(dep.Program, dep.Location);
+            
+            AssemblerGenerator generator = new AssemblerGenerator(filePath);
+            generator.WriteToFile(filePath, prog);
         }
 
         private static void RunHeaderGeneration(ProgramNode prog)

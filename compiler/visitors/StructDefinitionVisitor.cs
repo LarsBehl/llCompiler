@@ -11,7 +11,6 @@ using LL.Helper;
 
 namespace LL
 {
-    // TODO add flag whether or not the file is a '.llh' file and therefor should only contain prototypes
     public class StructDefinitionVisitor : llBaseVisitor<IAST>
     {
         private Queue<string> Directories;

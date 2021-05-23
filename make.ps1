@@ -24,6 +24,14 @@ function clean() {
     remove -file "$($testLocation)/bin"
     remove -file "$($testLocation)/*.dll"
     remove -file "$($testLocation)/*.exe"
+    remove -file "$($testLocation)/*.pdb"
+    if (Test-Path "$($testLocation)/programs/testId.bak") {
+        Move-Item "$($testLocation)/programs/testId.bak" -Destination "$($testLocation)/programs/testId.ll"
+    }
+
+    if(Test-Path "$($testLocation)/programs/testId.llh") {
+        remove -file "$($testLocation)/programs/testId.llh"
+    }
 }
 
 function restore() {
@@ -56,13 +64,14 @@ function linkTest() {
     printMessage -message "Linking tests"
     Write-Host "cp $($runtimeLocation)/bin/libLL.a $($testLocation)/bin/"
     Copy-Item "$($runtimeLocation)/bin/libLL.a" -Destination "$($testLocation)/bin/"
-    printAndRun -command "wsl gcc -o $($testLocation)/bin/testCodeGen $($testLocation)/bin/testCodeGenV1Prog.o $($testLocation)/bin/testBinOps.o -LtestGeneratedCode/bin -lLL"
+    printAndRun -command "wsl gcc -o $($testLocation)/bin/testCodeGen $($testLocation)/bin/testCodeGenV1Prog.o $($testLocation)/bin/testBinOps.o $($testLocation)/bin/testId.o -LtestGeneratedCode/bin -lLL"
 }
 
 function compileAssember() {
     printMessage -message "Compiling tests"
     printAndRun -command "wsl gcc -c -g $($testLocation)/bin/testCodeGenV1Prog.S -o $($testLocation)/bin/testCodeGenV1Prog.o"
-    printAndRun -command "wsl gcc -c -g $($testLocation)/bin/testBinOps.S -o $($testLocation)/bin/testBinOps.o" 
+    printAndRun -command "wsl gcc -c -g $($testLocation)/bin/testBinOps.S -o $($testLocation)/bin/testBinOps.o"
+    printAndRun -command "wsl gcc -c -g $($testLocation)/bin/testId.S -o $($testLocation)/bin/testId.o"
 }
 
 function packageRuntime() {
@@ -72,7 +81,7 @@ function packageRuntime() {
 
 function compileRuntime() {
     printMessage -message "Compiling runtime"
-    if(!(Test-Path "$($runtimeLocation)/bin")) {
+    if (!(Test-Path "$($runtimeLocation)/bin")) {
         New-Item -ItemType Directory -Force -Path "$($runtimeLocation)/bin"
     }
     printAndRun -command "wsl gcc -c -g $($runtimeLocation)/runtime.c -o $($runtimeLocation)/bin/runtime.o"
@@ -87,11 +96,11 @@ function compileTest() {
     Write-Host "cp $($compilerLocation)/bin/win10/* $($testLocation)/"
     Copy-Item "$($compilerLocation)/bin/win10/*" -Destination "$($testLocation)/"
 
-    if(!(Test-Path "$($testLocation)/bin")) {
+    if (!(Test-Path "$($testLocation)/bin")) {
         New-Item -ItemType Directory -Force -Path "$($testLocation)/bin"
     }
 
-    if(!(Test-Path "$($testLocation)/bin/testId.o")) {
+    if (!(Test-Path "$($testLocation)/bin/testId.o")) {
         printAndRun -command "$($testLocation)/llCompiler.exe -c $($testLocation)/programs/testId.ll"
         Move-Item "$($testLocation)/programs/testId.S" -Destination "$($testLocation)/bin/" -Force
         printAndRun -command "$($testLocation)/llCompiler.exe -h $($testLocation)/programs/testId.ll"
