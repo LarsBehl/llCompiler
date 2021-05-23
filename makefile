@@ -5,12 +5,13 @@ test: linkTest
 linkTest: compileAssembler
 	@echo "\n\n\e[0;32mLinking tests...\n\e[0m"
 	cp ./runtime/bin/libLL.a ./testGeneratedCode/bin/
-	gcc -o ./testGeneratedCode/bin/testCodeGen ./testGeneratedCode/bin/testCodeGenV1Prog.o ./testGeneratedCode/bin/testBinOps.o -LtestGeneratedCode/bin -lLL
+	gcc -o ./testGeneratedCode/bin/testCodeGen ./testGeneratedCode/bin/testCodeGenV1Prog.o ./testGeneratedCode/bin/testBinOps.o ./testGeneratedCode/bin/testId.o -LtestGeneratedCode/bin -lLL
 
 compileAssembler: packageRuntime
 	@echo "\n\n\e[0;32mCompiling tests...\n\e[0m"
 	gcc -c -g ./testGeneratedCode/bin/testCodeGenV1Prog.S -o ./testGeneratedCode/bin/testCodeGenV1Prog.o
 	gcc -c -g ./testGeneratedCode/bin/testBinOps.S -o ./testGeneratedCode/bin/testBinOps.o
+	gcc -c -g ./testGeneratedCode/bin/testId.S -o ./testGeneratedCode/bin/testId.o
 
 packageRuntime: compileRuntime
 	@echo "\n\n\e[0;32mPackaging runtime lib...\n\e[0m"
@@ -28,8 +29,16 @@ compileRuntime: compileTest
 compileTest: publishLinux
 	@echo "\n\n\e[0;32mCompiling ll code...\n\e[0m"
 	cp ./compiler/bin/linux/llCompiler ./testGeneratedCode
-	./testGeneratedCode/llCompiler -c ./testGeneratedCode/programs/testCodeGenV1Prog.ll
+ifeq (,$(wildcard ./testGeneratedCode/bin))
 	mkdir -p ./testGeneratedCode/bin
+endif
+ifeq (,$(wildcard ./testGeneratedCode/bin/testId.o))
+	./testGeneratedCode/llCompiler -c ./testGeneratedCode/programs/testId.ll
+	mv ./testGeneratedCode/programs/testId.S ./testGeneratedCode/bin/testId.S
+	./testGeneratedCode/llCompiler -h ./testGeneratedCode/programs/testId.ll
+	mv ./testGeneratedCode/programs/testId.ll ./testGeneratedCode/programs/testId.bak
+endif
+	./testGeneratedCode/llCompiler -c ./testGeneratedCode/programs/testCodeGenV1Prog.ll
 	mv ./testGeneratedCode/programs/*.S ./testGeneratedCode/bin/
 
 generateCode:
@@ -57,6 +66,13 @@ clean:
 	rm -r -f ./runtime/bin
 	rm -r -f ./testGeneratedCode/bin
 	rm -f ./testGeneratedCode/llCompiler
+ifneq (,$(wildcard ./testGeneratedCode/programs/testId.bak))
+	mv ./testGeneratedCode/programs/testId.bak ./testGeneratedCode/programs/testId.ll
+endif
+
+ifneq (,$(wildcard ./testGeneratedCode/programs/testId.llh))
+	rm -f ./testGeneratedCode/programs/testId.llh
+endif
 
 restore:
 	@echo "\n\n\e[0;32mRestoring...\n\e[0m"
