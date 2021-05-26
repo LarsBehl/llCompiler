@@ -17,10 +17,7 @@ namespace LL.Test
         }
 
         [TestCase("'c'", 'c')]
-        [TestCase("'ü'", 'ü')]
         [TestCase("'-'", '-')]
-        [TestCase("'ß'", 'ß')]
-        [TestCase("'é'", 'é')]
         [TestCase("'\n'", '\n')]
         public void TestCharLiteral1(string input, char expected)
         {

@@ -145,7 +145,7 @@ valueAccess:
 
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;
-CHAR_LITERAL: APOSTROPHE . APOSTROPHE;
+CHAR_LITERAL: APOSTROPHE '\u0000'..'\u007F' APOSTROPHE;
 RETURN: 'r' 'e' 't' 'u' 'r' 'n';
 INT_TYPE: 'i' 'n' 't';
 DOUBLE_TYPE: 'd' 'o' 'u' 'b' 'l' 'e';
