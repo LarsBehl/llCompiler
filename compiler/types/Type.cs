@@ -39,6 +39,8 @@ namespace LL.Types
                     return intArrayType.Equals(obj);
                 case DoubleArrayType doubleArrayType:
                     return doubleArrayType.Equals(obj);
+                case CharArrayType charArrayType:
+                    return charArrayType.Equals(obj);
                 case NullType nullType:
                     return nullType.Equals(obj);
                 case StructType structType:
@@ -73,6 +75,8 @@ namespace LL.Types
                     return intArrayType == t2;
                 case DoubleArrayType doubleArrayType:
                     return doubleArrayType == t2;
+                case CharArrayType charArrayType:
+                    return charArrayType == t2;
                 case NullType nullType:
                     return nullType == t2;
                 case StructType structType:
@@ -102,6 +106,8 @@ namespace LL.Types
                     return intArrayType != t2;
                 case DoubleArrayType doubleArrayType:
                     return doubleArrayType != t2;
+                case CharArrayType charArrayType:
+                    return charArrayType != t2;
                 case NullType nullType:
                     return nullType != t2;
                 case StructType structType:

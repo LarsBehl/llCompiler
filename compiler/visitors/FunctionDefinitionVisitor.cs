@@ -126,6 +126,11 @@ namespace LL
             return new BoolArray(context.Start.Line, context.Start.Column);
         }
 
+        public override IAST VisitCharArrayType([NotNull] llParser.CharArrayTypeContext context)
+        {
+            return new CharArray(context.Start.Line, context.Start.Column);
+        }
+
         public override IAST VisitStructName(llParser.StructNameContext context)
         {
             string structName = context.WORD().GetText();

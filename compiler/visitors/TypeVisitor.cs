@@ -1,4 +1,5 @@
 using System;
+using Antlr4.Runtime.Misc;
 using LL.AST;
 using LL.Exceptions;
 
@@ -42,6 +43,11 @@ namespace LL
         public override IAST VisitBoolArrayType(llParser.BoolArrayTypeContext context)
         {
             return new BoolArray(context.Start.Line, context.Start.Column);
+        }
+
+        public override IAST VisitCharArrayType([NotNull] llParser.CharArrayTypeContext context)
+        {
+            return new CharArray(context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitStructName(llParser.StructNameContext context)

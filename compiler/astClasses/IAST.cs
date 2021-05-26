@@ -211,6 +211,8 @@ namespace LL.AST
                     return EvalDoubleArray(doubleArray);
                 case BoolArray boolArray:
                     return EvalBoolArray(boolArray);
+                case CharArray charArray:
+                    return EvalCharArray(charArray);
                 case RefTypeCreationStatement refType:
                     return EvalRefTypeCreationStatement(refType);
                 case ArrayIndexing arrayIndexing:
@@ -775,6 +777,14 @@ namespace LL.AST
                 throw new ArgumentException("Array is not initialized");
 
             return boolArray;
+        }
+
+        private IAST EvalCharArray(CharArray charArray)
+        {
+            if(charArray.Values == null)
+                throw new ArgumentException("Array is not initialized");
+            
+            return charArray;
         }
 
         private IAST EvalArrayIndexing(ArrayIndexing arrayIndexing)
