@@ -38,6 +38,12 @@ namespace LL
                 return new NullLit(line, column);
             if (context.structPropertyAccess() != null)
                 return Visit(context.structPropertyAccess());
+            if(context.CHAR_LITERAL() != null)
+            {
+                char lit = context.CHAR_LITERAL().GetText().Replace("'", string.Empty)[0];
+
+                return new CharLit(lit, line, column);
+            }
 
             throw new NodeNotImplementedException(context.GetText(), this.RootProgram.FileName, line, column);
         }

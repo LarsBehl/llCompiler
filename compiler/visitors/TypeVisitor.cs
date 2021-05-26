@@ -19,6 +19,8 @@ namespace LL
                 return new BoolLit(null, line, column);
             if (context.VOID_TYPE() != null)
                 return new VoidLit(line, column);
+            if(context.CHAR_TYPE() != null)
+                return new CharLit(line, column);
             if (context.arrayTypes() != null)
                 return Visit(context.arrayTypes());
             if (context.structName() != null)

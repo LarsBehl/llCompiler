@@ -32,6 +32,7 @@ namespace LL.AST
                 case IntLit i: return i;
                 case DoubleLit d: return d;
                 case BoolLit b: return b;
+                case CharLit charLit: return charLit;
                 case MultExpr me:
                     return EvalMultExpression(me);
                 case AddExpr add:
@@ -57,6 +58,10 @@ namespace LL.AST
                             break;
                         case BoolLit bl:
                             if (bl.Value == null)
+                                throw new ArgumentException($"Variable \"{varExpr.Name}\" is not initialized");
+                            break;
+                        case CharLit cl:
+                            if(cl.Value == null)
                                 throw new ArgumentException($"Variable \"{varExpr.Name}\" is not initialized");
                             break;
                         case IntArray intArray:

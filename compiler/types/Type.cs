@@ -31,6 +31,8 @@ namespace LL.Types
                     return bt.Equals(obj);
                 case VoidType vt:
                     return vt.Equals(obj);
+                case CharType ct:
+                    return ct.Equals(obj);
                 case BoolArrayType boolArrayType:
                     return boolArrayType.Equals(obj);
                 case IntArrayType intArrayType:
@@ -63,6 +65,8 @@ namespace LL.Types
                     return bt == t2;
                 case VoidType vt:
                     return vt == t2;
+                case CharType ct:
+                    return ct == t2;
                 case BoolArrayType boolArrayType:
                     return boolArrayType == t2;
                 case IntArrayType intArrayType:
@@ -90,6 +94,8 @@ namespace LL.Types
                     return bt != t2;
                 case VoidType vt:
                     return vt != t2;
+                case CharType ct:
+                    return ct != t2;
                 case BoolArrayType boolArrayType:
                     return boolArrayType != t2;
                 case IntArrayType intArrayType:
