@@ -60,6 +60,11 @@ testPrintDouble(x:double): void
     print(x);
 }
 
+testPrintChar(x:char): void
+{
+    print(x);
+}
+
 incrementPreArray(x: int): int
 {
     y: int[] = new int[5];

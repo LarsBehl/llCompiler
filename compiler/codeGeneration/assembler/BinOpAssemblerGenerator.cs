@@ -361,6 +361,16 @@ namespace LL.CodeGeneration
                     this.WriteLine("sete %al");
 
                     break;
+                case CharType charType:
+                    this.GetAssember(equalityExpr.Right);
+                    this.WritePush();
+
+                    this.GetAssember(equalityExpr.Left);
+                    this.WritePop("%rbx");
+                    this.WriteLine("cmpq %rbx, %rax");
+                    this.WriteLine("sete %al");
+
+                    break;
                 case NullType nullType:
                     this.GetAssember(equalityExpr.Right);
                     this.WritePush();
@@ -490,6 +500,14 @@ namespace LL.CodeGeneration
                 case BooleanType booleanType:
                     this.WritePush();
 
+                    this.GetAssember(notEqualExpr.Right);
+
+                    this.WritePop("%rbx");
+                    this.WriteLine("cmpq %rax, %rbx");
+
+                    break;
+                case CharType charType:
+                    this.WritePush();
                     this.GetAssember(notEqualExpr.Right);
 
                     this.WritePop("%rbx");

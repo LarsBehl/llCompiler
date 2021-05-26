@@ -138,6 +138,11 @@ equalDoubleDouble(x:double, y:double): bool
     return x == y;
 }
 
+equalCharChar(x:char, y:char): bool
+{
+    return x == y;
+}
+
 equalArrayArray(): bool
 {
     x: int[] = new int[5];
@@ -191,6 +196,11 @@ notEqualDoubleDouble(x:double, y:double): bool
 }
 
 notEqualBoolBool(x:bool, y:bool): bool
+{
+    return x != y;
+}
+
+notEqualCharChar(x:char, y:char): bool
 {
     return x != y;
 }

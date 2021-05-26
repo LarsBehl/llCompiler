@@ -41,6 +41,7 @@ namespace LL.CodeGeneration
 
             if (assignStatement.Variable.Type is IntType
             || assignStatement.Variable.Type is BooleanType
+            || assignStatement.Variable.Type is CharType
             || assignStatement.Value.Type is IntArrayType
             || assignStatement.Value.Type is BoolArrayType
             || assignStatement.Value.Type is DoubleArrayType
@@ -250,6 +251,12 @@ namespace LL.CodeGeneration
 
                     break;
                 case BooleanType bt:
+                    this.WriteLine("movq %rax, %rsi");
+                    this.WriteLine($"leaq .LS{this.StringLabelMap["int"]}(%rip), %rdi");
+                    this.WriteLine("movl $0, %eax");
+
+                    break;
+                case CharType ct:
                     this.WriteLine("movq %rax, %rsi");
                     this.WriteLine($"leaq .LS{this.StringLabelMap["int"]}(%rip), %rdi");
                     this.WriteLine("movl $0, %eax");

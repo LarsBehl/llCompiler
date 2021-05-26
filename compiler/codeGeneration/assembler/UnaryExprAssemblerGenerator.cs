@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 
 using LL.AST;
 using LL.Exceptions;
@@ -23,6 +24,11 @@ namespace LL.CodeGeneration
         private void BoolLitAsm(BoolLit boolLit)
         {
             this.WriteLine($"movq ${((boolLit.Value ?? false) ? 1 : 0)}, %rax");
+        }
+
+        private void CharLitAsm(CharLit charLit)
+        {
+            this.WriteLine($"movq ${(byte) charLit.Value.Value}, %rax");
         }
 
         private void FunctionCallAsm(FunctionCall functionCall)
@@ -84,6 +90,14 @@ namespace LL.CodeGeneration
                             }
 
                             break;
+                        case CharType charType:
+                            if(i >= integerOverflowPosition)
+                            {
+                                functionAsm.VariableMap[arg.Name] = rbpOffset;
+                                rbpOffset += 8;
+                            }
+
+                            break;
                         case RefType refType:
                             if (i >= integerOverflowPosition)
                             {
@@ -112,7 +126,7 @@ namespace LL.CodeGeneration
             // move integer/boolean arguments into registers until they are full
             for (int i = 0; i < index; i++)
             {
-                if (funDef.Args[i].Type is IntType || funDef.Args[i].Type is BooleanType || funDef.Args[i].Type is RefType)
+                if (funDef.Args[i].Type is IntType || funDef.Args[i].Type is BooleanType || funDef.Args[i].Type is CharType || funDef.Args[i].Type is RefType)
                 {
                     this.GetAssember(functionCall.Args[i]);
 
@@ -124,7 +138,7 @@ namespace LL.CodeGeneration
             // move integer/boolean arguments that overflew on stack
             for (int i = functionCall.Args.Count - 1; i >= integerOverflowPosition; i--)
             {
-                if (funDef.Args[i].Type is IntType || funDef.Args[i].Type is BooleanType || funDef.Args[i].Type is RefType)
+                if (funDef.Args[i].Type is IntType || funDef.Args[i].Type is BooleanType || funDef.Args[i].Type is CharType || funDef.Args[i].Type is RefType)
                 {
                     this.GetAssember(functionCall.Args[i]);
 
@@ -186,6 +200,7 @@ namespace LL.CodeGeneration
 
             if (varExpr.Type is BooleanType
             || varExpr.Type is IntType
+            || varExpr.Type is CharType
             || varExpr.Type is IntArrayType
             || varExpr.Type is DoubleArrayType
             || varExpr.Type is BoolArrayType
