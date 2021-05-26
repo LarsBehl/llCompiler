@@ -106,12 +106,14 @@ notExpression: NOT expression;
 arrayTypes:
 	INT_TYPE BRAC_L BRAC_R		# intArrayType
 	| DOUBLE_TYPE BRAC_L BRAC_R	# doubleArrayType
-	| BOOL_TYPE BRAC_L BRAC_R	# boolArrayType;
+	| BOOL_TYPE BRAC_L BRAC_R	# boolArrayType
+	| CHAR_TYPE BRAC_L BRAC_R	# charArrayType;
 
 arrayCreation:
 	INT_TYPE BRAC_L expression BRAC_R		# intArrayCreation
 	| DOUBLE_TYPE BRAC_L expression BRAC_R	# doubleArrayCreation
-	| BOOL_TYPE BRAC_L expression BRAC_R	# boolArrayCreation;
+	| BOOL_TYPE BRAC_L expression BRAC_R	# boolArrayCreation
+	| CHAR_TYPE BRAC_L expression BRAC_R	# charArrayCreation;
 
 refTypeCreation: NEW arrayCreation | NEW structCreation;
 
