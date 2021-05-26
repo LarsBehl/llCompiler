@@ -25,6 +25,8 @@ namespace LL.Test
         [TestCase("true != false", true)]
         [TestCase("3 < 5 != !true", true)]
         [TestCase("null != null", false)]
+        [TestCase("'c' != 'x'", true)]
+        [TestCase("'c' != 'c'", false)]
         public void TestNotEqualExpression_1(string input, bool expected)
         {
             llParser parser = Setup(input);
