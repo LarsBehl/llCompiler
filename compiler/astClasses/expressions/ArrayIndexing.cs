@@ -26,6 +26,8 @@ namespace LL.AST
                     return new DoubleType();
                 case BoolArrayType bat:
                     return new BooleanType();
+                case CharArrayType charArrayType:
+                    return new CharType();
                 default:
                     throw new ArgumentException($"Given object is not an array: {array.Type.TypeName}; On line {line}:{column}");
             }
