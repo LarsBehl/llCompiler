@@ -340,6 +340,13 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <return>The visitor result.</return>
 	Result VisitBoolArrayType([NotNull] llParser.BoolArrayTypeContext context);
 	/// <summary>
+	/// Visit a parse tree produced by the <c>charArrayType</c>
+	/// labeled alternative in <see cref="llParser.arrayTypes"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitCharArrayType([NotNull] llParser.CharArrayTypeContext context);
+	/// <summary>
 	/// Visit a parse tree produced by the <c>intArrayCreation</c>
 	/// labeled alternative in <see cref="llParser.arrayCreation"/>.
 	/// </summary>
@@ -360,6 +367,13 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitBoolArrayCreation([NotNull] llParser.BoolArrayCreationContext context);
+	/// <summary>
+	/// Visit a parse tree produced by the <c>charArrayCreation</c>
+	/// labeled alternative in <see cref="llParser.arrayCreation"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitCharArrayCreation([NotNull] llParser.CharArrayCreationContext context);
 	/// <summary>
 	/// Visit a parse tree produced by <see cref="llParser.refTypeCreation"/>.
 	/// </summary>

@@ -101,6 +101,8 @@ namespace LL
                 return new BoolLit(null, line, column);
             if (context.VOID_TYPE() != null)
                 return new VoidLit(line, column);
+            if(context.CHAR_TYPE() != null)
+                return new CharLit(line, column);
             if (context.arrayTypes() != null)
                 return Visit(context.arrayTypes());
             if (context.structName() != null)
@@ -122,6 +124,11 @@ namespace LL
         public override IAST VisitBoolArrayType(llParser.BoolArrayTypeContext context)
         {
             return new BoolArray(context.Start.Line, context.Start.Column);
+        }
+
+        public override IAST VisitCharArrayType([NotNull] llParser.CharArrayTypeContext context)
+        {
+            return new CharArray(context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitStructName(llParser.StructNameContext context)

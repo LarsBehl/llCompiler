@@ -24,6 +24,8 @@ namespace LL.Test
         [TestCase("-2==-2", true)]
         [TestCase("(2>1)==true", true)]
         [TestCase("null == null", true)]
+        [TestCase("'c' == 'c'", true)]
+        [TestCase("'c' == 'x'", false)]
         public void TestEqualityExpression_1(string input, bool expected)
         {
             llParser parser = Setup(input);

@@ -39,23 +39,28 @@ namespace LL.CodeGeneration
 
             string register = "";
 
-            if (assignStatement.Variable.Type is IntType
-            || assignStatement.Variable.Type is BooleanType
-            || assignStatement.Value.Type is IntArrayType
-            || assignStatement.Value.Type is BoolArrayType
-            || assignStatement.Value.Type is DoubleArrayType
-            || assignStatement.Value.Type is NullType
-            || assignStatement.Value.Type is StructType)
-                register = "%rax";
-
-            if (assignStatement.Variable.Type is DoubleType)
+            switch (assignStatement.Variable.Type)
             {
-                if (assignStatement.Value.Type is IntType)
-                    this.WriteLine("cvtsi2sdq %rax, %xmm0");
+                case IntType it:
+                case CharType ct:
+                case BooleanType bt:
+                case IntArrayType iat:
+                case DoubleArrayType dat:
+                case BoolArrayType bat:
+                case CharArrayType cat:
+                case NullType nt:
+                case StructType st:
+                    register = "%rax";
+                    break;
+                case DoubleType dt:
+                    if (assignStatement.Value.Type is IntType)
+                        this.WriteLine("cvtsi2sdq %rax, %xmm0");
 
-                register = "%xmm0";
+                    register = "%xmm0";
+                    break;
+                default:
+                    throw new TypeNotAllowedException(assignStatement.Value.Type.ToString(), this.CurrentFile, assignStatement.Line, assignStatement.Column);
             }
-
 
             // save the value of the variable on the stack
             this.WriteLine($"movq {register}, {this.VariableMap[assignStatement.Variable.Name]}(%rbp)");
@@ -255,13 +260,19 @@ namespace LL.CodeGeneration
                     this.WriteLine("movl $0, %eax");
 
                     break;
+                case CharType ct:
+                    this.WriteLine("movq %rax, %rsi");
+                    this.WriteLine($"leaq .LS{this.StringLabelMap["int"]}(%rip), %rdi");
+                    this.WriteLine("movl $0, %eax");
+
+                    break;
             }
 
             bool aligned = this.AlignStack();
 
             this.WriteLine("call printf@PLT");
 
-            if(aligned)
+            if (aligned)
                 this.WritePop("%rbx");
         }
 
@@ -270,13 +281,7 @@ namespace LL.CodeGeneration
             switch (refTypeCreation.CreatedReftype)
             {
                 case AST.Array array:
-                    this.GetAssember(array.Size);
-
-                    this.WriteLine("movq $8, %rbx");
-                    this.WriteLine("imulq %rbx, %rax");
-
-                    this.WriteLine("movq %rax, %rdi");
-                    this.WriteLine("movq $1, %rsi");
+                    this.CreateArrayAsm(array);
                     break;
                 case Struct @struct:
                     int structId = StructIdMap[@struct.Name];
@@ -292,8 +297,34 @@ namespace LL.CodeGeneration
 
             this.WriteLine("call createHeapObject@PLT");
 
-            if(aligned)
+            if (aligned)
                 this.WritePop("%rbx");
+        }
+
+        private void CreateArrayAsm(AST.Array array)
+        {
+            // calculate the size of the array
+            this.GetAssember(array.Size);
+
+            switch (array)
+            {
+                // 64bit arrays
+                case IntArray intArray:
+                case DoubleArray doubleArray:
+                case BoolArray boolArray:
+                    this.WriteLine("movq $8, %rbx");
+                    break;
+                // 8bit arrays
+                case CharArray charArray:
+                    this.WriteLine("movq $1, %rbx");
+                    break;
+                default:
+                    throw new TypeNotAllowedException(array.Type.ToString(), this.CurrentFile, array.Line, array.Column);
+            }
+            this.WriteLine("imulq %rbx, %rax");
+
+            this.WriteLine("movq %rax, %rdi");
+            this.WriteLine("movq $1, %rsi");
         }
 
         private void AssignArrayFieldAsm(AssignArrayField assignArray)
@@ -319,7 +350,17 @@ namespace LL.CodeGeneration
             }
 
             // save the value in the array
-            this.WriteLine("movq %rbx, (%rax)");
+            switch (assignArray.ArrayIndex.Type)
+            {
+                case IntType it:
+                case DoubleType dt:
+                case BooleanType bt:
+                    this.WriteLine("movq %rbx, (%rax)");
+                    break;
+                case CharType ct:
+                    this.WriteLine("mov %bl, (%rax)");
+                    break;
+            }
         }
 
         private void DestructionStatementAsm(DestructionStatement destruction)
@@ -331,7 +372,7 @@ namespace LL.CodeGeneration
 
             this.WriteLine("call destroyHeapObject@PLT");
 
-            if(aligned)
+            if (aligned)
                 this.WritePop("%rbx");
         }
 

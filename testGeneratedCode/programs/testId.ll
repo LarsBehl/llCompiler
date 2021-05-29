@@ -12,3 +12,8 @@ boolId(x:bool): bool
 {
     return x;
 }
+
+charId(x:char): char
+{
+    return x;
+}

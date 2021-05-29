@@ -32,6 +32,7 @@ namespace LL.AST
                 case IntLit i: return i;
                 case DoubleLit d: return d;
                 case BoolLit b: return b;
+                case CharLit charLit: return charLit;
                 case MultExpr me:
                     return EvalMultExpression(me);
                 case AddExpr add:
@@ -57,6 +58,10 @@ namespace LL.AST
                             break;
                         case BoolLit bl:
                             if (bl.Value == null)
+                                throw new ArgumentException($"Variable \"{varExpr.Name}\" is not initialized");
+                            break;
+                        case CharLit cl:
+                            if(cl.Value == null)
                                 throw new ArgumentException($"Variable \"{varExpr.Name}\" is not initialized");
                             break;
                         case IntArray intArray:
@@ -206,6 +211,8 @@ namespace LL.AST
                     return EvalDoubleArray(doubleArray);
                 case BoolArray boolArray:
                     return EvalBoolArray(boolArray);
+                case CharArray charArray:
+                    return EvalCharArray(charArray);
                 case RefTypeCreationStatement refType:
                     return EvalRefTypeCreationStatement(refType);
                 case ArrayIndexing arrayIndexing:
@@ -341,6 +348,10 @@ namespace LL.AST
                     if (!(eq.Right.Type is BooleanType))
                         throw new ArgumentException($"Type \"{eq.Left.Type.TypeName}\" is incompatible with \"{eq.Right.Type.TypeName}\"");
                     return new BoolLit((eq.Left.Eval() as BoolLit).Value == (eq.Right.Eval() as BoolLit).Value, eq.Line, eq.Column);
+                case CharType charType:
+                    if(charType != eq.Right.Type)
+                        throw new ArgumentException($"Type \"{eq.Left.Type.TypeName}\" is incompatible with \"{eq.Right.Type.TypeName}\"");
+                    return new BoolLit((eq.Left.Eval() as CharLit).Value == (eq.Right.Eval() as CharLit).Value, eq.Line, eq.Column);
                 case NullType nullType:
                     tmp = false;
 
@@ -643,6 +654,10 @@ namespace LL.AST
                     if (!(notEqual.Right.Type is BooleanType))
                         throw new ArgumentException($"Type \"{notEqual.Left.Type.TypeName}\" is incompatible with \"{notEqual.Right.Type.TypeName}\"");
                     return new BoolLit((notEqual.Left.Eval() as BoolLit).Value != (notEqual.Right.Eval() as BoolLit).Value, notEqual.Line, notEqual.Column);
+                case CharType charType:
+                    if(charType != notEqual.Right.Type)
+                        throw new ArgumentException($"Type \"{charType.TypeName}\" is incompatible with \"{notEqual.Right.Type.TypeName}\"");
+                    return new BoolLit((notEqual.Left.Eval() as CharLit).Value != (notEqual.Right.Eval() as CharLit).Value, notEqual.Line, notEqual.Column);
                 case NullType nullType:
                     tmp = false;
 
@@ -695,6 +710,10 @@ namespace LL.AST
                 case BooleanType bt:
                     var tmp3 = print.Value.Eval() as BoolLit;
                     result = tmp3.Value.ToString() ?? "";
+                    break;
+                case CharType ct:
+                    var charLit = print.Value.Eval() as CharLit;
+                    result = charLit.Value.ToString() ?? "";
                     break;
                 default:
                     throw new ArgumentException($"Print does not support type {print.Value.Type.TypeName}");
@@ -758,6 +777,14 @@ namespace LL.AST
                 throw new ArgumentException("Array is not initialized");
 
             return boolArray;
+        }
+
+        private IAST EvalCharArray(CharArray charArray)
+        {
+            if(charArray.Values == null)
+                throw new ArgumentException("Array is not initialized");
+            
+            return charArray;
         }
 
         private IAST EvalArrayIndexing(ArrayIndexing arrayIndexing)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using LL.AST;
 using LL.Types;
 using LL.Exceptions;
+using Antlr4.Runtime.Misc;
 
 namespace LL
 {
@@ -185,6 +186,11 @@ namespace LL
         public override IAST VisitBoolArrayCreation(llParser.BoolArrayCreationContext context)
         {
             return new BoolArray(Visit(context.expression()), context.Start.Line, context.Start.Column);
+        }
+
+        public override IAST VisitCharArrayCreation([NotNull] llParser.CharArrayCreationContext context)
+        {
+            return new CharArray(Visit(context.expression()), context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitRefTypeCreation(llParser.RefTypeCreationContext context)

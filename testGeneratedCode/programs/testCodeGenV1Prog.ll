@@ -36,6 +36,16 @@ testBoolArray(x:bool): bool
     return z;
 }
 
+testCharArray(x:char): char
+{
+    y: char[] = new char[42];
+    y[21] = x;
+    z: char = y[21];
+    destroy y;
+
+    return z;
+}
+
 factorial(x:int): int
 {
     if(x > 1)
@@ -143,12 +153,26 @@ evalBool(expected: bool, val: bool, testData: TestData): void
     print(result);
 }
 
+evalChar(expected: char, val: char, testData: TestData): void
+{
+    testData.testCount++;
+    result: bool = expected == val;
+
+    if(result)
+    {
+        testData.successCount++;
+    }
+
+    print(result);
+}
+
 main(): void
 {
     testData: TestData = new TestData();
     intResult: int;
     doubleResult: double;
     boolResult: bool;
+    charResult: char;
 
     intResult = intId(42);
     evalInt(42, intResult, testData);
@@ -156,6 +180,8 @@ main(): void
     evalDouble(42.0, doubleResult, testData);
     boolResult = boolId(true);
     evalBool(true, boolResult, testData);
+    charResult = charId('c');
+    evalChar('c', charResult, testData);
 
     intResult = addIntInt(17, 25);
     evalInt(42, intResult, testData);
@@ -225,6 +251,10 @@ main(): void
     evalBool(false, boolResult, testData);
     boolResult = equalNullArrayNull();
     evalBool(true, boolResult, testData);
+    boolResult = equalCharChar('x', 'x');
+    evalBool(true, boolResult, testData);
+    boolResult = equalCharChar('x', 'c');
+    evalBool(false, boolResult, testData);
 
     intResult = withoutElse(42);
     evalInt(17, intResult, testData);
@@ -337,6 +367,10 @@ main(): void
     evalBool(false, boolResult, testData);
     boolResult = notEqualBoolBool(true, false);
     evalBool(true, boolResult, testData);
+    boolResult = notEqualCharChar('x', 'c');
+    evalBool(true, boolResult, testData);
+    boolResult = notEqualCharChar('x', 'x');
+    evalBool(false, boolResult, testData);
 
     boolResult = notEqualArrayArray();
     evalBool(true, boolResult, testData);
@@ -351,6 +385,8 @@ main(): void
     evalDouble(27.3, doubleResult, testData);
     boolResult = testBoolArray(false);
     evalBool(false, boolResult, testData);
+    charResult = testCharArray('x');
+    evalChar('x', charResult, testData);
 
     intResult = overFlowOnlyInt(1, 1, 1, 1, 1, 1, 1, 1, 1);
     evalInt(9, intResult, testData);

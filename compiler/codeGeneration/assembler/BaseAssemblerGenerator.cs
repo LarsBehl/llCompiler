@@ -60,6 +60,8 @@ namespace LL.CodeGeneration
                     this.IntLitAsm(intLit); break;
                 case BoolLit boolLit:
                     this.BoolLitAsm(boolLit); break;
+                case CharLit charLit:
+                    this.CharLitAsm(charLit); break;
                 case AddExpr addExpr:
                     this.AddExprAsm(addExpr); break;
                 case SubExpr subExpr:
@@ -428,6 +430,10 @@ namespace LL.CodeGeneration
                     stringVal = "%ld\\n";
                     type = "int";
                     break;
+                case CharType ct:
+                    stringVal = "%c\\n";
+                    type = "int";
+                    break;
                 default:
                     throw new TypeNotAllowedException(value.Type.ToString(), this.CurrentFile, value.Line, value.Column);
             }
@@ -498,7 +504,7 @@ namespace LL.CodeGeneration
 
             for (int i = 0; i < args.Count; i++)
             {
-                if (args[i].Type is IntType || args[i].Type is BooleanType || args[i].Type is RefType)
+                if (args[i].Type is IntType || args[i].Type is BooleanType || args[i].Type is CharType || args[i].Type is RefType)
                 {
                     usedInt += 1;
 
@@ -568,6 +574,14 @@ namespace LL.CodeGeneration
                             }
 
                             break;
+                        case CharType charType:
+                            if (i >= integerOverflowPosition)
+                            {
+                                functionAsm.VariableMap.Add(arg.Name, rbpOffset);
+                                rbpOffset += 8;
+                            }
+
+                            break;
                         case RefType refType:
                             if (i >= integerOverflowPosition)
                             {
@@ -593,7 +607,7 @@ namespace LL.CodeGeneration
                 if (arg.Type is DoubleType)
                     doubleArgCount++;
 
-                if (arg.Type is BooleanType || arg.Type is IntType || arg.Type is RefType)
+                if (arg.Type is BooleanType || arg.Type is IntType || arg.Type is CharType || arg.Type is RefType)
                     intArgCount++;
             }
         }
@@ -603,7 +617,7 @@ namespace LL.CodeGeneration
             int i;
             for (i = startIndex + 1; i < args.Count; i++)
             {
-                if (args[i].Type is IntType || args[i].Type is BooleanType || args[i].Type is RefType)
+                if (args[i].Type is IntType || args[i].Type is BooleanType || args[i].Type is CharType || args[i].Type is RefType)
                     return i;
             }
 
@@ -629,7 +643,17 @@ namespace LL.CodeGeneration
             this.WritePush();
 
             this.GetAssember(arrayIndexing.Right);
-            this.WriteLine("imulq $8, %rax");
+            switch (arrayIndexing.Left.Type)
+            {
+                case IntArrayType it:
+                case DoubleArrayType dt:
+                case BoolArrayType bt:
+                    this.WriteLine("imulq $8, %rax");
+                    break;
+                case CharArrayType ct:
+                    this.WriteLine("imulq $1, %rax");
+                    break;
+            }
 
             this.WritePop("%rbx");
             this.WriteLine("addq %rbx, %rax");

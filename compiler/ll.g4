@@ -51,6 +51,7 @@ statement:
 
 unaryExpression:
 	numericExpression
+	| CHAR_LITERAL
 	| boolExpression
 	| functionCall
 	| variableExpression
@@ -88,6 +89,7 @@ typeDefinition:
 	| DOUBLE_TYPE
 	| BOOL_TYPE
 	| VOID_TYPE
+	| CHAR_TYPE
 	| arrayTypes
 	| structName;
 
@@ -104,12 +106,14 @@ notExpression: NOT expression;
 arrayTypes:
 	INT_TYPE BRAC_L BRAC_R		# intArrayType
 	| DOUBLE_TYPE BRAC_L BRAC_R	# doubleArrayType
-	| BOOL_TYPE BRAC_L BRAC_R	# boolArrayType;
+	| BOOL_TYPE BRAC_L BRAC_R	# boolArrayType
+	| CHAR_TYPE BRAC_L BRAC_R	# charArrayType;
 
 arrayCreation:
 	INT_TYPE BRAC_L expression BRAC_R		# intArrayCreation
 	| DOUBLE_TYPE BRAC_L expression BRAC_R	# doubleArrayCreation
-	| BOOL_TYPE BRAC_L expression BRAC_R	# boolArrayCreation;
+	| BOOL_TYPE BRAC_L expression BRAC_R	# boolArrayCreation
+	| CHAR_TYPE BRAC_L expression BRAC_R	# charArrayCreation;
 
 refTypeCreation: NEW arrayCreation | NEW structCreation;
 
@@ -143,11 +147,13 @@ valueAccess:
 
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;
+CHAR_LITERAL: APOSTROPHE '\u0000'..'\u007F' APOSTROPHE;
 RETURN: 'r' 'e' 't' 'u' 'r' 'n';
 INT_TYPE: 'i' 'n' 't';
 DOUBLE_TYPE: 'd' 'o' 'u' 'b' 'l' 'e';
 BOOL_TYPE: 'b' 'o' 'o' 'l';
 VOID_TYPE: 'v' 'o' 'i' 'd';
+CHAR_TYPE: 'c' 'h' 'a' 'r';
 BOOL_TRUE: 't' 'r' 'u' 'e';
 BOOL_FALSE: 'f' 'a' 'l' 's' 'e';
 IF: 'i' 'f';
@@ -187,5 +193,6 @@ NOT: '!';
 AND: '&' '&';
 OR: '|' '|';
 NOT_EQUAL: '!' '=';
+APOSTROPHE: '\'';
 
 WHITESPACE: [ \t\n\r] -> skip;
