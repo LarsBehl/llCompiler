@@ -11,7 +11,6 @@ using LL.Types;
 
 namespace LL.CodeGeneration
 {
-    // TODO add code generation for char type
     public partial class AssemblerGenerator
     {
         private int Depth = 0;
@@ -576,7 +575,7 @@ namespace LL.CodeGeneration
 
                             break;
                         case CharType charType:
-                            if(i >= integerOverflowPosition)
+                            if (i >= integerOverflowPosition)
                             {
                                 functionAsm.VariableMap.Add(arg.Name, rbpOffset);
                                 rbpOffset += 8;
@@ -644,7 +643,17 @@ namespace LL.CodeGeneration
             this.WritePush();
 
             this.GetAssember(arrayIndexing.Right);
-            this.WriteLine("imulq $8, %rax");
+            switch (arrayIndexing.Left.Type)
+            {
+                case IntArrayType it:
+                case DoubleArrayType dt:
+                case BoolArrayType bt:
+                    this.WriteLine("imulq $8, %rax");
+                    break;
+                case CharArrayType ct:
+                    this.WriteLine("imulq $1, %rax");
+                    break;
+            }
 
             this.WritePop("%rbx");
             this.WriteLine("addq %rbx, %rax");

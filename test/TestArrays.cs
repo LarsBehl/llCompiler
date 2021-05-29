@@ -2,7 +2,6 @@ using NUnit.Framework;
 
 using Antlr4.Runtime;
 
-// TODO add more unit tests
 namespace LL.Test
 {
     [TestFixture]

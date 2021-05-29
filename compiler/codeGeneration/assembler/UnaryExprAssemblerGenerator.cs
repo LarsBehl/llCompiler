@@ -28,7 +28,7 @@ namespace LL.CodeGeneration
 
         private void CharLitAsm(CharLit charLit)
         {
-            this.WriteLine($"movq ${(byte) charLit.Value.Value}, %rax");
+            this.WriteLine($"movq ${(byte)charLit.Value.Value}, %rax");
         }
 
         private void FunctionCallAsm(FunctionCall functionCall)
@@ -91,7 +91,7 @@ namespace LL.CodeGeneration
 
                             break;
                         case CharType charType:
-                            if(i >= integerOverflowPosition)
+                            if (i >= integerOverflowPosition)
                             {
                                 functionAsm.VariableMap[arg.Name] = rbpOffset;
                                 rbpOffset += 8;
@@ -188,24 +188,30 @@ namespace LL.CodeGeneration
 
             this.WriteLine($"call {functionCall.FunctionName}");
 
-            if(aligned)
+            if (aligned)
                 this.WritePop("%rbx");
         }
 
         private void VariableAsm(VarExpr varExpr)
         {
-            // move the variables value from the stack into the type specific registers
-            if (varExpr.Type is DoubleType)
-                this.WriteLine($"movq {this.VariableMap[varExpr.Name]}(%rbp), %xmm0");
+            string register;
 
-            if (varExpr.Type is BooleanType
-            || varExpr.Type is IntType
-            || varExpr.Type is CharType
-            || varExpr.Type is IntArrayType
-            || varExpr.Type is DoubleArrayType
-            || varExpr.Type is BoolArrayType
-            || varExpr.Type is StructType)
-                this.WriteLine($"movq {this.VariableMap[varExpr.Name]}(%rbp), %rax");
+            switch (varExpr.Type)
+            {
+                case IntType it:
+                case BooleanType bt:
+                case CharType ct:
+                case RefType rt:
+                    register = "%rax";
+                    break;
+                case DoubleType dt:
+                    register = "%xmm0";
+                    break;
+                default:
+                    throw new TypeNotAllowedException(varExpr.Type.ToString(), this.CurrentFile, varExpr.Line, varExpr.Column);
+            }
+
+            this.WriteLine($"movq {this.VariableMap[varExpr.Name]}(%rbp), {register}");
         }
 
         private void IncrementAsm(IncrementExpr increment)
@@ -406,14 +412,26 @@ namespace LL.CodeGeneration
         {
             this.WriteLine("movq $0, %rax");
         }
-        
+
         private void ArrayIndexingAsm(ArrayIndexing arrayIndexing)
         {
             this.LoadArrayField(arrayIndexing);
-            if (arrayIndexing.Type is DoubleType)
-                this.WriteLine("movq (%rax), %xmm0");
-            else
-                this.WriteLine("movq (%rax), %rax");
+            switch (arrayIndexing.Type)
+            {
+                case DoubleType dt:
+                    this.WriteLine("movq (%rax), %xmm0");
+                    break;
+                case IntType it:
+                case BooleanType bt:
+                    this.WriteLine("movq (%rax), %rax");
+                    break;
+                case CharType ct:
+                    // %rax needs to be cleared
+                    this.WriteLine("movq %rax, %rbx");
+                    this.WriteLine("movq $0, %rax");
+                    this.WriteLine("mov (%rbx), %al");
+                    break;
+            }
         }
 
         private void StructPropertyAccessAsm(StructPropertyAccess structPropertyAccess)

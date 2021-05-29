@@ -36,6 +36,16 @@ testBoolArray(x:bool): bool
     return z;
 }
 
+testCharArray(x:char): char
+{
+    y: char[] = new char[42];
+    y[21] = x;
+    z: char = y[21];
+    destroy y;
+
+    return z;
+}
+
 factorial(x:int): int
 {
     if(x > 1)
@@ -375,6 +385,8 @@ main(): void
     evalDouble(27.3, doubleResult, testData);
     boolResult = testBoolArray(false);
     evalBool(false, boolResult, testData);
+    charResult = testCharArray('x');
+    evalChar('x', charResult, testData);
 
     intResult = overFlowOnlyInt(1, 1, 1, 1, 1, 1, 1, 1, 1);
     evalInt(9, intResult, testData);
