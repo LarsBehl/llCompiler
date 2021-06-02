@@ -18,6 +18,7 @@ namespace LL.CodeGeneration
         private StringBuilder DoubleNumbers = new StringBuilder();
         private StringBuilder Strings = new StringBuilder();
         private static StringBuilder StructDefinitionBuilder = new StringBuilder();
+        private static StringBuilder GlobalVariableInitialization = new StringBuilder();
         private int LabelCount = 0;
         private int DoubleNumbersLabelCount = 0;
         private int StringLabelCount = 0;
@@ -91,6 +92,8 @@ namespace LL.CodeGeneration
                     CompiledPrograms.Add(this.RootProg.FileName);
                     foreach (var structDef in programNode.StructDefs)
                         this.GetAssember(structDef.Value);
+                    foreach (var globalVariable in programNode.GlobalVariables)
+                        this.GetAssember(globalVariable.Value);
                     foreach (var fun in programNode.FunDefs)
                         this.GetAssember(fun.Value);
                     break;
@@ -145,6 +148,8 @@ namespace LL.CodeGeneration
                     this.AssignStructPropertyAsm(assignStruct); break;
                 case ModExpr modExpr:
                     this.ModExprAsm(modExpr); break;
+                case GlobalVariableStatement globalVariable:
+                    this.GlobalVariableStatementAsm(globalVariable); break;
                 default:
                     throw new CodeGenerationNotImplementedException(astNode.ToString(), this.CurrentFile, astNode.Line, astNode.Column);
             }

@@ -6,6 +6,11 @@ load testAssign;
 load testUnary;
 load testStructs;
 
+global testGlobalVariableInt: int = 42;
+global testGlobalVariableDouble: double = 18.7;
+global testGlobalVariableChar: char = 'c';
+global testGlobalVariableBool: bool = true;
+
 testIntArray(x:int): int
 {
     y: int[] = new int[17];

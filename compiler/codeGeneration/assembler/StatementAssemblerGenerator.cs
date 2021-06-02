@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 
 using LL.AST;
 using LL.Types;
@@ -401,6 +402,56 @@ namespace LL.CodeGeneration
 
             // save the calculated value
             this.WriteLine("movq %rbx, (%rax)");
+        }
+
+        private void GlobalVariableStatementAsm(GlobalVariableStatement globalVariable)
+        {
+            this.Depth += 1;
+
+            int size = 8;
+
+            if (globalVariable.Value.Type is CharType)
+                size = 1;
+
+            this.WriteLine($".globl {globalVariable.Variable.Name}");
+            this.WriteLine(".data");
+
+            if (globalVariable.Value.Type is not CharType)
+                this.WriteLine(".align 8");
+
+            this.WriteLine($".type {globalVariable.Variable.Name}, @object");
+            this.WriteLine($".size {globalVariable.Variable.Name}, {size}");
+
+            this.Depth -= 1;
+            this.WriteLine($"{globalVariable.Variable.Name}:");
+            this.Depth += 1;
+
+            switch (globalVariable.Value.Type)
+            {
+                case CharType ct:
+                    this.WriteLine($".byte {(byte)(globalVariable.Value as CharLit).Value.Value}");
+                    break;
+                case IntType it:
+                    this.WriteLine($".quad {(globalVariable.Value as IntLit).Value.Value}");
+                    break;
+                case BooleanType bt:
+                    int value = (globalVariable.Value as BoolLit).Value.Value ? 1 : 0;
+                    this.WriteLine($".quad {value}");
+                    break;
+                case DoubleType dt:
+                    this.DoubleToAssemblerString(globalVariable.Value as DoubleLit, out string first, out string second);
+                    this.WriteLine($".long {first}");
+                    this.WriteLine($".long {second}");
+                    break;
+                case RefType refType:
+                    this.WriteLine(".quad 0");
+                    // TODO handle creation of reference types
+                    throw new NotImplementedException();
+                default:
+                    throw new TypeNotAllowedException(globalVariable.Value.Type.ToString(), this.CurrentFile, globalVariable.Value.Line, globalVariable.Value.Column);
+            }
+
+            this.Depth -= 1;
         }
     }
 }
