@@ -49,20 +49,6 @@ namespace LL
                 result.Dependencies.Add(progName, this.Visit(loadStatement) as LoadStatement);
             }
 
-            var globalVariables = context.globalVariableStatement();
-
-            foreach(var globalVariable in globalVariables)
-            {
-                string varName = globalVariable.name.Text;
-                int line = globalVariable.Start.Line;
-                int column = globalVariable.Start.Column;
-
-                if(result.GlobalVariables.ContainsKey(varName))
-                    throw new VariableAlreadyDefinedException(varName, this.CurrentFile, line, column);
-                
-                result.GlobalVariables.Add(varName, this.Visit(globalVariable) as GlobalVariableStatement);
-            }
-
             foreach(var dependency in result.Dependencies.Values)
                 CompileDependency(dependency);
 
@@ -119,20 +105,6 @@ namespace LL
             int column = context.Start.Column;
 
             return new StructDefinition(name, line, column);
-        }
-
-        public override IAST VisitGlobalVariableStatement([NotNull] llParser.GlobalVariableStatementContext context)
-        {
-            string name = context.name.Text;
-            LL.Types.Type type = Visit(context.typeDefinition()).Type;
-
-            return new GlobalVariableStatement
-            (
-                new VarExpr(name, type, context.name.Line, context.name.Column),
-                this.CurrentFile,
-                context.Start.Line,
-                context.Start.Column
-            );
         }
 
         private bool IsFilePresent(string fileName, out string location)

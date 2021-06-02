@@ -14,14 +14,15 @@ namespace LL.AST
             set
             {
                 if (value.Type != Variable.Type)
-                    throw new TypeMissmatchException
-                    (
-                        Variable.Type.ToString(),
-                        value.Type.ToString(),
-                        this.currentFile,
-                        Variable.Line,
-                        Variable.Column
-                    );
+                    if(!(value.Type is IntType && Variable.Type is DoubleType))
+                        throw new TypeMissmatchException
+                        (
+                            Variable.Type.ToString(),
+                            value.Type.ToString(),
+                            this.currentFile,
+                            Variable.Line,
+                            Variable.Column
+                        );
 
                 this.val = value;
             }
@@ -30,7 +31,7 @@ namespace LL.AST
         public GlobalVariableStatement(VarExpr variable, string currentFile, int line, int column) : base(new GlobalVariableStatementType(), line, column)
         {
             this.Variable = variable;
-            this.Value = null;
+            this.val = null;
             this.currentFile = currentFile;
         }
     }

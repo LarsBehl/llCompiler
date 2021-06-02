@@ -248,25 +248,28 @@ namespace LL
             int line = context.Start.Line;
             int column = context.Start.Column;
 
-            if(!success)
+            if (!success)
                 throw new UnknownVariableException(varName, this.RootProgram.FileName, line, column);
 
             IAST val = null;
-            if(context.CHAR_LITERAL() != null)
-                val = this.Visit(context.CHAR_LITERAL());
+            if (context.CHAR_LITERAL() != null)
+            {
+                var charLit = context.CHAR_LITERAL();
+                val = new CharLit(charLit.GetText().Replace("'", string.Empty)[0], charLit.Symbol.Line, charLit.Symbol.Column);
+            }
 
-            if(context.numericExpression() != null)
+            if (context.numericExpression() != null)
                 val = this.Visit(context.numericExpression());
-            
-            if(context.boolExpression() != null)
+
+            if (context.boolExpression() != null)
                 val = this.Visit(context.boolExpression());
-            
-            if(context.refTypeCreation() != null)
+
+            if (context.refTypeCreation() != null)
                 val = this.Visit(context.refTypeCreation());
 
-            if(val is null)
+            if (val is null)
                 throw new NoValueException(varName, this.RootProgram.FileName, line, column);
-            
+
             globalVariable.Value = val;
 
             return globalVariable;

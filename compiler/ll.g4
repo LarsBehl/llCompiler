@@ -145,7 +145,7 @@ valueAccess:
 	| arrayIndexing
 	| structPropertyAccess;
 
-globalVariableStatement: GLOBAL name = WORD COLON typeDefinition EQUAL (CHAR_LITERAL | numericExpression | boolExpression | refTypeCreation);
+globalVariableStatement: GLOBAL name = WORD COLON typeDefinition ASSIGN (CHAR_LITERAL | numericExpression | boolExpression | refTypeCreation) SEMCOL;
 
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;

@@ -41,6 +41,20 @@ namespace LL
 
         public override IAST VisitProgram([NotNull] llParser.ProgramContext context)
         {
+            var globalVariables = context.globalVariableStatement();
+
+            foreach (var globalVariable in globalVariables)
+            {
+                string varName = globalVariable.name.Text;
+                int line = globalVariable.Start.Line;
+                int column = globalVariable.Start.Column;
+
+                if (this.RootProg.GlobalVariables.ContainsKey(varName))
+                    throw new VariableAlreadyDefinedException(varName, this.CurrentFile, line, column);
+
+                this.RootProg.GlobalVariables.Add(varName, this.Visit(globalVariable) as GlobalVariableStatement);
+            }
+
             var funs = context.functionDefinition();
             foreach (var fun in funs)
                 this.Visit(fun);
@@ -101,7 +115,7 @@ namespace LL
                 return new BoolLit(null, line, column);
             if (context.VOID_TYPE() != null)
                 return new VoidLit(line, column);
-            if(context.CHAR_TYPE() != null)
+            if (context.CHAR_TYPE() != null)
                 return new CharLit(line, column);
             if (context.arrayTypes() != null)
                 return Visit(context.arrayTypes());
@@ -143,6 +157,20 @@ namespace LL
                 throw new UnknownTypeException(structName, this.CurrentFile, line, column);
 
             return new Struct(structName, line, column);
+        }
+
+        public override IAST VisitGlobalVariableStatement([NotNull] llParser.GlobalVariableStatementContext context)
+        {
+            string name = context.name.Text;
+            LL.Types.Type type = Visit(context.typeDefinition()).Type;
+
+            return new GlobalVariableStatement
+            (
+                new VarExpr(name, type, context.name.Line, context.name.Column),
+                this.CurrentFile,
+                context.Start.Line,
+                context.Start.Column
+            );
         }
 
         private void AddFunctionDefinition(string functionName, llParser.TypeDefinitionContext[] types, ITerminalNode[] identifiers, int line, int column)
