@@ -5,7 +5,7 @@ grammar ll;
 
 compileUnit: program EOF;
 
-program: (loadStatement* (functionDefinition | structDefinition | functionPrototype)+)
+program: (loadStatement* globalVariableStatement* (functionDefinition | structDefinition | functionPrototype)+)
 	| compositUnit;
 
 compositUnit: statement | expression;
@@ -145,6 +145,8 @@ valueAccess:
 	| arrayIndexing
 	| structPropertyAccess;
 
+globalVariableStatement: GLOBAL name = WORD COLON typeDefinition EQUAL (CHAR_LITERAL | numericExpression | boolExpression | refTypeCreation);
+
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;
 CHAR_LITERAL: APOSTROPHE '\u0000'..'\u007F' APOSTROPHE;
@@ -165,6 +167,7 @@ DESTROY: 'd' 'e' 's' 't' 'r' 'o' 'y';
 NULL: 'n' 'u' 'l' 'l';
 STRUCT: 's' 't' 'r' 'u' 'c' 't';
 LOAD: 'l' 'o' 'a' 'd';
+GLOBAL: 'g' 'l' 'o' 'b' 'a' 'l';
 WORD: ([a-zA-Z] | '_') ([a-zA-Z0-9] | '_')*;
 MOD: '%';
 MULT: '*';

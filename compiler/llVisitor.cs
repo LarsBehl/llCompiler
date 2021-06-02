@@ -440,5 +440,11 @@ public interface IllVisitor<Result> : IParseTreeVisitor<Result> {
 	/// <param name="context">The parse tree.</param>
 	/// <return>The visitor result.</return>
 	Result VisitValueAccess([NotNull] llParser.ValueAccessContext context);
+	/// <summary>
+	/// Visit a parse tree produced by <see cref="llParser.globalVariableStatement"/>.
+	/// </summary>
+	/// <param name="context">The parse tree.</param>
+	/// <return>The visitor result.</return>
+	Result VisitGlobalVariableStatement([NotNull] llParser.GlobalVariableStatementContext context);
 }
 } // namespace LL
