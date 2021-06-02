@@ -11,6 +11,7 @@ namespace LL.AST
         public Dictionary<string, FunctionDefinition> FunDefs { get; set; }
         public Dictionary<string, StructDefinition> StructDefs { get; set; }
         public Dictionary<string, LoadStatement> Dependencies { get; set; }
+        public Dictionary<string, GlobalVariableStatement> GlobalVariables { get; set; }
         public IAST CompositUnit { get; set; }
         public Dictionary<string, IAST> Env { get; set; }
         public string FileName { get; set; }
@@ -45,6 +46,7 @@ namespace LL.AST
             this.FunDefs = funDefs;
             this.StructDefs = structDefs;
             this.Dependencies = new Dictionary<string, LoadStatement>();
+            this.GlobalVariables = new Dictionary<string, GlobalVariableStatement>();
             this.CompositUnit = null;
             this.Env = new Dictionary<string, IAST>();
             this.FileName = fileName;

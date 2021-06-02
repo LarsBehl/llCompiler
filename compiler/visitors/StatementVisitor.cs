@@ -241,6 +241,37 @@ namespace LL
             return new AssignStructProperty(structPropAccess, val, context.Start.Line, context.Start.Column);
         }
 
+        public override IAST VisitGlobalVariableStatement([NotNull] llParser.GlobalVariableStatementContext context)
+        {
+            string varName = context.name.Text;
+            bool success = this.RootProgram.GlobalVariables.TryGetValue(varName, out GlobalVariableStatement globalVariable);
+            int line = context.Start.Line;
+            int column = context.Start.Column;
+
+            if(!success)
+                throw new UnknownVariableException(varName, this.RootProgram.FileName, line, column);
+
+            IAST val = null;
+            if(context.CHAR_LITERAL() != null)
+                val = this.Visit(context.CHAR_LITERAL());
+
+            if(context.numericExpression() != null)
+                val = this.Visit(context.numericExpression());
+            
+            if(context.boolExpression() != null)
+                val = this.Visit(context.boolExpression());
+            
+            if(context.refTypeCreation() != null)
+                val = this.Visit(context.refTypeCreation());
+
+            if(val is null)
+                throw new NoValueException(varName, this.RootProgram.FileName, line, column);
+            
+            globalVariable.Value = val;
+
+            return globalVariable;
+        }
+
         private LL.Types.Type TryGetType(string varName, int line, int column)
         {
             bool success = this.Env.TryGetValue(varName, out IAST @var);
