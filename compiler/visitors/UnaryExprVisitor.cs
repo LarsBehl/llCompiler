@@ -163,7 +163,6 @@ namespace LL
             return new NotExpr(Visit(context.expression()), context.Start.Line, context.Start.Column);
         }
 
-        // TODO handle global variables
         public override IAST VisitVariableExpression(llParser.VariableExpressionContext context)
         {
             Types.Type type = null;

@@ -102,6 +102,24 @@ namespace LL.AST
             return false;
         }
 
+        public bool IsGlobalVariableDefined(string globalVarName)
+        {
+            bool result = this.GlobalVariables.ContainsKey(globalVarName);
+
+            if(result)
+                return result;
+            
+            foreach(LoadStatement dep in this.Dependencies.Values)
+            {
+                result = dep.Program.IsGlobalVariableDefined(globalVarName);
+
+                if(result)
+                    return result;
+            }
+
+            return false;
+        }
+
         public bool IsFunctionCallable(string functionName)
         {
             bool result = this.FunDefs.ContainsKey(functionName);
@@ -148,6 +166,24 @@ namespace LL.AST
             foreach(LoadStatement dep in this.Dependencies.Values)
             {
                 result = dep.Program.GetStructDefinition(structName);
+
+                if(result is not null)
+                    return result;
+            }
+
+            return null;
+        }
+
+        public GlobalVariableStatement GetGlobalVariableStatement(string variableName)
+        {
+            bool success = this.GlobalVariables.TryGetValue(variableName, out GlobalVariableStatement result);
+
+            if(success)
+                return result;
+            
+            foreach(LoadStatement dep in this.Dependencies.Values)
+            {
+                result = dep.Program.GetGlobalVariableStatement(variableName);
 
                 if(result is not null)
                     return result;

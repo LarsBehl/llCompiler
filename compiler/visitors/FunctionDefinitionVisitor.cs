@@ -42,18 +42,8 @@ namespace LL
         public override IAST VisitProgram([NotNull] llParser.ProgramContext context)
         {
             var globalVariables = context.globalVariableStatement();
-
             foreach (var globalVariable in globalVariables)
-            {
-                string varName = globalVariable.name.Text;
-                int line = globalVariable.Start.Line;
-                int column = globalVariable.Start.Column;
-
-                if (this.RootProg.GlobalVariables.ContainsKey(varName))
-                    throw new VariableAlreadyDefinedException(varName, this.CurrentFile, line, column);
-
-                this.RootProg.GlobalVariables.Add(varName, this.Visit(globalVariable) as GlobalVariableStatement);
-            }
+                this.Visit(globalVariable);
 
             var funs = context.functionDefinition();
             foreach (var fun in funs)
@@ -164,13 +154,15 @@ namespace LL
             string name = context.name.Text;
             LL.Types.Type type = Visit(context.typeDefinition()).Type;
 
-            return new GlobalVariableStatement
+            this.AddGlobalVariable(new GlobalVariableStatement
             (
                 new VarExpr(name, type, context.name.Line, context.name.Column),
                 this.CurrentFile,
                 context.Start.Line,
                 context.Start.Column
-            );
+            ));
+
+            return null;
         }
 
         private void AddFunctionDefinition(string functionName, llParser.TypeDefinitionContext[] types, ITerminalNode[] identifiers, int line, int column)
@@ -190,6 +182,14 @@ namespace LL
             }
 
             this.RootProg.FunDefs.Add(functionName, new FunctionDefinition(functionName, args, tmpEnv, Visit(types[types.Length - 1]).Type, line, column));
+        }
+
+        private void AddGlobalVariable(GlobalVariableStatement variableStatement)
+        {
+            if (this.RootProg.IsGlobalVariableDefined(variableStatement.Variable.Name))
+                throw new VariableAlreadyDefinedException(variableStatement.Variable.Name, this.CurrentFile, variableStatement.Variable.Line, variableStatement.Variable.Column);
+
+            this.RootProg.GlobalVariables.Add(variableStatement.Variable.Name, variableStatement);
         }
     }
 }

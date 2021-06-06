@@ -16,7 +16,7 @@ namespace LL
             int line = context.Start.Line;
             int column = context.Start.Column;
 
-            if (!this.Env.ContainsKey(name))
+            if (!this.Env.ContainsKey(name) && !this.RootProgram.IsGlobalVariableDefined(name))
                 throw new UnknownVariableException(name, this.RootProgram.FileName, line, column);
 
             // check if righthand side of the assignment is an array or an expression
@@ -64,6 +64,9 @@ namespace LL
             if (variable.Type is VoidType)
                 throw new TypeNotAllowedException(variable.Type.ToString(), this.RootProgram.FileName, variable.Line, variable.Column);
 
+            if (this.Env.ContainsKey(name) || this.RootProgram.IsGlobalVariableDefined(name))
+                throw new VariableAlreadyDefinedException(name, this.RootProgram.FileName, line, column);
+
             this.Env[name] = variable;
 
             IAST val;
@@ -91,7 +94,7 @@ namespace LL
             if (variable.Type is VoidType)
                 throw new TypeNotAllowedException(variable.Type.ToString(), this.RootProgram.FileName, variable.Line, variable.Column);
 
-            if (this.Env.ContainsKey(variableName))
+            if (this.Env.ContainsKey(variableName) || this.RootProgram.IsGlobalVariableDefined(variableName))
                 throw new VariableAlreadyDefinedException(variableName, this.RootProgram.FileName, line, column);
 
             this.Env[variableName] = variable;
@@ -280,7 +283,14 @@ namespace LL
             bool success = this.Env.TryGetValue(varName, out IAST @var);
 
             if (!success)
-                throw new UnknownVariableException(varName, null, line, column);
+            {
+                GlobalVariableStatement globalVariable = this.RootProgram.GetGlobalVariableStatement(varName);
+
+                if (globalVariable is null)
+                    throw new UnknownVariableException(varName, null, line, column);
+
+                return globalVariable.Variable.Type;
+            }
 
             return @var.Type;
         }
