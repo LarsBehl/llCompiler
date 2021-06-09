@@ -1,8 +1,9 @@
-using System;
+using System.Text;
 
 using LL.AST;
-using LL.Types;
 using LL.Exceptions;
+using LL.Helper;
+using LL.Types;
 
 namespace LL.CodeGeneration
 {
@@ -24,8 +25,9 @@ namespace LL.CodeGeneration
 
         private void AssignAsm(AssignStatement assignStatement)
         {
+            bool isGlobal = this.RootProg.IsGlobalVariableDefined(assignStatement.Variable.Name);
             // if it is the first time the variable is mentioned in this context
-            if (!this.VariableMap.ContainsKey(assignStatement.Variable.Name))
+            if (!this.VariableMap.ContainsKey(assignStatement.Variable.Name) && !isGlobal)
             {
                 // and there are still more local variables in this function
                 if (++this.LocalVariablePointer > this.LocalVariableCount)
@@ -63,7 +65,10 @@ namespace LL.CodeGeneration
             }
 
             // save the value of the variable on the stack
-            this.WriteLine($"movq {register}, {this.VariableMap[assignStatement.Variable.Name]}(%rbp)");
+            if(!isGlobal)
+                this.WriteLine($"movq {register}, {this.VariableMap[assignStatement.Variable.Name]}(%rbp)");
+            else
+                this.WriteLine($"movq {register}, {assignStatement.Variable.Name}(%rip)");
         }
 
         private void InstantiationStatementAsm(InstantiationStatement instantiationStatement)
@@ -301,6 +306,47 @@ namespace LL.CodeGeneration
                 this.WritePop("%rbx");
         }
 
+        private string GlobalVariableStruct(Struct @struct)
+        {
+            StringBuilder builder = new StringBuilder();
+
+            int structId = StructIdMap[@struct.Name];
+            builder.AppendLine($"{Constants.INDENTATION}movq ${structId}, %rdi");
+            builder.AppendLine($"{Constants.INDENTATION}movq $0, %rsi");
+
+            return builder.ToString();
+        }
+
+        private string GlobalVariableArray(AST.Array array)
+        {
+            StringBuilder bob = new StringBuilder();
+            // casting should be safe at this point
+            IntLit size = array.Size as IntLit;
+            bob.AppendLine($"{Constants.INDENTATION}movq ${size.Value.Value}, %rax");
+            
+            switch (array)
+            {
+                // 64bit arrays
+                case IntArray intArray:
+                case DoubleArray doubleArray:
+                case BoolArray boolArray:
+                    bob.AppendLine($"{Constants.INDENTATION}movq $8, %rbx");
+                    break;
+                // 8bit arrays
+                case CharArray charArray:
+                    bob.AppendLine($"{Constants.INDENTATION}movq $1, %rbx");
+                    break;
+                default:
+                    throw new TypeNotAllowedException(array.Type.ToString(), this.CurrentFile, array.Line, array.Column);
+            }
+
+            bob.AppendLine($"{Constants.INDENTATION}imulq %rbx, %rax");
+            bob.AppendLine($"{Constants.INDENTATION}movq %rax, %rdi");
+            bob.AppendLine($"{Constants.INDENTATION}movq $1, %rsi");
+
+            return bob.ToString();
+        }
+
         private void CreateArrayAsm(AST.Array array)
         {
             // calculate the size of the array
@@ -401,6 +447,63 @@ namespace LL.CodeGeneration
 
             // save the calculated value
             this.WriteLine("movq %rbx, (%rax)");
+        }
+
+        private void GlobalVariableStatementAsm(GlobalVariableStatement globalVariable)
+        {
+            this.Depth += 1;
+
+            int size = 8;
+
+            if (globalVariable.Value.Type is CharType)
+                size = 1;
+
+            this.WriteLine($".globl {globalVariable.Variable.Name}");
+            this.WriteLine(".data");
+
+            if (globalVariable.Value.Type is not CharType)
+                this.WriteLine(".align 8");
+
+            this.WriteLine($".type {globalVariable.Variable.Name}, @object");
+            this.WriteLine($".size {globalVariable.Variable.Name}, {size}");
+
+            this.Depth -= 1;
+            this.WriteLine($"{globalVariable.Variable.Name}:");
+            this.Depth += 1;
+
+            switch (globalVariable.Value.Type)
+            {
+                case CharType ct:
+                    this.WriteLine($".byte {(byte)(globalVariable.Value as CharLit).Value.Value}");
+                    break;
+                case IntType it:
+                    this.WriteLine($".quad {(globalVariable.Value as IntLit).Value.Value}");
+                    break;
+                case BooleanType bt:
+                    int value = (globalVariable.Value as BoolLit).Value.Value ? 1 : 0;
+                    this.WriteLine($".quad {value}");
+                    break;
+                case DoubleType dt:
+                    this.DoubleToAssemblerString(globalVariable.Value as DoubleLit, out string first, out string second);
+                    this.WriteLine($".long {first}");
+                    this.WriteLine($".long {second}");
+                    break;
+                case RefType refType:
+                    this.WriteLine(".quad 0");
+                    string typeInitialization = null;
+                    if(refType is StructType)
+                        typeInitialization = this.GlobalVariableStruct((globalVariable.Value as RefTypeCreationStatement).CreatedReftype as Struct);
+                    else
+                        typeInitialization = this.GlobalVariableArray((globalVariable.Value as RefTypeCreationStatement).CreatedReftype as LL.AST.Array);
+                    GlobalVariableInitializationBuilder.Append(typeInitialization);
+                    GlobalVariableInitializationBuilder.AppendLine($"{Constants.INDENTATION}call createHeapObject@PLT");
+                    GlobalVariableInitializationBuilder.AppendLine($"{Constants.INDENTATION}movq %rax, {globalVariable.Variable.Name}(%rip)");
+                    break;
+                default:
+                    throw new TypeNotAllowedException(globalVariable.Value.Type.ToString(), this.CurrentFile, globalVariable.Value.Line, globalVariable.Value.Column);
+            }
+
+            this.Depth -= 1;
         }
     }
 }

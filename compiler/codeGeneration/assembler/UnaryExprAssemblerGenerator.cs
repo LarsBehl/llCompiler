@@ -211,7 +211,10 @@ namespace LL.CodeGeneration
                     throw new TypeNotAllowedException(varExpr.Type.ToString(), this.CurrentFile, varExpr.Line, varExpr.Column);
             }
 
-            this.WriteLine($"movq {this.VariableMap[varExpr.Name]}(%rbp), {register}");
+            if(this.RootProg.IsGlobalVariableDefined(varExpr.Name))
+                this.WriteLine($"movq {varExpr.Name}(%rip), {register}");
+            else
+                this.WriteLine($"movq {this.VariableMap[varExpr.Name]}(%rbp), {register}");
         }
 
         private void IncrementAsm(IncrementExpr increment)

@@ -20,6 +20,12 @@ struct doubleStruct
     d: double;
 }
 
+struct TestData
+{
+    testCount: int;
+    successCount: int;
+}
+
 accessFirstInnerStruct(x:int): int
 {
     l: Line = new Line();

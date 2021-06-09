@@ -95,6 +95,10 @@ namespace LL
         {
             var structs = context.structDefinition();
             var funs = context.functionDefinition();
+            var globalVariables = context.globalVariableStatement();
+
+            foreach(var globalVariable in globalVariables)
+                this.VisitGlobalVariableStatement(globalVariable);
 
             if(structs?.Length > 0)
             {

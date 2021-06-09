@@ -16,7 +16,7 @@ namespace LL
             int line = context.Start.Line;
             int column = context.Start.Column;
 
-            if (!this.Env.ContainsKey(name))
+            if (!this.Env.ContainsKey(name) && !this.RootProgram.IsGlobalVariableDefined(name))
                 throw new UnknownVariableException(name, this.RootProgram.FileName, line, column);
 
             // check if righthand side of the assignment is an array or an expression
@@ -64,6 +64,9 @@ namespace LL
             if (variable.Type is VoidType)
                 throw new TypeNotAllowedException(variable.Type.ToString(), this.RootProgram.FileName, variable.Line, variable.Column);
 
+            if (this.Env.ContainsKey(name) || this.RootProgram.IsGlobalVariableDefined(name))
+                throw new VariableAlreadyDefinedException(name, this.RootProgram.FileName, line, column);
+
             this.Env[name] = variable;
 
             IAST val;
@@ -91,7 +94,7 @@ namespace LL
             if (variable.Type is VoidType)
                 throw new TypeNotAllowedException(variable.Type.ToString(), this.RootProgram.FileName, variable.Line, variable.Column);
 
-            if (this.Env.ContainsKey(variableName))
+            if (this.Env.ContainsKey(variableName) || this.RootProgram.IsGlobalVariableDefined(variableName))
                 throw new VariableAlreadyDefinedException(variableName, this.RootProgram.FileName, line, column);
 
             this.Env[variableName] = variable;
@@ -241,12 +244,56 @@ namespace LL
             return new AssignStructProperty(structPropAccess, val, context.Start.Line, context.Start.Column);
         }
 
+        public override IAST VisitGlobalVariableStatement([NotNull] llParser.GlobalVariableStatementContext context)
+        {
+            string varName = context.name.Text;
+            bool success = this.RootProgram.GlobalVariables.TryGetValue(varName, out GlobalVariableStatement globalVariable);
+            int line = context.Start.Line;
+            int column = context.Start.Column;
+
+            if (!success)
+                throw new UnknownVariableException(varName, this.RootProgram.FileName, line, column);
+
+            IAST val = null;
+            if (context.CHAR_LITERAL() != null)
+            {
+                var charLit = context.CHAR_LITERAL();
+                val = new CharLit(charLit.GetText().Replace("'", string.Empty)[0], charLit.Symbol.Line, charLit.Symbol.Column);
+            }
+
+            if (context.numericExpression() != null)
+                val = this.Visit(context.numericExpression());
+
+            if (context.boolExpression() != null)
+                val = this.Visit(context.boolExpression());
+
+            if (context.refTypeCreation() != null)
+                val = this.Visit(context.refTypeCreation());
+
+            if (val is RefTypeCreationStatement rf && rf.CreatedReftype is LL.AST.Array arr && (arr.Size is FunctionCall || arr.Size is VarExpr))
+                throw new IllegalOperationException("FunctionCall or VarExpr for size of global array not allowed", this.RootProgram.FileName, arr.Line, arr.Column);
+
+            if (val is null)
+                throw new NoValueException(varName, this.RootProgram.FileName, line, column);
+
+            globalVariable.Value = val;
+
+            return globalVariable;
+        }
+
         private LL.Types.Type TryGetType(string varName, int line, int column)
         {
             bool success = this.Env.TryGetValue(varName, out IAST @var);
 
             if (!success)
-                throw new UnknownVariableException(varName, null, line, column);
+            {
+                GlobalVariableStatement globalVariable = this.RootProgram.GetGlobalVariableStatement(varName);
+
+                if (globalVariable is null)
+                    throw new UnknownVariableException(varName, null, line, column);
+
+                return globalVariable.Variable.Type;
+            }
 
             return @var.Type;
         }

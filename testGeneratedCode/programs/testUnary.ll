@@ -1,5 +1,7 @@
 load testStructs;
 
+global testData: TestData = new TestData();
+
 incrementPostInt(x:int): int
 {
     return x++;

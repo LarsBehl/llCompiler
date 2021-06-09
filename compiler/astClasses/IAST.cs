@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+
+using LL.Exceptions;
 using LL.Types;
 
 namespace LL.AST
@@ -235,6 +237,8 @@ namespace LL.AST
                     return null;
                 case ModExpr modExpr:
                     return EvalModExpr(modExpr);
+                case GlobalVariableStatement globalVariableStatement:
+                    throw new IllegalOperationException("Global variables are not supported in interactive mode", "Intepreter", globalVariableStatement.Line, globalVariableStatement.Column);
                 default:
                     throw new ArgumentException("Unknown Ast Object");
             }

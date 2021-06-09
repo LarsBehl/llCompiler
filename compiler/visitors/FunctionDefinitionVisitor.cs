@@ -41,6 +41,10 @@ namespace LL
 
         public override IAST VisitProgram([NotNull] llParser.ProgramContext context)
         {
+            var globalVariables = context.globalVariableStatement();
+            foreach (var globalVariable in globalVariables)
+                this.Visit(globalVariable);
+
             var funs = context.functionDefinition();
             foreach (var fun in funs)
                 this.Visit(fun);
@@ -101,7 +105,7 @@ namespace LL
                 return new BoolLit(null, line, column);
             if (context.VOID_TYPE() != null)
                 return new VoidLit(line, column);
-            if(context.CHAR_TYPE() != null)
+            if (context.CHAR_TYPE() != null)
                 return new CharLit(line, column);
             if (context.arrayTypes() != null)
                 return Visit(context.arrayTypes());
@@ -145,6 +149,22 @@ namespace LL
             return new Struct(structName, line, column);
         }
 
+        public override IAST VisitGlobalVariableStatement([NotNull] llParser.GlobalVariableStatementContext context)
+        {
+            string name = context.name.Text;
+            LL.Types.Type type = Visit(context.typeDefinition()).Type;
+
+            this.AddGlobalVariable(new GlobalVariableStatement
+            (
+                new VarExpr(name, type, context.name.Line, context.name.Column),
+                this.CurrentFile,
+                context.Start.Line,
+                context.Start.Column
+            ));
+
+            return null;
+        }
+
         private void AddFunctionDefinition(string functionName, llParser.TypeDefinitionContext[] types, ITerminalNode[] identifiers, int line, int column)
         {
             if (this.RootProg.IsFunctionDefined(functionName))
@@ -162,6 +182,14 @@ namespace LL
             }
 
             this.RootProg.FunDefs.Add(functionName, new FunctionDefinition(functionName, args, tmpEnv, Visit(types[types.Length - 1]).Type, line, column));
+        }
+
+        private void AddGlobalVariable(GlobalVariableStatement variableStatement)
+        {
+            if (this.RootProg.IsGlobalVariableDefined(variableStatement.Variable.Name))
+                throw new VariableAlreadyDefinedException(variableStatement.Variable.Name, this.CurrentFile, variableStatement.Variable.Line, variableStatement.Variable.Column);
+
+            this.RootProg.GlobalVariables.Add(variableStatement.Variable.Name, variableStatement);
         }
     }
 }

@@ -11,6 +11,7 @@ namespace LL.AST
         public Dictionary<string, FunctionDefinition> FunDefs { get; set; }
         public Dictionary<string, StructDefinition> StructDefs { get; set; }
         public Dictionary<string, LoadStatement> Dependencies { get; set; }
+        public Dictionary<string, GlobalVariableStatement> GlobalVariables { get; set; }
         public IAST CompositUnit { get; set; }
         public Dictionary<string, IAST> Env { get; set; }
         public string FileName { get; set; }
@@ -45,6 +46,7 @@ namespace LL.AST
             this.FunDefs = funDefs;
             this.StructDefs = structDefs;
             this.Dependencies = new Dictionary<string, LoadStatement>();
+            this.GlobalVariables = new Dictionary<string, GlobalVariableStatement>();
             this.CompositUnit = null;
             this.Env = new Dictionary<string, IAST>();
             this.FileName = fileName;
@@ -100,6 +102,24 @@ namespace LL.AST
             return false;
         }
 
+        public bool IsGlobalVariableDefined(string globalVarName)
+        {
+            bool result = this.GlobalVariables.ContainsKey(globalVarName);
+
+            if(result)
+                return result;
+            
+            foreach(LoadStatement dep in this.Dependencies.Values)
+            {
+                result = dep.Program.IsGlobalVariableDefined(globalVarName);
+
+                if(result)
+                    return result;
+            }
+
+            return false;
+        }
+
         public bool IsFunctionCallable(string functionName)
         {
             bool result = this.FunDefs.ContainsKey(functionName);
@@ -146,6 +166,24 @@ namespace LL.AST
             foreach(LoadStatement dep in this.Dependencies.Values)
             {
                 result = dep.Program.GetStructDefinition(structName);
+
+                if(result is not null)
+                    return result;
+            }
+
+            return null;
+        }
+
+        public GlobalVariableStatement GetGlobalVariableStatement(string variableName)
+        {
+            bool success = this.GlobalVariables.TryGetValue(variableName, out GlobalVariableStatement result);
+
+            if(success)
+                return result;
+            
+            foreach(LoadStatement dep in this.Dependencies.Values)
+            {
+                result = dep.Program.GetGlobalVariableStatement(variableName);
 
                 if(result is not null)
                     return result;
