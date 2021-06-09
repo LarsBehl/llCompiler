@@ -11,7 +11,6 @@ global testGlobalVariableDouble: double = 18.7;
 global testGlobalVariableChar: char = 'c';
 global testGlobalVariableBool: bool = true;
 global testGlobalArray: int[] = new int[5];
-global testData: TestData = new TestData();
 
 testIntArray(x:int): int
 {
@@ -113,12 +112,6 @@ assignIntDoubleArray(x: int): double
     y[0] = x;
 
     return y[0];
-}
-
-struct TestData
-{
-    testCount: int;
-    successCount: int;
 }
 
 evalInt(expected: int, val: int): void
