@@ -10,6 +10,8 @@ global testGlobalVariableInt: int = 42;
 global testGlobalVariableDouble: double = 18.7;
 global testGlobalVariableChar: char = 'c';
 global testGlobalVariableBool: bool = true;
+global testGlobalArray: int[] = new int[5];
+global testGlobalStruct: Point = new Point();
 
 testIntArray(x:int): int
 {

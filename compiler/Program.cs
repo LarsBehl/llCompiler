@@ -102,6 +102,8 @@ namespace LL
 
         private static void HeaderCreationMode(string inputFile)
         {
+            Console.WriteLine($"Creating Headers for {inputFile}...");
+
             ProgramNode ast = CompilationHelper.CompileFile(inputFile);
             if (ast is null)
                 Environment.Exit(-1);

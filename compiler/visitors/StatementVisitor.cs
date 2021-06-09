@@ -270,6 +270,9 @@ namespace LL
             if (context.refTypeCreation() != null)
                 val = this.Visit(context.refTypeCreation());
 
+            if (val is RefTypeCreationStatement rf && rf.CreatedReftype is LL.AST.Array arr && (arr.Size is FunctionCall || arr.Size is VarExpr))
+                throw new IllegalOperationException("FunctionCall or VarExpr for size of global array not allowed", this.RootProgram.FileName, arr.Line, arr.Column);
+
             if (val is null)
                 throw new NoValueException(varName, this.RootProgram.FileName, line, column);
 
