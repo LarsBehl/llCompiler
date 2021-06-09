@@ -18,7 +18,7 @@ namespace LL.CodeGeneration
         private StringBuilder DoubleNumbers = new StringBuilder();
         private StringBuilder Strings = new StringBuilder();
         private static StringBuilder StructDefinitionBuilder = new StringBuilder();
-        private static StringBuilder GlobalVariableInitialization = new StringBuilder();
+        private static StringBuilder GlobalVariableInitializationBuilder = new StringBuilder();
         private int LabelCount = 0;
         private int DoubleNumbersLabelCount = 0;
         private int StringLabelCount = 0;
@@ -298,6 +298,7 @@ namespace LL.CodeGeneration
                 }
 
                 this.WriteLine(StructDefinitionBuilder.ToString());
+                this.WriteLine(GlobalVariableInitializationBuilder.ToString());
 
                 if (aligned)
                     this.WritePop("%rbx");
