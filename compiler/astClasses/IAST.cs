@@ -35,6 +35,7 @@ namespace LL.AST
                 case DoubleLit d: return d;
                 case BoolLit b: return b;
                 case CharLit charLit: return charLit;
+                case StringLit sl: return sl;
                 case MultExpr me:
                     return EvalMultExpression(me);
                 case AddExpr add:

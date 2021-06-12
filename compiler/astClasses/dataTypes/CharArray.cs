@@ -1,3 +1,5 @@
+using System.Text;
+
 using LL.Types;
 
 namespace LL.AST
@@ -21,19 +23,18 @@ namespace LL.AST
 
         public override string ToString()
         {
-            string result = "[";
+            StringBuilder bob = new StringBuilder();
+            bob.Append("\"");
 
             foreach(IAST node in this.Values)
             {
                 if(node != null)
-                    result += node.Eval().ToString() + ", ";
-                else
-                    result += "null, ";
+                    bob.Append(node.Eval().ToString());
             }
 
-            result = result.Substring(0, result.Length - 2) + "]";
+            bob.Append("\"");
 
-            return result;
+            return bob.ToString();
         }
     }
 }

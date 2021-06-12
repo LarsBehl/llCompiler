@@ -4,6 +4,7 @@ using System.Globalization;
 using LL.AST;
 using LL.Types;
 using LL.Exceptions;
+using Antlr4.Runtime.Tree;
 
 namespace LL
 {
@@ -38,12 +39,10 @@ namespace LL
                 return new NullLit(line, column);
             if (context.structPropertyAccess() != null)
                 return Visit(context.structPropertyAccess());
-            if(context.CHAR_LITERAL() != null)
-            {
-                char lit = context.CHAR_LITERAL().GetText().Replace("'", string.Empty)[0];
-
-                return new CharLit(lit, line, column);
-            }
+            if (context.CHAR_LITERAL() != null)
+                return this.CreateCharLitFromNode(context.CHAR_LITERAL());
+            if (context.STRING_LITERAL() != null)
+                return this.CreateStringLitFromNode(context.STRING_LITERAL());
 
             throw new NodeNotImplementedException(context.GetText(), this.RootProgram.FileName, line, column);
         }
@@ -176,7 +175,7 @@ namespace LL
 
                 // search for the struct definition
                 StructDefinition definition = this.RootProgram.GetStructDefinition(structName);
-                if(definition is null)
+                if (definition is null)
                     throw new UnknownTypeException(structName, this.RootProgram.FileName, line, column);
 
                 // search for the property in the struct
@@ -190,6 +189,21 @@ namespace LL
             }
 
             return new VarExpr(variableName, this.TryGetType(variableName, line, column), line, column);
+        }
+
+        private IAST CreateCharLitFromNode(ITerminalNode node)
+        {
+            char lit = node.GetText().Replace("'", string.Empty)[0];
+
+            return new CharLit(lit, node.Symbol.Line, node.Symbol.Column);
+        }
+
+        private IAST CreateStringLitFromNode(ITerminalNode node)
+        {
+            string lit = node.GetText();
+            lit = lit.Substring(1, lit.Length - 2);
+
+            return new StringLit(lit, node.Symbol.Line, node.Symbol.Column);
         }
     }
 }

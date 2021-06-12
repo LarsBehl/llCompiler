@@ -28,7 +28,7 @@ namespace LL.AST
                 if (node != null)
                     result += node.Eval().ToString() + ", ";
                 else
-                    result += "null, ";
+                    result += "0, ";
             }
 
             result = result.Substring(0, result.Length - 2) + "]";
