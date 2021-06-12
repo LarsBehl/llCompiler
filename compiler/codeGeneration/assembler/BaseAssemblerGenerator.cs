@@ -96,6 +96,8 @@ namespace LL.CodeGeneration
                         this.GetAssember(structDef.Value);
                     foreach (var globalVariable in programNode.GlobalVariables)
                         this.GetAssember(globalVariable.Value);
+                    this.WriteLine(".text");
+                    
                     foreach (var fun in programNode.FunDefs)
                         this.GetAssember(fun.Value);
                     break;
@@ -167,7 +169,6 @@ namespace LL.CodeGeneration
             this.Depth += 1;
 
             this.WriteLine($".file \"{fileName}\"");
-            this.WriteLine(".text");
 
             this.Depth -= 1;
         }
@@ -437,13 +438,20 @@ namespace LL.CodeGeneration
                     stringVal = Constants.CHAR_PRINT_STRING;
                     break;
                 case CharArrayType ca:
+                    if (value is StringLit sl && !this.StringLabelMap.ContainsKey(sl.Value))
+                    {
+                        this.Strings.AppendLine($".LS{this.StringLabelCount}:");
+                        this.StringLabelMap[sl.Value] = this.StringLabelCount++;
+                        this.Strings.AppendLine($"{Constants.INDENTATION}.string \"{sl.Value}\"");
+                    }
+
                     stringVal = Constants.STRING_PRINT_STRING;
                     break;
                 default:
                     throw new TypeNotAllowedException(value.Type.ToString(), this.CurrentFile, value.Line, value.Column);
             }
 
-            if(this.StringLabelMap.ContainsKey(stringVal))
+            if (this.StringLabelMap.ContainsKey(stringVal))
                 return;
 
             this.Strings.Append($".LS{this.StringLabelCount}:\n");

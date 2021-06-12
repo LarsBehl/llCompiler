@@ -147,15 +147,20 @@ equalArrayArray(): bool
 {
     x: int[] = new int[5];
     y: int[] = new int[10];
+    result: bool = x == y;
+    destroy x;
+    destroy y;
 
-    return x == y;
+    return result;
 }
 
 equalArrayNull(): bool
 {
     x: int[] = new int[5];
+    result: bool = x == null;
+    destroy x;
 
-    return x == null;
+    return result;
 }
 
 equalNullArrayNull(): bool
@@ -209,15 +214,20 @@ notEqualArrayArray(): bool
 {
     x: int[] = new int[5];
     y: int[] = new int[10];
+    result: bool = x != y;
+    destroy x;
+    destroy y;
 
-    return x != y;
+    return result;
 }
 
 notEqualArrayNull(): bool
 {
     x: int[] = new int[5];
+    result: bool = x != null;
+    destroy x;
 
-    return x != null;
+    return result;
 }
 
 notEqualNullArrayNull(): bool

@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 
 using LL.AST;
 using LL.Exceptions;
@@ -32,16 +33,25 @@ namespace LL.CodeGeneration
 
         private void StringLitAsm(StringLit stringLit)
         {
-            this.WriteString(stringLit);
-            this.WriteLine($"leaq .LS{this.StringLabelMap[stringLit.Value]}(%rip), {Constants.IntegerRegisters[0]}");
-            this.WriteLine($"movq ${stringLit.Length}, {Constants.IntegerRegisters[1]}");
+            bool alligned = this.AlignStack();
 
-            bool aligned = this.AlignStack();
+            this.WriteLine(this.CreateStringLitAsm(stringLit));
 
-            this.WriteLine("call createStringFromLiteral@PLT");
-
-            if(aligned)
+            if(alligned)
                 this.WritePop("%rbx");
+        }
+
+        private String CreateStringLitAsm(StringLit stringLit)
+        {
+            StringBuilder bob = new StringBuilder();
+
+            this.WriteString(stringLit);
+            bob.AppendLine($"{Constants.INDENTATION}leaq .LS{this.StringLabelMap[stringLit.Value]}(%rip), {Constants.IntegerRegisters[0]}");
+            bob.AppendLine($"{Constants.INDENTATION}movq ${stringLit.Length}, {Constants.IntegerRegisters[1]}");
+
+            bob.AppendLine($"{Constants.INDENTATION}call createStringFromLiteral@PLT");
+
+            return bob.ToString();
         }
 
         private void FunctionCallAsm(FunctionCall functionCall)
