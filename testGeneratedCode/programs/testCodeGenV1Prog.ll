@@ -11,6 +11,7 @@ global testGlobalVariableDouble: double = 18.7;
 global testGlobalVariableChar: char = 'c';
 global testGlobalVariableBool: bool = true;
 global testGlobalArray: int[] = new int[5];
+global testGlobalString: char[] = "Hallo Welt";
 
 testIntArray(x:int): int
 {
@@ -110,8 +111,10 @@ assignIntDoubleArray(x: int): double
 {
     y: double[] = new double[5];
     y[0] = x;
+    result: double = y[0];
+    destroy y;
 
-    return y[0];
+    return result;
 }
 
 evalInt(expected: int, val: int): void
@@ -168,6 +171,7 @@ evalChar(expected: char, val: char): void
 
 main(): void
 {
+    print("Running assemlber Tests");
     intResult: int;
     doubleResult: double;
     boolResult: bool;
@@ -445,8 +449,12 @@ main(): void
     doubleResult = assignIntDoubleStruct(3);
     evalDouble(3.0, doubleResult);
 
+    print("Tests:");
     print(testData.testCount);
+    print("Successfull tests:");
     print(testData.successCount);
 
+    destroy testGlobalString;
+    destroy testGlobalArray;
     destroy testData;
 }

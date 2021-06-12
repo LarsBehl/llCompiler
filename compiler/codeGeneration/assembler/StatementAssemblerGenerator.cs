@@ -65,7 +65,7 @@ namespace LL.CodeGeneration
             }
 
             // save the value of the variable on the stack
-            if(!isGlobal)
+            if (!isGlobal)
                 this.WriteLine($"movq {register}, {this.VariableMap[assignStatement.Variable.Name]}(%rbp)");
             else
                 this.WriteLine($"movq {register}, {assignStatement.Variable.Name}(%rip)");
@@ -244,37 +244,43 @@ namespace LL.CodeGeneration
         {
             this.WriteString(print.Value);
 
-            this.GetAssember(print.Value);
+            if (print.Value is not StringLit sl)
+                this.GetAssember(print.Value);
+            else
+                this.WriteLine($"leaq .LS{this.StringLabelMap[sl.Value]}(%rip), %rax");
+
+
+            if (print.Value.Type is not DoubleType)
+                this.WriteLine("movq %rax, %rsi");
+            string mapKey = string.Empty;
 
             switch (print.Value.Type)
             {
                 case IntType it:
-                    this.WriteLine("movq %rax, %rsi");
-                    this.WriteLine($"leaq .LS{this.StringLabelMap["int"]}(%rip), %rdi");
-                    this.WriteLine("movl $0, %eax");
-
+                    mapKey = Constants.INT_PRINT_STRING;
                     break;
                 case DoubleType dt:
-                    this.WriteLine($"leaq .LS{this.StringLabelMap["double"]}(%rip), %rdi");
-                    this.WriteLine("movl $1, %eax");
-
+                    mapKey = Constants.DOUBLE_PRINT_STRING;
                     break;
                 case BooleanType bt:
-                    this.WriteLine("movq %rax, %rsi");
-                    this.WriteLine($"leaq .LS{this.StringLabelMap["int"]}(%rip), %rdi");
-                    this.WriteLine("movl $0, %eax");
-
+                    mapKey = Constants.BOOL_PRINT_STRING;
                     break;
                 case CharType ct:
-                    this.WriteLine("movq %rax, %rsi");
-                    this.WriteLine($"leaq .LS{this.StringLabelMap["int"]}(%rip), %rdi");
-                    this.WriteLine("movl $0, %eax");
-
+                    mapKey = Constants.CHAR_PRINT_STRING;
+                    break;
+                case CharArrayType ca:
+                    mapKey = Constants.STRING_PRINT_STRING;
                     break;
             }
 
-            bool aligned = this.AlignStack();
+            this.WriteLine($"leaq .LS{this.StringLabelMap[mapKey]}(%rip), {Constants.IntegerRegisters[0]}");
 
+            if (print.Value.Type is DoubleType)
+                this.WriteLine("movl $1, %eax");
+            else
+                this.WriteLine("movl $0, %eax");
+
+            bool aligned = this.AlignStack();
             this.WriteLine("call printf@PLT");
 
             if (aligned)
@@ -323,7 +329,7 @@ namespace LL.CodeGeneration
             // casting should be safe at this point
             IntLit size = array.Size as IntLit;
             bob.AppendLine($"{Constants.INDENTATION}movq ${size.Value.Value}, %rax");
-            
+
             switch (array)
             {
                 // 64bit arrays
@@ -490,13 +496,19 @@ namespace LL.CodeGeneration
                     break;
                 case RefType refType:
                     this.WriteLine(".quad 0");
-                    string typeInitialization = null;
-                    if(refType is StructType)
-                        typeInitialization = this.GlobalVariableStruct((globalVariable.Value as RefTypeCreationStatement).CreatedReftype as Struct);
+                    if (globalVariable.Value is StringLit sl)
+                        GlobalVariableInitializationBuilder.Append(this.CreateStringLitAsm(sl));
                     else
-                        typeInitialization = this.GlobalVariableArray((globalVariable.Value as RefTypeCreationStatement).CreatedReftype as LL.AST.Array);
-                    GlobalVariableInitializationBuilder.Append(typeInitialization);
-                    GlobalVariableInitializationBuilder.AppendLine($"{Constants.INDENTATION}call createHeapObject@PLT");
+                    {
+                        string typeInitialization = null;
+                        if (refType is StructType)
+                            typeInitialization = this.GlobalVariableStruct((globalVariable.Value as RefTypeCreationStatement).CreatedReftype as Struct);
+                        else
+                            typeInitialization = this.GlobalVariableArray((globalVariable.Value as RefTypeCreationStatement).CreatedReftype as LL.AST.Array);
+                        GlobalVariableInitializationBuilder.Append(typeInitialization);
+                        GlobalVariableInitializationBuilder.AppendLine($"{Constants.INDENTATION}call createHeapObject@PLT");
+                    }
+
                     GlobalVariableInitializationBuilder.AppendLine($"{Constants.INDENTATION}movq %rax, {globalVariable.Variable.Name}(%rip)");
                     break;
                 default:

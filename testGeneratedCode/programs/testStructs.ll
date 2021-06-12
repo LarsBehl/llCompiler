@@ -31,8 +31,12 @@ accessFirstInnerStruct(x:int): int
     l: Line = new Line();
     l.p1 = new Point();
     l.p1.x = 42;
+    result: int = l.p1.x;
 
-    return l.p1.x;
+    destroy l.p1;
+    destroy l;
+
+    return result;
 }
 
 accessSecondInnerStruct(x:int): int
@@ -40,8 +44,12 @@ accessSecondInnerStruct(x:int): int
     l: Line = new Line();
     l.p2 = new Point();
     l.p2.y = 42;
+    result: int = l.p2.y;
 
-    return l.p2.y;
+    destroy l.p2;
+    destroy l;
+
+    return result;
 }
 
 accessInnerArray(x:int): int
@@ -49,14 +57,18 @@ accessInnerArray(x:int): int
     a: iA = new iA();
     a.array = new int[10];
     a.array[5] = 42;
+    result: int = a.array[5];
+    destroy a.array;
+    destroy a;
 
-    return a.array[5];
+    return result;
 }
 
 assignNullStructProp(): int
 {
     a: iA = new iA();
     a.array = null;
+    destroy a;
 
     return 42;
 }

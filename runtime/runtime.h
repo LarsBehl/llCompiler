@@ -12,6 +12,15 @@
 void *createHeapObject(long size, bool isArray);
 
 /**
+ * Creates a char[] from the given constant char[]
+ *
+ * @param literal   literal to create the heap object for
+ * @param length    length of the string
+ * @returns         base address of the char[]
+ */
+char* createStringFromLiteral(char* literal, long length);
+
+/**
  * Frees up the memory used by the object
  * 
  * @param obj    address of the object

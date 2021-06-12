@@ -52,6 +52,7 @@ statement:
 unaryExpression:
 	numericExpression
 	| CHAR_LITERAL
+	|STRING_LITERAL
 	| boolExpression
 	| functionCall
 	| variableExpression
@@ -145,11 +146,12 @@ valueAccess:
 	| arrayIndexing
 	| structPropertyAccess;
 
-globalVariableStatement: GLOBAL name = WORD COLON typeDefinition ASSIGN (CHAR_LITERAL | numericExpression | boolExpression | refTypeCreation) SEMCOL;
+globalVariableStatement: GLOBAL name = WORD COLON typeDefinition ASSIGN (CHAR_LITERAL | numericExpression | boolExpression | refTypeCreation | STRING_LITERAL) SEMCOL;
 
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;
-CHAR_LITERAL: APOSTROPHE '\u0000'..'\u007F' APOSTROPHE;
+STRING_LITERAL: QUOTE ('\u0000'..'\u0021' | '\u0023'..'\u007F')* QUOTE;
+CHAR_LITERAL: APOSTROPHE ('\u0000'..'\u0026' | '\u0028'..'\u007F') APOSTROPHE;
 RETURN: 'r' 'e' 't' 'u' 'r' 'n';
 INT_TYPE: 'i' 'n' 't';
 DOUBLE_TYPE: 'd' 'o' 'u' 'b' 'l' 'e';
@@ -197,5 +199,6 @@ AND: '&' '&';
 OR: '|' '|';
 NOT_EQUAL: '!' '=';
 APOSTROPHE: '\'';
+QUOTE: '"';
 
 WHITESPACE: [ \t\n\r] -> skip;

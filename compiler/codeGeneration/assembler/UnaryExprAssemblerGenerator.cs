@@ -31,6 +31,29 @@ namespace LL.CodeGeneration
             this.WriteLine($"movq ${(byte)charLit.Value.Value}, %rax");
         }
 
+        private void StringLitAsm(StringLit stringLit)
+        {
+            bool alligned = this.AlignStack();
+
+            this.WriteLine(this.CreateStringLitAsm(stringLit));
+
+            if(alligned)
+                this.WritePop("%rbx");
+        }
+
+        private String CreateStringLitAsm(StringLit stringLit)
+        {
+            StringBuilder bob = new StringBuilder();
+
+            this.WriteString(stringLit);
+            bob.AppendLine($"{Constants.INDENTATION}leaq .LS{this.StringLabelMap[stringLit.Value]}(%rip), {Constants.IntegerRegisters[0]}");
+            bob.AppendLine($"{Constants.INDENTATION}movq ${stringLit.Length}, {Constants.IntegerRegisters[1]}");
+
+            bob.AppendLine($"{Constants.INDENTATION}call createStringFromLiteral@PLT");
+
+            return bob.ToString();
+        }
+
         private void FunctionCallAsm(FunctionCall functionCall)
         {
             FunctionDefinition funDef = this.RootProg.GetFunctionDefinition(functionCall.FunctionName);

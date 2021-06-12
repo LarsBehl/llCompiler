@@ -256,10 +256,10 @@ namespace LL
 
             IAST val = null;
             if (context.CHAR_LITERAL() != null)
-            {
-                var charLit = context.CHAR_LITERAL();
-                val = new CharLit(charLit.GetText().Replace("'", string.Empty)[0], charLit.Symbol.Line, charLit.Symbol.Column);
-            }
+                val = this.CreateCharLitFromNode(context.CHAR_LITERAL());
+
+            if(context.STRING_LITERAL() != null)
+                val = this.CreateStringLitFromNode(context.STRING_LITERAL());
 
             if (context.numericExpression() != null)
                 val = this.Visit(context.numericExpression());

@@ -19,6 +19,21 @@ void *createHeapObject(long size, bool isArray)
     return tmp;
 }
 
+char* createStringFromLiteral(char* literal, long length)
+{
+    char* result = createHeapObject(length + 1, true);
+
+    int i;
+    for(i = 0; i < length; i++)
+    {
+        result[i] = literal[i];
+    }
+
+    result[length] = '\0';
+
+    return result;
+}
+
 void destroyHeapObject(void *obj)
 {
     free(obj);
