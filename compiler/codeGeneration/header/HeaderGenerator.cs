@@ -124,6 +124,8 @@ namespace LL.CodeGeneration
                     return bl.Value.Value.ToString();
                 case CharLit cl:
                     return cl.Value.Value.ToString();
+                case StringLit stringLit:
+                    return stringLit.Value;
                 case RefTypeCreationStatement refType:
                     if(refType.CreatedReftype is Struct st)
                         return $"new {(st.Type as StructType).StructName}()";
