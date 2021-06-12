@@ -146,7 +146,7 @@ function rtfm() {
     Write-Host "`tpublishOSX`t- publishes the compiler for OSX"
     Write-Host "`tpublishAll`t- publishes the compiler for all previously specified plattforms"
     Write-Host "`ttest`t`t- runs the tests"
-    Write-Host "`tgenerateCode`t`t- generates code from antlr grammar"
+    Write-Host "`tgenerateCode`t- generates code from antlr grammar"
 }
 
 if ($args.Count -le 0 -or $args.Count -gt 1) {
