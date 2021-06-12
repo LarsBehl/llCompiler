@@ -250,25 +250,31 @@ namespace LL.CodeGeneration
             {
                 case IntType it:
                     this.WriteLine("movq %rax, %rsi");
-                    this.WriteLine($"leaq .LS{this.StringLabelMap["int"]}(%rip), %rdi");
+                    this.WriteLine($"leaq .LS{this.StringLabelMap[Constants.INT_PRINT_STRING]}(%rip), %rdi");
                     this.WriteLine("movl $0, %eax");
 
                     break;
                 case DoubleType dt:
-                    this.WriteLine($"leaq .LS{this.StringLabelMap["double"]}(%rip), %rdi");
+                    this.WriteLine($"leaq .LS{this.StringLabelMap[Constants.DOUBLE_PRINT_STRING]}(%rip), %rdi");
                     this.WriteLine("movl $1, %eax");
 
                     break;
                 case BooleanType bt:
                     this.WriteLine("movq %rax, %rsi");
-                    this.WriteLine($"leaq .LS{this.StringLabelMap["int"]}(%rip), %rdi");
+                    this.WriteLine($"leaq .LS{this.StringLabelMap[Constants.BOOL_PRINT_STRING]}(%rip), %rdi");
                     this.WriteLine("movl $0, %eax");
 
                     break;
                 case CharType ct:
                     this.WriteLine("movq %rax, %rsi");
-                    this.WriteLine($"leaq .LS{this.StringLabelMap["int"]}(%rip), %rdi");
+                    this.WriteLine($"leaq .LS{this.StringLabelMap[Constants.CHAR_PRINT_STRING]}(%rip), %rdi");
                     this.WriteLine("movl $0, %eax");
+
+                    break;
+                case CharArrayType ca:
+                    this.WriteLine("movq %rax, %rsi");
+                    this.WriteLine($"leaq .LS{this.StringLabelMap[Constants.STRING_PRINT_STRING]}(%rip), %rdi");
+                    this.WriteLine("movl, $0, %eax");
 
                     break;
             }

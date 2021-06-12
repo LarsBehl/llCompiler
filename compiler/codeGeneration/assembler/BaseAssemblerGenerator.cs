@@ -63,6 +63,8 @@ namespace LL.CodeGeneration
                     this.BoolLitAsm(boolLit); break;
                 case CharLit charLit:
                     this.CharLitAsm(charLit); break;
+                case StringLit stringLit:
+                    this.StringLitAsm(stringLit); break;
                 case AddExpr addExpr:
                     this.AddExprAsm(addExpr); break;
                 case SubExpr subExpr:
@@ -418,32 +420,34 @@ namespace LL.CodeGeneration
 
         private void WriteString(IAST value)
         {
-            this.Strings.Append($".LS{this.StringLabelCount}:\n");
-            string stringVal = "";
-            string type = "";
+            string stringVal = string.Empty;
 
             switch (value.Type)
             {
                 case IntType it:
-                    stringVal = "%ld\\n";
-                    type = "int";
+                    stringVal = Constants.INT_PRINT_STRING;
                     break;
                 case DoubleType dt:
-                    stringVal = "%f\\n";
-                    type = "double";
+                    stringVal = Constants.DOUBLE_PRINT_STRING;
                     break;
                 case BooleanType bt:
-                    stringVal = "%ld\\n";
-                    type = "int";
+                    stringVal = Constants.BOOL_PRINT_STRING;
                     break;
                 case CharType ct:
-                    stringVal = "%c\\n";
-                    type = "int";
+                    stringVal = Constants.CHAR_PRINT_STRING;
+                    break;
+                case CharArrayType ca:
+                    stringVal = Constants.STRING_PRINT_STRING;
                     break;
                 default:
                     throw new TypeNotAllowedException(value.Type.ToString(), this.CurrentFile, value.Line, value.Column);
             }
-            this.StringLabelMap[type] = this.StringLabelCount++;
+
+            if(this.StringLabelMap.ContainsKey(stringVal))
+                return;
+
+            this.Strings.Append($".LS{this.StringLabelCount}:\n");
+            this.StringLabelMap[stringVal] = this.StringLabelCount++;
             this.Strings.Append($"{Constants.INDENTATION}.string \"{stringVal}\"\n");
         }
 

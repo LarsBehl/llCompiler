@@ -1,5 +1,4 @@
 using System;
-using System.Text;
 
 using LL.AST;
 using LL.Exceptions;
@@ -29,6 +28,20 @@ namespace LL.CodeGeneration
         private void CharLitAsm(CharLit charLit)
         {
             this.WriteLine($"movq ${(byte)charLit.Value.Value}, %rax");
+        }
+
+        private void StringLitAsm(StringLit stringLit)
+        {
+            this.WriteString(stringLit);
+            this.WriteLine($"leaq .LS{this.StringLabelMap[stringLit.Value]}(%rip), {Constants.IntegerRegisters[0]}");
+            this.WriteLine($"movq ${stringLit.Length}, {Constants.IntegerRegisters[1]}");
+
+            bool aligned = this.AlignStack();
+
+            this.WriteLine("call createStringFromLiteral@PLT");
+
+            if(aligned)
+                this.WritePop("%rbx");
         }
 
         private void FunctionCallAsm(FunctionCall functionCall)
