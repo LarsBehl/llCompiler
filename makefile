@@ -1,13 +1,18 @@
 test: linkTest
 	@echo "\n\n\e[0;32mRunning tests...\n\e[0m"
 	./testGeneratedCode/bin/testCodeGen
+ifeq ($(shell test $$? -gt 0; echo $$?), 0)
+	@echo "\n\n\e[0;31mTests not successfull.\t$$? tests failed\n\e[0m"
+else
+	@echo "\n\n\e[0;32mAll tests successfull\n\e[0m"
+endif
 
 linkTest: compileAssembler
 	@echo "\n\n\e[0;32mLinking tests...\n\e[0m"
-	cp ./runtime/bin/libLL.a ./testGeneratedCode/bin/
+	cp ./baseClassLibrary/bin/libLL.a ./testGeneratedCode/bin/
 	gcc -o ./testGeneratedCode/bin/testCodeGen ./testGeneratedCode/bin/testCodeGenV1Prog.o ./testGeneratedCode/bin/testBinOps.o ./testGeneratedCode/bin/testId.o ./testGeneratedCode/bin/testUnary.o ./testGeneratedCode/bin/testAssign.o ./testGeneratedCode/bin/testStructs.o ./testGeneratedCode/bin/testWhile.o ./testGeneratedCode/bin/testIf.o -LtestGeneratedCode/bin -lLL
 
-compileAssembler: packageRuntime
+compileAssembler: compileTest
 	@echo "\n\n\e[0;32mCompiling tests...\n\e[0m"
 	gcc -c -g ./testGeneratedCode/bin/testCodeGenV1Prog.S -o ./testGeneratedCode/bin/testCodeGenV1Prog.o
 	gcc -c -g ./testGeneratedCode/bin/testBinOps.S -o ./testGeneratedCode/bin/testBinOps.o
@@ -18,11 +23,12 @@ compileAssembler: packageRuntime
 	gcc -c -g ./testGeneratedCode/bin/testWhile.S -o ./testGeneratedCode/bin/testWhile.o
 	gcc -c -g ./testGeneratedCode/bin/testIf.S -o ./testGeneratedCode/bin/testIf.o
 
-packageRuntime: compileRuntime
+packageRuntime: compileBaseClassLibrary
 	@echo "\n\n\e[0;32mPackaging runtime lib...\n\e[0m"
-	ar rcs ./runtime/bin/libLL.a ./runtime/bin/runtime.o ./runtime/bin/errors.o ./runtime/bin/addrList.o ./runtime/bin/classData.o ./runtime/bin/classDataList.o
+	cp ./runtime/bin/* ./baseClassLibrary/bin/
+	ar rcs ./baseClassLibrary/bin/libLL.a ./baseClassLibrary/bin/runtime.o ./baseClassLibrary/bin/errors.o ./baseClassLibrary/bin/addrList.o ./baseClassLibrary/bin/classData.o ./baseClassLibrary/bin/classDataList.o ./baseClassLibrary/bin/util.o
 
-compileRuntime: compileTest
+compileRuntime: publishLinux
 	@echo "\n\n\e[0;32mCompiling runtime...\n\e[0m"
 	mkdir -p ./runtime/bin
 	gcc -c -g ./runtime/runtime.c -o ./runtime/bin/runtime.o
@@ -31,12 +37,29 @@ compileRuntime: compileTest
 	gcc -c -g ./runtime/classData.c -o ./runtime/bin/classData.o
 	gcc -c -g ./runtime/classDataList.c -o ./runtime/bin/classDataList.o
 
-compileTest: publishLinux
+compileBaseClassLibrary: compileRuntime
+	@echo "\n\n\e[0;32mCompiling Base class library...\n\e[0m"
+ifeq (,$(wildcard ./baseClassLibrary/bin))
+	mkdir -p ./baseClassLibrary/bin
+endif
+	cp ./compiler/bin/linux/llCompiler ./baseClassLibrary
+	./baseClassLibrary/llCompiler -c ./baseClassLibrary/src/util.ll
+	mv ./baseClassLibrary/src/util.S ./baseClassLibrary/bin/
+	./baseClassLibrary/llCompiler -h ./baseClassLibrary/src/util.ll
+	mv ./baseClassLibrary/src/util.llh ./baseClassLibrary/bin/
+	gcc -c -g ./baseClassLibrary/bin/util.S -o ./baseClassLibrary/bin/util.o
+
+compileTest: packageRuntime
 	@echo "\n\n\e[0;32mCompiling ll code...\n\e[0m"
 	cp ./compiler/bin/linux/llCompiler ./testGeneratedCode
 ifeq (,$(wildcard ./testGeneratedCode/bin))
 	mkdir -p ./testGeneratedCode/bin
 endif
+ifeq (,$(wildcard ./testGeneratedCode/header))
+	mkdir -p ./testGeneratedCode/header
+endif
+	mv ./baseClassLibrary/bin/util.llh ./testGeneratedCode/header/
+	cp ./baseClassLibrary/header/* ./testGeneratedCode/header/
 ifeq (,$(wildcard ./testGeneratedCode/bin/testId.o))
 	./testGeneratedCode/llCompiler -c ./testGeneratedCode/programs/testId.ll
 	mv ./testGeneratedCode/programs/testId.S ./testGeneratedCode/bin/testId.S
@@ -70,6 +93,9 @@ clean:
 	dotnet clean ./compiler/llCompiler.csproj
 	rm -r -f ./runtime/bin
 	rm -r -f ./testGeneratedCode/bin
+	rm -r -f ./testGeneratedCode/header
+	rm -r -f ./baseClassLibrary/bin
+	rm -f ./baseClassLibrary/llCompiler
 	rm -f ./testGeneratedCode/llCompiler
 ifneq (,$(wildcard ./testGeneratedCode/programs/testId.bak))
 	mv ./testGeneratedCode/programs/testId.bak ./testGeneratedCode/programs/testId.ll

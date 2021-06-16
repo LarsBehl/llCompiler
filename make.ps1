@@ -1,15 +1,19 @@
 $compilerLocation = './compiler'
 $testLocation = './testGeneratedCode'
 $runtimeLocation = './runtime'
+$baseClassLibLocation = './baseClassLibrary'
 
 function printMessage($message) {
     Write-Host "`n`n$($message)...`n" -ForegroundColor DarkGreen
 }
 
+function printError($message) {
+    Write-Host "`n$($message)" -ForegroundColor DarkRed
+}
+
 function printAndRun($command) {
     Write-Host "$($command)"
-    $result = Invoke-Expression $command
-    Write-Host "$($result)"
+    Invoke-Expression $command
 }
 
 function remove($file) {
@@ -22,6 +26,11 @@ function clean() {
     printAndRun -command "dotnet clean $($compilerLocation)/llCompiler.csproj"
     remove -file "$($runtimeLocation)/bin"
     remove -file "$($testLocation)/bin"
+    remove -file "$($baseClassLibLocation)/bin"
+    remove -file "$($baseClassLibLocation)/*.dll"
+    remove -file "$($baseClassLibLocation)/*.exe"
+    remove -file "$($baseClassLibLocation)/*.pdb"
+    remove -file "$($testLocation)/header"
     remove -file "$($testLocation)/*.dll"
     remove -file "$($testLocation)/*.exe"
     remove -file "$($testLocation)/*.pdb"
@@ -62,8 +71,8 @@ function publishAll() {
 
 function linkTest() {
     printMessage -message "Linking tests"
-    Write-Host "cp $($runtimeLocation)/bin/libLL.a $($testLocation)/bin/"
-    Copy-Item "$($runtimeLocation)/bin/libLL.a" -Destination "$($testLocation)/bin/"
+    Write-Host "cp $($baseClassLibLocation)/bin/libLL.a $($testLocation)/bin/"
+    Copy-Item "$($baseClassLibLocation)/bin/libLL.a" -Destination "$($testLocation)/bin/"
     printAndRun -command "wsl gcc -o $($testLocation)/bin/testCodeGen $($testLocation)/bin/testCodeGenV1Prog.o $($testLocation)/bin/testBinOps.o $($testLocation)/bin/testId.o $($testLocation)/bin/testUnary.o $($testLocation)/bin/testAssign.o $($testLocation)/bin/testStructs.o $($testLocation)/bin/testWhile.o $($testLocation)/bin/testIf.o -LtestGeneratedCode/bin -lLL"
 }
 
@@ -81,7 +90,9 @@ function compileAssember() {
 
 function packageRuntime() {
     printMessage -message "Packaging runtime lib"
-    printAndRun -command "wsl ar rcs $($runtimeLocation)/bin/libLL.a $($runtimeLocation)/bin/runtime.o $($runtimeLocation)/bin/errors.o $($runtimeLocation)/bin/addrList.o $($runtimeLocation)/bin/classData.o $($runtimeLocation)/bin/classDataList.o"
+    Write-Host "cp $($runtimeLocation)/bin/* $($baseClassLibLocation)/bin/"
+    Copy-Item "$($runtimeLocation)/bin/*" -Destination "$($baseClassLibLocation)/bin/" -Force
+    printAndRun -command "wsl ar rcs $($baseClassLibLocation)/bin/libLL.a $($baseClassLibLocation)/bin/runtime.o $($baseClassLibLocation)/bin/errors.o $($baseClassLibLocation)/bin/addrList.o $($baseClassLibLocation)/bin/classData.o $($baseClassLibLocation)/bin/classDataList.o $($baseClassLibLocation)/bin/util.o"
 }
 
 function compileRuntime() {
@@ -96,6 +107,25 @@ function compileRuntime() {
     printAndRun -command "wsl gcc -c -g $($runtimeLocation)/classDataList.c -o $($runtimeLocation)/bin/classDataList.o"
 }
 
+function compileBaseClassLibrary() {
+    printMessage -message "Compiling Base class library"
+    if (!(Test-Path "$($baseClassLibLocation)/bin")) {
+        New-Item -ItemType Directory -Force -Path "$($baseClassLibLocation)/bin"
+    }
+    # Copy compiler
+    Write-Host "cp $($compilerLocation)/bin/win10/* $($baseClassLibLocation)"
+    Copy-Item "$($compilerLocation)/bin/win10/*" -Destination "$($baseClassLibLocation)/"
+    # Compile library
+    printAndRun -command "$($baseClassLibLocation)/llCompiler.exe -c $($baseClassLibLocation)/src/util.ll"
+    Write-Host "mv $($baseClassLibLocation)/src/util.S $($baseClassLibLocation)/bin/"
+    Move-Item "$($baseClassLibLocation)/src/*.S" -Destination "$($baseClassLibLocation)/bin/" -Force
+    printAndRun "wsl gcc -c -g $($baseClassLibLocation)/bin/util.S -o $($baseClassLibLocation)/bin/util.o"
+    # Generate header files
+    printAndRun -command "$($baseClassLibLocation)/llCompiler.exe -h $($baseClassLibLocation)/src/util.ll"
+    Write-Host "mv $($baseClassLibLocation)/src/util.llh $($baseClassLibLocation)/bin/util.llh"
+    Move-Item "$($baseClassLibLocation)/src/util.llh" -Destination "$($baseClassLibLocation)/bin/util.llh" -Force
+}
+
 function compileTest() {
     printMessage -message "Compiling ll code"
     Write-Host "cp $($compilerLocation)/bin/win10/* $($testLocation)/"
@@ -104,6 +134,15 @@ function compileTest() {
     if (!(Test-Path "$($testLocation)/bin")) {
         New-Item -ItemType Directory -Force -Path "$($testLocation)/bin"
     }
+
+    if (!(Test-Path "$($testLocation)/header")) {
+        New-Item -ItemType Directory -Force -Path "$($testLocation)/header"
+    }
+
+    Write-Host "mv $($baseClassLibLocation)/bin/*.llh $($testLocation)/header/"
+    Copy-Item "$($baseClassLibLocation)/bin/*.llh" -Destination "$($testLocation)/header/" -Force
+    Write-Host "mv $($baseClassLibLocation)/header/* $($testLocation)/header/"
+    Copy-Item "$($baseClassLibLocation)/header/*" -Destination "$($testLocation)/header/" -Force
 
     if (!(Test-Path "$($testLocation)/bin/testId.o")) {
         printAndRun -command "$($testLocation)/llCompiler.exe -c $($testLocation)/programs/testId.ll"
@@ -118,13 +157,20 @@ function compileTest() {
 
 function test() {
     publishWindows
-    compileTest
     compileRuntime
+    compileBaseClassLibrary
     packageRuntime
+    compileTest
     compileAssember
     linkTest
     printMessage -message "Running tests"
     printAndRun -command "wsl $($testLocation)/bin/testCodeGen"
+
+    if($LASTEXITCODE -gt 0) {
+        printError -message "Tests not successfull. `t$($LASTEXITCODE) tests failed"
+    } else {
+        printMessage -message "All tests successfull"
+    }
 }
 
 function generateCode() {
