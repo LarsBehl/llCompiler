@@ -209,7 +209,7 @@ namespace LL.CodeGeneration
             // this should only happen if the registers do not overflow and the stack is not aligned
             bool aligned = this.AlignStack();
 
-            this.WriteLine($"call {functionCall.FunctionName}");
+            this.WriteLine($"call {functionCall.FunctionName}@PLT");
 
             if (aligned)
                 this.WritePop("%rbx");

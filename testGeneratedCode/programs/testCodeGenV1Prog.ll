@@ -5,6 +5,7 @@ load testIf;
 load testAssign;
 load testUnary;
 load testStructs;
+load util;
 
 global testGlobalVariableInt: int = 42;
 global testGlobalVariableDouble: double = 18.7;
@@ -454,7 +455,11 @@ main(): void
     print("Successfull tests:");
     print(testData.successCount);
 
+    tests: int = testData.testCount;
+    success: int = testData.successCount;
     destroy testGlobalString;
     destroy testGlobalArray;
     destroy testData;
+
+    exitProgram(tests-success);
 }

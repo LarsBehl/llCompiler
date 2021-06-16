@@ -33,6 +33,8 @@ namespace LL.CodeGeneration
         /// </summary>
         public void CreateHeader()
         {
+            if(this.RootProg.IsHeader)
+                return;
             CreatedHeaders.Add(this.RootProg.FileName);
 
             foreach (LoadStatement loadStatement in this.RootProg.Dependencies.Values)
