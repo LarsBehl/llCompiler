@@ -16,6 +16,7 @@ namespace LL.AST
         public Dictionary<string, IAST> Env { get; set; }
         public string FileName { get; set; }
         public bool IsHeader { get; set; }
+        public llParser Parser { get; set; }
 
         public ProgramNode(
             string fileName,
@@ -190,6 +191,31 @@ namespace LL.AST
             }
 
             return null;
+        }
+
+        public static bool operator ==(ProgramNode n1, ProgramNode n2)
+        {
+            return n1.FileName == n2.FileName;
+        }
+
+        public static bool operator !=(ProgramNode n1, ProgramNode n2)
+        {
+            return n1.FileName != n2.FileName;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if(obj is ProgramNode pn)
+            {
+                return pn == this;
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 }

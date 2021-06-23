@@ -17,6 +17,7 @@ namespace LL
         private List<string> Files;
         private string CurrentFile;
         public ProgramNode RootProgram { get; set; }
+        public static ProgramData ProgData = new ProgramData();
 
         // hide the default constructor
         private StructDefinitionVisitor() : base()
@@ -33,9 +34,16 @@ namespace LL
             return this.Visit(context.program());
         }
 
+        // TODO currently duplicate dependencies result in incorrect references
         public override IAST VisitProgram([NotNull] llParser.ProgramContext context)
         {
             ProgramNode result = this.RootProgram ?? new ProgramNode(this.CurrentFile, context.Start.Line, context.Start.Column);
+
+            if(ProgData.FilesInProgram.Contains(result))
+                return result;
+            
+            ProgData.FilesInProgram.Add(result);
+
             var loadStatements = context.loadStatement();
 
             // this should be fine for now, but when loading something like header files
@@ -50,7 +58,7 @@ namespace LL
             }
 
             foreach(var dependency in result.Dependencies.Values)
-                CompileDependency(dependency);
+                dependency.Program = CompilationHelper.ParseStructAndLoad(dependency.Location);
 
             var structDefs = context.structDefinition();
 
@@ -145,11 +153,6 @@ namespace LL
 
                 return parts[0] == fileName && (parts[1] == Constants.SOURCE_FILE_ENDING || parts[1] == Constants.HEADER_FILE_ENDING);
             });
-        }
-
-        private void CompileDependency(LoadStatement loadStatement)
-        {
-            loadStatement.Program = CompilationHelper.CompileFile(loadStatement.Location);
         }
     }
 }

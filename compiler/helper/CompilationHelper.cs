@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 using Antlr4.Runtime;
 
@@ -27,6 +28,46 @@ namespace LL.Helper
             return CompileContent(parser, fileLocation);
         }
 
+        public static ProgramNode ParseStructAndLoad(string fileLocation)
+        {
+            llParser parser = null;
+
+            try
+            {
+                parser = new llParser(new CommonTokenStream(new llLexer(new AntlrFileStream(fileLocation))));
+            }
+            catch (System.IO.FileNotFoundException)
+            {
+                var notFoundException = new LL.Exceptions.FileNotFoundException(fileLocation, null, 0, 0);
+                CompilationHelper.PrintError(notFoundException);
+                Environment.Exit(-1);
+            }
+
+            return ParseStructAndLoad(parser, fileLocation);
+        }
+
+        private static ProgramNode ParseStructAndLoad(llParser parser, string fileLocation)
+        {
+            ProgramNode result = null;
+            parser.RemoveErrorListeners();
+            parser.AddErrorListener(new ErrorListener(fileLocation));
+
+            try
+            {
+                result = new StructDefinitionVisitor(fileLocation).VisitCompileUnit(parser.compileUnit()) as ProgramNode;
+                parser.Reset();
+            }
+            catch (BaseCompilerException e)
+            {
+                PrintError(e);
+                Environment.Exit(-1);
+            }
+
+            result.Parser = parser;
+
+            return result;
+        }
+
         public static ProgramNode CompileContent(string content)
         {
             llParser parser = new llParser(new CommonTokenStream(new llLexer(new AntlrInputStream(content))));
@@ -43,12 +84,22 @@ namespace LL.Helper
             try
             {
                 result = new StructDefinitionVisitor(fileLocation).VisitCompileUnit(parser.compileUnit()) as ProgramNode;
-
+                StructDefinitionVisitor.ProgData.RootProgram = result;
                 parser.Reset();
-                result = new FunctionDefinitionVisitor(fileLocation, result).VisitCompileUnit(parser.compileUnit()) as ProgramNode;
+                result.Parser = parser;
 
-                parser.Reset();
-                result = new BuildAstVisitor(result).VisitCompileUnit(parser.compileUnit()) as ProgramNode;
+                bool isCircular = StructDefinitionVisitor.ProgData.ContainsCircularDependency(out List<ProgramNode> nodes);
+
+                if(isCircular)
+                    throw new CircularDependencyException(nodes, fileLocation);
+
+                foreach(ProgramNode node in nodes)
+                {
+                    new FunctionDefinitionVisitor(node).VisitCompileUnit(node.Parser.compileUnit());
+                    node.Parser.Reset();
+
+                    new BuildAstVisitor(node).VisitCompileUnit(node.Parser.compileUnit());
+                }
             }
             catch (BaseCompilerException e)
             {

@@ -13,5 +13,30 @@ namespace LL.AST
             this.FileName = fileName;
             this.Location = location;
         }
+
+        public static bool operator ==(LoadStatement l1, LoadStatement l2)
+        {
+            return l1.Program == l2.Program;
+        }
+
+        public static bool operator !=(LoadStatement l1, LoadStatement l2)
+        {
+            return l1.Program != l2.Program;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if(obj is LoadStatement load)
+            {
+                return load == this;
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 }
