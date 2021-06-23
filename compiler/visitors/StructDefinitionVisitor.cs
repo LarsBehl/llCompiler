@@ -1,6 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
+using System.Collections.Generic;
 
 using Antlr4.Runtime.Misc;
 
@@ -34,13 +34,13 @@ namespace LL
             return this.Visit(context.program());
         }
 
-        // TODO currently duplicate dependencies result in incorrect references
         public override IAST VisitProgram([NotNull] llParser.ProgramContext context)
         {
             ProgramNode result = this.RootProgram ?? new ProgramNode(this.CurrentFile, context.Start.Line, context.Start.Column);
+            ProgramNode n = ProgData.FilesInProgram.Find(node => node == result);
 
-            if(ProgData.FilesInProgram.Contains(result))
-                return result;
+            if(n != null)
+                return n;
             
             ProgData.FilesInProgram.Add(result);
 
