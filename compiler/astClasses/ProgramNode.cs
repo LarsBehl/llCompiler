@@ -16,6 +16,7 @@ namespace LL.AST
         public Dictionary<string, IAST> Env { get; set; }
         public string FileName { get; set; }
         public bool IsHeader { get; set; }
+        public llParser Parser { get; set; }
 
         public ProgramNode(
             string fileName,
@@ -106,14 +107,14 @@ namespace LL.AST
         {
             bool result = this.GlobalVariables.ContainsKey(globalVarName);
 
-            if(result)
+            if (result)
                 return result;
-            
-            foreach(LoadStatement dep in this.Dependencies.Values)
+
+            foreach (LoadStatement dep in this.Dependencies.Values)
             {
                 result = dep.Program.IsGlobalVariableDefined(globalVarName);
 
-                if(result)
+                if (result)
                     return result;
             }
 
@@ -142,17 +143,17 @@ namespace LL.AST
         {
             bool success = this.FunDefs.TryGetValue(functionName, out FunctionDefinition result);
 
-            if(success)
+            if (success)
                 return result;
-            
-            foreach(LoadStatement dep in this.Dependencies.Values)
+
+            foreach (LoadStatement dep in this.Dependencies.Values)
             {
                 success = dep.Program.FunDefs.TryGetValue(functionName, out result);
 
-                if(success)
+                if (success)
                     return result;
             }
-        
+
             throw new UnexpectedErrorException(FileName);
         }
 
@@ -160,14 +161,14 @@ namespace LL.AST
         {
             bool success = this.StructDefs.TryGetValue(structName, out StructDefinition result);
 
-            if(success)
+            if (success)
                 return result;
-            
-            foreach(LoadStatement dep in this.Dependencies.Values)
+
+            foreach (LoadStatement dep in this.Dependencies.Values)
             {
                 result = dep.Program.GetStructDefinition(structName);
 
-                if(result is not null)
+                if (result is not null)
                     return result;
             }
 
@@ -178,18 +179,55 @@ namespace LL.AST
         {
             bool success = this.GlobalVariables.TryGetValue(variableName, out GlobalVariableStatement result);
 
-            if(success)
+            if (success)
                 return result;
-            
-            foreach(LoadStatement dep in this.Dependencies.Values)
+
+            foreach (LoadStatement dep in this.Dependencies.Values)
             {
                 result = dep.Program.GetGlobalVariableStatement(variableName);
 
-                if(result is not null)
+                if (result is not null)
                     return result;
             }
 
             return null;
+        }
+
+        public static bool operator ==(ProgramNode n1, ProgramNode n2)
+        {
+            if (n1 is null && n2 is null)
+                return true;
+
+            if (n1 is not null && n2 is not null)
+                return n1.FileName == n2.FileName;
+
+            return false;
+        }
+
+        public static bool operator !=(ProgramNode n1, ProgramNode n2)
+        {
+            if (n1 is null && n2 is null)
+                return false;
+
+            if (n1 is null || n2 is null)
+                return true;
+
+            return n1.FileName != n2.FileName;
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is ProgramNode pn)
+            {
+                return pn == this;
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
         }
     }
 }

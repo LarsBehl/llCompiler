@@ -1,5 +1,7 @@
 using NUnit.Framework;
 
+using System.Collections.Generic;
+
 using Antlr4.Runtime;
 
 using LL.AST;
@@ -27,6 +29,7 @@ namespace LL.Test
         [Test]
         public void TestFunctionPrototype1()
         {
+            StructDefinitionVisitor.ProgData = new Helper.ProgramData();
             llParser parser = this.Setup(FILE_PATH);
             StructDefinitionVisitor structVisitor = new StructDefinitionVisitor(FILE_PATH);
             ProgramNode rootProg = structVisitor.Visit(parser.compileUnit()) as ProgramNode;
@@ -41,11 +44,17 @@ namespace LL.Test
         [Test]
         public void TestFunctionPrototype2()
         {
+            StructDefinitionVisitor.ProgData = new Helper.ProgramData();
             llParser parser = this.Setup(FUNCTION_CONFLICT);
             StructDefinitionVisitor structVisitor = new StructDefinitionVisitor(FILE_PATH);
             ProgramNode rootProg = structVisitor.Visit(parser.compileUnit()) as ProgramNode;
             parser.Reset();
+            rootProg.Parser = parser;
+            StructDefinitionVisitor.ProgData.RootProgram = rootProg;
 
+            StructDefinitionVisitor.ProgData.ContainsCircularDependency(out List<ProgramNode> nodes);
+
+            new FunctionDefinitionVisitor(nodes[0]).VisitCompileUnit(nodes[0].Parser.compileUnit());
             FunctionDefinitionVisitor visitor = new FunctionDefinitionVisitor(rootProg);
             
             Assert.Throws<FunctionAlreadyDefinedException>(() => visitor.Visit(parser.compileUnit()));
@@ -54,6 +63,7 @@ namespace LL.Test
         [Test]
         public void TestFunctionPrototype3()
         {
+            StructDefinitionVisitor.ProgData = new Helper.ProgramData();
             llParser parser = this.Setup(FUNCTION_IN_HEADER);
             FunctionDefinitionVisitor visitor = new FunctionDefinitionVisitor(FUNCTION_IN_HEADER);
 
@@ -63,6 +73,7 @@ namespace LL.Test
         [Test]
         public void TestFunctionPrototype4()
         {
+            StructDefinitionVisitor.ProgData = new Helper.ProgramData();
             llParser parser = this.Setup(PROTO_IN_SOURCE);
             FunctionDefinitionVisitor visitor = new FunctionDefinitionVisitor(PROTO_IN_SOURCE);
 
