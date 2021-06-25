@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 
 using LL.AST;
+using LL.Exceptions;
 
 namespace LL.Helper
 {
@@ -27,9 +28,9 @@ namespace LL.Helper
         /// If no circular dependency is detected, contains nodes in the order they need to be compiled.
         /// If a circular dependency is detected, contains nodes taking part in the circle
         /// </param>
-        public bool ContainsCircularDependency(out List<ProgramNode> nodes)
+        public List<ProgramNode> ContainsCircularDependency()
         {
-            nodes = new List<ProgramNode>();
+            List<ProgramNode> nodes = new List<ProgramNode>();
             List<ProgramNode> hasNoDependants = new List<ProgramNode>();
             // expectation: the root program has no dependants
             hasNoDependants.Add(this.RootProgram);
@@ -44,10 +45,7 @@ namespace LL.Helper
                 {
                     // if any other program depends on this one, the graph is not acyclic
                     if (p.Dependencies.Values.Any(load => load.Program == prog))
-                    {
-                        nodes = new List<ProgramNode>() { prog, p };
-                        return true;
-                    }
+                        throw new CircularDependencyException(new List<ProgramNode>() { prog, p }, this.RootProgram.FileName);
                 }
 
                 // the program has no more dependants
@@ -66,14 +64,11 @@ namespace LL.Helper
 
             // if there are still nodes in this set, there is a cycle in the graph which contains those nodes
             if (this.FilesInProgram.Count != 0)
-            {
-                nodes = this.FilesInProgram.ToList();
-                return true;
-            }
+                throw new CircularDependencyException(this.FilesInProgram.ToList(), this.RootProgram.FileName);
 
             // reverse the list to get the order of compilation
             nodes.Reverse();
-            return false;
+            return nodes;
         }
     }
 }

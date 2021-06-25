@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 using NUnit.Framework;
 
 using Antlr4.Runtime;
@@ -28,9 +30,7 @@ namespace LL.Test
             parser.Reset();
             prog.Parser = parser;
             StructDefinitionVisitor.ProgData.RootProgram = prog;
-            bool hasCircular = StructDefinitionVisitor.ProgData.ContainsCircularDependency(out var nodes);
-
-            Assert.True(hasCircular);
+            Assert.Throws<CircularDependencyException>(() => StructDefinitionVisitor.ProgData.ContainsCircularDependency());
         }
     }
 }
