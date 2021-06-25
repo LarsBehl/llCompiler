@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 using Antlr4.Runtime;
@@ -90,13 +91,15 @@ namespace LL.Helper
 
                 List<ProgramNode> nodes = StructDefinitionVisitor.ProgData.ContainsCircularDependency();
 
-                if(nodes is null || nodes.Count <= 0)
+                if (nodes is null || nodes.Count <= 0)
                     throw new UnexpectedErrorException(fileLocation);
 
-                foreach(ProgramNode node in nodes)
+                foreach (ProgramNode node in nodes)
                 {
                     new FunctionDefinitionVisitor(node).VisitCompileUnit(node.Parser.compileUnit());
                     node.Parser.Reset();
+
+                    ConflictingImports(node);
 
                     new BuildAstVisitor(node).VisitCompileUnit(node.Parser.compileUnit());
                 }
@@ -108,6 +111,30 @@ namespace LL.Helper
             }
 
             return result;
+        }
+
+        public static void ConflictingImports(ProgramNode prog)
+        {
+            ICollection<LoadStatement> values = prog.Dependencies.Values;
+            for (int i = 0; i < values.Count; i++)
+            {
+                LoadStatement first = values.ElementAt(i);
+                for (int j = i + 1; j < values.Count; j++)
+                {
+                    LoadStatement second = values.ElementAt(j);
+                    IEnumerable<string> intersection = first.Program.FunDefs.Keys.Intersect(second.Program.FunDefs.Keys);
+                    if (intersection is not null && intersection.Count() > 0)
+                        throw new ConflictingImportException(
+                            intersection.First(),
+                            first.FileName,
+                            second.FileName,
+                            "function",
+                            prog.FileName,
+                            first.Line,
+                            first.Column
+                        );
+                }
+            }
         }
 
         public static void PrintError(BaseCompilerException e)
