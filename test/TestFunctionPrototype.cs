@@ -52,7 +52,7 @@ namespace LL.Test
             rootProg.Parser = parser;
             StructDefinitionVisitor.ProgData.RootProgram = rootProg;
 
-            StructDefinitionVisitor.ProgData.ContainsCircularDependency(out List<ProgramNode> nodes);
+            List<ProgramNode> nodes = StructDefinitionVisitor.ProgData.ContainsCircularDependency();
 
             new FunctionDefinitionVisitor(nodes[0]).VisitCompileUnit(nodes[0].Parser.compileUnit());
             FunctionDefinitionVisitor visitor = new FunctionDefinitionVisitor(rootProg);

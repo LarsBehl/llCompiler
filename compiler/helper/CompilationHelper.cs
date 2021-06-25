@@ -88,10 +88,10 @@ namespace LL.Helper
                 parser.Reset();
                 result.Parser = parser;
 
-                bool isCircular = StructDefinitionVisitor.ProgData.ContainsCircularDependency(out List<ProgramNode> nodes);
+                List<ProgramNode> nodes = StructDefinitionVisitor.ProgData.ContainsCircularDependency();
 
-                if(isCircular)
-                    throw new CircularDependencyException(nodes, fileLocation);
+                if(nodes is null || nodes.Count <= 0)
+                    throw new UnexpectedErrorException(fileLocation);
 
                 foreach(ProgramNode node in nodes)
                 {

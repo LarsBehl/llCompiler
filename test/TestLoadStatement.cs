@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 using NUnit.Framework;
 
@@ -44,7 +45,7 @@ namespace LL.Test
             parser.Reset();
             prog.Parser = parser;
             StructDefinitionVisitor.ProgData.RootProgram = prog;
-            StructDefinitionVisitor.ProgData.ContainsCircularDependency(out var nodes);
+            List<ProgramNode> nodes = StructDefinitionVisitor.ProgData.ContainsCircularDependency();
 
             // A single dependency should be loaded
             Assert.AreEqual(1, prog.Dependencies.Count);
@@ -76,7 +77,7 @@ namespace LL.Test
             Assert.AreEqual(1, prog.Dependencies.Count);
 
             StructDefinitionVisitor.ProgData.RootProgram = prog;
-            StructDefinitionVisitor.ProgData.ContainsCircularDependency(out var nodes);
+            List<ProgramNode> nodes = StructDefinitionVisitor.ProgData.ContainsCircularDependency();
 
             for (int i = 0; i < nodes.Count - 1; i++)
             {
@@ -107,7 +108,7 @@ namespace LL.Test
             parser.Reset();
             prog.Parser = parser;
             StructDefinitionVisitor.ProgData.RootProgram = prog;
-            StructDefinitionVisitor.ProgData.ContainsCircularDependency(out var nodes);
+            List<ProgramNode> nodes = StructDefinitionVisitor.ProgData.ContainsCircularDependency();
 
             foreach (ProgramNode node in nodes)
             {
