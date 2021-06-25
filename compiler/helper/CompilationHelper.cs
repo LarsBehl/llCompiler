@@ -113,6 +113,9 @@ namespace LL.Helper
             return result;
         }
 
+        // TODO add check for structs and global variables
+        // watch out because structs and variables are loaded recursively
+        // maybe create a list of all structs and global variables defined in dependencies (recursively)
         public static void ConflictingImports(ProgramNode prog)
         {
             ICollection<LoadStatement> values = prog.Dependencies.Values;

@@ -13,18 +13,17 @@ namespace LL.Test
     [TestFixture]
     public class TestConflictingImports
     {
-        private static readonly string FUNCTION_CONFLICT = "./programs/TestFile16.ll";
         private llParser Setup(string filePath)
         {
             return new llParser(new CommonTokenStream(new llLexer(new AntlrFileStream(filePath))));
         }
 
-        [Test]
-        public void TestConflictingImports1()
+        [TestCase("./programs/TestFile16.ll")]
+        public void TestConflictingImports1(string fileName)
         {
             StructDefinitionVisitor.ProgData = new Helper.ProgramData();
-            llParser parser = this.Setup(FUNCTION_CONFLICT);
-            StructDefinitionVisitor visitor = new StructDefinitionVisitor(FUNCTION_CONFLICT);
+            llParser parser = this.Setup(fileName);
+            StructDefinitionVisitor visitor = new StructDefinitionVisitor(fileName);
             ProgramNode node = visitor.VisitCompileUnit(parser.compileUnit()) as ProgramNode;
             parser.Reset();
             node.Parser = parser;
