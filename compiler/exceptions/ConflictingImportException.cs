@@ -16,7 +16,7 @@ namespace LL.Exceptions
             string fileName,
             int line,
             int column
-        ) : base($"{MESSAGE} ${type}: definition of {name} in {file1} and {file2}", fileName, line, column)
+        ) : base($"{MESSAGE} {type}: definition of {name} in {file1} and {file2}", fileName, line, column)
         {
             this.Name = name;
             this.Type = type;

@@ -89,6 +89,9 @@ namespace LL.Helper
                 parser.Reset();
                 result.Parser = parser;
 
+                ConflictingImportedGlobalVariables(result);
+                ConflictingImportedStructs(result);
+
                 List<ProgramNode> nodes = StructDefinitionVisitor.ProgData.ContainsCircularDependency();
 
                 if (nodes is null || nodes.Count <= 0)
@@ -99,10 +102,11 @@ namespace LL.Helper
                     new FunctionDefinitionVisitor(node).VisitCompileUnit(node.Parser.compileUnit());
                     node.Parser.Reset();
 
-                    ConflictingImports(node);
 
                     new BuildAstVisitor(node).VisitCompileUnit(node.Parser.compileUnit());
                 }
+
+                ConflictingImportedFunctions(result);
             }
             catch (BaseCompilerException e)
             {
@@ -113,31 +117,133 @@ namespace LL.Helper
             return result;
         }
 
-        // TODO add check for structs and global variables
-        // watch out because structs and variables are loaded recursively
-        // maybe create a list of all structs and global variables defined in dependencies (recursively)
-        public static void ConflictingImports(ProgramNode prog)
+        public static Dictionary<string, string> ConflictingImportedFunctions(ProgramNode prog)
         {
-            ICollection<LoadStatement> values = prog.Dependencies.Values;
-            for (int i = 0; i < values.Count; i++)
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            List<Dictionary<string, string>> functionsInChildren = new List<Dictionary<string, string>>();
+
+            // get the struct definitions of the children
+            foreach (var dep in prog.Dependencies?.Values)
+                functionsInChildren.Add(ConflictingImportedFunctions(dep.Program));
+
+            for (int i = 0; i < functionsInChildren.Count; i++)
             {
-                LoadStatement first = values.ElementAt(i);
-                for (int j = i + 1; j < values.Count; j++)
+                Dictionary<string, string> child1Functions = functionsInChildren[i];
+                for (int j = i + 1; j < functionsInChildren.Count; j++)
                 {
-                    LoadStatement second = values.ElementAt(j);
-                    IEnumerable<string> intersection = first.Program.FunDefs.Keys.Intersect(second.Program.FunDefs.Keys);
-                    if (intersection is not null && intersection.Count() > 0)
-                        throw new ConflictingImportException(
-                            intersection.First(),
-                            first.FileName,
-                            second.FileName,
-                            "function",
-                            prog.FileName,
-                            first.Line,
-                            first.Column
-                        );
+                    Dictionary<string, string> child2Funtions = functionsInChildren[j];
+                    // check if there are any conflicts
+                    foreach (string functionName in child1Functions.Keys)
+                    {
+                        bool success = child2Funtions.TryGetValue(functionName, out string fileName);
+
+                        if (success && child1Functions[functionName] != fileName)
+                            throw new ConflictingImportException(
+                                functionName,
+                                child1Functions[functionName],
+                                fileName,
+                                "function",
+                                prog.FileName,
+                                -1,
+                                -1
+                            );
+                    }
                 }
+
+                foreach (var function in child1Functions)
+                    result[function.Key] = function.Value;
             }
+
+            foreach (var function in prog.FunDefs)
+                result.Add(function.Key, prog.FileName);
+
+            return result;
+        }
+
+        public static Dictionary<string, string> ConflictingImportedStructs(ProgramNode prog)
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            List<Dictionary<string, string>> structsInChildren = new List<Dictionary<string, string>>();
+
+            // get the struct definitions of the children
+            foreach (var dep in prog.Dependencies?.Values)
+                structsInChildren.Add(ConflictingImportedStructs(dep.Program));
+
+            for (int i = 0; i < structsInChildren.Count; i++)
+            {
+                Dictionary<string, string> child1Structs = structsInChildren[i];
+                for (int j = i + 1; j < structsInChildren.Count; j++)
+                {
+                    Dictionary<string, string> child2Structs = structsInChildren[j];
+                    // check if there are any conflicts
+                    foreach (string structName in child1Structs.Keys)
+                    {
+                        bool success = child2Structs.TryGetValue(structName, out string fileName);
+
+                        if (success && child1Structs[structName] != fileName)
+                            throw new ConflictingImportException(
+                                structName,
+                                child1Structs[structName],
+                                fileName,
+                                "struct",
+                                prog.FileName,
+                                -1,
+                                -1
+                            );
+                    }
+                }
+
+                foreach (var @struct in child1Structs)
+                    result[@struct.Key] = @struct.Value;
+            }
+
+            foreach (var @struct in prog.StructDefs)
+                result.Add(@struct.Key, prog.FileName);
+
+            return result;
+        }
+
+        public static Dictionary<string, string> ConflictingImportedGlobalVariables(ProgramNode prog)
+        {
+            Dictionary<string, string> result = new Dictionary<string, string>();
+            List<Dictionary<string, string>> globalVariablesInChildren = new List<Dictionary<string, string>>();
+
+            // get the struct definitions of the children
+            foreach (var dep in prog.Dependencies?.Values)
+                globalVariablesInChildren.Add(ConflictingImportedGlobalVariables(dep.Program));
+
+            for (int i = 0; i < globalVariablesInChildren.Count; i++)
+            {
+                Dictionary<string, string> child1GlobalVariables = globalVariablesInChildren[i];
+                for (int j = i + 1; j < globalVariablesInChildren.Count; j++)
+                {
+                    Dictionary<string, string> child2globalVariables = globalVariablesInChildren[j];
+                    // check if there are any conflicts
+                    foreach (string structName in child1GlobalVariables.Keys)
+                    {
+                        bool success = child2globalVariables.TryGetValue(structName, out string fileName);
+
+                        if (success && child1GlobalVariables[structName] != fileName)
+                            throw new ConflictingImportException(
+                                structName,
+                                child1GlobalVariables[structName],
+                                fileName,
+                                "globalVariable",
+                                prog.FileName,
+                                -1,
+                                -1
+                            );
+                    }
+                }
+
+                foreach (var globalVariable in child1GlobalVariables)
+                    result[globalVariable.Key] = globalVariable.Value;
+            }
+
+            foreach (var globalVariable in prog.GlobalVariables)
+                result.Add(globalVariable.Key, prog.FileName);
+
+            return result;
         }
 
         public static void PrintError(BaseCompilerException e)

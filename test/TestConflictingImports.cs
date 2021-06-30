@@ -33,7 +33,7 @@ namespace LL.Test
             foreach(ProgramNode prog in nodes)
                 new FunctionDefinitionVisitor(prog).VisitCompileUnit(prog.Parser.compileUnit());
 
-            Assert.Throws<ConflictingImportException>(() => CompilationHelper.ConflictingImports(node));
+            Assert.Throws<ConflictingImportException>(() => CompilationHelper.ConflictingImportedFunctions(node));
         }
     }
 }
