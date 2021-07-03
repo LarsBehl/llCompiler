@@ -1,10 +1,13 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using LL.AST;
-using LL.Types;
-using LL.Exceptions;
+using System.Collections.Generic;
+
 using Antlr4.Runtime.Tree;
+
+using LL.AST;
+using LL.Exceptions;
+using LL.Helper;
+using LL.Types;
 
 namespace LL
 {
@@ -193,15 +196,31 @@ namespace LL
 
         private IAST CreateCharLitFromNode(ITerminalNode node)
         {
-            char lit = node.GetText().Replace("'", string.Empty)[0];
+            string tmpLit = node.GetText().Replace("'", string.Empty);
+            char lit;
+            int line = node.Symbol.Line;
+            int column = node.Symbol.Column;
 
-            return new CharLit(lit, node.Symbol.Line, node.Symbol.Column);
+            if (tmpLit.Length > 1)
+            {
+                bool success = Constants.ESCAPED_CHARS.TryGetValue(tmpLit, out lit);
+
+                if (!success)
+                    throw new UnknownCharacterException(tmpLit, this.RootProgram.FileName, line, column);
+            }
+            else
+                lit = tmpLit[0];
+
+            return new CharLit(lit, line, column);
         }
 
         private IAST CreateStringLitFromNode(ITerminalNode node)
         {
             string lit = node.GetText();
             lit = lit.Substring(1, lit.Length - 2);
+
+            foreach (var escaped in Constants.ESCAPED_CHARS)
+                lit = lit.Replace(escaped.Key, escaped.Value.ToString());
 
             return new StringLit(lit, node.Symbol.Line, node.Symbol.Column);
         }

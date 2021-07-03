@@ -46,8 +46,8 @@ namespace LL.CodeGeneration
             StringBuilder bob = new StringBuilder();
 
             this.WriteString(stringLit);
-            bob.AppendLine($"{Constants.INDENTATION}leaq .LS{this.StringLabelMap[stringLit.Value]}(%rip), {Constants.IntegerRegisters[0]}");
-            bob.AppendLine($"{Constants.INDENTATION}movq ${stringLit.Length}, {Constants.IntegerRegisters[1]}");
+            bob.AppendLine($"{Constants.INDENTATION}leaq .LS{this.StringLabelMap[stringLit.Value]}(%rip), {Constants.INTEGER_REGISTERS[0]}");
+            bob.AppendLine($"{Constants.INDENTATION}movq ${stringLit.Length}, {Constants.INTEGER_REGISTERS[1]}");
 
             bob.AppendLine($"{Constants.INDENTATION}call createStringFromLiteral@PLT");
 
@@ -153,7 +153,7 @@ namespace LL.CodeGeneration
                 {
                     this.GetAssember(functionCall.Args[i]);
 
-                    this.WriteLine($"movq %rax, {Constants.IntegerRegisters[functionAsm.UsedIntegerRegisters]}");
+                    this.WriteLine($"movq %rax, {Constants.INTEGER_REGISTERS[functionAsm.UsedIntegerRegisters]}");
                     functionAsm.UsedIntegerRegisters++;
                 }
             }
@@ -203,7 +203,7 @@ namespace LL.CodeGeneration
             for (int i = 0; i < functionAsm.UsedDoubleRegisters; i++)
             {
                 this.WritePop();
-                this.WriteLine($"movq %rax, {Constants.DoubleRegisters[i]}");
+                this.WriteLine($"movq %rax, {Constants.DOUBLE_REGISTERS[i]}");
             }
 
             // this should only happen if the registers do not overflow and the stack is not aligned
