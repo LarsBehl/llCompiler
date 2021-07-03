@@ -264,23 +264,23 @@ namespace LL.CodeGeneration
 
             // push all argument-registers onto the stack
             this.ArgumentTypeCount(funDef.Args, out int intArgCount, out int doubleArgCount);
-            int index = Math.Min(intArgCount, Constants.IntegerRegisters.Length);
+            int index = Math.Min(intArgCount, Constants.INTEGER_REGISTERS.Length);
             int lastFound = -1;
 
             for (int i = 0; i < index; i++)
             {
-                this.WritePush(Constants.IntegerRegisters[i]);
+                this.WritePush(Constants.INTEGER_REGISTERS[i]);
                 offSet -= 8;
                 lastFound = this.GetNextIntArg(funDef.Args, lastFound);
                 this.VariableMap[funDef.Args[lastFound].Name] = offSet;
             }
 
-            index = Math.Min(doubleArgCount, Constants.DoubleRegisters.Length);
+            index = Math.Min(doubleArgCount, Constants.DOUBLE_REGISTERS.Length);
             lastFound = -1;
 
             for (int i = 0; i < index; i++)
             {
-                this.WriteLine($"movq {Constants.DoubleRegisters[i]}, %rax");
+                this.WriteLine($"movq {Constants.DOUBLE_REGISTERS[i]}, %rax");
                 this.WritePush();
                 offSet -= 8;
                 lastFound = this.GetNextDoubleArg(funDef.Args, lastFound);
@@ -336,8 +336,8 @@ namespace LL.CodeGeneration
 
             StructIdMap[structDef.Name] = id;
 
-            StructDefinitionBuilder.AppendLine($"{Constants.INDENTATION}movq ${id}, {Constants.IntegerRegisters[0]}");
-            StructDefinitionBuilder.AppendLine($"{Constants.INDENTATION}movq ${structDef.GetSize()}, {Constants.IntegerRegisters[1]}");
+            StructDefinitionBuilder.AppendLine($"{Constants.INDENTATION}movq ${id}, {Constants.INTEGER_REGISTERS[0]}");
+            StructDefinitionBuilder.AppendLine($"{Constants.INDENTATION}movq ${structDef.GetSize()}, {Constants.INTEGER_REGISTERS[1]}");
 
             StructDefinitionBuilder.AppendLine($"{Constants.INDENTATION}call registerClass@PLT");
         }
@@ -490,7 +490,7 @@ namespace LL.CodeGeneration
                 {
                     usedInt += 1;
 
-                    if (usedInt > Constants.IntegerRegisters.Length)
+                    if (usedInt > Constants.INTEGER_REGISTERS.Length)
                     {
                         result = true;
                         integerOverflowPosition = integerOverflowPosition == Int32.MaxValue ? i : integerOverflowPosition;
@@ -501,7 +501,7 @@ namespace LL.CodeGeneration
                 {
                     usedDouble += 1;
 
-                    if (usedDouble > Constants.DoubleRegisters.Length)
+                    if (usedDouble > Constants.DOUBLE_REGISTERS.Length)
                     {
                         result = true;
                         doubleOverflowPosition = doubleOverflowPosition == Int32.MaxValue ? i : doubleOverflowPosition;
@@ -526,7 +526,7 @@ namespace LL.CodeGeneration
                 {
                     usedInt += 1;
 
-                    if (usedInt > Constants.IntegerRegisters.Length)
+                    if (usedInt > Constants.INTEGER_REGISTERS.Length)
                     {
                         result = true;
                         integerOverflowPosition = integerOverflowPosition != Int32.MaxValue ? integerOverflowPosition : i;
@@ -537,7 +537,7 @@ namespace LL.CodeGeneration
                 {
                     usedDouble += 1;
 
-                    if (usedDouble > Constants.DoubleRegisters.Length)
+                    if (usedDouble > Constants.DOUBLE_REGISTERS.Length)
                     {
                         result = true;
                         doubleOverflowPosition = doubleOverflowPosition != Int32.MaxValue ? doubleOverflowPosition : i;

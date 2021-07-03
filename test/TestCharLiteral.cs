@@ -18,7 +18,7 @@ namespace LL.Test
 
         [TestCase("'c'", 'c')]
         [TestCase("'-'", '-')]
-        [TestCase("'\n'", '\n')]
+        [TestCase(@"'\n'", '\n')]
         public void TestCharLiteral1(string input, char expected)
         {
             llParser parser = Setup(input);

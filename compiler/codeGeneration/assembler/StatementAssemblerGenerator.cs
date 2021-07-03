@@ -273,7 +273,7 @@ namespace LL.CodeGeneration
                     break;
             }
 
-            this.WriteLine($"leaq .LS{this.StringLabelMap[mapKey]}(%rip), {Constants.IntegerRegisters[0]}");
+            this.WriteLine($"leaq .LS{this.StringLabelMap[mapKey]}(%rip), {Constants.INTEGER_REGISTERS[0]}");
 
             if (print.Value.Type is DoubleType)
                 this.WriteLine("movl $1, %eax");

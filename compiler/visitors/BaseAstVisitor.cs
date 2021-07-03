@@ -115,7 +115,7 @@ namespace LL
             if(context.compositUnit() != null)
             {
                 this.Env = this.RootProgram.Env;
-                this.RootProgram.CompositUnit = Visit(context.compositUnit());;
+                this.RootProgram.CompositUnit = Visit(context.compositUnit());
             }
 
             return this.RootProgram;

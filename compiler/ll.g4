@@ -150,8 +150,9 @@ globalVariableStatement: GLOBAL name = WORD COLON typeDefinition ASSIGN (CHAR_LI
 
 DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;
-STRING_LITERAL: QUOTE ('\u0000'..'\u0021' | '\u0023'..'\u007F')* QUOTE;
-CHAR_LITERAL: APOSTROPHE ('\u0000'..'\u0026' | '\u0028'..'\u007F') APOSTROPHE;
+STRING_LITERAL: QUOTE ('\u0020'..'\u0021' | '\u0023'..'\u007E' | ESCAPED)* QUOTE;
+CHAR_LITERAL: APOSTROPHE ('\u0020'..'\u0026' | '\u0028'..'\u007E' | ESCAPED) APOSTROPHE;
+ESCAPED: '\u005C' ('\u006E' | '\u0074' | '\u0072' | '\u0022' | '\u0027' | '\u0030' | '\u005C');
 RETURN: 'r' 'e' 't' 'u' 'r' 'n';
 INT_TYPE: 'i' 'n' 't';
 DOUBLE_TYPE: 'd' 'o' 'u' 'b' 'l' 'e';
