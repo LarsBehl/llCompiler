@@ -152,7 +152,7 @@ DOUBLE_LITERAL: [0-9]+ DOT [0-9]+;
 INTEGER_LITERAL: [0-9]+;
 STRING_LITERAL: QUOTE ('\u0020'..'\u0021' | '\u0023'..'\u007E' | ESCAPED)* QUOTE;
 CHAR_LITERAL: APOSTROPHE ('\u0020'..'\u0026' | '\u0028'..'\u007E' | ESCAPED) APOSTROPHE;
-ESCAPED: '\u005C' ('\u006E' | '\u0074' | '\u0072' | '\u0022' | '\u0027');
+ESCAPED: '\u005C' ('\u006E' | '\u0074' | '\u0072' | '\u0022' | '\u0027' | '\u0030' | '\u005C');
 RETURN: 'r' 'e' 't' 'u' 'r' 'n';
 INT_TYPE: 'i' 'n' 't';
 DOUBLE_TYPE: 'd' 'o' 'u' 'b' 'l' 'e';

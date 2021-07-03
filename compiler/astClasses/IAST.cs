@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 
 using LL.Exceptions;
+using LL.Helper;
 using LL.Types;
 
 namespace LL.AST
@@ -35,7 +36,8 @@ namespace LL.AST
                 case DoubleLit d: return d;
                 case BoolLit b: return b;
                 case CharLit charLit: return charLit;
-                case StringLit sl: return sl;
+                case StringLit sl:
+                    return EvalStringLit(sl);
                 case MultExpr me:
                     return EvalMultExpression(me);
                 case AddExpr add:
@@ -878,6 +880,14 @@ namespace LL.AST
                 throw new ArgumentException($"Right operand is null; On line {modExpr.Line}:{modExpr.Column}");
 
             return new IntLit((leftVal.Value ?? -1) % (rightVal.Value ?? -1), modExpr.Line, modExpr.Column);
+        }
+
+        private IAST EvalStringLit(StringLit stringLit)
+        {
+            foreach(var escaped in Constants.ESCAPED_CHARS)
+                stringLit.Value = stringLit.Value.Replace(escaped.Key, escaped.Value.ToString());
+            
+            return stringLit;
         }
 
         private StructPropertyAccess GetPropRef(StructPropertyAccess val, out long index)

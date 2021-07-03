@@ -196,7 +196,8 @@ namespace LL
 
         private IAST CreateCharLitFromNode(ITerminalNode node)
         {
-            string tmpLit = node.GetText().Replace("'", string.Empty);
+            string tmpLit = node.GetText();
+            tmpLit = tmpLit.Substring(1, tmpLit.Length - 2);
             char lit;
             int line = node.Symbol.Line;
             int column = node.Symbol.Column;
@@ -218,9 +219,6 @@ namespace LL
         {
             string lit = node.GetText();
             lit = lit.Substring(1, lit.Length - 2);
-
-            foreach (var escaped in Constants.ESCAPED_CHARS)
-                lit = lit.Replace(escaped.Key, escaped.Value.ToString());
 
             return new StringLit(lit, node.Symbol.Line, node.Symbol.Column);
         }
