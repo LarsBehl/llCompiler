@@ -117,14 +117,12 @@ function compileBaseClassLibrary() {
     Write-Host "cp $($compilerLocation)/bin/win10/* $($baseClassLibLocation)"
     Copy-Item "$($compilerLocation)/bin/win10/*" -Destination "$($baseClassLibLocation)/"
     # Compile library
-    printAndRun -command "$($baseClassLibLocation)/llCompiler.exe -c $($baseClassLibLocation)/src/util.ll"
     printAndRun -command "$($baseClassLibLocation)/llCompiler.exe -c $($baseClassLibLocation)/src/sys_io.ll"
     Write-Host "mv $($baseClassLibLocation)/src/*.S $($baseClassLibLocation)/bin/"
     Move-Item "$($baseClassLibLocation)/src/*.S" -Destination "$($baseClassLibLocation)/bin/" -Force
     printAndRun "wsl gcc -c -g $($baseClassLibLocation)/bin/util.S -o $($baseClassLibLocation)/bin/util.o"
     printAndRun "wsl gcc -c -g $($baseClassLibLocation)/bin/sys_io.S -o $($baseClassLibLocation)/bin/sys_io.o"
     # Generate header files
-    printAndRun -command "$($baseClassLibLocation)/llCompiler.exe -h $($baseClassLibLocation)/src/util.ll"
     printAndRun -command "$($baseClassLibLocation)/llCompiler.exe -h $($baseClassLibLocation)/src/sys_io.ll"
     Write-Host "mv $($baseClassLibLocation)/src/*.llh $($baseClassLibLocation)/bin/"
     Move-Item "$($baseClassLibLocation)/src/*.llh" -Destination "$($baseClassLibLocation)/bin/" -Force

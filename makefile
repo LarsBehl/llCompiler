@@ -44,10 +44,8 @@ ifeq (,$(wildcard ./baseClassLibrary/bin))
 	mkdir -p ./baseClassLibrary/bin
 endif
 	cp ./compiler/bin/linux/llCompiler ./baseClassLibrary
-	./baseClassLibrary/llCompiler -c ./baseClassLibrary/src/util.ll
 	./baseClassLibrary/llCompiler -c ./baseClassLibrary/src/sys_io.ll
 	mv ./baseClassLibrary/src/*.S ./baseClassLibrary/bin/
-	./baseClassLibrary/llCompiler -h ./baseClassLibrary/src/util.ll
 	./baseClassLibrary/llCompiler -h ./baseClassLibrary/src/sys_io.ll
 	mv ./baseClassLibrary/src/*.llh ./baseClassLibrary/bin/
 	gcc -c -g ./baseClassLibrary/bin/util.S -o ./baseClassLibrary/bin/util.o

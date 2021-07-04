@@ -55,7 +55,7 @@ namespace LL
             string sign = "+";
             if (context.sign != null)
                 sign = context.sign.Text;
-            return new IntLit(Int32.Parse(sign + context.INTEGER_LITERAL().GetText()), context.Start.Line, context.Start.Column);
+            return new IntLit(Int64.Parse(sign + context.INTEGER_LITERAL().GetText()), context.Start.Line, context.Start.Column);
         }
 
         public override IAST VisitDoubleAtomExpression(llParser.DoubleAtomExpressionContext context)
