@@ -11,5 +11,7 @@ openTestIo(): int
     fd: int = openFile(path);
     destroy path;
 
+    closeFile(fd);
+
     return fd;
 }
