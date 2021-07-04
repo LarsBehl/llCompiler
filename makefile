@@ -51,7 +51,7 @@ endif
 	./baseClassLibrary/llCompiler -h ./baseClassLibrary/src/sys_io.ll
 	mv ./baseClassLibrary/src/*.llh ./baseClassLibrary/bin/
 	gcc -c -g ./baseClassLibrary/bin/util.S -o ./baseClassLibrary/bin/util.o
-	gcc -c -g ./baseClassLibrary/bin/sys_io.S -o /baseClassLibrary/bin/sys_io.o
+	gcc -c -g ./baseClassLibrary/bin/sys_io.S -o ./baseClassLibrary/bin/sys_io.o
 
 compileTest: packageRuntime
 	@echo "\n\n\e[0;32mCompiling ll code...\n\e[0m"
