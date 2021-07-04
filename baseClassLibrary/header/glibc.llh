@@ -1,1 +1,2 @@
 exit(status: int): void;
+write(fd: int, buffer: char[], count: int): int;

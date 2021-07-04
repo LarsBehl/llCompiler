@@ -6,13 +6,14 @@ load testAssign;
 load testUnary;
 load testStructs;
 load util;
+load testIO;
 
 global testGlobalVariableInt: int = 42;
 global testGlobalVariableDouble: double = 18.7;
 global testGlobalVariableChar: char = 'c';
 global testGlobalVariableBool: bool = true;
 global testGlobalArray: int[] = new int[5];
-global testGlobalString: char[] = "Hallo Welt";
+global testGlobalString: char[] = "Hallo Welt\n";
 
 testIntArray(x:int): int
 {
@@ -449,6 +450,9 @@ main(): void
     evalDouble(17.0, doubleResult);
     doubleResult = assignIntDoubleStruct(3);
     evalDouble(3.0, doubleResult);
+
+    intResult = writeStdout(testGlobalString, 11);
+    evalInt(11, intResult);
 
     print("Tests:");
     print(testData.testCount);
