@@ -128,6 +128,13 @@ evalInt(expected: int, val: int): void
     {
         testData.successCount++;
     }
+    else
+    {
+        print("Expected:");
+        print(expected);
+        print("Actual:");
+        print(val);
+    }
 
     print(result);
 }
@@ -453,6 +460,8 @@ main(): void
 
     intResult = writeStdout(testGlobalString, 11);
     evalInt(11, intResult);
+    intResult = openTestIo();
+    evalInt(3, intResult);
 
     print("Tests:");
     print(testData.testCount);
