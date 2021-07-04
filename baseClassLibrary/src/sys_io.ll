@@ -23,3 +23,15 @@ openFile(path: char[]): int
 
     return fd;
 }
+
+closeFile(fd: int): void
+{
+    result: int = close(fd);
+
+    if(result == int32MaxValue)
+    {
+        print("Could not close with with descriptor:");
+        print(fd);
+        exitProgram(-1);
+    }
+}

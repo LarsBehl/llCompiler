@@ -1,3 +1,4 @@
 exit(status: int): void;
 write(fd: int, buffer: char[], count: int): int;
 open(path: char[], flags: int): int;
+close(fd: int): int;
