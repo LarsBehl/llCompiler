@@ -73,7 +73,7 @@ function linkTest() {
     printMessage -message "Linking tests"
     Write-Host "cp $($baseClassLibLocation)/bin/libLL.a $($testLocation)/bin/"
     Copy-Item "$($baseClassLibLocation)/bin/libLL.a" -Destination "$($testLocation)/bin/"
-    printAndRun -command "wsl gcc -o $($testLocation)/bin/testCodeGen $($testLocation)/bin/testCodeGenV1Prog.o $($testLocation)/bin/testBinOps.o $($testLocation)/bin/testId.o $($testLocation)/bin/testUnary.o $($testLocation)/bin/testAssign.o $($testLocation)/bin/testStructs.o $($testLocation)/bin/testWhile.o $($testLocation)/bin/testIf.o -LtestGeneratedCode/bin -lLL"
+    printAndRun -command "wsl gcc -o $($testLocation)/bin/testCodeGen $($testLocation)/bin/testCodeGenV1Prog.o $($testLocation)/bin/testBinOps.o $($testLocation)/bin/testId.o $($testLocation)/bin/testUnary.o $($testLocation)/bin/testAssign.o $($testLocation)/bin/testStructs.o $($testLocation)/bin/testWhile.o $($testLocation)/bin/testIf.o $($testLocation)/bin/testIO.o -LtestGeneratedCode/bin -lLL"
 }
 
 function compileAssember() {
@@ -86,13 +86,14 @@ function compileAssember() {
     printAndRun -command "wsl gcc -c -g $($testLocation)/bin/testStructs.S -o $($testLocation)/bin/testStructs.o"
     printAndRun -command "wsl gcc -c -g $($testLocation)/bin/testWhile.S -o $($testLocation)/bin/testWhile.o"
     printAndRun -command "wsl gcc -c -g $($testLocation)/bin/testIf.S -o $($testLocation)/bin/testIf.o"
+    printAndRun -command "wsl gcc -c -g $($testLocation)/bin/testIO.S -o $($testLocation)/bin/testIO.o"
 }
 
 function packageRuntime() {
     printMessage -message "Packaging runtime lib"
     Write-Host "cp $($runtimeLocation)/bin/* $($baseClassLibLocation)/bin/"
     Copy-Item "$($runtimeLocation)/bin/*" -Destination "$($baseClassLibLocation)/bin/" -Force
-    printAndRun -command "wsl ar rcs $($baseClassLibLocation)/bin/libLL.a $($baseClassLibLocation)/bin/runtime.o $($baseClassLibLocation)/bin/errors.o $($baseClassLibLocation)/bin/addrList.o $($baseClassLibLocation)/bin/classData.o $($baseClassLibLocation)/bin/classDataList.o $($baseClassLibLocation)/bin/util.o"
+    printAndRun -command "wsl ar rcs $($baseClassLibLocation)/bin/libLL.a $($baseClassLibLocation)/bin/runtime.o $($baseClassLibLocation)/bin/errors.o $($baseClassLibLocation)/bin/addrList.o $($baseClassLibLocation)/bin/classData.o $($baseClassLibLocation)/bin/classDataList.o $($baseClassLibLocation)/bin/util.o $($baseClassLibLocation)/bin/sys_io.o"
 }
 
 function compileRuntime() {
@@ -117,13 +118,16 @@ function compileBaseClassLibrary() {
     Copy-Item "$($compilerLocation)/bin/win10/*" -Destination "$($baseClassLibLocation)/"
     # Compile library
     printAndRun -command "$($baseClassLibLocation)/llCompiler.exe -c $($baseClassLibLocation)/src/util.ll"
-    Write-Host "mv $($baseClassLibLocation)/src/util.S $($baseClassLibLocation)/bin/"
+    printAndRun -command "$($baseClassLibLocation)/llCompiler.exe -c $($baseClassLibLocation)/src/sys_io.ll"
+    Write-Host "mv $($baseClassLibLocation)/src/*.S $($baseClassLibLocation)/bin/"
     Move-Item "$($baseClassLibLocation)/src/*.S" -Destination "$($baseClassLibLocation)/bin/" -Force
     printAndRun "wsl gcc -c -g $($baseClassLibLocation)/bin/util.S -o $($baseClassLibLocation)/bin/util.o"
+    printAndRun "wsl gcc -c -g $($baseClassLibLocation)/bin/sys_io.S -o $($baseClassLibLocation)/bin/sys_io.o"
     # Generate header files
     printAndRun -command "$($baseClassLibLocation)/llCompiler.exe -h $($baseClassLibLocation)/src/util.ll"
-    Write-Host "mv $($baseClassLibLocation)/src/util.llh $($baseClassLibLocation)/bin/util.llh"
-    Move-Item "$($baseClassLibLocation)/src/util.llh" -Destination "$($baseClassLibLocation)/bin/util.llh" -Force
+    printAndRun -command "$($baseClassLibLocation)/llCompiler.exe -h $($baseClassLibLocation)/src/sys_io.ll"
+    Write-Host "mv $($baseClassLibLocation)/src/*.llh $($baseClassLibLocation)/bin/"
+    Move-Item "$($baseClassLibLocation)/src/*.llh" -Destination "$($baseClassLibLocation)/bin/" -Force
 }
 
 function compileTest() {
