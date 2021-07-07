@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using LL.Types;
 
@@ -41,6 +42,15 @@ namespace LL.AST
             }
 
             return result + "}";
+        }
+
+        public override int GetHashCode()
+        {
+            int result = 0;
+            for(int i = 0; i < this.Name.Length; i++)
+                result += ((int) Math.Pow(31, this.Name.Length - (i + 1)) * this.Name[i]) % Int32.MaxValue;
+            
+            return result;
         }
     }
 }

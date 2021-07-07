@@ -1,49 +1,76 @@
 load glibc;
 load util;
+load runtime;
 
 global STDIN: int = 0;
 global STDOUT: int = 1;
 global STDERR: int = 2;
 
-writeFile(fd: int, buffer: char[], amount: int): int
+struct File
 {
-    return write(fd, buffer, amount);
+    fd: int;
+    stats: FileStat;
+    bloat: int;
 }
 
-readFile(fd: int, buffer: char[], ammount: int): int
+writeFile(file: File, buffer: char[], amount: int): int
 {
-    bytesRead: int = read(fd, buffer, ammount);
+    return write(file.fd, buffer, amount);
+}
+
+readFile(file: File, buffer: char[], ammount: int): int
+{
+    bytesRead: int = read(file.fd, buffer, ammount);
     if(bytesRead < 0)
     {
         print("Could not read from file with descriptor:");
-        print(fd);
+        print(file.fd);
         exitProgram(-1);
     }
     return bytesRead;
 }
 
-openFile(path: char[]): int
+openFile(path: char[]): File
 {
-    fd: int = open(path, 0);
+    result: File = new File();
+    result.fd = open(path, 0);
 
-    if(fd == int32MaxValue)
+    if(result.fd == int32MaxValue)
     {
         print("Could not open file:");
         print(path);
         exitProgram(-1);
     }
 
-    return fd;
+    result.stats = fileStats(result.fd);
+
+    return result;
 }
 
-closeFile(fd: int): void
+closeFile(file: File): void
 {
-    result: int = close(fd);
+    result: int = close(file.fd);
 
     if(result == int32MaxValue)
     {
         print("Could not close with with descriptor:");
-        print(fd);
+        print(file.fd);
         exitProgram(-1);
     }
+
+    destroyFile(file);
+}
+
+destroyFile(file: File): void
+{
+    destroy file.stats.lastAcc;
+    destroy file.stats.lastMod;
+    destroy file.stats.lastStatChange;
+    destroy file.stats;
+    destroy file;
+}
+
+fileStats(fd: int): FileStat
+{
+    return fstatWrapper(fd);
 }

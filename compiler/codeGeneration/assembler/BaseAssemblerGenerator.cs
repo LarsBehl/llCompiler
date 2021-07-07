@@ -3,6 +3,7 @@ using System.IO;
 using System.Text;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 
 using LL.AST;
 using LL.Exceptions;
@@ -328,11 +329,10 @@ namespace LL.CodeGeneration
 
         private void StructDefinitionAsm(StructDefinition structDef)
         {
-            Random random = new Random();
-            int id = random.Next();
+            int id = structDef.GetHashCode();
 
-            while (StructIdMap.ContainsValue(id))
-                id = random.Next();
+            if(StructIdMap.ContainsValue(id))
+                throw new UnexpectedErrorException(this.RootProg.FileName, structDef.Line, structDef.Column);
 
             StructIdMap[structDef.Name] = id;
 

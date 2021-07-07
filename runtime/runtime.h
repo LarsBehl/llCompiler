@@ -1,6 +1,27 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
+typedef struct timespec ll_timespec;
+
+typedef struct
+{
+    long f_dev;
+    long f_inode;
+    long f_mode;
+    long f_nlink;
+    long f_uid;
+    long f_gid;
+    long f_rdev;
+    long f_size;
+    long f_blksize;
+    long f_blocks;
+    ll_timespec* f_lastAcc;
+    ll_timespec* f_lastMod;
+    ll_timespec* f_lastStatChange;
+} ll_fstatBuff;
 
 /**
  * Creates a new heap object
@@ -19,6 +40,14 @@ void *createHeapObject(long size, bool isArray);
  * @returns         base address of the char[]
  */
 char* createStringFromLiteral(char* literal, long length);
+
+/**
+ * Wrapper for fstat. Calls fstat and converts the struct to one usabe in ll
+ * 
+ * @param fd    file to retrieve the stats for
+ * @returns     the fstatBuffer compatible with ll
+ */
+ll_fstatBuff* fstatWrapper(int fd);
 
 /**
  * Frees up the memory used by the object

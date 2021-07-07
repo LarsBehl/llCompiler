@@ -1,23 +1,26 @@
 load sys_io;
+load util;
 
 writeStdout(message: char[], amount: int): int
 {
-    return writeFile(STDOUT, message, amount);
+    f: File = new File();
+    f.fd = STDOUT;
+    return writeFile(f, message, amount);
 }
 
-openTestIo(): int
+openTestIo(): File
 {
     path: char[] = "./testGeneratedCode/programs/testIO.ll";
-    fd: int = openFile(path);
+    file: File = openFile(path);
     destroy path;
 
-    return fd;
+    return file;
 }
 
-readTestIo(fd: int, bytesToRead: int): int
+readTestIo(file: File, bytesToRead: int): int
 {
     buffer: char[] = new char[bytesToRead + 1];
-    bytesRead: int = readFile(fd, buffer, bytesToRead);
+    bytesRead: int = readFile(file, buffer, bytesToRead);
     buffer[bytesToRead] = '\0';
     
     print(buffer);
@@ -26,7 +29,7 @@ readTestIo(fd: int, bytesToRead: int): int
     return bytesRead;
 }
 
-closeTestIo(fd: int): void
+closeTestIo(file: File): void
 {
-    closeFile(fd);
+    closeFile(file);
 }
