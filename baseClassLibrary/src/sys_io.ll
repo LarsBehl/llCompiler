@@ -5,6 +5,9 @@ load runtime;
 global STDIN: int = 0;
 global STDOUT: int = 1;
 global STDERR: int = 2;
+global LSEEK_SET: int = 0;
+global LSEEK_CUR: int = 1;
+global LSEEK_END: int = 2;
 
 struct File
 {
@@ -73,4 +76,18 @@ destroyFile(file: File): void
 fileStats(fd: int): FileStat
 {
     return fstatWrapper(fd);
+}
+
+lseekFile(file: File, offset: int, whence: int): int
+{
+    result: int = lseek(file.fd, offset, whence);
+
+    if(result < 0)
+    {
+        print("Could not seek in file with fd:");
+        print(file.fd);
+        exitProgram(-1);
+    }
+
+    return result;
 }

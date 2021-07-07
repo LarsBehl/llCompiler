@@ -473,6 +473,9 @@ main(): void
     {
         print(false);
     }
+
+    boolResult = lseekTestIo(file);
+    evalBool(true, boolResult);
     closeTestIo(file);
     print(true);
     testData.testCount++;
