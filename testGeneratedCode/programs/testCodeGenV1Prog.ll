@@ -460,10 +460,9 @@ main(): void
 
     intResult = writeStdout(testGlobalString, 11);
     evalInt(11, intResult);
-    intResult = openTestIo();
-    fd: int = intResult;
-    evalInt(3, intResult);
-    intResult = readTestIo(fd, 16);
+    file: File = openTestIo();
+    evalInt(3, file.fd);
+    intResult = readTestIo(file, 16);
     testData.testCount++;
     if(intResult <= 16 && intResult >= 0)
     {
@@ -474,11 +473,7 @@ main(): void
     {
         print(false);
     }
-    fstatTestIo(fd);
-    print(true);
-    testData.testCount++;
-    testData.successCount++;
-    closeTestIo(fd);
+    closeTestIo(file);
     print(true);
     testData.testCount++;
     testData.successCount++;
