@@ -29,6 +29,13 @@ readTestIo(file: File, bytesToRead: int): int
     return bytesRead;
 }
 
+lseekTestIo(file: File): bool
+{
+    result: int = lseekFile(file, 0, LSEEK_SET);
+    
+    return result == 0;
+}
+
 closeTestIo(file: File): void
 {
     closeFile(file);

@@ -3,7 +3,6 @@ using System.IO;
 using System.Text;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
 
 using LL.AST;
 using LL.Exceptions;
