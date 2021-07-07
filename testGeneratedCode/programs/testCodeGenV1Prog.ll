@@ -461,7 +461,22 @@ main(): void
     intResult = writeStdout(testGlobalString, 11);
     evalInt(11, intResult);
     intResult = openTestIo();
+    fd: int = intResult;
     evalInt(3, intResult);
+    intResult = readTestIo(fd, 16);
+    testData.testCount++;
+    if(intResult <= 16 && intResult >= 0)
+    {
+        testData.successCount++;
+        print(true);
+    }
+    else
+    {
+        print(false);
+    }
+    closeTestIo(fd);
+    testData.testCount++;
+    testData.successCount++;
 
     print("Tests:");
     print(testData.testCount);

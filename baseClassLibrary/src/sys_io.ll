@@ -10,6 +10,18 @@ writeFile(fd: int, buffer: char[], amount: int): int
     return write(fd, buffer, amount);
 }
 
+readFile(fd: int, buffer: char[], ammount: int): int
+{
+    bytesRead: int = read(fd, buffer, ammount);
+    if(bytesRead < 0)
+    {
+        print("Could not read from file with descriptor:");
+        print(fd);
+        exitProgram(-1);
+    }
+    return bytesRead;
+}
+
 openFile(path: char[]): int
 {
     fd: int = open(path, 0);

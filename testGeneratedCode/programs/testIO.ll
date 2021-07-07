@@ -11,7 +11,22 @@ openTestIo(): int
     fd: int = openFile(path);
     destroy path;
 
-    closeFile(fd);
-
     return fd;
+}
+
+readTestIo(fd: int, bytesToRead: int): int
+{
+    buffer: char[] = new char[bytesToRead + 1];
+    bytesRead: int = readFile(fd, buffer, bytesToRead);
+    buffer[bytesToRead] = '\0';
+    
+    print(buffer);
+    destroy buffer;
+
+    return bytesRead;
+}
+
+closeTestIo(fd: int): void
+{
+    closeFile(fd);
 }
