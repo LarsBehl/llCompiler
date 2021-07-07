@@ -1,9 +1,16 @@
 load glibc;
 load util;
+load runtime;
 
 global STDIN: int = 0;
 global STDOUT: int = 1;
 global STDERR: int = 2;
+
+struct File
+{
+    fd: int;
+    stats: FileStat;
+}
 
 writeFile(fd: int, buffer: char[], amount: int): int
 {
@@ -46,4 +53,9 @@ closeFile(fd: int): void
         print(fd);
         exitProgram(-1);
     }
+}
+
+fileStats(fd: int): FileStat
+{
+    return fstatWrapper(fd);
 }

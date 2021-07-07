@@ -474,7 +474,12 @@ main(): void
     {
         print(false);
     }
+    fstatTestIo(fd);
+    print(true);
+    testData.testCount++;
+    testData.successCount++;
     closeTestIo(fd);
+    print(true);
     testData.testCount++;
     testData.successCount++;
 

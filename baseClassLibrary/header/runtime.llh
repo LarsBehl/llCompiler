@@ -1,1 +1,25 @@
+struct FileStat
+{
+    dev: int;
+    inode: int;
+    mode: int;
+    nlink: int;
+    uid: int;
+    gid: int;
+    rdev: int;
+    size: int;
+    blksize: int;
+    blocks: int;
+    lastAcc: TimeSpec;
+    lastMod: TimeSpec;
+    lastStatChange: TimeSpec;
+}
+
+struct TimeSpec
+{
+    sec: int;
+    nSec: int;
+}
+
 cleanUpRuntime(): void;
+fstatWrapper(fd: int): FileStat;

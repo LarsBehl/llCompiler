@@ -1,4 +1,5 @@
 load sys_io;
+load util;
 
 writeStdout(message: char[], amount: int): int
 {
@@ -12,6 +13,22 @@ openTestIo(): int
     destroy path;
 
     return fd;
+}
+
+fstatTestIo(fd: int): void
+{
+    stats: FileStat = fileStats(fd);
+
+    if(stats == null)
+    {
+        print("Error retrieving stats");
+        exitProgram(-1);
+    }
+
+    destroy stats.lastAcc;
+    destroy stats.lastMod;
+    destroy stats.lastStatChange;
+    destroy stats;
 }
 
 readTestIo(fd: int, bytesToRead: int): int
