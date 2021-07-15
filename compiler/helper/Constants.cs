@@ -14,6 +14,9 @@ namespace LL.Helper
         public static readonly string DOUBLE_PRINT_STRING = "%f\\n";
         public static readonly string CHAR_PRINT_STRING = "%c\\n";
         public static readonly string STRING_PRINT_STRING = "%s\\n";
+        public static readonly string INSTALL_FOLDER = "llCompiler";
+        public static readonly string HEADER_FOLDER = "headers";
+        public static readonly string LIB_FOLDER = "lib";
         public static readonly Dictionary<string, char> ESCAPED_CHARS = new Dictionary<string, char>()
         {
             {
