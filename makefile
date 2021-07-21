@@ -78,15 +78,15 @@ generateCode:
 
 publishWindows:
 	@echo "\n\n\e[0;32mPublishing Windows...\n\e[0m"
-	dotnet publish -c Release --self-contained -r win10-x64 -o ./compiler/bin/win10 -p:PublishSingleFile=true ./compiler/llCompiler.csproj
+	dotnet publish -c Release --self-contained -r win10-x64 -o ./compiler/bin/win10 -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=true ./compiler/llCompiler.csproj
 
 publishLinux:
 	@echo "\n\n\e[0;32mPublishing Linux...\n\e[0m"
-	dotnet publish -c Release --self-contained -r linux-x64 -o ./compiler/bin/linux -p:PublishSingleFile=true ./compiler/llCompiler.csproj
+	dotnet publish -c Release --self-contained -r linux-x64 -o ./compiler/bin/linux -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=true ./compiler/llCompiler.csproj
 
 publishOSX:
 	@echo "\n\n\e[0;32mPublishing OSX...\n\e[0m"
-	dotnet publish -c Release --self-contained -r osx-x64 -o ./compiler/bin/OSX -p:PublishSingleFile=true ./compiler/llCompiler.csproj
+	dotnet publish -c Release --self-contained -r osx-x64 -o ./compiler/bin/OSX -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=true ./compiler/llCompiler.csproj
 
 publishAll: publishWindows publishLinux publishOSX
 

@@ -2,6 +2,8 @@ $compilerLocation = './compiler'
 $testLocation = './testGeneratedCode'
 $runtimeLocation = './runtime'
 $baseClassLibLocation = './baseClassLibrary'
+$releaseLocation = './bin'
+$installerLocation = './installer'
 
 function printMessage($message) {
     Write-Host "`n`n$($message)...`n" -ForegroundColor DarkGreen
@@ -24,6 +26,9 @@ function remove($file) {
 function clean() {
     printMessage -message "Cleaning"
     printAndRun -command "dotnet clean $($compilerLocation)/llCompiler.csproj"
+    printAndRun -command "dotnet clean $($installerLocation)/llCompilerInstaller.csproj"
+    remove -file "$($compilerLocation)/bin"
+    remove -file "$($installerLocation)/bin"
     remove -file "$($runtimeLocation)/bin"
     remove -file "$($testLocation)/bin"
     remove -file "$($baseClassLibLocation)/bin"
@@ -34,11 +39,12 @@ function clean() {
     remove -file "$($testLocation)/*.dll"
     remove -file "$($testLocation)/*.exe"
     remove -file "$($testLocation)/*.pdb"
+    remove -file "$($releaseLocation)"
     if (Test-Path "$($testLocation)/programs/testId.bak") {
         Move-Item "$($testLocation)/programs/testId.bak" -Destination "$($testLocation)/programs/testId.ll"
     }
 
-    if(Test-Path "$($testLocation)/programs/testId.llh") {
+    if (Test-Path "$($testLocation)/programs/testId.llh") {
         remove -file "$($testLocation)/programs/testId.llh"
     }
 }
@@ -50,23 +56,75 @@ function restore() {
 
 function publishWindows() {
     printMessage -message "Publishing Windows"
-    printAndRun -command "dotnet publish -c Release --self-contained -r win10-x64 -o $($compilerLocation)/bin/win10 -p:PublishSingleFile=true $($compilerLocation)/llCompiler.csproj"
+    printAndRun -command "dotnet publish -c Release --self-contained -r win10-x64 -o $($compilerLocation)/bin/win10 -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=true $($compilerLocation)/llCompiler.csproj"
 }
 
 function publishLinux() {
     printMessage -message "Publishing Linux"
-    printAndRun -command "dotnet publish -c Release --self-contained -r linux-x64 -o $($compilerLocation)/bin/linux -p:PublishSingleFile=true $($compilerLocation)/llCompiler.csproj"
+    printAndRun -command "dotnet publish -c Release --self-contained -r linux-x64 -o $($compilerLocation)/bin/linux -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=true $($compilerLocation)/llCompiler.csproj"
 }
 
 function publishOSX() {
     printMessage -message "Publishing OSX"
-    printAndRun -command "dotnet publish -c Release --self-contained -r osx-x64 -o $($compilerLocation)/bin/OSX -p:PublishSingleFile=true $($compilerLocation)/llCompiler.csproj"
+    printAndRun -command "dotnet publish -c Release --self-contained -r osx-x64 -o $($compilerLocation)/bin/OSX -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=true $($compilerLocation)/llCompiler.csproj"
+}
+
+function publishInstallerWindows() {
+    printMessage -message "Publishing Windows Installer"
+    printAndRun -command "dotnet publish -c Release --self-contained -r win10-x64 -o $($installerLocation)/bin/win10 -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=true $($installerLocation)/llCompilerInstaller.csproj"
+}
+
+function publishInstallerLinux() {
+    exit
+    # TODO currently not supported
+    printMessage -message "Publishing Linux Installer"
+    printAndRun -command "dotnet publish -c Release --self-contained -r linux-x64 -o $($installerLocation)/bin/linux -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=true $($installerLocation)/llCompilerInstaller.csproj"
+}
+
+function publishOSXWindows() {
+    exit
+    # TODO currently not supported
+    printMessage -message "Publishing OSX Installer"
+    printAndRun -command "dotnet publish -c Release --self-contained -r osx-x64 -o $($installerLocation)/bin/OSX -p:PublishSingleFile=true -p:IncludeAllContentForSelfExtract=true $($installerLocation)/llCompilerInstaller.csproj"
 }
 
 function publishAll() {
     publishWindows
     publishLinux
     publishOSX
+}
+
+function packageWindowsRelease() {
+    printMessage -message "Creating Windows Release"
+    publishWindows
+    compileRuntime
+    compileBaseClassLibrary
+    packageRuntime
+    publishInstallerWindows
+
+    if (!(Test-Path $releaseLocation)) {
+        New-Item -ItemType Directory -Force -Path $releaseLocation
+    }
+
+    if (!(Test-Path "$($releaseLocation)/lib")) {
+        New-Item -ItemType Directory -Force -Path "$($releaseLocation)/lib"
+    }
+
+    if (!(Test-Path "$($releaseLocation)/headers")) {
+        New-Item -ItemType Directory -Force -Path "$($releaseLocation)/headers"
+    }
+
+    if (Test-Path "$($releaseLocation)/llCompiler.zip") {
+        Remove-Item "$($releaseLocation)/llCompiler.zip"
+    }
+
+    Copy-Item "$($compilerLocation)/bin/win10/llCompiler.exe" -Destination "$($releaseLocation)/"
+    Copy-Item "$($baseClassLibLocation)/bin/libLL.a" -Destination "$($releaseLocation)/lib/"
+    Copy-Item "$($baseClassLibLocation)/header/*" -Destination "$($releaseLocation)/headers/"
+    Copy-Item "$($baseClassLibLocation)/bin/*.llh" -Destination "$($releaseLocation)/headers/"
+    Copy-Item "$($installerLocation)/bin/win10/llCompilerInstaller.exe" -Destination "$($releaseLocation)/"
+
+    Compress-Archive -Path "$($releaseLocation)/*" -DestinationPath "$($releaseLocation)/llCompiler.zip"
 }
 
 function linkTest() {
@@ -168,9 +226,10 @@ function test() {
     printMessage -message "Running tests"
     printAndRun -command "wsl $($testLocation)/bin/testCodeGen"
 
-    if($LASTEXITCODE -gt 0) {
+    if ($LASTEXITCODE -gt 0) {
         printError -message "Tests not successfull. `t$($LASTEXITCODE) tests failed"
-    } else {
+    }
+    else {
         printMessage -message "All tests successfull"
     }
 }
@@ -195,6 +254,7 @@ function rtfm() {
     Write-Host "`tpublishAll`t- publishes the compiler for all previously specified plattforms"
     Write-Host "`ttest`t`t- runs the tests"
     Write-Host "`tgenerateCode`t- generates code from antlr grammar"
+    Write-Host "`treleaseWindows`t- creates release zip for windows"
 }
 
 if ($args.Count -le 0 -or $args.Count -gt 1) {
@@ -227,6 +287,9 @@ switch ($args[0]) {
     }
     "generateCode" {
         generateCode
+    }
+    "releaseWindows" {
+        packageWindowsRelease
     }
     Default {
         Write-Host "Unknown argument: " -ForegroundColor Red

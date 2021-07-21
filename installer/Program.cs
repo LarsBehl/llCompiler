@@ -1,11 +1,13 @@
 ﻿using System;
 using System.IO;
-using LL.Helper;
+using LL.Installer;
 
 // TODO implement linux version
 string systemDriveVarName = "SystemDrive";
 string homeVarName = "HOMEPATH";
 string pathVarName = "Path";
+string libName = "libLL.a";
+string binaryName = "llCompiler.exe";
 int EXIT_FAILURE = -1;
 int EXIT_SUCCESS = 0;
 
@@ -41,7 +43,7 @@ if(string.IsNullOrWhiteSpace(home))
 // create default install location
 string defaultInstallLocation = systemDrive + home + Path.DirectorySeparatorChar + Constants.INSTALL_FOLDER;
 
-Console.WriteLine($"Please enter an installation location (default: {defaultInstallLocation}");
+Console.WriteLine($"Please enter an installation location (default: {defaultInstallLocation})");
 bool first = true;
 string installLocation = string.Empty;
 bool useDefault = false;
@@ -69,7 +71,7 @@ else
         installLocation += Path.DirectorySeparatorChar + Constants.INSTALL_FOLDER;
 }
 
-Console.WriteLine($"Installing the compiler under: {installLocation}");
+Console.WriteLine($"Installing the compiler under:{Environment.NewLine}\t{installLocation}");
 
 string headerFolder = installLocation + Path.DirectorySeparatorChar + Constants.HEADER_FOLDER;
 string libFolder = installLocation + Path.DirectorySeparatorChar + Constants.LIB_FOLDER;
@@ -84,10 +86,24 @@ if(!Directory.Exists(headerFolder))
 if(!Directory.Exists(libFolder))
     Directory.CreateDirectory(libFolder);
 
-// TODO copy the items
+File.Copy($".{Path.DirectorySeparatorChar}{binaryName}", installLocation + Path.DirectorySeparatorChar + binaryName, true);
+File.Copy($".{Path.DirectorySeparatorChar}lib{Path.DirectorySeparatorChar}{libName}", libFolder + Path.DirectorySeparatorChar + libName, true);
+
+string[] headers = Directory.GetFiles($".{Path.DirectorySeparatorChar}{Constants.HEADER_FOLDER}");
+foreach(string headerPath in headers)
+{
+    string headerName = headerPath.Substring(headerPath.LastIndexOf(Path.DirectorySeparatorChar) + 1);
+    string destination = headerFolder + Path.DirectorySeparatorChar + headerName;
+    Console.WriteLine($"Copying {headerName} to {destination}");
+    File.Copy(headerPath, destination, true);
+}
 
 path += Path.PathSeparator + installLocation;
-Environment.SetEnvironmentVariable(pathVarName, path, EnvironmentVariableTarget.Machine);
+Environment.SetEnvironmentVariable(pathVarName, path, EnvironmentVariableTarget.User);
 
+ConsoleColor prev = Console.ForegroundColor;
 Console.ForegroundColor = ConsoleColor.DarkGreen;
-Console.WriteLine($"llCompiler successfully installed!{Environment.NewLine}{Environment.NewLine}");
+Console.WriteLine($"{Environment.NewLine}{Environment.NewLine}llCompiler successfully installed!{Environment.NewLine}{Environment.NewLine}");
+Console.ForegroundColor = prev;
+Console.WriteLine("Press any key to exit...");
+Console.ReadKey();
