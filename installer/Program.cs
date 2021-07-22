@@ -1,40 +1,45 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using LL.Installer;
 
 // TODO implement linux version
 string systemDriveVarName = "SystemDrive";
 string homeVarName = "HOMEPATH";
 string pathVarName = "Path";
+#if RELEASE
 string libName = "libLL.a";
 string binaryName = "llCompiler.exe";
+#endif
 int EXIT_FAILURE = -1;
 int EXIT_SUCCESS = 0;
+ConsoleColor prev = Console.ForegroundColor;
 
 string systemDrive = Environment.GetEnvironmentVariable(systemDriveVarName);
 string home = Environment.GetEnvironmentVariable(homeVarName);
 
 string path = Environment.GetEnvironmentVariable(pathVarName);
-if(string.IsNullOrWhiteSpace(path))
+if (string.IsNullOrWhiteSpace(path))
 {
     Console.WriteLine("Could not retrieve path variable");
     Environment.Exit(EXIT_FAILURE);
 }
 
 // compiler is already installed
-if(path.Contains(Constants.INSTALL_FOLDER))
+if (path.Contains(Constants.INSTALL_FOLDER))
 {
     Console.WriteLine("llCompiler already installed");
     Environment.Exit(EXIT_SUCCESS);
 }
 
-if(string.IsNullOrWhiteSpace(systemDrive))
+if (string.IsNullOrWhiteSpace(systemDrive))
 {
     Console.WriteLine("Could not retrieve the system drive");
     Environment.Exit(EXIT_FAILURE);
 }
 
-if(string.IsNullOrWhiteSpace(home))
+if (string.IsNullOrWhiteSpace(home))
 {
     Console.WriteLine("Could not retrieve the home path");
     Environment.Exit(EXIT_FAILURE);
@@ -51,28 +56,28 @@ bool useDefault = false;
 // request a custom installation location from the user
 do
 {
-    if(first)
+    if (first)
         first = false;
     else
         Console.WriteLine("Invalid location");
-    
+
     Console.Write("$ ");
     installLocation = Console.ReadLine();
     useDefault = string.IsNullOrWhiteSpace(installLocation);
-} while(!Directory.Exists(installLocation) && !useDefault);
+} while (!Directory.Exists(installLocation) && !useDefault);
 
 // user did not enter custom location
-if(useDefault)
+if (useDefault)
     installLocation = defaultInstallLocation;
 else
 {
     // make sure that the folder the compiler will be installed in is called "llCompiler"
-    if(installLocation.EndsWith(Constants.INSTALL_FOLDER))
+    if (installLocation.EndsWith(Constants.INSTALL_FOLDER))
         installLocation += Path.DirectorySeparatorChar + Constants.INSTALL_FOLDER;
 }
 
-Console.WriteLine($"Installing the compiler under:{Environment.NewLine}\t{installLocation}");
-
+Console.WriteLine($"{Environment.NewLine}Installing the compiler under:{Environment.NewLine}\t{installLocation}");
+# if RELEASE
 string headerFolder = installLocation + Path.DirectorySeparatorChar + Constants.HEADER_FOLDER;
 string libFolder = installLocation + Path.DirectorySeparatorChar + Constants.LIB_FOLDER;
 
@@ -100,10 +105,89 @@ foreach(string headerPath in headers)
 
 path += Path.PathSeparator + installLocation;
 Environment.SetEnvironmentVariable(pathVarName, path, EnvironmentVariableTarget.User);
-
-ConsoleColor prev = Console.ForegroundColor;
+# endif
 Console.ForegroundColor = ConsoleColor.DarkGreen;
-Console.WriteLine($"{Environment.NewLine}{Environment.NewLine}llCompiler successfully installed!{Environment.NewLine}{Environment.NewLine}");
+Console.WriteLine($"llCompiler successfully installed!{Environment.NewLine}");
+Console.ForegroundColor = prev;
+
+bool wslFound = true;
+bool gccFound = true;
+Console.WriteLine("Checking if WSL is installed...");
+ProcessStartInfo procInfo = new ProcessStartInfo("wsl", "echo 0");
+procInfo.CreateNoWindow = true;
+using (Process proc = new Process())
+{
+    proc.StartInfo = procInfo;
+    try
+    {
+        proc.Start();
+        Thread.Sleep(200);
+
+        if(!proc.HasExited)
+            proc.WaitForExit();
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine(e);
+        wslFound = false;
+        gccFound = false;
+    }
+}
+
+if (!wslFound)
+{
+    Console.ForegroundColor = ConsoleColor.Yellow;
+    Console.WriteLine($"WSL is not installed{Environment.NewLine}");
+    Console.ForegroundColor = prev;
+}
+else
+{
+    Console.ForegroundColor = ConsoleColor.DarkGreen;
+    Console.WriteLine($"WSL is installed{Environment.NewLine}");
+    Console.ForegroundColor = prev;
+    Console.WriteLine("Checking if gcc is installed...");
+    procInfo = new ProcessStartInfo("wsl", "gcc");
+    procInfo.CreateNoWindow = true;
+
+    using (Process proc = new Process())
+    {
+        proc.StartInfo = procInfo;
+        try
+        {
+            proc.Start();
+            Thread.Sleep(200);
+            
+            if(!proc.HasExited)
+                proc.WaitForExit();
+        }
+        catch (Exception)
+        {
+            gccFound = false;
+        }
+
+        if (gccFound)
+            gccFound = proc.ExitCode >= 0 && proc.ExitCode <= 1;
+    }
+
+    if (gccFound)
+    {
+        Console.ForegroundColor = ConsoleColor.DarkGreen;
+        Console.WriteLine($"GCC is installed{Environment.NewLine}");
+        Console.ForegroundColor = prev;
+    }
+    else
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine($"GCC is not installed{Environment.NewLine}");
+        Console.ForegroundColor = prev;
+    }
+}
+
+Console.ForegroundColor = ConsoleColor.Yellow;
+if (!wslFound)
+    Console.WriteLine("Warning: wsl is not installed; Please consider installing");
+if (!gccFound)
+    Console.WriteLine("Warning: gcc is not installed; Please consider installing");
 Console.ForegroundColor = prev;
 Console.WriteLine("Press any key to exit...");
 Console.ReadKey();
