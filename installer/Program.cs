@@ -8,6 +8,7 @@ using LL.Installer;
 string systemDriveVarName = "SystemDrive";
 string homeVarName = "HOMEPATH";
 string pathVarName = "Path";
+string wslVarName = "WSLENV";
 #if RELEASE
 string libName = "libLL.a";
 string binaryName = "llCompiler.exe";
@@ -77,6 +78,7 @@ else
 }
 
 Console.WriteLine($"{Environment.NewLine}Installing the compiler under:{Environment.NewLine}\t{installLocation}");
+
 # if RELEASE
 string headerFolder = installLocation + Path.DirectorySeparatorChar + Constants.HEADER_FOLDER;
 string libFolder = installLocation + Path.DirectorySeparatorChar + Constants.LIB_FOLDER;
@@ -106,6 +108,7 @@ foreach(string headerPath in headers)
 path += Path.PathSeparator + installLocation;
 Environment.SetEnvironmentVariable(pathVarName, path, EnvironmentVariableTarget.User);
 # endif
+
 Console.ForegroundColor = ConsoleColor.DarkGreen;
 Console.WriteLine($"llCompiler successfully installed!{Environment.NewLine}");
 Console.ForegroundColor = prev;
@@ -113,26 +116,9 @@ Console.ForegroundColor = prev;
 bool wslFound = true;
 bool gccFound = true;
 Console.WriteLine("Checking if WSL is installed...");
-ProcessStartInfo procInfo = new ProcessStartInfo("wsl", "echo 0");
-procInfo.CreateNoWindow = true;
-using (Process proc = new Process())
-{
-    proc.StartInfo = procInfo;
-    try
-    {
-        proc.Start();
-        Thread.Sleep(200);
 
-        if(!proc.HasExited)
-            proc.WaitForExit();
-    }
-    catch (Exception e)
-    {
-        Console.WriteLine(e);
-        wslFound = false;
-        gccFound = false;
-    }
-}
+string wslEnv = Environment.GetEnvironmentVariable(wslVarName);
+wslFound = gccFound = !string.IsNullOrWhiteSpace(wslEnv);
 
 if (!wslFound)
 {
@@ -146,7 +132,7 @@ else
     Console.WriteLine($"WSL is installed{Environment.NewLine}");
     Console.ForegroundColor = prev;
     Console.WriteLine("Checking if gcc is installed...");
-    procInfo = new ProcessStartInfo("wsl", "gcc");
+    ProcessStartInfo procInfo = new ProcessStartInfo("wsl", "gcc");
     procInfo.CreateNoWindow = true;
 
     using (Process proc = new Process())
