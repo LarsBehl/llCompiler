@@ -13,7 +13,6 @@ struct File
 {
     fd: int;
     stats: FileStat;
-    bloat: int;
 }
 
 writeFile(file: File, buffer: char[], amount: int): int
