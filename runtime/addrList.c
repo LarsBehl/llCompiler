@@ -1,99 +1,99 @@
+#include <stdlib.h>
 #include "addrList.h"
+#include "constants.h"
+#include "errors.h"
 
-AddrList *create_AddrList()
+AddrList* create_AddrList()
 {
-    AddrList *result = (AddrList *)malloc(sizeof(AddrList));
-
-    if (!result)
-        outOfMemory();
-
-    result->size = INITIAL_SIZE;
-    result->values = (void **)malloc((sizeof(void *) * result->size));
-
-    if (!result->values)
-        outOfMemory();
-
-    result->values = (void **)memset(result->values, 0, result->size);
+    AddrList* result = (AddrList*) malloc(sizeof(AddrList));
     result->count = 0;
+    result->size = INITIAL_SIZE;
+    result->references = (void**) malloc(sizeof(void*) * INITIAL_SIZE);
+    result->objectAddress = NULL;
 
     return result;
 }
 
-void destory_AddrList(AddrList *l)
+void add_AddrList(void* reference, AddrList* list)
 {
-    free(l->values);
-    free(l);
-}
-
-int add_AddrList(void *val, AddrList *list)
-{
-    if (getIndex_AddrList(val, list) < 0)
-        return 0;
-
-    if (list->count + 1 > list->size)
+    if(list->count + 1 > list->size)
     {
         list->size += INITIAL_SIZE;
-        void **tmp = (void **)malloc(sizeof(void *) * list->size);
-
-        if (!tmp)
-            outOfMemory();
+        void** newList = (void**) malloc(sizeof(void*) * list->size);
 
         int i;
-        for (i = 0; i < list->count; i++)
+        for(i = 0; i < list->count; i++)
         {
-            tmp[i] = list->values[i];
+            newList[i] = list->references[i];
         }
+
+        free(list->references);
+        list->references = newList;
     }
 
-    list->values[list->count++] = val;
-
-    return 1;
+    list->references[list->count++] = reference;
 }
 
-void *get_AddrList(int index, AddrList *list)
+void* getByIndex_AddrList(int index, AddrList* list)
 {
-    if (index >= list->count)
-        return NULL;
-
-    return list->values[index];
+    if(index > list->count || index < 0)
+        outOfRange(index, list->count);
+    
+    return list->references[index];
 }
 
-int removeByIndex_AddrList(int index, AddrList *list)
-{
-    if (index >= list->count)
-        return 0;
-
-    if (index < list->count - 1)
-    {
-        int i;
-        for (i = index; i < list->count - 1; i++)
-        {
-            list->values[i] = list->values[i + 1];
-        }
-    }
-
-    list->values[list->count--] = NULL;
-    return 1;
-}
-
-int removeByValue_AddrList(void *val, AddrList *list)
-{
-    int index = getIndex_AddrList(val, list);
-
-    if (index < 0)
-        return 0;
-
-    return removeByIndex_AddrList(index, list);
-}
-
-int getIndex_AddrList(void *val, AddrList *list)
+void removeByValue_AddrList(void* reference, AddrList* list)
 {
     int i;
-    for (i = 0; i < list->count; i++)
+    for(i = 0; i < list->count; i++)
     {
-        if (list->values[i] == val)
-            return i;
+        if(list->references[i] == reference)
+            break;
     }
 
-    return -1;
+    if(i >= list->count)
+        return;
+
+    for(; i < list->count - 1; i++)
+    {
+        list->references[i] = list->references[i + 1];
+    }
+
+    list->count -= 1;
+}
+
+void removeByIndex_AddrList(int index, AddrList* list)
+{
+    if(index < 0 || index > list->count)
+        outOfRange(index, list->count);
+    
+    int i;
+    for(i = index; i < list->count - 1; i++)
+    {
+        list->references[i] = list->references[i + 1];
+    }
+
+    list->count -= 1;
+}
+
+int indexOf_AddrList(void* reference, AddrList* list)
+{
+    int i;
+
+    for(i = 0; i < list->count; i++)
+    {
+        if(list->references[i] == reference)
+            break;
+    }
+
+    if(i == list->count)
+        i = -1;
+
+    return i;
+}
+
+void destroy_AddrList(AddrList* list)
+{
+    free(list->references);
+    free(list);
 }

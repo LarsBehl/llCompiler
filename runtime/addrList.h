@@ -1,76 +1,65 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include "constants.h"
-#include "errors.h"
-
 typedef struct
 {
-    void **values;
-    int count;
+    void* objectAddress;
+    void** references;
     int size;
+    int count;
 } AddrList;
 
 /**
- * Creates an AddrList
+ * Creates a AddrList struct
  * 
- * @returns pointer to the created AddrList
- */
-AddrList *create_AddrList();
+ * @returns pointer to AddrList
+*/
+AddrList* create_AddrList();
 
 /**
- * Destorys an AddrList
+ * Adds the given reference to the address list.
  * 
- * @param l list that should get destroyed
- */
-void destroy_AddrList(AddrList *l);
+ * @param reference     the reference to add to the reference list
+ * @param list          the list to add the value to
+*/
+void add_AddrList(void* reference, AddrList* list);
 
 /**
- * Adds a value to the list
+ * Retrieve the value at the given index
  * 
- * @param val   value to add
- * @param list  list to add the value to
- * 
- * @returns     true if list does not contain the value, false otherwise
- */
-int add_AddrList(void *val, AddrList *list);
-
-/**
- * Returns the value at the specified index
- * 
- * @param index index to of the value
+ * @param index index of the value to retrieve
  * @param list  list to retrieve the value from
  * 
- * @returns     value at the specified index, NULL if index not in range
- */
-void *get_AddrList(int index, AddrList *list);
+ * @returns     the value at the given index
+*/
+void* getByIndex_AddrList(int index, AddrList* list);
 
 /**
- * Removes an element by index
+ * Remove the value from the given list
  * 
- * @param index index of the element to remove
- * @param list  list to remove from
- * 
- * @returns     true if index in range, false otherwise
- */
-int removeByIndex_AddrList(int index, AddrList *list);
+ * @param reference value to remove from the reference list
+ * @param list      list to remove the value from
+*/
+void removeByValue_AddrList(void* reference, AddrList* list);
 
 /**
- * Removes an element by value
+ * Remove the value at the given index from the list
  * 
- * @param val   value to remove
- * @param list  list to remove from
- * 
- * @returns     true if list contains value, false otherwise
- */
-int removeByValue_AddrList(void *val, AddrList *list);
+ * @param index index of the value to remove
+ * @param list  list to remove the value from
+*/
+void removeByIndex_AddrList(int index, AddrList* list);
 
 /**
- * Checks if list contains val
+ * Retrieve the index of the given reference
  * 
- * @param val   value to look for
- * @param list  list to search in
+ * @param reference value to retrieve the index for
+ * @param list      listg to retrieve the index from
  * 
- * @returns     index of val, -1 otherwise
- */
-int getIndex_AddrList(void *val, AddrList *list);
+ * @returns the index if found, -1 otherwise
+*/
+int indexOf_AddrList(void* reference, AddrList* list);
+
+/**
+ * Destructor function for AddrList
+ * 
+ * @param list  struct to destroy
+*/
+void destroy_AddrList(AddrList* list);
