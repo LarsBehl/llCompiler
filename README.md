@@ -1,18 +1,6 @@
 # llCompiler
 This is the repository for the compiler was written in the 5th semester at the University of Applied Science RheinMain as part of the lecture *compiler construction*. The compiler is written in `C#`.
 
-Work on the compiler is currently continued as part of a project during the masters degree in computer science.
-
-### Master build status
-[![Build Status](https://dev.azure.com/larsbehl/larsbehl/_apis/build/status/LarsBehl.llCompiler?branchName=master)](https://dev.azure.com/larsbehl/larsbehl/_build/latest?definitionId=1&branchName=master)
-
-### Development build status
-[![Build Status](https://dev.azure.com/larsbehl/larsbehl/_apis/build/status/LarsBehl.llCompiler?branchName=development)](https://dev.azure.com/larsbehl/larsbehl/_build/latest?definitionId=1&branchName=development)
-
-### Feature in progess:
-*OS interop and base class library*
-
-
 ## Datatypes
 There are for different primitiv data types supported by the compiler
 * `int` - 64 Bit integer. Other languages often refer to it as `long`
